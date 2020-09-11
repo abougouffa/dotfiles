@@ -1,0 +1,128 @@
+#+TITLE: My DOOM-Emacs config file
+#+AUTHOR: Abdelhak Bougouffa
+
+* Global settings
+Place your private configuration here! Remember, you do not need to run
+~doom sync~ after modifying this file!
+
+Some functionality uses this to identify you, e.g. GPG configuration,
+email clients, file templates and snippets.
+
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Abdelhak Bougouffa"
+      user-mail-address "abougouffa@cryptolab.net")
+#+END_SRC
+
+* User interface
+
+** Fonts
+Doom exposes five (optional) variables for controlling fonts in Doom. Here
+are the three important ones:
+
+ - ~doom-font~
+ - `doom-variable-pitch-font~
+ - ~doom-big-font~ -- used for ~doom-big-font-mode~; use this for
+   presentations or streaming.
+
+They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
+font string. You generally only need these two:
+
+#+BEGIN_SRC emacs-lisp
+(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 27)
+       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 27))
+#+END_SRC
+
+** DOOM Theme
+#+BEGIN_SRC emacs-lisp
+(setq doom-theme 'doom-one)
+#+END_SRC
+
+** Editor Settings
+This determines the style of line numbers in effect. If set to ~nil~, line
+numbers are disabled. For relative line numbers, set this to ~relative~.
+
+#+BEGIN_SRC emacs-lisp
+(setq display-line-numbers-type t) ; Enable line numbers
+#+END_SRC
+
+** DOOM Modeline (doom-modeline-mode)
+Customize the ~doom-modeline~
+
+#+begin_src emacs-lisp
+;; This will set the time format to 24h
+(setq display-time-string-forms
+      '((propertize (concat 24-hours ":" minutes))))
+
+(display-time-mode) ;; This will display the time
+(display-battery-mode) ;; This will display the battery status
+#+end_src
+
+* Orgmode settings
+Set the default org-mode directory
+
+#+BEGIN_SRC emacs-lisp
+(setq org-directory "~/Work/org/")
+#+END_SRC
+
+Enable ~org-bullets~ to use prettier unicode symbols in org files
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+END_SRC
+
+* Windows and buffers
+
+** Splits
+Force splits to open on the right
+
+#+BEGIN_SRC emacs-lisp
+(defun prefer-horizontal-split ()
+  (set-variable 'split-height-threshold nil t)
+  (set-variable 'split-width-threshold 40 t)) ; make this as low as needed
+(add-hook 'markdown-mode-hook 'prefer-horizontal-split)
+#+END_SRC
+
+* Applications
+
+** Browser (eww)
+Set urls to open in a specific browser.
+
+#+BEGIN_SRC emacs-lisp
+(setq browse-url-browser-function 'eww-browse-url)
+#+END_SRC
+
+** File manager (dired)
+Enable image previews in ~dired~ and use Vim-style key binding for UP and DOWN
+
+#+BEGIN_SRC emacs-lisp
+(map!
+  (:after dired
+    (:map dired-mode-map
+     "C-x i" #'peep-dired
+     )))
+(evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file
+                                             (kbd "k") 'peep-dired-prev-file)
+(add-hook 'peep-dired-hook 'evil-normalize-keymaps)
+#+END_SRC
+
+** Emacs Multi-Media System (emms)
+#+BEGIN_SRC emacs-lisp
+(use-package emms
+  :config
+  (require 'emms-setup)
+  (require 'emms-info)
+  (require 'emms-cue)
+  (require 'emms-mode-line)
+  (require 'emms-playing-time)
+  (setq emms-source-file-default-directory "~/Music/Mohamed Rouane - Nulle Part/")
+  (setq emms-playlist-buffer-name "*EMMS Playlist*")
+  (setq emms-info-asynchronously t)
+  (unless (eq system-type 'windows-nt)
+    (setq emms-source-file-directory-tree-function
+          'emms-source-file-directory-tree-find))
+  (emms-all)
+  (emms-default-players)
+  (emms-mode-line 1)
+  (emms-playing-time 1))
+#+END_SRC
