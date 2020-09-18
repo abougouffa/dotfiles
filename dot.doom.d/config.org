@@ -14,6 +14,12 @@ email clients, file templates and snippets.
 #+END_SRC
 
 * User interface
+** Maximaze Emacs frame
+At startup, maximize the default Emacs frame
+
+#+begin_src emacs-lisp
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+end_src
 
 ** Fonts
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
