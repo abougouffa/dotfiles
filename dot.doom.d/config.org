@@ -221,8 +221,9 @@ Force splits to open on the right
 * Applications
 
 ** Browser (eww)
-Set urls to open in a specific browser.
+Set urls to open in a specific browser (~eww~ here).
 
+*** COMMENT Display webpages in ~eww~.
 #+BEGIN_SRC emacs-lisp
 (setq browse-url-browser-function 'eww-browse-url)
 #+END_SRC
