@@ -26,7 +26,7 @@ Doom exposes five (optional) variables for controlling fonts in Doom. Here
 are the three important ones:
 
  - ~doom-font~
- - `doom-variable-pitch-font~
+ - ~doom-variable-pitch-font~
  - ~doom-big-font~ -- used for ~doom-big-font-mode~; use this for
    presentations or streaming.
 
@@ -67,7 +67,7 @@ Customize the ~doom-modeline~
 Set the default org-mode directory
 
 #+BEGIN_SRC emacs-lisp
-;; (setq org-directory "~/Work/org/")
+(setq org-directory "~/Work/org/")
 #+END_SRC
 
 Enable ~org-bullets~ to use prettier unicode symbols in org files
@@ -82,14 +82,13 @@ Parts from this section are taken form [[https://www.labri.fr/perso/nrougier/GTD
 
 ** Files and directories
 #+begin_src emacs-lisp
-(setq org-directory "~/Work/org/")
-(setq org-agenda-files (list "inbox.org" "agenda.org"
-                             "notes.org" "projects.org"))
+(setq org-agenda-files (list "~/Work/org/inbox.org" "~/Work/org/agenda.org"
+                             "~/Work/org/notes.org" "~/Work/org/projects.org"))
+;(setq org-agenda-files (list "~/Work/org"))
 #+end_src
 
 *** COMMENT Initial content of files
-
-The ~inbox.org~ file:
+**** The ~inbox.org~ file:
 #+begin_src org :eval never
 #+STARTUP: content showstars indent
 #+FILETAGS: inbox
@@ -98,15 +97,31 @@ The ~inbox.org~ file:
 The ~STARTUP~ line defines some buffer settings (initial visibility, indent mode and star visibility)
 while the ~FILETAGS~ line define a common tag that will be inherited by all entries (~inbox~ in this case).
 
-The ~agenda.org~ file:
-
+**** The ~agenda.org~ file:
 #+begin_src org
 #+STARTUP: hideall showstars indent
 #+TAGS:    event(e) meeting(m) deadline(d)
 #+TAGS:    @outside(o) @company(p) @lab(b) @online(l) @canceled(c)
 #+end_src
 
-** COMMENT Capture and inbox
+**** The ~projects.org~ file:
+#+begin_src org
+#+STARTUP: content showstars indent
+#+TAGS: @home(h) @work(w) @mail(m) @comp(c) @web(b)
+#+PROPERTY: Effort_ALL 0 0:05 0:10 0:15 0:30 0:45 1:00 2:00 4:00
+
+# UNCOMMEND THESE LINES
+# * Students :students:
+# * Team :team:
+# * Collaboratorive projects :collaborative:project:
+# * Events organization :events:
+# * Academic papers :article:
+# * Personal projects :personal:project:
+# * ez-Wheel :ezwheel:
+# * Home :home:
+#+end_src
+
+** Comment Capture and inbox
 #+begin_src emacs-lisp
 (setq org-capture-templates
       '(("i" "Inbox" entry (file "inbox.org")
@@ -119,7 +134,7 @@ The ~agenda.org~ file:
          "* TODO Reply to \"%a\" %?\n/Entered on/ %U")))
 
 (setq org-capture-templates
-      `(("i" "Inbox" entry  (file "inbox.org")
+      '(("i" "Inbox" entry  (file "inbox.org")
         ,(concat "* TODO %?\n"
                  "/Entered on/ %U"))
         ("m" "Meeting" entry  (file+headline "agenda.org" "Future")
@@ -143,7 +158,7 @@ The ~agenda.org~ file:
   (org-capture nil "@"))
 #+end_src
 
-** COMMENT Display and key bindings
+** Display and key bindings
 #+begin_src emacs-lisp
 ;; Use full window for org-capture
 ;(add-hook 'org-capture-mode-hook 'delete-other-windows)
@@ -159,7 +174,7 @@ The ~agenda.org~ file:
 (define-key mu4e-view-mode-map    (kbd "C-c i") 'org-capture-mail)
 #+end_src
 
-** COMMENT Refile
+** Refile
 #+begin_src emacs-lisp
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil)
@@ -167,7 +182,7 @@ The ~agenda.org~ file:
       '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
 #+end_src
 
-** COMMENT TODOs
+** TODOs
 #+begin_src emacs-lisp
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")))
@@ -179,7 +194,7 @@ The ~agenda.org~ file:
 (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
-** COMMENT Agenda
+** Agenda
 #+begin_src emacs-lisp
 (setq org-agenda-custom-commands
       '(("g" "Get Things Done (GTD)"
