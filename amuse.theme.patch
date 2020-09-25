@@ -1,0 +1,32 @@
+From f9b933210b4b1d8e633480e479141a082aaf9566 Mon Sep 17 00:00:00 2001
+From: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
+Date: Tue, 22 Sep 2020 15:02:55 +0200
+Subject: [PATCH] Edit
+
+---
+ themes/amuse.zsh-theme | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/themes/amuse.zsh-theme b/themes/amuse.zsh-theme
+index 3f7ec0bc..44e6329f 100644
+--- a/themes/amuse.zsh-theme
++++ b/themes/amuse.zsh-theme
+@@ -10,9 +10,13 @@ ZSH_THEME_GIT_PROMPT_CLEAN=""
+ ZSH_THEME_RUBY_PROMPT_PREFIX="%{$fg_bold[red]%}‹"
+ ZSH_THEME_RUBY_PROMPT_SUFFIX="›%{$reset_color%}"
+ 
++#PROMPT='
++#%{$fg_bold[green]%}%~%{$reset_color%}$(git_prompt_info) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
++#$ '
++
+ PROMPT='
+-%{$fg_bold[green]%}%~%{$reset_color%}$(git_prompt_info) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
+-$ '
++%{$fg_bold[green]%}┌─ %~%{$reset_color%}$(git_prompt_info) %{$reset_color%}
++%{$fg_bold[green]%}╰─ %{$reset_color%}$ '
+ 
+ RPROMPT='$(ruby_prompt_info)'
+ 
+-- 
+2.17.1
+
