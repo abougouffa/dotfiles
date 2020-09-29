@@ -27,7 +27,7 @@
 ;(setq org-agenda-files (list "~/Work/org"))
 
 (setq org-capture-templates
-      '(("i" "Inbox" entry (file "inbox.org")
+      `(("i" "Inbox" entry (file "inbox.org")
          "* TODO %?\n/Entered on/ %U")
         ("m" "Meeting" entry (file+headline "agenda.org" "Future")
          "* %? :meeting:\n<%<%Y-%m-%d %a %H:00>>")
@@ -36,19 +36,6 @@
         ("@" "Inbox [mu4e]" entry (file "inbox.org")
          "* TODO Reply to \"%a\" %?\n/Entered on/ %U")))
 
-(setq org-capture-templates
-      '(("i" "Inbox" entry  (file "inbox.org")
-        ,(concat "* TODO %?\n"
-                 "/Entered on/ %U"))
-        ("m" "Meeting" entry  (file+headline "agenda.org" "Future")
-        ,(concat "* %? :meeting:\n"
-                 "<%<%Y-%m-%d %a %H:00>>"))
-        ("n" "Note" entry  (file "notes.org")
-        ,(concat "* Note (%a)\n"
-                 "/Entered on/ %U\n" "\n" "%?"))
-        ("@" "Inbox [mu4e]" entry (file "inbox.org")
-        ,(concat "* TODO Reply to \"%a\" %?\n"
-                 "/Entered on/ %U"))))
 
 (defun org-capture-inbox ()
      (interactive)
