@@ -264,3 +264,20 @@ Enable image previews in ~dired~ and use Vim-style key binding for UP and DOWN
   (emms-mode-line 1)
   (emms-playing-time 1))
 #+END_SRC
+
+* Rust stuff
+
+#+begin_src emacs-lisp
+(use-package racer
+  :requires rust-mode
+
+  :init (setq racer-rust-src-path
+              (concat (string-trim
+                       (shell-command-to-string "rustc --print sysroot"))
+                      "/lib/rustlib/src/rust/src"))
+
+  :config
+  (add-hook 'rust-mode-hook #'racer-mode)
+  (add-hook 'racer-mode-hook #'eldoc-mode)
+  (add-hook 'racer-mode-hook #'company-mode))
+#+end_src
