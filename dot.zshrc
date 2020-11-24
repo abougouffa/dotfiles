@@ -120,6 +120,10 @@ update_ohmyzsh () {
 	cd $ZSH && git stash pop
 }
 
-export RUST_SRC_PATH=~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
-export PATH=$PATH:~/.cargo/bin
+export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
+export PATH=$PATH:$HOME/.cargo/bin
 
+# Add my manually installed libraries to CMake
+# export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/libs/bin
+export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/sources-and-libs/build_installs
+export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
