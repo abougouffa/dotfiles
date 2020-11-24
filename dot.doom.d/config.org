@@ -1,4 +1,5 @@
 #+TITLE: My DOOM-Emacs config file
+#+DESCRIPTION: My config file for DOOM-Emacs
 #+AUTHOR: Abdelhak Bougouffa
 
 * Global settings
@@ -206,6 +207,22 @@ while the ~FILETAGS~ line define a common tag that will be inherited by all entr
                       (org-agenda-overriding-header "\nInbox\n")))
           (tags "CLOSED>=\"<today>\""
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
+#+end_src
+
+** Beamer on orgmode
+#+begin_src emacs-lisp
+(custom-set-variables ; in ~/.emacs, only one instance
+ '(org-export-latex-classes (quote ; in the init file!
+    (("beamer" "\\documentclass{beamer}"
+        org-beamer-sectioning))))
+ '(org-latex-to-pdf-process (quote
+    ((concat "pdflatex -interaction nonstopmode"
+             "-shell-escape -output-directory %o %f")
+     "bibtex $(basename %b)"
+     (concat "pdflatex -interaction nonstopmode"
+             "-shell-escape -output-directory %o %f")
+     (concat "pdflatex -interaction nonstopmode"
+             "-shell-escape -output-directory %o %f")))))
 #+end_src
 
 * Windows and buffers
