@@ -1,21 +1,24 @@
 #+TITLE: My DOOM-Emacs config file
-#+DESCRIPTION: My config file for DOOM-Emacs
 #+AUTHOR: Abdelhak Bougouffa
+#+DESCRIPTION: My config file for DOOM-Emacs
+#+STARTUP: overview showstars
+
+* Introduction
+Place your private configuration here! Remember, after modifying this file
+you need to run =doom sync= or =doom/reload= (aka =SPC h r r=) inside DOOM
 
 * Global settings
-Place your private configuration here! Remember, you do not need to run
-~doom sync~ after modifying this file!
-
 Some functionality uses this to identify you, e.g. GPG configuration,
 email clients, file templates and snippets.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address "abougouffa@cryptolab.net")
-#+END_SRC
+#+end_src
 
 * User interface
-** Maximaze Emacs frame
+** At Startup
+*** Maximize Emacs
 At startup, maximize the default Emacs frame
 
 #+begin_src emacs-lisp
@@ -26,34 +29,45 @@ At startup, maximize the default Emacs frame
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
 are the three important ones:
 
- - ~doom-font~
- - ~doom-variable-pitch-font~
- - ~doom-big-font~ -- used for ~doom-big-font-mode~; use this for
+ - =doom-font=
+ - =doom-variable-pitch-font=
+ - =doom-big-font= -- used for =doom-big-font-mode=; use this for
    presentations or streaming.
 
-They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
+They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+BEGIN_SRC emacs-lisp
-(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 27)
-       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 27))
+(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
+       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
 #+END_SRC
 
 ** DOOM Theme
-#+BEGIN_SRC emacs-lisp
-(setq doom-theme 'doom-one)
-#+END_SRC
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-palenight)
+#+end_src
 
 ** Editor Settings
-This determines the style of line numbers in effect. If set to ~nil~, line
-numbers are disabled. For relative line numbers, set this to ~relative~.
+This determines the style of line numbers in effect. If set to =nil=, line
+numbers are disabled. For relative line numbers, set this to =relative=.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq display-line-numbers-type t) ; Enable line numbers
-#+END_SRC
+#+end_src
 
-** DOOM Modeline (doom-modeline-mode)
-Customize the ~doom-modeline~
+** Evil
+*** Enable =evil-numbers=
+Enable =evil-numbers= for incrementing number in text
+
+#+begin_src emacs-lisp
+(require 'evil-numbers)
+
+(global-set-key (kbd "C-c +") 'evil-numbers/inc-at-pt)
+(global-set-key (kbd "C-c -") 'evil-numbers/dec-at-pt)
+#+end_src
+
+** DOOM Modeline (=doom-modeline-mode=)
+Customize the =doom-modeline=
 
 #+begin_src emacs-lisp
 ;; This will set the time format to 24h
@@ -71,12 +85,21 @@ Set the default org-mode directory
 (setq org-directory "~/Work/org/")
 #+END_SRC
 
-Enable ~org-bullets~ to use prettier unicode symbols in org files
+Enable =org-bullets= to use prettier unicode symbols in org files
 
 #+BEGIN_SRC emacs-lisp
 (require 'org-bullets)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+END_SRC
+
+** Org Babel
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((ditaa . t))) ; this line activates ditaa
+
+; (setq org-ditaa-jar-path "/usr/share/java/ditaa/ditaa.jar")
+#+end_src
 
 * GTD workflow
 Parts from this section are taken form [[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
@@ -89,23 +112,23 @@ Parts from this section are taken form [[https://www.labri.fr/perso/nrougier/GTD
 #+end_src
 
 *** COMMENT Initial content of files
-**** The ~inbox.org~ file:
+**** The =inbox.org= file:
 #+begin_src org :eval never
 #+STARTUP: content showstars indent
 #+FILETAGS: inbox
 #+end_src
 
-The ~STARTUP~ line defines some buffer settings (initial visibility, indent mode and star visibility)
-while the ~FILETAGS~ line define a common tag that will be inherited by all entries (~inbox~ in this case).
+The =STARTUP= line defines some buffer settings (initial visibility, indent mode and star visibility)
+while the =FILETAGS= line define a common tag that will be inherited by all entries (=inbox= in this case).
 
-**** The ~agenda.org~ file:
+**** The =agenda.org= file:
 #+begin_src org
 #+STARTUP: hideall showstars indent
 #+TAGS:    event(e) meeting(m) deadline(d)
 #+TAGS:    @outside(o) @company(p) @lab(b) @online(l) @canceled(c)
 #+end_src
 
-**** The ~projects.org~ file:
+**** The =projects.org= file:
 #+begin_src org
 #+STARTUP: content showstars indent
 #+TAGS: @home(h) @work(w) @mail(m) @comp(c) @web(b)
@@ -239,16 +262,16 @@ Force splits to open on the right
 
 * Applications
 
-** Browser (eww)
-Set urls to open in a specific browser (~eww~ here).
+** Browser (=eww=)
+Set urls to open in a specific browser (=eww= here).
 
-*** COMMENT Display webpages in ~eww~.
+*** COMMENT Display webpages in =eww=.
 #+BEGIN_SRC emacs-lisp
 (setq browse-url-browser-function 'eww-browse-url)
 #+END_SRC
 
-** File manager (dired)
-Enable image previews in ~dired~ and use Vim-style key binding for UP and DOWN
+** File manager (=dired=)
+Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<DOWN>=
 
 #+BEGIN_SRC emacs-lisp
 (map!
@@ -261,7 +284,7 @@ Enable image previews in ~dired~ and use Vim-style key binding for UP and DOWN
 (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
 #+END_SRC
 
-** Emacs Multi-Media System (emms)
+** Emacs Multi-Media System (=emms=)
 #+BEGIN_SRC emacs-lisp
 (use-package emms
   :config
