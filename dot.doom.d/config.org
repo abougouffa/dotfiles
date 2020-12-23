@@ -38,8 +38,8 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 28)
-       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 28))
+(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 29)
+       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 29))
 #+end_src
 
 ** DOOM Theme
@@ -76,6 +76,24 @@ Customize the =doom-modeline=
 
 (display-time-mode) ;; This will display the time
 (display-battery-mode) ;; This will display the battery status
+#+end_src
+
+** Add margins to window
+Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the desired width of the actual window (in letters, and counting the line number).
+
+#+begin_src emacs-lisp
+(defun dw/org-mode-visual-fill ()
+  (setq visual-fill-column-width 150
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :defer t
+  :hook (org-mode . dw/org-mode-visual-fill))
+
+(use-package visual-fill-column
+  :defer t
+  :hook (magit-mode . dw/org-mode-visual-fill))
 #+end_src
 
 * Orgmode settings
