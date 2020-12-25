@@ -1,7 +1,7 @@
 #+TITLE: My DOOM-Emacs config file
 #+AUTHOR: Abdelhak Bougouffa
 #+DESCRIPTION: My config file for DOOM-Emacs
-#+STARTUP: overview showstars
+#+STARTUP: content showstars
 
 * Introduction
 Place your private configuration here! Remember, after modifying this file
@@ -16,6 +16,52 @@ email clients, file templates and snippets.
       user-mail-address "abougouffa@cryptolab.net")
 #+end_src
 
+** Add =quelpa= support
+=quelpa= is a tool to compile and install Emacs Lisp packages locally from local or remote source code.
+
+#+begin_src emacs-lisp
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+    (eval-buffer)
+    (quelpa-self-upgrade)))
+#+end_src
+
+*** Install =quelpa-use-package=
+Install =quelpa-use-package= (which installs =use-package= as a dependency) and require the library:
+
+#+begin_src emacs-lisp
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+#+end_src
+
+After this, we will be able to call =use-package= with the =:quelpa= keyword, like this:
+
+#+begin_example emacs-lisp
+;; installs abc-mode with quelpa
+(use-package abc-mode :quelpa)
+
+;; does the same (`t' is optional)
+(use-package abc-mode :quelpa t)
+
+;; again... (if the package would have another name)
+(use-package abc-mode :quelpa abc-mode)
+
+;; passes upgrade parameter to quelpa
+(use-package abc-mode :quelpa (:upgrade t))
+
+;; uses the given recipe
+(use-package abc-mode
+  :quelpa (abc-mode :fetcher github :repo "mkjunker/abc-mode"))
+
+;; recipe with plist arguments
+(use-package abc-mode
+  :quelpa ((abc-mode :fetcher github :repo "mkjunker/abc-mode") :upgrade t))
+#+end_example
+
 * User interface
 ** At Startup
 *** Maximize Emacs
@@ -23,6 +69,13 @@ At startup, maximize the default Emacs frame
 
 #+begin_src emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+end_src
+
+*** Change the logo of the doom's dashboard
+Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this github thread]]
+
+#+begin_src emacs-lisp
+(setq fancy-splash-image "~/.doom.d/blackhole.png")
 #+end_src
 
 ** Fonts
@@ -38,8 +91,8 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 29)
-       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 29))
+(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
+       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
 #+end_src
 
 ** DOOM Theme
@@ -78,24 +131,6 @@ Customize the =doom-modeline=
 (display-battery-mode) ;; This will display the battery status
 #+end_src
 
-** Add margins to window
-Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the desired width of the actual window (in letters, and counting the line number).
-
-#+begin_src emacs-lisp
-(defun dw/org-mode-visual-fill ()
-  (setq visual-fill-column-width 150
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
-
-(use-package visual-fill-column
-  :defer t
-  :hook (org-mode . dw/org-mode-visual-fill))
-
-(use-package visual-fill-column
-  :defer t
-  :hook (magit-mode . dw/org-mode-visual-fill))
-#+end_src
-
 * Orgmode settings
 Set the default org-mode directory
 
@@ -126,11 +161,43 @@ Enable =org-bullets= to use prettier unicode symbols in org files
 Enables [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bidirectional-Editing.html][bidirectional editing]]
 
 #+begin_src emacs-lisp
-(defun set-bidi-env ()
+(defun ab-conf/set-bidi-env ()
   "interactive"
   (setq bidi-paragraph-direction 'nil))
-(add-hook 'org-mode-hook 'set-bidi-env)
+(add-hook 'org-mode-hook 'ab-conf/set-bidi-env)
 #+end_src
+
+** Org-CV
+Install [[https://titan-c.gitlab.io/org-cv/][=org-cv=]], note that Org-CV uses a modified version of =moderncv= and =altacv=, they are available on github ([[https://github.com/Titan-C/moderncv][Titan-C/moderncv]] and [[https://github.com/Titan-C/moderncv][Titan-C/AltaCV]]).
+
+#+begin_src emacs-lisp
+(use-package ox-moderncv
+  :quelpa (ox-moderncv :fetcher github :repo "Titan-C/org-cv")
+  :init (require 'ox-moderncv)
+)
+
+; For installing the AltaCV exporter too
+(use-package ox-altacv
+  :quelpa (ox-altacv :fetcher github :repo "Titan-C/org-cv")
+  :init (require 'ox-altacv)
+)
+#+end_src
+
+*** Important notice
+In the CV project, you need to import the =moderncv= from the above repo.
+The compiling of the exported TeX file may fails, with a =File `l3regex.sty' not found= error, this seems to be related to the new package names in the TexLive distribution. To solve this, you need to replace =\RequirePackage{l3regex}= by =\RequirePackage{expl3}= in the =moderncv.cls= file.
+
+*** Compiling the CV file
+To compile, you need to call two functions, you can add them in the file under a =:noexport:= section:
+
+#+begin_example org
+
+#+begin_src emacs-lisp
+(org-export-to-file 'moderncv "filename.tex")
+(org-latex-compile "filename.tex")
+#+end_src
+
+#+end_example
 
 * GTD workflow
 Parts from this section are taken form [[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
@@ -280,15 +347,35 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
 #+end_src
 
 * Windows and buffers
-
 ** Splits
 Force splits to open on the right
 
 #+begin_src emacs-lisp
-(defun prefer-horizontal-split ()
+(defun ab-conf/prefer-horizontal-split ()
   (set-variable 'split-height-threshold nil t)
   (set-variable 'split-width-threshold 40 t)) ; make this as low as needed
-(add-hook 'markdown-mode-hook 'prefer-horizontal-split)
+(add-hook 'markdown-mode-hook 'ab-conf/prefer-horizontal-split)
+#+end_src
+
+** Add margins to window
+Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the desired width of the actual window (in letters, and counting the line number).
+
+#+begin_src emacs-lisp
+(defun ab-conf/org-mode-visual-fill ()
+  (setq visual-fill-column-width 120
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :defer t
+  :hook (org-mode . ab-conf/org-mode-visual-fill))
+#+end_src
+
+Add the same hook to other modes (=text-mode=, =markdown-mode=, =tex-mode-hook= and =magit-mode=), you can set additional modes in the list below:
+
+#+begin_src emacs-lisp
+(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook))
+  (add-hook hook 'ab-conf/org-mode-visual-fill))
 #+end_src
 
 * Applications
@@ -335,6 +422,19 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
   (emms-mode-line 1)
   (emms-playing-time 1))
 #+end_src
+
+** Serial port support (=serial-term=)
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Open serial port terminal" "o s" #'serial-term)
+#+end_src
+
+** Using =ripgrep= in Emacs
+#+begin_src emacs-lisp
+(use-package emacs-rg
+ :requires 'rg)
+#+end_src
+
 
 * Rust stuff
 #+begin_src emacs-lisp
