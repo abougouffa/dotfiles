@@ -16,19 +16,20 @@ email clients, file templates and snippets.
       user-mail-address "abougouffa@cryptolab.net")
 #+end_src
 
-** Add =quelpa= support
+** COMMENT Add =quelpa= support
 =quelpa= is a tool to compile and install Emacs Lisp packages locally from local or remote source code.
 
 #+begin_src emacs-lisp
 (unless (package-installed-p 'quelpa)
-  (with-temp-buffer
+   (with-temp-buffer
     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
     (eval-buffer)
     (quelpa-self-upgrade)))
 #+end_src
 
 *** Install =quelpa-use-package=
-Install =quelpa-use-package= (which installs =use-package= as a dependency) and require the library:
+Install =quelpa-use-package= (which installs =use-package= as a
+dependency) and require the =quelpa= library:
 
 #+begin_src emacs-lisp
 (quelpa
@@ -38,7 +39,9 @@ Install =quelpa-use-package= (which installs =use-package= as a dependency) and 
 (require 'quelpa-use-package)
 #+end_src
 
-After this, we will be able to call =use-package= with the =:quelpa= keyword, like this:
+**** Usage examples
+We will be able to call =use-package= with the =:quelpa= keyword,
+like this:
 
 #+begin_example emacs-lisp
 ;; installs abc-mode with quelpa
@@ -127,8 +130,8 @@ Customize the =doom-modeline=
 (setq display-time-string-forms
       '((propertize (concat 24-hours ":" minutes))))
 
-(display-time-mode) ;; This will display the time
-(display-battery-mode) ;; This will display the battery status
+(display-time-mode) ;; Display the time
+(display-battery-mode) ;; Display the battery status
 #+end_src
 
 * Orgmode settings
@@ -138,7 +141,8 @@ Set the default org-mode directory
 (setq org-directory "~/Work/org/")
 #+end_src
 
-Enable =org-bullets= to use prettier unicode symbols in org files
+** Org Bullets
+Enable =org-bullets= to use prettier unicode symbols in Org files
 
 #+begin_src emacs-lisp
 (require 'org-bullets)
@@ -146,13 +150,16 @@ Enable =org-bullets= to use prettier unicode symbols in org files
 #+end_src
 
 ** Org Babel
+*** Ditaa
+Activate =ditaa=
+
 #+begin_src emacs-lisp
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((ditaa . t))) ; this line activates ditaa
 #+end_src
 
-*** COMMENT Set custom path for =ditaa=
+**** COMMENT Set custom path for =ditaa=
 #+begin_src emacs-lisp
 (setq org-ditaa-jar-path "/usr/share/java/ditaa/")
 #+end_src
@@ -168,9 +175,16 @@ Enables [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bidirectiona
 #+end_src
 
 ** Org-CV
-Install [[https://titan-c.gitlab.io/org-cv/][=org-cv=]], note that Org-CV uses a modified version of =moderncv= and =altacv=, they are available on github ([[https://github.com/Titan-C/moderncv][Titan-C/moderncv]] and [[https://github.com/Titan-C/moderncv][Titan-C/AltaCV]]).
-
 #+begin_src emacs-lisp
+(require 'ox-moderncv)
+#+end_src
+
+** COMMENT Org-CV
+Install [[https://titan-c.gitlab.io/org-cv/][=org-cv=]], note that Org-CV uses a modified version of
+=moderncv= and =altacv=, they are available on github
+([[https://github.com/Titan-C/moderncv][Titan-C/moderncv]] and [[https://github.com/Titan-C/moderncv][Titan-C/AltaCV]]).
+
+#+begin_src emacs-lisp :exports never
 (use-package ox-moderncv
   :quelpa (ox-moderncv :fetcher github :repo "Titan-C/org-cv")
   :init (require 'ox-moderncv)
@@ -185,10 +199,15 @@ Install [[https://titan-c.gitlab.io/org-cv/][=org-cv=]], note that Org-CV uses a
 
 *** Important notice
 In the CV project, you need to import the =moderncv= from the above repo.
-The compiling of the exported TeX file may fails, with a =File `l3regex.sty' not found= error, this seems to be related to the new package names in the TexLive distribution. To solve this, you need to replace =\RequirePackage{l3regex}= by =\RequirePackage{expl3}= in the =moderncv.cls= file.
+The compiling of the exported TeX file may fails, with a
+=File `l3regex.sty' not found= error, this seems to be in relation with the new
+package names in the TexLive distribution. To solve this, you need to
+replace =\RequirePackage{l3regex}= by =\RequirePackage{expl3}= in
+the =moderncv.cls= file.
 
 *** Compiling the CV file
-To compile, you need to call two functions, you can add them in the file under a =:noexport:= section:
+To compile, you need to call two functions, you can add them in the file
+under a =:noexport:= section:
 
 #+begin_example org
 
@@ -200,7 +219,8 @@ To compile, you need to call two functions, you can add them in the file under a
 #+end_example
 
 * GTD workflow
-Parts from this section are taken form [[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
+Parts from this section has been taken form
+[[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
 
 ** Files and directories
 #+begin_src emacs-lisp
@@ -211,23 +231,23 @@ Parts from this section are taken form [[https://www.labri.fr/perso/nrougier/GTD
 
 *** COMMENT Initial content of files
 **** The =inbox.org= file:
-#+begin_src org :eval never
+#+begin_example org :eval never
 #+STARTUP: content showstars indent
 #+FILETAGS: inbox
-#+end_src
+#+end_example
 
 The =STARTUP= line defines some buffer settings (initial visibility, indent mode and star visibility)
 while the =FILETAGS= line define a common tag that will be inherited by all entries (=inbox= in this case).
 
 **** The =agenda.org= file:
-#+begin_src org
+#+begin_example org
 #+STARTUP: hideall showstars indent
 #+TAGS:    event(e) meeting(m) deadline(d)
 #+TAGS:    @outside(o) @company(p) @lab(b) @online(l) @canceled(c)
-#+end_src
+#+end_example
 
 **** The =projects.org= file:
-#+begin_src org
+#+begin_example org
 #+STARTUP: content showstars indent
 #+TAGS: @home(h) @work(w) @mail(m) @comp(c) @web(b)
 #+PROPERTY: Effort_ALL 0 0:05 0:10 0:15 0:30 0:45 1:00 2:00 4:00
@@ -241,9 +261,9 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
 # * Personal projects :personal:project:
 # * ez-Wheel :ezwheel:
 # * Home :home:
-#+end_src
+#+end_example
 
-** Comment Capture and inbox
+** Capture and inbox
 #+begin_src emacs-lisp
 (setq org-capture-templates
       `(("i" "Inbox" entry (file "inbox.org")
@@ -330,7 +350,7 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 #+end_src
 
-** Beamer on orgmode
+** Beamer on Org Mode
 #+begin_src emacs-lisp
 (custom-set-variables ; in ~/.emacs, only one instance
  '(org-export-latex-classes (quote ; in the init file!
@@ -379,7 +399,6 @@ Add the same hook to other modes (=text-mode=, =markdown-mode=, =tex-mode-hook= 
 #+end_src
 
 * Applications
-
 ** Browser (=eww=)
 Set urls to open in a specific browser (=eww= here).
 
@@ -423,6 +442,13 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
   (emms-playing-time 1))
 #+end_src
 
+Add keybinding to launch EMMS (=SPC o M=)
+
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Open EMMS" "o M" #'emms)
+#+end_src
+
 ** Serial port support (=serial-term=)
 #+begin_src emacs-lisp
 (map! :leader
@@ -435,8 +461,53 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
  :requires 'rg)
 #+end_src
 
+** mu4e
+Configuring =mu4e= email accounts, note that you need to have a proper
+=mbsyncrc= file in the right directory.
 
-* Rust stuff
+You will need to:
+- Install =mu= and =mbsync-git=
+- Setup a proper configuration file for your accounts at =~/config/mu4e/mbsyncrc=
+- Setup the associated password file =mbsyncpass-account1= in the same directory
+  for each account
+- Encrypt the password file using =gpg -c mbsyncpass-account1=
+- Run =mu init --maildir=~/Maildir --my-address=user@host.bla=
+- Run =mbsync -c ~/.config/mu4e/mbsyncrc -a=
+- For sending mails from =mu4e=, add =authinfo= files for each account, file contains
+  a line in this format =machine mail.example.org port 587 login myuser password mypasswd=
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(require 'mu4e)
+(require 'smtpmail)
+(setq user-mail-address "user@example.com"
+      user-full-name  "Abdelhak Bougouffa"
+      mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+      mu4e-update-interval 300
+      mu4e-compose-signature
+      (concat "- Abdelhak BOUGOUFFA\n"
+              "- Doctorant | Ingénieur R&D\n"
+              "- Université Paris-Saclay - SATIE | ez-Wheel\n")
+      mu4e-main-buffer-hide-personal-addresses t
+      message-send-mail-function 'smtpmail-send-it
+      starttls-use-gnutls t
+      smtpmail-smtp-service 587
+      smtpmail-smtp-server "smtp.example.com"
+      ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
+      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
+      mu4e-sent-folder "/account/Sent Items"
+      mu4e-drafts-folder "/account/Drafts"
+      mu4e-trash-folder "/account/Trash"
+      mu4e-maildir-shortcuts
+      '(("/account0/INBOX" . ?i)
+        ("/account/INBOX"          . ?I)
+        ("/account/Sent Items"     . ?s)
+        ("/account/Drafts"         . ?d)
+        ("/account/Trash"          . ?t)))
+#+end_src
+
+* Programming Languages
+** Rust
 #+begin_src emacs-lisp
 (use-package racer
   :requires rust-mode

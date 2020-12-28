@@ -54,3 +54,8 @@
 (package! md4rd)
 (package! org-bullets)
 (package! peep-dired)
+(package! quelpa)
+(package! mu4e)
+
+(package! ox-moderncv
+  :recipe (:host github :repo "Titan-C/org-cv"))

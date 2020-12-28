@@ -3,24 +3,42 @@
 
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 27)
-       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 27))
+(setq fancy-splash-image "~/.doom.d/blackhole.png")
 
-(setq doom-theme 'doom-one)
+(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
+       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
+
+(setq doom-theme 'doom-palenight)
 
 (setq display-line-numbers-type t) ; Enable line numbers
+
+(require 'evil-numbers)
+
+(global-set-key (kbd "C-c +") 'evil-numbers/inc-at-pt)
+(global-set-key (kbd "C-c -") 'evil-numbers/dec-at-pt)
 
 ;; This will set the time format to 24h
 (setq display-time-string-forms
       '((propertize (concat 24-hours ":" minutes))))
 
-(display-time-mode) ;; This will display the time
-(display-battery-mode) ;; This will display the battery status
+(display-time-mode) ;; Display the time
+(display-battery-mode) ;; Display the battery status
 
 (setq org-directory "~/Work/org/")
 
 (require 'org-bullets)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((ditaa . t))) ; this line activates ditaa
+
+(defun ab-conf/set-bidi-env ()
+  "interactive"
+  (setq bidi-paragraph-direction 'nil))
+(add-hook 'org-mode-hook 'ab-conf/set-bidi-env)
+
+(require 'ox-moderncv)
 
 (setq org-agenda-files (list "~/Work/org/inbox.org" "~/Work/org/agenda.org"
                              "~/Work/org/notes.org" "~/Work/org/projects.org"))
@@ -98,10 +116,35 @@
           (tags "CLOSED>=\"<today>\""
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 
-(defun prefer-horizontal-split ()
+(custom-set-variables ; in ~/.emacs, only one instance
+ '(org-export-latex-classes (quote ; in the init file!
+    (("beamer" "\\documentclass{beamer}"
+        org-beamer-sectioning))))
+ '(org-latex-to-pdf-process (quote
+    ((concat "pdflatex -interaction nonstopmode"
+             "-shell-escape -output-directory %o %f")
+     "bibtex $(basename %b)"
+     (concat "pdflatex -interaction nonstopmode"
+             "-shell-escape -output-directory %o %f")
+     (concat "pdflatex -interaction nonstopmode"
+             "-shell-escape -output-directory %o %f")))))
+
+(defun ab-conf/prefer-horizontal-split ()
   (set-variable 'split-height-threshold nil t)
   (set-variable 'split-width-threshold 40 t)) ; make this as low as needed
-(add-hook 'markdown-mode-hook 'prefer-horizontal-split)
+(add-hook 'markdown-mode-hook 'ab-conf/prefer-horizontal-split)
+
+(defun ab-conf/org-mode-visual-fill ()
+  (setq visual-fill-column-width 120
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :defer t
+  :hook (org-mode . ab-conf/org-mode-visual-fill))
+
+(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook))
+  (add-hook hook 'ab-conf/org-mode-visual-fill))
 
 (map!
   (:after dired
@@ -129,6 +172,43 @@
   (emms-default-players)
   (emms-mode-line 1)
   (emms-playing-time 1))
+
+(map! :leader
+      :desc "Open EMMS" "o M" #'emms)
+
+(map! :leader
+      :desc "Open serial port terminal" "o s" #'serial-term)
+
+(use-package emacs-rg
+ :requires 'rg)
+
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(require 'mu4e)
+(require 'smtpmail)
+(setq user-mail-address "user@example.com"
+      user-full-name  "Abdelhak Bougouffa"
+      mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+      mu4e-update-interval 300
+      mu4e-compose-signature
+      (concat "- Abdelhak BOUGOUFFA\n"
+              "- Doctorant | Ingénieur R&D\n"
+              "- Université Paris-Saclay - SATIE | ez-Wheel\n")
+      mu4e-main-buffer-hide-personal-addresses t
+      message-send-mail-function 'smtpmail-send-it
+      starttls-use-gnutls t
+      smtpmail-smtp-service 587
+      smtpmail-smtp-server "smtp.example.com"
+      ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
+      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
+      mu4e-sent-folder "/account/Sent Items"
+      mu4e-drafts-folder "/account/Drafts"
+      mu4e-trash-folder "/account/Trash"
+      mu4e-maildir-shortcuts
+      '(("/account0/INBOX" . ?i)
+        ("/account/INBOX"          . ?I)
+        ("/account/Sent Items"     . ?s)
+        ("/account/Drafts"         . ?d)
+        ("/account/Trash"          . ?t)))
 
 (use-package racer
   :requires rust-mode
