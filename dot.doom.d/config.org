@@ -477,7 +477,7 @@ You will need to:
   a line in this format =machine mail.example.org port 587 login myuser password mypasswd=
 
 #+begin_src emacs-lisp
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 (require 'mu4e)
 (require 'smtpmail)
 (setq user-mail-address "user@example.com"
