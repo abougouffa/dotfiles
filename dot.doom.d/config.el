@@ -1,12 +1,18 @@
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address "abougouffa@cryptolab.net")
 
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 (setq fancy-splash-image "~/.doom.d/blackhole.png")
 
 (setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
-       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
+      doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
 
 (setq doom-theme 'doom-palenight)
 
