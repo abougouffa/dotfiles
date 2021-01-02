@@ -14,7 +14,13 @@
 (setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
 
-(setq doom-theme 'doom-palenight)
+;; Activate solaire mode, this HAS to be called before loading the theme
+(solaire-global-mode +1)
+
+(setq doom-theme 'doom-one) ; Load theme
+;; (setq doom-theme 'doom-palenight) ; Load theme
+;; (setq doom-theme 'doom-horizon)   ; Load theme
+;; (setq doom-theme 'doom-snazzy) ; Load theme
 
 (setq display-line-numbers-type t) ; Enable line numbers
 
@@ -31,9 +37,6 @@
 (display-battery-mode) ;; Display the battery status
 
 (setq org-directory "~/Work/org/")
-
-(require 'org-bullets)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
 (org-babel-do-load-languages
  'org-babel-load-languages

@@ -55,7 +55,7 @@
 (package! org-bullets)
 (package! peep-dired)
 (package! quelpa)
-(package! mu4e)
-
+;; (package! mu4e)
+;; (package! guess-language)
 (package! ox-moderncv
   :recipe (:host github :repo "Titan-C/org-cv"))

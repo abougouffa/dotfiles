@@ -9,10 +9,17 @@ you need to run =doom sync= or =doom/reload= (aka =SPC h r r=) inside DOOM
 
 ** One time commands
 *** =pdf-tools=
-Install =pdf-tools=, call this if you enabled =toos: pdf= in =init.el=
+Install =pdf-tools=, call this if you enabled =tools: pdf= in =init.el=
 
 #+begin_example emacs-lisp
 (pdf-tools-install)
+#+end_example
+
+*** Languages servers
+For Irony and LSP, install servers with:
+#+begin_example emacs-lisp
+(irony-install-server)
+(lsp-install-server) ; will asks which server to install
 #+end_example
 
 * Global settings
@@ -118,7 +125,13 @@ font string. You generally only need these two:
 
 ** DOOM Theme
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-palenight)
+;; Activate solaire mode, this HAS to be called before loading the theme
+(solaire-global-mode +1)
+
+(setq doom-theme 'doom-one) ; Load theme
+;; (setq doom-theme 'doom-palenight) ; Load theme
+;; (setq doom-theme 'doom-horizon)   ; Load theme
+;; (setq doom-theme 'doom-snazzy) ; Load theme
 #+end_src
 
 ** Editor Settings
@@ -152,6 +165,37 @@ Customize the =doom-modeline=
 (display-battery-mode) ;; Display the battery status
 #+end_src
 
+* COMMENT Spell checking
+Having =flyspell= and =hunspell= enabled in =init.el=, first install theses packages:
+#+begin_example shell
+sudo pacman -S hunspell hunspell-en_US hunspell-en_GB hunspell-fr
+#+end_example
+
+Then configure dictionaries:
+
+#+begin_src emacs-lisp
+(add-to-list 'ispell-local-dictionary-alist '("francais"
+                                              "[[:alpha:]]"
+                                              "[^[:alpha:]]"
+                                              "[']"
+                                              t
+                                              ("-d" "fr_FR"); Dictionary file name
+                                              nil
+                                              utf-8))
+
+(add-to-list 'ispell-local-dictionary-alist '("english"
+                                              "[[:alpha:]]"
+                                              "[^[:alpha:]]"
+                                              "[']"
+                                              t
+                                              ("-d" "en_US")
+                                              nil
+                                              utf-8))
+
+(setq ispell-program-name "hunspell"   ; Use hunspell to correct mistakes
+      ispell-dictionary   "english")  ; Default dictionary to use
+#+end_src
+
 * Orgmode settings
 Set the default org-mode directory
 
@@ -159,7 +203,18 @@ Set the default org-mode directory
 (setq org-directory "~/Work/org/")
 #+end_src
 
-** Org Bullets
+** COMMENT Prettify Org Mode
+#+begin_src emacs-lisp
+(custom-set-faces
+ '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ )
+#+end_src
+
+** COMMENT Org Bullets
 Enable =org-bullets= to use prettier unicode symbols in Org files
 
 #+begin_src emacs-lisp
