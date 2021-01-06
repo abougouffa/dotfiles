@@ -11,7 +11,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="amuse" #"robbyrussell"
+ZSH_THEME="passion/passion" #"robbyrussell"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -64,7 +64,7 @@ export UPDATE_ZSH_DAYS=3
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
+ZSH_CUSTOM=$HOME/.my_ohmyzsh_customizations
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -108,6 +108,11 @@ alias vi="nvim"
 
 # Run fortune to display random quote
 fortune
+
+autoload -Uz compinit
+compinit
+# Completion for kitty
+kitty + complete setup zsh | source /dev/stdin
 
 # Rename the "update_ohmyszh" function to "_uptate_ohmyzsh"
 eval "`declare -f update_ohmyzsh | sed '1s/.*/_&/'`"

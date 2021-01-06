@@ -48,14 +48,16 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
-(package! exwm)
 (package! emms)
-(package! emojify)
 (package! md4rd)
-(package! org-bullets)
 (package! peep-dired)
-(package! quelpa)
-;; (package! mu4e)
-;; (package! guess-language)
+(package! bitbake)
+(package! repo)
+;; (package! exwm)
+;; (package! emojify)
+
 (package! ox-moderncv
   :recipe (:host github :repo "Titan-C/org-cv"))
+
+;;(package! bb-mode
+;;  :recipe (:host github :repo "mferland/bb-mode"))

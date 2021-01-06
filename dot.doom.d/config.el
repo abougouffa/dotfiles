@@ -14,13 +14,15 @@
 (setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
       doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
 
-;; Activate solaire mode, this HAS to be called before loading the theme
+;; Activate solaire-mode, this have to be called before loading the theme
 (solaire-global-mode +1)
 
-(setq doom-theme 'doom-one) ; Load theme
+;; (setq doom-theme 'doom-one) ; Load theme
 ;; (setq doom-theme 'doom-palenight) ; Load theme
 ;; (setq doom-theme 'doom-horizon)   ; Load theme
+(setq doom-theme 'doom-old-hope)   ; Load theme
 ;; (setq doom-theme 'doom-snazzy) ; Load theme
+;; (setq doom-theme 'doom-peacock) ; Load theme
 
 (setq display-line-numbers-type t) ; Enable line numbers
 
@@ -152,7 +154,7 @@
   :defer t
   :hook (org-mode . ab-conf/org-mode-visual-fill))
 
-(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook))
+(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
   (add-hook hook 'ab-conf/org-mode-visual-fill))
 
 (map!
@@ -191,34 +193,6 @@
 (use-package emacs-rg
  :requires 'rg)
 
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-(require 'mu4e)
-(require 'smtpmail)
-(setq user-mail-address "user@example.com"
-      user-full-name  "Abdelhak Bougouffa"
-      mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
-      mu4e-update-interval 300
-      mu4e-compose-signature
-      (concat "- Abdelhak BOUGOUFFA\n"
-              "- Doctorant | Ingénieur R&D\n"
-              "- Université Paris-Saclay - SATIE | ez-Wheel\n")
-      mu4e-main-buffer-hide-personal-addresses t
-      message-send-mail-function 'smtpmail-send-it
-      starttls-use-gnutls t
-      smtpmail-smtp-service 587
-      smtpmail-smtp-server "smtp.example.com"
-      ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
-      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
-      mu4e-sent-folder "/account/Sent Items"
-      mu4e-drafts-folder "/account/Drafts"
-      mu4e-trash-folder "/account/Trash"
-      mu4e-maildir-shortcuts
-      '(("/account0/INBOX" . ?i)
-        ("/account/INBOX"          . ?I)
-        ("/account/Sent Items"     . ?s)
-        ("/account/Drafts"         . ?d)
-        ("/account/Trash"          . ?t)))
-
 (use-package racer
   :requires rust-mode
 
@@ -231,3 +205,9 @@
   (add-hook 'rust-mode-hook #'racer-mode)
   (add-hook 'racer-mode-hook #'eldoc-mode)
   (add-hook 'racer-mode-hook #'company-mode))
+
+(require 'bitbake)
+(setq auto-mode-alist (cons '("\\.bb$" . bitbake-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.inc$" . bitbake-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.bbappend$" . bitbake-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))

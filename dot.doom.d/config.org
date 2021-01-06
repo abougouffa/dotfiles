@@ -41,55 +41,6 @@ Set the default encoding to UTF-8
 (setq default-buffer-file-coding-system 'utf-8)
 #+end_src
 
-** COMMENT Add =quelpa= support
-=quelpa= is a tool to compile and install Emacs Lisp packages locally from local or remote source code.
-
-#+begin_src emacs-lisp
-(unless (package-installed-p 'quelpa)
-   (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-#+end_src
-
-*** Install =quelpa-use-package=
-Install =quelpa-use-package= (which installs =use-package= as a
-dependency) and require the =quelpa= library:
-
-#+begin_src emacs-lisp
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(require 'quelpa-use-package)
-#+end_src
-
-**** Usage examples
-We will be able to call =use-package= with the =:quelpa= keyword,
-like this:
-
-#+begin_example emacs-lisp
-;; installs abc-mode with quelpa
-(use-package abc-mode :quelpa)
-
-;; does the same (`t' is optional)
-(use-package abc-mode :quelpa t)
-
-;; again... (if the package would have another name)
-(use-package abc-mode :quelpa abc-mode)
-
-;; passes upgrade parameter to quelpa
-(use-package abc-mode :quelpa (:upgrade t))
-
-;; uses the given recipe
-(use-package abc-mode
-  :quelpa (abc-mode :fetcher github :repo "mkjunker/abc-mode"))
-
-;; recipe with plist arguments
-(use-package abc-mode
-  :quelpa ((abc-mode :fetcher github :repo "mkjunker/abc-mode") :upgrade t))
-#+end_example
-
 * User interface
 ** At Startup
 *** Maximize Emacs
@@ -125,13 +76,15 @@ font string. You generally only need these two:
 
 ** DOOM Theme
 #+begin_src emacs-lisp
-;; Activate solaire mode, this HAS to be called before loading the theme
+;; Activate solaire-mode, this have to be called before loading the theme
 (solaire-global-mode +1)
 
-(setq doom-theme 'doom-one) ; Load theme
+;; (setq doom-theme 'doom-one) ; Load theme
 ;; (setq doom-theme 'doom-palenight) ; Load theme
 ;; (setq doom-theme 'doom-horizon)   ; Load theme
+(setq doom-theme 'doom-old-hope)   ; Load theme
 ;; (setq doom-theme 'doom-snazzy) ; Load theme
+;; (setq doom-theme 'doom-peacock) ; Load theme
 #+end_src
 
 ** Editor Settings
@@ -464,10 +417,10 @@ Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the 
   :hook (org-mode . ab-conf/org-mode-visual-fill))
 #+end_src
 
-Add the same hook to other modes (=text-mode=, =markdown-mode=, =tex-mode-hook= and =magit-mode=), you can set additional modes in the list below:
+Add the same hook to other modes (=text-mode=, =markdown-mode=, =tex-mode-hook=, =repo-mode= and =magit-mode=), you can set additional modes in the list below:
 
 #+begin_src emacs-lisp
-(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook))
+(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
   (add-hook hook 'ab-conf/org-mode-visual-fill))
 #+end_src
 
@@ -594,4 +547,13 @@ You will need to:
   (add-hook 'rust-mode-hook #'racer-mode)
   (add-hook 'racer-mode-hook #'eldoc-mode)
   (add-hook 'racer-mode-hook #'company-mode))
+#+end_src
+
+** Yocto/Bitbake
+#+begin_src emacs-lisp
+(require 'bitbake)
+(setq auto-mode-alist (cons '("\\.bb$" . bitbake-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.inc$" . bitbake-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.bbappend$" . bitbake-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))
 #+end_src
