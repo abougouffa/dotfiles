@@ -11,8 +11,8 @@
 
 (setq fancy-splash-image "~/.doom.d/blackhole.png")
 
-(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
-      doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 30)
+      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
 
 ;; Activate solaire-mode, this have to be called before loading the theme
 (solaire-global-mode +1)
@@ -43,11 +43,6 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((ditaa . t))) ; this line activates ditaa
-
-(defun ab-conf/set-bidi-env ()
-  "interactive"
-  (setq bidi-paragraph-direction 'nil))
-(add-hook 'org-mode-hook 'ab-conf/set-bidi-env)
 
 (require 'ox-moderncv)
 
@@ -211,3 +206,5 @@
 (setq auto-mode-alist (cons '("\\.inc$" . bitbake-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbappend$" . bitbake-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))
+
+(setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))

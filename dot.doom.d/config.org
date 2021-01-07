@@ -70,8 +70,8 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Mononoki Nerd Font" :size 30)
-      doom-variable-pitch-font (font-spec :family "Mononoki Nerd Font" :size 30))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 30)
+      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
 #+end_src
 
 ** DOOM Theme
@@ -190,7 +190,7 @@ Activate =ditaa=
 (setq org-ditaa-jar-path "/usr/share/java/ditaa/")
 #+end_src
 
-** RTL languages
+** COMMENT RTL languages
 Enables [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bidirectional-Editing.html][bidirectional editing]]
 
 #+begin_src emacs-lisp
@@ -556,4 +556,9 @@ You will need to:
 (setq auto-mode-alist (cons '("\\.inc$" . bitbake-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbappend$" . bitbake-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))
+#+end_src
+
+** ROS
+#+begin_src emacs-lisp
+(setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
 #+end_src
