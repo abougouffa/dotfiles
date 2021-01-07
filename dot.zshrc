@@ -109,10 +109,10 @@ alias vi="nvim"
 # Run fortune to display random quote
 fortune
 
-autoload -Uz compinit
-compinit
+# autoload -Uz compinit
+# compinit
 # Completion for kitty
-kitty + complete setup zsh | source /dev/stdin
+# kitty + complete setup zsh | source /dev/stdin
 
 # Rename the "update_ohmyszh" function to "_uptate_ohmyzsh"
 eval "`declare -f update_ohmyzsh | sed '1s/.*/_&/'`"
