@@ -53,11 +53,6 @@
 (package! peep-dired)
 (package! bitbake)
 (package! repo)
-;; (package! exwm)
-;; (package! emojify)
 
 (package! ox-moderncv
   :recipe (:host github :repo "Titan-C/org-cv"))
-
-;;(package! bb-mode
-;;  :recipe (:host github :repo "mferland/bb-mode"))
