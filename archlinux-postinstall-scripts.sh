@@ -53,14 +53,13 @@ enhance_arabic_support() {
 install_ohmyzsh() {
     # Install ohmyzsh
     sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-    # Install zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-    # Apply my patch to the amuse theme
-    cd ~/.ohmyzsh
-    git am $SCRIPT_DIR/amuse.theme.patch
+    # Clone my ohmyzsh customizations
+    git clone https://github.com/abougouffa/my_ohmyzsh_customizations.git $HOME/.my_ohmyzsh_customizations
+    cd $HOME/.my_ohmyzsh_customizations
+    git submodule init
 }
 
-install_helvetica_world_font() {
+install_helvetica_world_font_systemwide() {
     # Install Helvetiva World Font
     TMP_DIR="/tmp/fonts_$(date +'%s')"
     mkdir $TMP_DIR
@@ -81,6 +80,8 @@ install_packages;
 disable_tracker_apps;
 enhance_arabic_support;
 install_ohmyzsh;
+install_helvetica_world_font_systemwide;
+
 exit 0
 
 # ---- Binaries

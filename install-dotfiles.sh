@@ -14,14 +14,14 @@ for DOTFILE in "${DOTFILES[@]}"; do
         if [ -L "$HOME/$DOTFILE" ] ; # Is a symlink
         then
             BACKUPEXT="symlink_backup"
-            alias delete="unlink"
+            DELETE_CMD="rm"
         else
             BACKUPEXT="backup"
-            alias delete="rm -r"
+            DELETE_CMD="rm -r"
         fi
 
         echo "-> The ~/$DOTFILE exists, creating backup to ~/$DOTFILE.$BACKUPEXT"       
-        cp "$HOME/$DOTFILE" "$HOME/$DOTFILE.$BACKUPEXT" && delete "$HOME/$DOTFILE"
+	cp "$HOME/$DOTFILE" "$HOME/$DOTFILE.$BACKUPEXT" && $($DELETE_CMD "$HOME/$DOTFILE")
     fi
 
     ln -s "$DOTFILES_DIR/dot$DOTFILE" "$HOME/$DOTFILE"
