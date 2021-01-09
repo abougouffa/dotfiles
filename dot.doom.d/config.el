@@ -9,7 +9,7 @@
 
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(setq fancy-splash-image "~/.doom.d/blackhole.png")
+(setq fancy-splash-image "~/.doom.d/nasa_blackhole.png")
 
 (setq doom-font (font-spec :family "JetBrains Mono" :size 30)
       doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
@@ -38,11 +38,134 @@
 (display-time-mode) ;; Display the time
 (display-battery-mode) ;; Display the battery status
 
+(defun ab-conf/spelldict (lang)
+  "Switch between language dictionaries."
+  (interactive)
+  (cond ((eq lang 1)
+         (setq flyspell-default-dictionary "american")
+         (setq ispell-dictionary "american")
+         (ispell-kill-ispell)
+         (spell-fu-mode)
+         (spell-fu-mode)
+         (message "Dictionary changed to 'american'"))
+        ((eq lang 2)
+         (setq flyspell-default-dictionary "francais")
+         (setq ispell-dictionary "francais")
+         (ispell-kill-ispell)
+         (spell-fu-mode)
+         (spell-fu-mode)
+         (message "Dictionary changed to 'francais'"))
+        (t (message "No changes have been made."))))
+
+(map! :leader
+      :desc "Spell dictionary" "t d")
+
+(map! :leader
+      :desc "American" "t d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
+
+(map! :leader
+      :desc "Français" "t d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
+
 (setq org-directory "~/Work/org/")
 
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((ditaa . t))) ; this line activates ditaa
+ '(
+   (emacs-lisp . t)
+   (shell . t)
+   (python . t)
+   (R . t)
+   (ruby . t)
+   (ocaml . t)
+   (ditaa . t)
+   (dot . t)
+   (octave . t)
+   (sqlite . t)
+   (perl . t)
+   (screen . t)
+   (plantuml . t)
+   (lilypond . t)
+   (org . t)
+   (ditaa . t)
+   (makefile . t)
+   ))
+
+;; (setq org-src-preserve-indentation t)
+
+(setq ab-conf/new-org-templates (version<= "9.2" (org-version)))
+(when ab-conf/new-org-templates
+  (require 'org-tempo))
+
+(defun ab-conf/add-org-template (old-style-template)
+  (add-to-list 'org-structure-template-alist
+               (if ab-conf/new-org-templates ; change the template format for Org Mode >= 9.8
+                   (cons
+                    (car old-style-template)
+                    ;; Take the second element and trim the #+begin_ and #+end_src
+                    ;; to fit the new template style
+                    ;; For example,
+                    ;; ("m" "#+begin_src emacs-lisp\n\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>")
+                    ;; becomes
+                    ;; ("m" "src emacs-lisp\n\n" "<src lang=\"emacs-lisp\">\n\n</src>")
+                    (string-trim-right
+                     (substring (car (cdr old-style-template)) 8 -9)))
+                 old-style-template)))
+
+(unless ab-conf/new-org-templates
+  ;; this template is predefined in the new templating system
+  (ab-conf/add-org-template
+   '("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")))
+
+;; Emacs-lisp
+(ab-conf/add-org-template
+ '("m" "#+begin_src emacs-lisp\n\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>"))
+
+;; R
+(ab-conf/add-org-template
+ '("r" "#+begin_src R :results output :session *R* :exports both\n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+;; R, this creates an R block for graphics
+;; that are stored in the =/tmp/=.
+(ab-conf/add-org-template
+ '("R" "#+begin_src R :results output graphics :file (org-babel-temp-file \"figure\" \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+;; R, this creates an R block for
+;; graphics that are stored in the directory of the current file.
+(ab-conf/add-org-template
+ '("RR" "#+begin_src R :results output graphics :file  (org-babel-temp-file (concat (file-name-directory (or load-file-name buffer-file-name)) \"figure-\") \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+;; Python
+(ab-conf/add-org-template
+ '("p" "#+begin_src python :results output :exports both\n\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+(ab-conf/add-org-template
+ '("P" "#+begin_src python :results output :session *py* :exports both\n\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+(ab-conf/add-org-template
+ '("PP" "#+begin_src python :results file :session *py* :var matplot_lib_filename=(org-babel-temp-file \"figure\" \".png\") :exports both\nimport matplotlib.pyplot as plt\n\nimport numpy\nx=numpy.linspace(-15,15)\nplt.figure(figsize=(10,5))\nplt.plot(x,numpy.cos(x)/x)\nplt.tight_layout()\n\nplt.savefig(matplot_lib_filename)\nmatplot_lib_filename\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+;; Bash Shell
+(if (memq system-type '(windows-nt ms-dos))
+    ;; Non-session shell execution does not seem to work under Windows, so we use
+    ;; a named session just like for B.
+    (ab-conf/add-org-template
+     '("b" "#+begin_src shell :session session :results output :exports both\n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+  (ab-conf/add-org-template
+   '("b" "#+begin_src shell :results output :exports both\n\n#+end_src" "<src lang=\"sh\">\n\n</src>")))
+
+;; Bash Shell, this comes with a session argument (e.g., in case you want to keep ssh connexions open).
+(ab-conf/add-org-template
+ '("B" "#+begin_src shell :session *shell* :results output :exports both \n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+
+;; Graphviz
+(ab-conf/add-org-template
+ '("g" "#+begin_src dot :results output graphics :file \"/tmp/graph.pdf\" :exports both
+digraph G {
+node [color=black,fillcolor=white,shape=rectangle,style=filled,fontname=\"Helvetica\"];
+A[label=\"A\"]
+B[label=\"B\"]
+A->B
+}\n#+end_src" "<src lang=\"dot\">\n\n</src>"))
 
 (require 'ox-moderncv)
 
@@ -161,26 +284,29 @@
                                              (kbd "k") 'peep-dired-prev-file)
 (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
 
-(use-package emms
-  :config
-  (require 'emms-setup)
-  (require 'emms-info)
-  (require 'emms-cue)
-  (require 'emms-mode-line)
-  (require 'emms-playing-time)
-  (setq emms-source-file-default-directory "~/Music/Mohamed Rouane - Nulle Part/")
-  (setq emms-playlist-buffer-name "*EMMS Playlist*")
-  (setq emms-info-asynchronously t)
-  (unless (eq system-type 'windows-nt)
-    (setq emms-source-file-directory-tree-function
-          'emms-source-file-directory-tree-find))
-  (emms-all)
-  (emms-default-players)
-  (emms-mode-line 1)
-  (emms-playing-time 1))
-
+(emms-all)
+(emms-default-players)
+(emms-mode-line 1)
+(emms-playing-time 1)
+(setq emms-source-file-default-directory "~/Music/"
+      emms-playlist-buffer-name "*Music*"
+      emms-info-asynchronously t
+      emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
 (map! :leader
-      :desc "Open EMMS" "o M" #'emms)
+      :desc "Go to emms playlist"
+      "a a" #'emms-playlist-mode-go
+      :leader
+      :desc "Emms pause track"
+      "a x" #'emms-pause
+      :leader
+      :desc "Emms stop track"
+      "a s" #'emms-stop
+      :leader
+      :desc "Emms play previous track"
+      "a p" #'emms-previous
+      :leader
+      :desc "Emms play next track"
+      "a n" #'emms-next)
 
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)

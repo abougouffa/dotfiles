@@ -51,10 +51,10 @@ At startup, maximize the default Emacs frame
 #+end_src
 
 *** Change the logo of the doom's dashboard
-Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this github thread]]
+Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image "~/.doom.d/blackhole.png")
+(setq fancy-splash-image "~/.doom.d/nasa_blackhole.png")
 #+end_src
 
 ** Fonts
@@ -118,7 +118,8 @@ Customize the =doom-modeline=
 (display-battery-mode) ;; Display the battery status
 #+end_src
 
-* COMMENT Spell checking
+* Spell checking
+** COMMENT Configure =hunspell=
 Having =flyspell= and =hunspell= enabled in =init.el=, first install theses packages:
 #+begin_example shell
 sudo pacman -S hunspell hunspell-en_US hunspell-en_GB hunspell-fr
@@ -149,6 +150,37 @@ Then configure dictionaries:
       ispell-dictionary   "english")  ; Default dictionary to use
 #+end_src
 
+** Define shortcuts to change dictionary
+#+begin_src emacs-lisp
+(defun ab-conf/spelldict (lang)
+  "Switch between language dictionaries."
+  (interactive)
+  (cond ((eq lang 1)
+         (setq flyspell-default-dictionary "american")
+         (setq ispell-dictionary "american")
+         (ispell-kill-ispell)
+         (spell-fu-mode)
+         (spell-fu-mode)
+         (message "Dictionary changed to 'american'"))
+        ((eq lang 2)
+         (setq flyspell-default-dictionary "francais")
+         (setq ispell-dictionary "francais")
+         (ispell-kill-ispell)
+         (spell-fu-mode)
+         (spell-fu-mode)
+         (message "Dictionary changed to 'francais'"))
+        (t (message "No changes have been made."))))
+
+(map! :leader
+      :desc "Spell dictionary" "t d")
+
+(map! :leader
+      :desc "American" "t d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
+
+(map! :leader
+      :desc "Français" "t d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
+#+end_src
+
 * Orgmode settings
 Set the default org-mode directory
 
@@ -175,17 +207,142 @@ Enable =org-bullets= to use prettier unicode symbols in Org files
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
-** Org Babel
-*** Ditaa
-Activate =ditaa=
-
+** Literate programming (=org-babel=)
+*** Add to languages
 #+begin_src emacs-lisp
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((ditaa . t))) ; this line activates ditaa
+ '(
+   (emacs-lisp . t)
+   (shell . t)
+   (python . t)
+   (R . t)
+   (ruby . t)
+   (ocaml . t)
+   (ditaa . t)
+   (dot . t)
+   (octave . t)
+   (sqlite . t)
+   (perl . t)
+   (screen . t)
+   (plantuml . t)
+   (lilypond . t)
+   (org . t)
+   (ditaa . t)
+   (makefile . t)
+   ))
+
+;; (setq org-src-preserve-indentation t)
 #+end_src
 
-**** COMMENT Set custom path for =ditaa=
+*** Adding source code blocks templates
+**** Enable the new template system for Org Mode 9.2 and later
+#+begin_src emacs-lisp
+(setq ab-conf/new-org-templates (version<= "9.2" (org-version)))
+(when ab-conf/new-org-templates
+  (require 'org-tempo))
+#+end_src
+
+**** Template definitions for old and new template systems
+#+begin_src emacs-lisp
+(defun ab-conf/add-org-template (old-style-template)
+  (add-to-list 'org-structure-template-alist
+               (if ab-conf/new-org-templates ; change the template format for Org Mode >= 9.8
+                   (cons
+                    (car old-style-template)
+                    ;; Take the second element and trim the #+begin_ and #+end_src
+                    ;; to fit the new template style
+                    ;; For example,
+                    ;; ("m" "#+begin_src emacs-lisp\n\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>")
+                    ;; becomes
+                    ;; ("m" "src emacs-lisp\n\n" "<src lang=\"emacs-lisp\">\n\n</src>")
+                    (string-trim-right
+                     (substring (car (cdr old-style-template)) 8 -9)))
+                 old-style-template)))
+#+end_src
+
+**** Add templates
+To use this type the prefix (like =<s=) and then =TAB=
+
+| Prefix | Language                                        |
+|--------+-------------------------------------------------|
+| =<s=   | Generic (=#src= block)                          |
+|--------+-------------------------------------------------|
+| =<m=   | Emacs Lisp                                      |
+|--------+-------------------------------------------------|
+| =<r=   | R                                               |
+| =<R=   | R + session + graphics                          |
+| =<RR=  | Like =R=, with graphics stored with the project |
+|--------+-------------------------------------------------|
+| =<p=   | Python                                          |
+| =<P=   | Python + session                                |
+| =<PP=  | Python + session + graphics                     |
+|--------+-------------------------------------------------|
+| =<b=   | Bash shell                                      |
+| =<B=   | Badh shell + session                            |
+|--------+-------------------------------------------------|
+| =<g=   | Graphviz                                        |
+|--------+-------------------------------------------------|
+
+#+begin_src emacs-lisp
+(unless ab-conf/new-org-templates
+  ;; this template is predefined in the new templating system
+  (ab-conf/add-org-template
+   '("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")))
+
+;; Emacs-lisp
+(ab-conf/add-org-template
+ '("m" "#+begin_src emacs-lisp\n\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>"))
+
+;; R
+(ab-conf/add-org-template
+ '("r" "#+begin_src R :results output :session *R* :exports both\n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+;; R, this creates an R block for graphics
+;; that are stored in the =/tmp/=.
+(ab-conf/add-org-template
+ '("R" "#+begin_src R :results output graphics :file (org-babel-temp-file \"figure\" \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+;; R, this creates an R block for
+;; graphics that are stored in the directory of the current file.
+(ab-conf/add-org-template
+ '("RR" "#+begin_src R :results output graphics :file  (org-babel-temp-file (concat (file-name-directory (or load-file-name buffer-file-name)) \"figure-\") \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+;; Python
+(ab-conf/add-org-template
+ '("p" "#+begin_src python :results output :exports both\n\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+(ab-conf/add-org-template
+ '("P" "#+begin_src python :results output :session *py* :exports both\n\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+(ab-conf/add-org-template
+ '("PP" "#+begin_src python :results file :session *py* :var matplot_lib_filename=(org-babel-temp-file \"figure\" \".png\") :exports both\nimport matplotlib.pyplot as plt\n\nimport numpy\nx=numpy.linspace(-15,15)\nplt.figure(figsize=(10,5))\nplt.plot(x,numpy.cos(x)/x)\nplt.tight_layout()\n\nplt.savefig(matplot_lib_filename)\nmatplot_lib_filename\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+;; Bash Shell
+(if (memq system-type '(windows-nt ms-dos))
+    ;; Non-session shell execution does not seem to work under Windows, so we use
+    ;; a named session just like for B.
+    (ab-conf/add-org-template
+     '("b" "#+begin_src shell :session session :results output :exports both\n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+  (ab-conf/add-org-template
+   '("b" "#+begin_src shell :results output :exports both\n\n#+end_src" "<src lang=\"sh\">\n\n</src>")))
+
+;; Bash Shell, this comes with a session argument (e.g., in case you want to keep ssh connexions open).
+(ab-conf/add-org-template
+ '("B" "#+begin_src shell :session *shell* :results output :exports both \n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+
+;; Graphviz
+(ab-conf/add-org-template
+ '("g" "#+begin_src dot :results output graphics :file \"/tmp/graph.pdf\" :exports both
+digraph G {
+node [color=black,fillcolor=white,shape=rectangle,style=filled,fontname=\"Helvetica\"];
+A[label=\"A\"]
+B[label=\"B\"]
+A->B
+}\n#+end_src" "<src lang=\"dot\">\n\n</src>"))
+#+end_src
+
+*** COMMENT Set custom path for =ditaa=
 #+begin_src emacs-lisp
 (setq org-ditaa-jar-path "/usr/share/java/ditaa/")
 #+end_src
@@ -449,30 +606,77 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
 
 ** Emacs Multi-Media System (=emms=)
 #+begin_src emacs-lisp
-(use-package emms
-  :config
-  (require 'emms-setup)
-  (require 'emms-info)
-  (require 'emms-cue)
-  (require 'emms-mode-line)
-  (require 'emms-playing-time)
-  (setq emms-source-file-default-directory "~/Music/Mohamed Rouane - Nulle Part/")
-  (setq emms-playlist-buffer-name "*EMMS Playlist*")
-  (setq emms-info-asynchronously t)
-  (unless (eq system-type 'windows-nt)
-    (setq emms-source-file-directory-tree-function
-          'emms-source-file-directory-tree-find))
-  (emms-all)
-  (emms-default-players)
-  (emms-mode-line 1)
-  (emms-playing-time 1))
+(emms-all)
+(emms-default-players)
+(emms-mode-line 1)
+(emms-playing-time 1)
+(setq emms-source-file-default-directory "~/Music/"
+      emms-playlist-buffer-name "*Music*"
+      emms-info-asynchronously t
+      emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+(map! :leader
+      :desc "Go to emms playlist"
+      "a a" #'emms-playlist-mode-go
+      :leader
+      :desc "Emms pause track"
+      "a x" #'emms-pause
+      :leader
+      :desc "Emms stop track"
+      "a s" #'emms-stop
+      :leader
+      :desc "Emms play previous track"
+      "a p" #'emms-previous
+      :leader
+      :desc "Emms play next track"
+      "a n" #'emms-next)
 #+end_src
 
-Add keybinding to launch EMMS (=SPC o M=)
 
+*** COMMENT Mode line settings
 #+begin_src emacs-lisp
-(map! :leader
-      :desc "Open EMMS" "o M" #'emms)
+(custom-set-variables
+ '(emms-mode-line-format "%s")
+ '(emms-show-format "EMMS: %s")
+ '(emms-source-file-default-directory "~/Music/"))
+
+(defun string-shift-left (str &optional offset)
+  "Shift STR content to the left OFFSET characters."
+  (or offset (setq offset 1))
+  (let ((str-len (length str)))
+    (if (< offset str-len)
+        (concat (substring-no-properties str offset)
+                (substring-no-properties str 0 offset))
+      str)))
+
+(defun emms-tick-mode-line-description (offset)
+  "Tick emms track description OFFSET characters."
+  (setq emms-mode-line-string
+        (string-shift-left emms-mode-line-string offset)))
+
+(defvar *my-emms-ticker* nil
+  "Timer for current track info ticker.")
+
+(defun emms-track-ticker-start ()
+  "Start ticking current TRACK info."
+  (or *my-emms-ticker*
+      (setq *my-emms-ticker*
+            (run-at-time t 2
+                         'emms-tick-mode-line-description 5))))
+
+(defun emms-track-ticker-stop ()
+  "Stop ticking current TRACK info."
+  (when *my-emms-ticker*
+    (cancel-timer *my-emms-ticker*)
+    (setq *my-emms-ticker* nil)))
+
+(add-hook 'emms-player-started-hook 'emms-track-ticker-start)
+(add-hook 'emms-player-stopped-hook 'emms-track-ticker-stop)
+(add-hook 'emms-player-finished-hook 'emms-track-ticker-stop)
+(add-hook 'emms-player-paused-hook
+          (lambda () "Start/Stop track ticker."
+            (if *my-emms-ticker*
+                (emms-track-ticker-stop)
+              (emms-track-ticker-start))))
 #+end_src
 
 ** Serial port support (=serial-term=)

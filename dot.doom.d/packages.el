@@ -49,6 +49,7 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 (package! emms)
+(package! ivy-emms)
 (package! md4rd)
 (package! peep-dired)
 (package! bitbake)
