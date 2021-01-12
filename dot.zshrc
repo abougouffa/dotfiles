@@ -71,7 +71,7 @@ ZSH_CUSTOM=$HOME/.my_ohmyzsh_customizations
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(archlinux rustup rust zsh-autosuggestions git docker emacs sudo ripgrep)
+plugins=(archlinux rustup rust zsh-autosuggestions git docker sudo ripgrep)
 
 source $ZSH/oh-my-zsh.sh
 

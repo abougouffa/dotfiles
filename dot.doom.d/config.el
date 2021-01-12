@@ -9,7 +9,7 @@
 
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(setq fancy-splash-image "~/.doom.d/nasa_blackhole.png")
+(setq fancy-splash-image "~/.doom.d/blackhole.png")
 
 (setq doom-font (font-spec :family "JetBrains Mono" :size 30)
       doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
@@ -17,14 +17,14 @@
 ;; Activate solaire-mode, this have to be called before loading the theme
 (solaire-global-mode +1)
 
-;; (setq doom-theme 'doom-one) ; Load theme
+(setq doom-theme 'doom-one) ; Load theme
 ;; (setq doom-theme 'doom-palenight) ; Load theme
 ;; (setq doom-theme 'doom-horizon)   ; Load theme
-(setq doom-theme 'doom-old-hope)   ; Load theme
+;; (setq doom-theme 'doom-old-hope)   ; Load theme
 ;; (setq doom-theme 'doom-snazzy) ; Load theme
 ;; (setq doom-theme 'doom-peacock) ; Load theme
 
-(setq display-line-numbers-type t) ; Enable line numbers
+(setq display-line-numbers-type 'relative) ; Enable line numbers
 
 (require 'evil-numbers)
 
@@ -35,8 +35,8 @@
 (setq display-time-string-forms
       '((propertize (concat 24-hours ":" minutes))))
 
-(display-time-mode) ;; Display the time
 (display-battery-mode) ;; Display the battery status
+(display-time-mode) ;; Display the time
 
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
@@ -58,15 +58,61 @@
         (t (message "No changes have been made."))))
 
 (map! :leader
-      :desc "Spell dictionary" "t d")
+      :desc "spell/lang" "l")
 
 (map! :leader
-      :desc "American" "t d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
+      :desc "spell" "l s")
 
 (map! :leader
-      :desc "Français" "t d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
+      :desc "dictionary" "l s d")
+
+(map! :leader
+      :desc "American" "l s d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
+
+(map! :leader
+      :desc "Français" "l s d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
+
+(require 'langtool)
+
+
+(map! :leader
+      :desc "langtool" "l l")
+
+(map! :leader
+      :desc "Check" "l l l" #'langtool-check)
+
+(map! :leader
+      :desc "Correct buffer" "l l b" #'langtool-correct-buffer)
+
+(map! :leader
+      :desc "Stop server" "l l s" #'langtool-server-stop)
+
+(map! :leader
+      :desc "Done checking" "l l d" #'langtool-check-done)
+
+(map! :leader
+      :desc "Show msg at point" "l l m" #'langtool-show-message-at-point)
+
+(map! :leader
+      :desc "Next error" "l l n" #'langtool-goto-next-error)
+
+(map! :leader
+      :desc "Previous error" "l l p" #'langtool-goto-previous-error)
+
+(map! :leader
+      :desc "Switch default language" "l l L" #'langtool-switch-default-language)
 
 (setq org-directory "~/Work/org/")
+
+(custom-set-faces
+ '(org-document-title ((t (:inherit default :height 1.6 :underline nil))))
+ '(org-tag ((t (:inherit default :weight bold :height 1.0))))
+ '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ )
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -310,9 +356,6 @@ A->B
 
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)
-
-(use-package emacs-rg
- :requires 'rg)
 
 (use-package racer
   :requires rust-mode
