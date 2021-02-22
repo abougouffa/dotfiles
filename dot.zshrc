@@ -114,16 +114,19 @@ fortune
 # Completion for kitty
 # kitty + complete setup zsh | source /dev/stdin
 
-# Rename the "update_ohmyszh" function to "_uptate_ohmyzsh"
-eval "`declare -f update_ohmyzsh | sed '1s/.*/_&/'`"
+# Enable Meta key + colors in minicom
+export MINICOM='-m -c on'
 
-update_ohmyzsh () {
-	# Stash customized stuff (mainly, my modified "amuse" theme)
-	cd $ZSH && git stash
-	_update_ohmyzsh
-	# Pop the stash
-	cd $ZSH && git stash pop
-}
+# Rename the "update_ohmyszh" function to "_uptate_ohmyzsh"
+# eval "`declare -f update_ohmyzsh | sed '1s/.*/_&/'`"
+
+# update_ohmyzsh () {
+# 	# Stash customized stuff (mainly, my modified "amuse" theme)
+# 	cd $ZSH && git stash
+# 	_update_ohmyzsh
+# 	# Pop the stash
+# 	cd $ZSH && git stash pop
+# }
 
 export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
 export PATH=$PATH:$HOME/.cargo/bin
