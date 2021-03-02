@@ -43,19 +43,32 @@ This function should only modify configuration layer settings."
      erc slack
 
      ;; * Checkers
-     spell-checking languagetool syntax-checking
+     syntax-checking spell-checking
+     (languagetool :variables
+                   langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"
+                   langtool-default-language "en-US")
 
      ;; * Completion
      auto-completion helm templates
 
      ;; * Emacs
-     helpful ibuffer semantic tabs org
+     helpful ibuffer tabs
+     (org :variables
+          org-enable-org-journal-support t
+          org-journal-dir "~/Org/journal/"
+          org-journal-file-format "%Y-%m-%d"
+
+          org-enable-github-support t
+          org-enable-roam-support t
+          org-roam-directory "~/Org/roam"
+          org-enable-sticky-header t)
 
      ;; * Email
      mu4e
 
      ;; * Filetree
-     (treemacs :variables treemacs-use-all-the-icons-theme t)
+     (treemacs :variables
+               treemacs-use-all-the-icons-theme t)
 
      ;; * Fonts
      unicode-fonts
@@ -65,7 +78,7 @@ This function should only modify configuration layer settings."
 
      ;; * Programming Languages
      ;; ** Domain-specific (DSLs)
-     common-lisp emacs-lisp gpu sql
+     common-lisp emacs-lisp gpu
 
      ;; *** Markup & configuration
      asciidoc bibtex csv graphviz html json latex markdown plantuml restructuredtext yaml
@@ -79,8 +92,22 @@ This function should only modify configuration layer settings."
      ;; *** Scientific
      ess julia octave ipython-notebook
 
-     ;; ** General Purpuse
-     asm c-c++ lua python rust
+     ;; ** General Purpose
+     asm lua
+     (python :variables
+             python-backend 'lsp
+             python-lsp-server 'pyright ;; yay -S pyright
+             python-formatter 'yapf ;; pip install --user yapf
+             python-format-on-save t)
+     (rust :variables
+           rust-format-on-save t)
+     (c-c++ :variables
+            c-c++-default-mode-for-headers 'c-mode
+            c-c++-adopt-subprojects t
+            c-c++-backend 'lsp-clangd
+            c-c++-lsp-enable-semantic-highlight 'rainbow
+            c++-enable-organize-includes-on-save t
+            c-c++-enable-clang-format-on-save t)
 
      ;; * Miscellaneous
      copy-as-format multiple-cursors
@@ -97,18 +124,18 @@ This function should only modify configuration layer settings."
      git version-control
 
      ;; * Themes
-     colors ;themes-megapack
+     colors ; themes-megapack
 
      ;; * Tools
      ;; Dependencies:
-     ;; pip install --user cmake-language-server # cmake ls
-     dap debug docker lsp pandoc prettier ranger sphinx systemd vagrant web-beautify xclipboard
+     ;; pip install --user cmake-language-server
+     dap debug docker pandoc prettier ranger sphinx systemd vagrant web-beautify xclipboard lsp
      (cmake :variables
-            cmake-enable-cmake-ide-support t)
-
+            cmake-enable-cmake-ide-support t
+            cmake-backend 'lsp)
      (shell :variables
             shell-default-shell 'vterm
-            shell-default-height 30
+            shell-default-height 40
             shell-default-position 'bottom)
 
      ;; * Web Services
@@ -124,7 +151,8 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '( bitbake
+                                       sqlite3 )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -234,7 +262,7 @@ It should only modify the values of Spacemacs settings."
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
-   dotspacemacs-startup-banner 'official
+   dotspacemacs-startup-banner 'random
 
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
@@ -285,7 +313,7 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator alternate :separator-scale 0.75)
+   dotspacemacs-mode-line-theme '(spacemacs :separator bar :separator-scale 0.75)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -329,7 +357,7 @@ It should only modify the values of Spacemacs settings."
    ;; and TAB or `C-m' and `RET'.
    ;; In the terminal, these pairs are generally indistinguishable, so this only
    ;; works in the GUI. (default nil)
-   dotspacemacs-distinguish-gui-tab nil
+   dotspacemacs-distinguish-gui-tab t
 
    ;; Name of the default layout (default "Default")
    dotspacemacs-default-layout-name "Default"
@@ -462,7 +490,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
    ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
-   dotspacemacs-smart-closing-parenthesis t
+   dotspacemacs-smart-closing-parenthesis nil
 
    ;; Select a scope to highlight delimiters. Possible values are `any',
    ;; `current', `all' or `nil'. Default is `all' (highlight any scope and
@@ -575,11 +603,231 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+
+  ;; Display time in mode-line
+  (setq display-time-string-forms
+        '((propertize (concat 24-hours ":" minutes))))
+
+  (display-time-mode)
+
+  ;; Enable line wrapping globally
+  (global-visual-line-mode t)
+
+  ;; Enable syntax highlighting in exported PDFs
+  (require 'org)
+  (require 'ox-latex)
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (setq org-latex-listings 'minted)
+
+  (setq org-latex-pdf-process
+        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+  (setq org-src-fontify-natively t)
+
+  ;; Add margins to buffer in Org Mode,
+  ;; change the =visual-fill-column-width= to the desired width of
+  ;; the actual window (in letters, and counting the line number).
+  (defun ab-conf/org-mode-visual-fill ()
+    (setq visual-fill-column-width 120
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :defer t
+    :hook (org-mode . ab-conf/org-mode-visual-fill))
+
+  ;; Add the same hook to other modes
+  ;; (=text-mode=, =markdown-mode=, =tex-mode-hook=, =repo-mode= and =magit-mode=),
+  ;; you can set additional modes in the list below:
+  (dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
+    (add-hook hook 'ab-conf/org-mode-visual-fill))
+
+  ;; Literate programming (=org-babel=) :babel:literate:
+  ;; -> Add to languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (shell . t)
+     (python . t)
+     (R . t)
+     (ruby . t)
+     (ocaml . t)
+     (ditaa . t)
+     (dot . t)
+     (octave . t)
+     (sqlite . t)
+     (perl . t)
+     (screen . t)
+     (plantuml . t)
+     (lilypond . t)
+     (org . t)
+     (ditaa . t)
+     (makefile . t)
+     ))
+
+  ;; (setq org-src-preserve-indentation t)
+
+  ;; -> Adding templates
+  ;; --> Enable the new template system for Org Mode 9.2 and later
+  (setq ab-conf/new-org-templates t) ;;; (version<= "9.2" (org-version))
+  (when ab-conf/new-org-templates
+    (require 'org-tempo))
+
+  ;; --> Template definitions for old and new template systems
+  (defun ab-conf/add-org-template (old-style-template)
+    (add-to-list 'org-structure-template-alist
+                 (if ab-conf/new-org-templates ; change the template format for Org Mode >= 9.8
+                     (cons
+                      (car old-style-template)
+                      ;; Take the second element and trim the #+begin_ and #+end_src
+                      ;; to fit the new template style
+                      ;; For example,
+                      ;; ("m" "#+begin_src emacs-lisp\n\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>")
+                      ;; becomes
+                      ;; ("m" "src emacs-lisp\n\n" "<src lang=\"emacs-lisp\">\n\n</src>")
+                      (string-trim-right
+                       (substring (car (cdr old-style-template)) 8 -9)))
+                   old-style-template)))
+
+  ;; --> Add templates
+  ;; To use this type the prefix (like =<s=) and then =TAB=
+
+  ;; | Prefix | Language                                        |
+  ;; |--------+-------------------------------------------------|
+  ;; | =<s=   | Generic (=#src= block)                          |
+  ;; |--------+-------------------------------------------------|
+  ;; | =<m=   | Emacs Lisp                                      |
+  ;; |--------+-------------------------------------------------|
+  ;; | =<r=   | R                                               |
+  ;; | =<R=   | R + session + graphics                          |
+  ;; | =<RR=  | Like =R=, with graphics stored with the project |
+  ;; |--------+-------------------------------------------------|
+  ;; | =<p=   | Python                                          |
+  ;; | =<P=   | Python + session                                |
+  ;; | =<PP=  | Python + session + graphics                     |
+  ;; |--------+-------------------------------------------------|
+  ;; | =<b=   | Bash shell                                      |
+  ;; | =<B=   | Bash shell + session                            |
+  ;; | =<bn=  | Bash (no output)                                |
+  ;; |--------+-------------------------------------------------|
+  ;; | =<g=   | Graphviz                                        |
+  ;; |--------+-------------------------------------------------|
+
+  (unless ab-conf/new-org-templates
+    ;; this template is predefined in the new templating system
+    (ab-conf/add-org-template
+     '("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")))
+
+  ;; Emacs-lisp
+  (ab-conf/add-org-template
+   '("m" "#+begin_src emacs-lisp\n\n#+end_src" "<src lang=\"emacs-lisp\">\n\n</src>"))
+
+  ;; R
+  (ab-conf/add-org-template
+   '("r" "#+begin_src R :results output :session *R* :exports both\n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+  ;; R, this creates an R block for graphics
+  ;; that are stored in the =/tmp/=.
+  (ab-conf/add-org-template
+   '("R" "#+begin_src R :results output graphics :file (org-babel-temp-file \"figure\" \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+  ;; R, this creates an R block for
+  ;; graphics that are stored in the directory of the current file.
+  (ab-conf/add-org-template
+   '("RR" "#+begin_src R :results output graphics :file  (org-babel-temp-file (concat (file-name-directory (or load-file-name buffer-file-name)) \"figure-\") \".png\") :exports both :width 600 :height 400 :session *R* \n\n#+end_src" "<src lang=\"R\">\n\n</src>"))
+
+  ;; Python
+  (ab-conf/add-org-template
+   '("p" "#+begin_src python :results output :exports both\n\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+  (ab-conf/add-org-template
+   '("P" "#+begin_src python :results output :session *py* :exports both\n\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+  (ab-conf/add-org-template
+   '("PP" "#+begin_src python :results file :session *py* :var matplot_lib_filename=(org-babel-temp-file \"figure\" \".png\") :exports both\nimport matplotlib.pyplot as plt\n\nimport numpy\nx=numpy.linspace(-15,15)\nplt.figure(figsize=(10,5))\nplt.plot(x,numpy.cos(x)/x)\nplt.tight_layout()\n\nplt.savefig(matplot_lib_filename)\nmatplot_lib_filename\n#+end_src" "<src lang=\"python\">\n\n</src>"))
+
+  ;; Bash Shell
+  (if (memq system-type '(windows-nt ms-dos))
+      ;; Non-session shell execution does not seem to work under Windows, so we use
+      ;; a named session just like for B.
+      (ab-conf/add-org-template
+       '("b" "#+begin_src shell :session session :results output :exports both\n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+    (ab-conf/add-org-template
+     '("b" "#+begin_src shell :results output :exports both\n\n#+end_src" "<src lang=\"sh\">\n\n</src>")))
+
+  ;; Bash Shell, this comes with a session argument (e.g., in case you want to keep ssh connexions open).
+  (ab-conf/add-org-template
+   '("B" "#+begin_src shell :session *shell* :results output :exports both \n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+
+  ;; Bash Shell, this comes with a session argument (e.g., in case you want to keep ssh connexions open).
+  (ab-conf/add-org-template
+   '("bn" "#+begin_src shell \n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+
+  ;; Graphviz
+  (ab-conf/add-org-template
+   '("g" "#+begin_src dot :results output graphics :file \"/tmp/graph.pdf\" :exports both
+digraph G {
+node [color=black,fillcolor=white,shape=rectangle,style=filled,fontname=\"Helvetica\"];
+A[label=\"A\"]
+B[label=\"B\"]
+A->B
+}\n#+end_src" "<src lang=\"dot\">\n\n</src>"))
+
+  ;; ----------------
+
+  ;; Email configuration (mu4e)
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+  (require 'mu4e)
+  (require 'smtpmail)
+  (setq user-mail-address "a.bougouffa@ez-wheel.com"
+        user-full-name  "Abdelhak Bougouffa"
+        mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+        mu4e-update-interval 300
+        mu4e-compose-signature
+        (concat "- Abdelhak BOUGOUFFA\n"
+                "- Doctorant | Ingénieur R&D\n"
+                "- Université Paris-Saclay - SATIE | ez-Wheel\n"
+                "----------------\n"
+                "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
+                "- a.bougouffa@ez-wheel.com\n")
+        mu4e-main-buffer-hide-personal-addresses t
+        message-send-mail-function 'smtpmail-send-it
+        starttls-use-gnutls t
+        smtpmail-smtp-service 587
+        smtpmail-smtp-server "ex.mail.ovh.net"
+        ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
+        smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
+        mu4e-sent-folder "/ezwheel/Sent Items"
+        mu4e-drafts-folder "/ezwheel/Drafts"
+        mu4e-trash-folder "/ezwheel/Trash"
+        mu4e-maildir-shortcuts
+        '(("/univ-paris-saclay/INBOX" . ?i)
+          ("/ezwheel/INBOX"          . ?I)
+          ("/ezwheel/Sent Items"     . ?s)
+          ("/ezwheel/Drafts"         . ?d)
+          ("/ezwheel/Trash"          . ?t)))
+
+  ;; Set gT and gt to navigate between centaur-tabs
   ;; (setq global-flycheck-mode nil)
   (with-eval-after-load 'evil-maps
     (when (featurep 'tab-bar)
       (define-key evil-normal-state-map "gt" 'centaur-tabs-forward)
       (define-key evil-normal-state-map "gT" 'centaur-tabs-backward)))
+
+
+  ;; Bitbake/Yocto
+  (require 'bitbake)
+  (setq auto-mode-alist (cons '("\\.bb$" . bitbake-mode) auto-mode-alist))
+  (setq auto-mode-alist (cons '("\\.inc$" . bitbake-mode) auto-mode-alist))
+  (setq auto-mode-alist (cons '("\\.bbappend$" . bitbake-mode) auto-mode-alist))
+  (setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))
+
+  ;; ROS
+  (setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -596,7 +844,7 @@ This function is called at the very end of Spacemacs initialization."
    ;; If there is more than one, they won't work right.
    '(evil-want-Y-yank-to-eol nil)
    '(package-selected-packages
-     '(zeal-at-point x86-lookup web-mode vimrc-mode unicode-fonts ucs-utils font-utils typit mmt tagedit systemd sudoku stickyfunc-enhance srefactor sql-indent spray slim-mode slack circe oauth2 scss-mode sass-mode pug-mode powershell persistent-soft pcache pacmacs orgit org-rich-yank org-projectile org-category-capture org-present org-pomodoro org-mime org-download org-cliplink org-brain opencl-mode nov esxml nasm-mode impatient-mode simple-httpd helpful elisp-refs helm-org-rifle helm-dash dash-docs helm-css-scss haml-mode gnuplot glsl-mode flyspell-correct-helm flyspell-correct evil-org erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks engine-mode emojify emoji-cheat-sheet-plus emmet-mode elfeed-org elfeed-goodies ace-jump-mode noflet elfeed dtrt-indent deft dap-mode bui dactyl-mode cuda-mode copy-as-format confluence xml-rpc company-web web-completion-data company-glsl company-emoji auto-dictionary adoc-mode markup-faces 2048-game yatemplate yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode wolfram-mode winum which-key web-beautify vterm volatile-highlights vi-tilde-fringe vala-snippets vala-mode vagrant-tramp vagrant uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil treemacs-all-the-icons toml-mode toc-org thrift terminal-here symon symbol-overlay string-inflection stan-mode sphinx-doc spaceline-all-the-icons smeargle slime-company shell-pop scad-mode ron-mode restart-emacs realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer qml-mode pytest pyenv-mode py-isort prettier-js popwin poetry plantuml-mode pkgbuild-mode pippel pipenv pip-requirements pcre2el password-generator paradox pandoc-mode ox-pandoc overseer org-superstar org-ref open-junk-file nameless multi-term mu4e-maildirs-extension mu4e-alert move-text mmm-mode matlab-mode markdown-toc magit-svn magit-section magit-gitflow lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lsp-latex lsp-julia lorem-ipsum logcat live-py-mode link-hint julia-repl json-navigator insert-shebang indent-guide importmagic ibuffer-projectile hybrid-mode hungry-delete hoon-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-org helm-mu helm-mode-manager helm-make helm-lsp helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-ctest helm-company helm-c-yasnippet helm-ag graphviz-dot-mode google-translate google-c-style golden-ratio gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ gh-md fuzzy forge font-lock+ flycheck-ycmd flycheck-rust flycheck-rtags flycheck-pos-tip flycheck-package flycheck-elsa flycheck-bashate flx-ido fish-mode fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-cleverparens evil-args evil-anzu eval-sexp-fu ess-R-data-view eshell-z eshell-prompt-extras esh-help emr elisp-slime-nav ein editorconfig ebuild-mode dumb-jump dotenv-mode dockerfile-mode docker disaster dired-quick-sort diminish devdocs define-word cython-mode csv-mode cpp-auto-include company-ycmd company-shell company-rtags company-reftex company-math company-lua company-c-headers company-auctex company-anaconda common-lisp-snippets column-enforce-mode color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode centered-cursor-mode centaur-tabs ccls cargo browse-at-remote blacken auto-yasnippet auto-highlight-symbol auto-compile auctex-latexmk arduino-mode aggressive-indent ace-link ace-jump-helm-line ac-ispell)))
+     '(bitbake langtool zeal-at-point x86-lookup web-mode vimrc-mode unicode-fonts ucs-utils font-utils typit mmt tagedit systemd sudoku stickyfunc-enhance srefactor sql-indent spray slim-mode slack circe oauth2 scss-mode sass-mode pug-mode powershell persistent-soft pcache pacmacs orgit org-rich-yank org-projectile org-category-capture org-present org-pomodoro org-mime org-download org-cliplink org-brain opencl-mode nov esxml nasm-mode impatient-mode simple-httpd helpful elisp-refs helm-org-rifle helm-dash dash-docs helm-css-scss haml-mode gnuplot glsl-mode flyspell-correct-helm flyspell-correct evil-org erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks engine-mode emojify emoji-cheat-sheet-plus emmet-mode elfeed-org elfeed-goodies ace-jump-mode noflet elfeed dtrt-indent deft dap-mode bui dactyl-mode cuda-mode copy-as-format confluence xml-rpc company-web web-completion-data company-glsl company-emoji auto-dictionary adoc-mode markup-faces 2048-game yatemplate yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode wolfram-mode winum which-key web-beautify vterm volatile-highlights vi-tilde-fringe vala-snippets vala-mode vagrant-tramp vagrant uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil treemacs-all-the-icons toml-mode toc-org thrift terminal-here symon symbol-overlay string-inflection stan-mode sphinx-doc spaceline-all-the-icons smeargle slime-company shell-pop scad-mode ron-mode restart-emacs realgud ranger rainbow-mode rainbow-identifiers rainbow-delimiters racer qml-mode pytest pyenv-mode py-isort prettier-js popwin poetry plantuml-mode pkgbuild-mode pippel pipenv pip-requirements pcre2el password-generator paradox pandoc-mode ox-pandoc overseer org-superstar org-ref open-junk-file nameless multi-term mu4e-maildirs-extension mu4e-alert move-text mmm-mode matlab-mode markdown-toc magit-svn magit-section magit-gitflow lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lsp-latex lsp-julia lorem-ipsum logcat live-py-mode link-hint julia-repl json-navigator insert-shebang indent-guide importmagic ibuffer-projectile hybrid-mode hungry-delete hoon-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-org helm-mu helm-mode-manager helm-make helm-lsp helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-ctest helm-company helm-c-yasnippet helm-ag graphviz-dot-mode google-translate google-c-style golden-ratio gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ gh-md fuzzy forge font-lock+ flycheck-ycmd flycheck-rust flycheck-rtags flycheck-pos-tip flycheck-package flycheck-elsa flycheck-bashate flx-ido fish-mode fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-cleverparens evil-args evil-anzu eval-sexp-fu ess-R-data-view eshell-z eshell-prompt-extras esh-help emr elisp-slime-nav ein editorconfig ebuild-mode dumb-jump dotenv-mode dockerfile-mode docker disaster dired-quick-sort diminish devdocs define-word cython-mode csv-mode cpp-auto-include company-ycmd company-shell company-rtags company-reftex company-math company-lua company-c-headers company-auctex company-anaconda common-lisp-snippets column-enforce-mode color-identifiers-mode cmake-mode cmake-ide clean-aindent-mode centered-cursor-mode centaur-tabs ccls cargo browse-at-remote blacken auto-yasnippet auto-highlight-symbol auto-compile auctex-latexmk arduino-mode aggressive-indent ace-link ace-jump-helm-line ac-ispell)))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.

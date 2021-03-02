@@ -103,20 +103,6 @@ source $ZSH/oh-my-zsh.sh
 #
 #
 
-alias vim="nvim"
-alias vi="nvim"
-
-# Run fortune to display random quote
-fortune
-
-# autoload -Uz compinit
-# compinit
-# Completion for kitty
-# kitty + complete setup zsh | source /dev/stdin
-
-# Enable Meta key + colors in minicom
-export MINICOM='-m -c on'
-
 # Rename the "update_ohmyszh" function to "_uptate_ohmyzsh"
 # eval "`declare -f update_ohmyzsh | sed '1s/.*/_&/'`"
 
@@ -128,6 +114,22 @@ export MINICOM='-m -c on'
 # 	cd $ZSH && git stash pop
 # }
 
+# ALIASES ===========================================================
+alias vim="nvim"
+alias vi="nvim"
+alias ec="emacsclient -t"
+
+# Kitty settings
+# autoload -Uz compinit
+# compinit
+# Completion for kitty
+# kitty + complete setup zsh | source /dev/stdin
+
+# EXPORTS ===========================================================
+
+# Enable Meta key + colors in minicom
+export MINICOM='-m -c on'
+
 export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
 export PATH=$PATH:$HOME/.cargo/bin
 
@@ -135,3 +137,13 @@ export PATH=$PATH:$HOME/.cargo/bin
 # export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/libs/bin
 export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/sources-and-libs/build_installs
 export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
+
+
+# STARTUP STUFF =====================================================
+# Install from AUR shell-color-scripts
+# Display random graphics
+colorscript random
+
+# Run fortune to display random quote
+# fortune
+
