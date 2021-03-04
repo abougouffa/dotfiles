@@ -59,14 +59,25 @@ This function should only modify configuration layer settings."
           org-journal-file-format "%Y-%m-%d"
 
           org-enable-github-support t
+          org-enable-sticky-header t
+
           org-enable-roam-support t
-          org-roam-directory "~/Org/roam"
-          org-enable-sticky-header t)
+          ;; org-roam-db-location "~/Org/roam"
+          org-roam-index-file "~/Org/roam/index.org"
+          org-roam-directory "~/Org/roam")
 
      ;; * Email
-     mu4e
+     (mu4e :variables
+           mu4e-installation-path "/usr/share/emacs/site-lisp"
+           mu4e-use-maildirs-extension t
+           mu4e-enable-notifications t
+           mu4e-enable-mode-line t
+           mu4e-spacemacs-layout-name "@Mu4e"
+           mu4e-spacemacs-layout-binding "m"
+           mu4e-spacemacs-kill-layout-on-exit t
+           mu4e-org-compose-support t)
 
-     ;; * Filetree
+     ;; * File tree
      (treemacs :variables
                treemacs-use-all-the-icons-theme t)
 
@@ -606,7 +617,7 @@ before packages are loaded."
 
   ;; Display time in mode-line
   (setq display-time-string-forms
-        '((propertize (concat 24-hours ":" minutes))))
+        '((propertize (concat 24-hours "h" minutes))))
 
   (display-time-mode)
 
@@ -779,36 +790,224 @@ A->B
   ;; ----------------
 
   ;; Email configuration (mu4e)
-  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
-  (require 'mu4e)
-  (require 'smtpmail)
-  (setq user-mail-address "a.bougouffa@ez-wheel.com"
-        user-full-name  "Abdelhak Bougouffa"
-        mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+  ;;(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+  (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
         mu4e-update-interval 300
-        mu4e-compose-signature
-        (concat "- Abdelhak BOUGOUFFA\n"
-                "- Doctorant | Ingénieur R&D\n"
-                "- Université Paris-Saclay - SATIE | ez-Wheel\n"
-                "----------------\n"
-                "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
-                "- a.bougouffa@ez-wheel.com\n")
         mu4e-main-buffer-hide-personal-addresses t
         message-send-mail-function 'smtpmail-send-it
         starttls-use-gnutls t
-        smtpmail-smtp-service 587
-        smtpmail-smtp-server "ex.mail.ovh.net"
         ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
-        smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
-        mu4e-sent-folder "/ezwheel/Sent Items"
-        mu4e-drafts-folder "/ezwheel/Drafts"
-        mu4e-trash-folder "/ezwheel/Trash"
-        mu4e-maildir-shortcuts
-        '(("/univ-paris-saclay/INBOX" . ?i)
-          ("/ezwheel/INBOX"          . ?I)
-          ("/ezwheel/Sent Items"     . ?s)
-          ("/ezwheel/Drafts"         . ?d)
-          ("/ezwheel/Trash"          . ?t)))
+        smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg"))
+
+  (setq mu4e-contexts
+        `( ,(make-mu4e-context
+             :name "ez-Wheel"
+             :enter-func (lambda () (mu4e-message "Switch to the ez-Wheel context"))
+             ;; leave-func not defined
+             :match-func (lambda (msg)
+                           (when msg
+                             (mu4e-message-contact-field-matches msg
+                                                                 :to "a.bougouffa@ez-wheel.com")))
+             :vars '( ( user-mail-address . "a.bougouffa@ez-wheel.com"  )
+                      ( user-full-name . "Abdelhak Bougouffa" )
+                      ( mu4e-compose-signature .
+                                               (concat "- Abdelhak BOUGOUFFA\n"
+                                                       "- Doctorant | Ingénieur R&D\n"
+                                                       "- Université Paris-Saclay - SATIE | ez-Wheel\n"
+                                                       "----------------\n"
+                                                       "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
+                                                       "- a.bougouffa@ez-wheel.com\n"))
+
+                      ( mu4e-main-buffer-hide-personal-addresses . t )
+                      ( message-send-mail-function . 'smtpmail-send-it )
+                      ( starttls-use-gnutls . t )
+                      ( smtpmail-smtp-service . 587 )
+                      ( smtpmail-smtp-server . "ex.mail.ovh.net" )
+                      ( smtpmail-auth-credentials . (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg") )
+                      ))
+           ,(make-mu4e-context
+             :name "UP-Saclay"
+             :enter-func (lambda () (mu4e-message "Switch to the University context"))
+             ;; leave-fun not defined
+             :match-func (lambda (msg)
+                           (when msg
+                             (mu4e-message-contact-field-matches msg
+                                                                 :to "abdelhak.bougouffa@universite-paris-saclay.fr")))
+             :vars '( ( user-mail-address . "abdelhak.bougouffa@universite-paris-saclay.fr" )
+                      ( user-full-name . "Abdelhak Bougouffa" )
+                      ( mu4e-compose-signature .
+                                               (concat "- Abdelhak BOUGOUFFA\n"
+                                                       "- Doctorant | Ingénieur R&D\n"
+                                                       "- Université Paris-Saclay - SATIE | ez-Wheel\n"
+                                                       "----------------\n"
+                                                       "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
+                                                       "- a.bougouffa@ez-wheel.com\n"))
+                      ( mu4e-main-buffer-hide-personal-addresses . t )
+                      ( message-send-mail-function . 'smtpmail-send-it )
+                      ( starttls-use-gnutls . t )
+                      ( smtpmail-smtp-service . 587 )
+                      ( smtpmail-smtp-server . "ex.mail.ovh.net" )
+                      ( smtpmail-auth-credentials . (expand-file-name "~/.config/mu4e/authinfo-univ-paris-saclay.gpg"))))))
+
+  ;; set `mu4e-context-policy` and `mu4e-compose-policy` to tweak when mu4e should
+  ;; guess or ask the correct context, e.g.
+
+  ;; start with the first (default) context;
+  ;; default is to ask-if-none (ask when there's no context yet, and none match)
+  ;; (setq mu4e-context-policy 'pick-first)
+
+  ;; compose with the current context is no context matches;
+  ;; default is to ask
+  ;; (setq mu4e-compose-context-policy nil)
+  ;; * Org-Mode settings :org:
+  ;; Set the default org-mode directory
+  ;; ------------------------------
+  (setq org-directory "~/Org/")
+
+  ;; ** COMMENT RTL languages :rtl:arabic:
+  ;; Enables [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bidirectional-Editing.html][bidirectional editing]]
+
+  ;; (defun ab-conf/set-bidi-env ()
+  ;;   "interactive"
+  ;;   (setq bidi-paragraph-direction 'nil))
+  ;; (add-hook 'org-mode-hook 'ab-conf/set-bidi-env)
+
+  ;; * GTD workflow :gtd:
+  ;; Parts from this section has been taken form
+  ;; [[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
+
+  ;; ** Files and directories
+  (setq org-agenda-files (list "~/Org/inbox.org" "~/Org/agenda.org"
+                               "~/Org/notes.org" "~/Org/projects.org"))
+                                        ;(setq org-agenda-files (list "~/Work/org"))
+
+  ;; *** COMMENT Initial content of files
+  ;; **** The =inbox.org= file:
+  ;; #+STARTUP: content showstars indent
+  ;; #+FILETAGS: inbox
+
+  ;; The =STARTUP= line defines some buffer settings (initial visibility, indent mode and star visibility)
+  ;; while the =FILETAGS= line define a common tag that will be inherited by all entries (=inbox= in this case).
+
+  ;; **** The =agenda.org= file:
+  ;; #+STARTUP: hideall showstars indent
+  ;; #+TAGS:    event(e) meeting(m) deadline(d)
+  ;; #+TAGS:    @outside(o) @company(p) @lab(b) @online(l) @canceled(c)
+
+  ;; **** The =projects.org= file:
+  ;; #+STARTUP: content showstars indent
+  ;; #+TAGS: @home(h) @work(w) @mail(m) @comp(c) @web(b)
+  ;; #+PROPERTY: Effort_ALL 0 0:05 0:10 0:15 0:30 0:45 1:00 2:00 4:00
+  ;; * Students :students:
+  ;; * Team :team:
+  ;; * Collaboratorive projects :collaborative:project:
+  ;; * Events organization :events:
+  ;; * Academic papers :article:
+  ;; * Personal projects :personal:project:
+  ;; * ez-Wheel :ezwheel:
+  ;; * Home :home:
+
+  ;; ** Capture and inbox
+  (setq org-capture-templates
+        `(("i" "Inbox" entry (file "inbox.org")
+           "* TODO %?\n/Entered on/ %U")
+          ("m" "Meeting" entry (file+headline "agenda.org" "Future")
+           "* %? :meeting:\n<%<%Y-%m-%d %a %H:00>>")
+          ("n" "Note" entry (file "notes.org")
+           "* Note (%a)\n/Entered on/ %U\n" "\n" "%?")
+          ("@" "Inbox [mu4e]" entry (file "inbox.org")
+           "* TODO Reply to \"%a\" %?\n/Entered on/ %U")))
+
+  (defun org-capture-inbox ()
+    (interactive)
+    (call-interactively 'org-store-link)
+    (org-capture nil "i"))
+
+  (defun org-capture-mail ()
+    (interactive)
+    (call-interactively 'org-store-link)
+    (org-capture nil "@"))
+
+  ;; ** Display and key bindings
+  ;; Use full window for org-capture
+                                        ;(add-hook 'org-capture-mode-hook 'delete-other-windows)
+
+  ;; Key bindings
+  (define-key global-map            (kbd "C-c a") 'org-agenda)
+  (define-key global-map            (kbd "C-c c") 'org-capture)
+  (define-key global-map            (kbd "C-c i") 'org-capture-inbox)
+
+  ;; Only if you use mu4e
+  (require 'mu4e)
+  (define-key mu4e-headers-mode-map (kbd "C-c i") 'org-capture-mail)
+  (define-key mu4e-view-mode-map    (kbd "C-c i") 'org-capture-mail)
+
+  ;; ** Refile
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
+  (setq org-refile-targets
+        '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
+
+  ;; ** TODOs
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")))
+  (defun log-todo-next-creation-date (&rest ignore)
+    "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+    (when (and (string= (org-get-todo-state) "NEXT")
+               (not (org-entry-get nil "ACTIVATED")))
+      (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+  (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+
+  ;; ** Agenda
+  (setq org-agenda-custom-commands
+        '(("g" "Get Things Done (GTD)"
+           ((agenda ""
+                    ((org-agenda-skip-function
+                      '(org-agenda-skip-entry-if 'deadline))
+                     (org-deadline-warning-days 0)))
+            (todo "NEXT"
+                  ((org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'deadline))
+                   (org-agenda-prefix-format "  %i %-12:c [%e] ")
+                   (org-agenda-overriding-header "\nTasks\n")))
+            (agenda nil
+                    ((org-agenda-entry-types '(:deadline))
+                     (org-agenda-format-date "")
+                     (org-deadline-warning-days 7)
+                     (org-agenda-skip-function
+                      '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
+                     (org-agenda-overriding-header "\nDeadlines")))
+            (tags-todo "inbox"
+                       ((org-agenda-prefix-format "  %?-12t% s")
+                        (org-agenda-overriding-header "\nInbox\n")))
+            (tags "CLOSED>=\"<today>\""
+                  ((org-agenda-overriding-header "\nCompleted today\n")))))))
+
+  ;; ** Beamer on Org Mode
+  (custom-set-variables ; in ~/.emacs, only one instance
+   '(org-export-latex-classes (quote ; in the init file!
+                               (("beamer" "\\documentclass{beamer}"
+                                 org-beamer-sectioning))))
+   '(org-latex-to-pdf-process (quote
+                               ((concat "pdflatex -interaction nonstopmode"
+                                        "-shell-escape -output-directory %o %f")
+                                "bibtex $(basename %b)"
+                                (concat "pdflatex -interaction nonstopmode"
+                                        "-shell-escape -output-directory %o %f")
+                                (concat "pdflatex -interaction nonstopmode"
+                                        "-shell-escape -output-directory %o %f")))))
+
+  ;; ** Org Bibtex
+  (setq org-ref-default-bibliography '("~/Zotero/my-library.bib")
+        org-ref-pdf-directory "~/Zotero/storage"
+        org-ref-bibliography-notes "~/Org/bibtex/notes.org")
+
+  ;; -------
+  ;; Org open PDF with Zathura
+  ;; pacman -S zathura zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu
+  (setq org-ref-open-pdf-function
+        (lambda (fpath)
+          (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
 
   ;; Set gT and gt to navigate between centaur-tabs
   ;; (setq global-flycheck-mode nil)

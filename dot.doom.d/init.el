@@ -85,7 +85,7 @@
 
        :checkers
        syntax                 ; tasing you for every semicolon you forget
-       (spell +hunspell)      ; tasing you for misspelling mispelling
+       ;; (spell +hunspell)   ; tasing you for misspelling mispelling
        grammar                ; tasing grammar mistake every you make
 
        :tools
@@ -98,8 +98,8 @@
        ein                    ; tame Jupyter notebooks with emacs
        (eval +overlay)        ; run code, run (also, repls)
        ;;gist                 ; interacting with github gists
-       lookup                 ; navigate your code and its documentation
-       lsp                    ; LPS
+       (lookup +docsets)      ; navigate your code and its documentation
+       (lsp +peek)            ; LPS
        ;;macos                ; MacOS-specific commands
        magit                  ; a git porcelain for Emacs
        make                   ; run make tasks from Emacs
@@ -150,12 +150,15 @@
        ;;nix                  ; I hereby declare "nix geht mehr!"
        ocaml                  ; an objective camel
        (org +brain            ; organize your plain life in plain text
+            +dragndrop
             +hugo
             +gnuplot
             +dragndrop
             +jupyter
+            +noter
             +journal
             +pandoc
+            +present
             +pomodoro
             +pretty
             +roam)
@@ -163,6 +166,8 @@
        plantuml               ; diagrams for confusing people more
        ;;purescript           ; javascript, but functional
        (python +lsp           ; beautiful is better than ugly
+               +pyright
+               +cython
                +pyenv)
        ;;qt                   ; the 'cutest' gui framework ever
        ;;racket               ; a DSL for DSLs
@@ -170,10 +175,10 @@
        ;;rest                 ; Emacs as a REST client
        rst                    ; ReST in peace
        ;;(ruby +rails)        ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       rust                   ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       (rust +lsp)            ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        ;;scala                ; java, but good
        ;;scheme               ; a fully conniving family of lisps
-       sh                     ; she sells {ba,z,fi}sh shells on the C xor
+       (sh +lsp)              ; she sells {ba,z,fi}sh shells on the C xor
        ;;sml
        ;;solidity             ; do you need a blockchain? No.
        ;;swift                ; who asked for emoji variables?
@@ -196,5 +201,4 @@
        literate
        (default +bindings
          +smartparens)
-
-       )
+  )

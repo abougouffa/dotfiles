@@ -38,40 +38,6 @@
 (display-battery-mode) ;; Display the battery status
 (display-time-mode) ;; Display the time
 
-(defun ab-conf/spelldict (lang)
-  "Switch between language dictionaries."
-  (interactive)
-  (cond ((eq lang 1)
-         (setq flyspell-default-dictionary "american")
-         (setq ispell-dictionary "american")
-         (ispell-kill-ispell)
-         (spell-fu-mode)
-         (spell-fu-mode)
-         (message "Dictionary changed to 'american'"))
-        ((eq lang 2)
-         (setq flyspell-default-dictionary "francais")
-         (setq ispell-dictionary "francais")
-         (ispell-kill-ispell)
-         (spell-fu-mode)
-         (spell-fu-mode)
-         (message "Dictionary changed to 'francais'"))
-        (t (message "No changes have been made."))))
-
-(map! :leader
-      :desc "spell/lang" "l")
-
-(map! :leader
-      :desc "spell" "l s")
-
-(map! :leader
-      :desc "dictionary" "l s d")
-
-(map! :leader
-      :desc "American" "l s d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
-
-(map! :leader
-      :desc "Français" "l s d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
-
 (require 'langtool)
 
 
@@ -102,7 +68,14 @@
 (map! :leader
       :desc "Switch default language" "l l L" #'langtool-switch-default-language)
 
-(setq org-directory "~/Work/org/")
+(setq org-directory "~/Org")
+
+(setq org-journal-dir "~/Org/journal/")
+(setq org-journal-file-format "%Y-%m-%d")
+
+(setq org-roam-db-location "~/Org/roam/org-roam.db")
+(setq org-roam-index-file "~/Org/roam/index.org")
+(setq org-roam-directory "~/Org/roam")
 
 (custom-set-faces
  '(org-document-title ((t (:inherit default :height 1.6 :underline nil))))
@@ -138,7 +111,7 @@
 
 ;; (setq org-src-preserve-indentation t)
 
-(setq ab-conf/new-org-templates (version<= "9.2" (org-version)))
+(setq ab-conf/new-org-templates t) ;;; (version<= "9.2" (org-version))
 (when ab-conf/new-org-templates
   (require 'org-tempo))
 
@@ -203,6 +176,10 @@
 (ab-conf/add-org-template
  '("B" "#+begin_src shell :session *shell* :results output :exports both \n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
 
+;; Bash Shell, simple box
+(ab-conf/add-org-template
+ '("bn" "#+begin_src shell \n\n#+end_src" "<src lang=\"sh\">\n\n</src>"))
+
 ;; Graphviz
 (ab-conf/add-org-template
  '("g" "#+begin_src dot :results output graphics :file \"/tmp/graph.pdf\" :exports both
@@ -215,9 +192,9 @@ A->B
 
 (require 'ox-moderncv)
 
-(setq org-agenda-files (list "~/Work/org/inbox.org" "~/Work/org/agenda.org"
-                             "~/Work/org/notes.org" "~/Work/org/projects.org"))
-;(setq org-agenda-files (list "~/Work/org"))
+(setq org-agenda-files (list "~/Org/inbox.org" "~/Org/agenda.org"
+                             "~/Org/notes.org" "~/Org/projects.org"))
+;; (setq org-agenda-files (list "~/Work/org"))
 
 (setq org-capture-templates
       `(("i" "Inbox" entry (file "inbox.org")
@@ -241,7 +218,7 @@ A->B
   (org-capture nil "@"))
 
 ;; Use full window for org-capture
-;(add-hook 'org-capture-mode-hook 'delete-other-windows)
+;; (add-hook 'org-capture-mode-hook 'delete-other-windows)
 
 ;; Key bindings
 (define-key global-map            (kbd "C-c a") 'org-agenda)
@@ -321,6 +298,10 @@ A->B
 (dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
   (add-hook hook 'ab-conf/org-mode-visual-fill))
 
+  (setq org-ref-open-pdf-function
+        (lambda (fpath)
+          (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
+
 (map!
   (:after dired
     (:map dired-mode-map
@@ -356,19 +337,6 @@ A->B
 
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)
-
-(use-package racer
-  :requires rust-mode
-
-  :init (setq racer-rust-src-path
-              (concat (string-trim
-                       (shell-command-to-string "rustc --print sysroot"))
-                      "/lib/rustlib/src/rust/src"))
-
-  :config
-  (add-hook 'rust-mode-hook #'racer-mode)
-  (add-hook 'racer-mode-hook #'eldoc-mode)
-  (add-hook 'racer-mode-hook #'company-mode))
 
 (require 'bitbake)
 (setq auto-mode-alist (cons '("\\.bb$" . bitbake-mode) auto-mode-alist))
