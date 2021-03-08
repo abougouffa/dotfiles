@@ -879,33 +879,23 @@ You will need to:
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 (require 'mu4e)
 (require 'smtpmail)
-(setq user-mail-address "a.bougouffa@ez-wheel.com"
+(setq user-mail-address "email@server"
       user-full-name  "Abdelhak Bougouffa"
       mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
       mu4e-update-interval 300
       mu4e-compose-signature
       (concat "- Abdelhak BOUGOUFFA\n"
               "- Doctorant | Ingénieur R&D\n"
-              "- Université Paris-Saclay - SATIE | ez-Wheel\n"
-              "----------------\n"
-              "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
-              "- a.bougouffa@ez-wheel.com\n")
+              "- Université Paris-Saclay - SATIE | ez-Wheel\n")
       mu4e-main-buffer-hide-personal-addresses t
       message-send-mail-function 'smtpmail-send-it
       starttls-use-gnutls t
       smtpmail-smtp-service 587
       smtpmail-smtp-server "ex.mail.ovh.net"
-      ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
-      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
-      mu4e-sent-folder "/ezwheel/Sent Items"
-      mu4e-drafts-folder "/ezwheel/Drafts"
-      mu4e-trash-folder "/ezwheel/Trash"
-      mu4e-maildir-shortcuts
-      '(("/univ-paris-saclay/INBOX" . ?i)
-        ("/ezwheel/INBOX"          . ?I)
-        ("/ezwheel/Sent Items"     . ?s)
-        ("/ezwheel/Drafts"         . ?d)
-        ("/ezwheel/Trash"          . ?t)))
+      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
+      mu4e-sent-folder "/mail/Sent Items"
+      mu4e-drafts-folder "/mail/Drafts"
+      mu4e-trash-folder "/mail/Trash")
 #+end_src
 
 * Programming Languages :programming:

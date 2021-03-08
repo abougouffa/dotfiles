@@ -307,9 +307,9 @@ A->B
 (dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
   (add-hook hook 'ab-conf/org-mode-visual-fill))
 
-(setq org-ref-open-pdf-function
-      (lambda (fpath)
-        (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
+  (setq org-ref-open-pdf-function
+        (lambda (fpath)
+          (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
 
 (map!
   (:after dired
@@ -322,6 +322,27 @@ A->B
 
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)
+
+(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+(require 'mu4e)
+(require 'smtpmail)
+(setq user-mail-address "email@server"
+      user-full-name  "Abdelhak Bougouffa"
+      mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
+      mu4e-update-interval 300
+      mu4e-compose-signature
+      (concat "- Abdelhak BOUGOUFFA\n"
+              "- Doctorant | Ingénieur R&D\n"
+              "- Université Paris-Saclay - SATIE | ez-Wheel\n")
+      mu4e-main-buffer-hide-personal-addresses t
+      message-send-mail-function 'smtpmail-send-it
+      starttls-use-gnutls t
+      smtpmail-smtp-service 587
+      smtpmail-smtp-server "ex.mail.ovh.net"
+      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
+      mu4e-sent-folder "/mail/Sent Items"
+      mu4e-drafts-folder "/mail/Drafts"
+      mu4e-trash-folder "/mail/Trash")
 
 (require 'bitbake)
 (setq auto-mode-alist (cons '("\\.bb$" . bitbake-mode) auto-mode-alist))
