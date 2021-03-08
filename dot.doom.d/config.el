@@ -1,5 +1,5 @@
 (setq user-full-name "Abdelhak Bougouffa"
-      user-mail-address "abougouffa@cryptolab.net")
+      user-mail-address "abougouffa@fedoraproject.org")
 
 (prefer-coding-system       'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -7,12 +7,17 @@
 (set-keyboard-coding-system 'utf-8)
 (setq default-buffer-file-coding-system 'utf-8)
 
+(setq package-native-compile t)
+
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(setq fancy-splash-image "~/.doom.d/blackhole.png")
+(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-lines-small.svg")
 
-(setq doom-font (font-spec :family "JetBrains Mono" :size 30)
-      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
+(setq doom-font (font-spec :family "Fira Code Medium" :size 30)
+      doom-variable-pitch-font (font-spec :family "Fira Code Medium" :size 30))
+
+;;(setq doom-font (font-spec :family "JetBrains Mono" :size 30)
+;;      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
 
 ;; Activate solaire-mode, this have to be called before loading the theme
 (solaire-global-mode +1)
@@ -39,7 +44,6 @@
 (display-time-mode) ;; Display the time
 
 (require 'langtool)
-
 
 (map! :leader
       :desc "langtool" "l l")
@@ -70,6 +74,18 @@
 
 (setq org-directory "~/Org")
 
+(require 'org)
+(require 'ox-latex)
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(setq org-latex-listings 'minted)
+
+(setq org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+(setq org-src-fontify-natively t)
+
 (setq org-journal-dir "~/Org/journal/")
 (setq org-journal-file-format "%Y-%m-%d")
 
@@ -77,36 +93,44 @@
 (setq org-roam-index-file "~/Org/roam/index.org")
 (setq org-roam-directory "~/Org/roam")
 
+;; (require 'org)
+;; (setq org-ellipsis " ⤵ ")
+(setq org-ellipsis " [+]")
+
 (custom-set-faces
- '(org-document-title ((t (:inherit default :height 1.6 :underline nil))))
- '(org-tag ((t (:inherit default :weight bold :height 1.0))))
- '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
- '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
- '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ '(org-ellipsis ((t (:foreground "#88883A"))))
  )
 
 (org-babel-do-load-languages
  'org-babel-load-languages
  '(
-   (emacs-lisp . t)
-   (shell . t)
-   (python . t)
+   (C . t)
+   (C++ . t)
    (R . t)
-   (ruby . t)
-   (ocaml . t)
+   (calc . t)
    (ditaa . t)
    (dot . t)
-   (octave . t)
-   (sqlite . t)
-   (perl . t)
-   (screen . t)
-   (plantuml . t)
-   (lilypond . t)
-   (org . t)
-   (ditaa . t)
+   (emacs-lisp . t)
+   (eshell . t)
+   (gnuplot . t)
+   (latex . t)
+   (lisp . t)
+   (lua . t)
    (makefile . t)
+   (matlab . t)
+   (ocaml . t)
+   (octave . t)
+   (org . t)
+   (perl . t)
+   (plantuml . t)
+   (processing . t)
+   (python . t)
+   (ruby . t)
+   (screen . t)
+   (sed . t)
+   (shell . t)
+   (sql . t)
+   (sqlite . t)
    ))
 
 ;; (setq org-src-preserve-indentation t)
@@ -190,8 +214,6 @@ B[label=\"B\"]
 A->B
 }\n#+end_src" "<src lang=\"dot\">\n\n</src>"))
 
-(require 'ox-moderncv)
-
 (setq org-agenda-files (list "~/Org/inbox.org" "~/Org/agenda.org"
                              "~/Org/notes.org" "~/Org/projects.org"))
 ;; (setq org-agenda-files (list "~/Work/org"))
@@ -268,19 +290,6 @@ A->B
           (tags "CLOSED>=\"<today>\""
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 
-(custom-set-variables ; in ~/.emacs, only one instance
- '(org-export-latex-classes (quote ; in the init file!
-    (("beamer" "\\documentclass{beamer}"
-        org-beamer-sectioning))))
- '(org-latex-to-pdf-process (quote
-    ((concat "pdflatex -interaction nonstopmode"
-             "-shell-escape -output-directory %o %f")
-     "bibtex $(basename %b)"
-     (concat "pdflatex -interaction nonstopmode"
-             "-shell-escape -output-directory %o %f")
-     (concat "pdflatex -interaction nonstopmode"
-             "-shell-escape -output-directory %o %f")))))
-
 (defun ab-conf/prefer-horizontal-split ()
   (set-variable 'split-height-threshold nil t)
   (set-variable 'split-width-threshold 40 t)) ; make this as low as needed
@@ -298,9 +307,9 @@ A->B
 (dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
   (add-hook hook 'ab-conf/org-mode-visual-fill))
 
-  (setq org-ref-open-pdf-function
-        (lambda (fpath)
-          (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
+(setq org-ref-open-pdf-function
+      (lambda (fpath)
+        (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
 
 (map!
   (:after dired
@@ -310,30 +319,6 @@ A->B
 (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file
                                              (kbd "k") 'peep-dired-prev-file)
 (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
-
-(emms-all)
-(emms-default-players)
-(emms-mode-line 1)
-(emms-playing-time 1)
-(setq emms-source-file-default-directory "~/Music/"
-      emms-playlist-buffer-name "*Music*"
-      emms-info-asynchronously t
-      emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
-(map! :leader
-      :desc "Go to emms playlist"
-      "a a" #'emms-playlist-mode-go
-      :leader
-      :desc "Emms pause track"
-      "a x" #'emms-pause
-      :leader
-      :desc "Emms stop track"
-      "a s" #'emms-stop
-      :leader
-      :desc "Emms play previous track"
-      "a p" #'emms-previous
-      :leader
-      :desc "Emms play next track"
-      "a n" #'emms-next)
 
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)
@@ -345,3 +330,61 @@ A->B
 (setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))
 
 (setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
+
+(require 'lsp-mode)
+(require 'lsp-pyright)
+;;(setq lsp-enable-snippet nil)
+;;(setq lsp-log-io t)
+(lsp-register-client
+ (make-lsp-client
+  :new-connection (lsp-tramp-connection (lambda ()
+                                          (cons "pyright-langserver"
+                                                lsp-pyright-langserver-command-args)))
+  :major-modes '(python-mode)
+  :remote? t
+  :server-id 'pyright-remote
+  ;;  :multi-root t
+  ;;  :priority 3
+  ;;  :initialization-options (lambda () (ht-merge (lsp-configuration-section "pyright")
+  ;;                                               (lsp-configuration-section "python")))
+  ;; :initialized-fn (lambda (workspace)
+  ;;                   (with-lsp-workspace workspace
+  ;;                     (lsp--set-configuration
+  ;;                      (ht-merge (lsp-configuration-section "pyright")
+  ;;                                (lsp-configuration-section "python")))))
+  ;; :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+  ;;                                ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+  ;;                                ("pyright/endProgress" 'lsp-pyright--end-progress-callback))
+
+  ))
+
+(require 'tramp)
+(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+
+(require 'lsp-mode)
+(require 'ccls)
+(setq lsp-enable-snippet nil)
+(setq lsp-log-io t)
+(lsp-register-client
+ (make-lsp-client
+  :new-connection (lsp-tramp-connection (lambda ()
+                                          (cons ccls-executable ; executable name on remote machine 'ccls'
+                                                ccls-args)))
+  :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+  :remote? t
+  :server-id 'ccls-remote
+  ;;  :multi-root t
+  ;;  :priority 3
+  ;;  :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
+  ;;                                               (lsp-configuration-section "ccls")))
+  ;; :initialized-fn (lambda (workspace)
+  ;;                   (with-lsp-workspace workspace
+  ;;                     (lsp--set-configuration
+  ;;                      (ht-merge (lsp-configuration-section "c++")
+  ;;                                (lsp-configuration-section "ccls")))))
+  ;; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
+  ;;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
+  ))
+
+(require 'tramp)
+(add-to-list 'tramp-remote-path 'tramp-own-remote-path)

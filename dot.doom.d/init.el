@@ -36,24 +36,25 @@
        ;;doom-quit            ; DOOM quit-message prompts when you quit Emacs
        ;;fill-column          ; a `fill-column' indicator
        hl-todo                ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       ;;hydra
+       hydra
        indent-guides          ; highlighted indent columns
        ;;minimap              ; show a map of the code on the side
        modeline               ; snazzy, Atom-inspired modeline, plus API
-       ;;nav-flash            ; blink cursor line after big motions
+       nav-flash              ; blink cursor line after big motions
        neotree                ; a project drawer, like NERDTree for vim
        ophints                ; highlight the region an operation acts on
        (popup +defaults)      ; tame sudden yet inevitable temporary windows
-       ligatures              ; ligatures or substitute text with pretty symbols
+       (ligatures +extra)     ; ligatures or substitute text with pretty symbols
        tabs                   ; a tab bar for Emacs
        ;;treemacs             ; a project drawer, like neotree but cooler
        ;;unicode              ; extended unicode support for various languages
-       ;;vc-gutter            ; vcs diff in the fringe
+       vc-gutter              ; vcs diff in the fringe
        ;;vi-tilde-fringe      ; fringe tildes to mark beyond EOB
        window-select          ; visually switch windows
        workspaces             ; tab emulation, persistence & separate workspaces
        zen                    ; distraction-free coding or writing
        ;;(emoji +ascii +github +unicode)
+       vi-tilde-fringe        ; displays tildes in the fringe on empty lines a la Vi.
 
        :editor
        (evil +everywhere)     ; come to the dark side, we have cookies
@@ -93,8 +94,8 @@
        biblio
        debugger               ; FIXME stepping through code, to help you add bugs
        direnv
-       docker
-       ;;editorconfig         ; let someone else argue about tabs vs spaces
+       (docker +lsp)
+       editorconfig           ; let someone else argue about tabs vs spaces
        ein                    ; tame Jupyter notebooks with emacs
        (eval +overlay)        ; run code, run (also, repls)
        ;;gist                 ; interacting with github gists
@@ -144,11 +145,11 @@
        lean
        ;;factor
        ;;ledger               ; an accounting system in Emacs
-       ;;lua                  ; one-based indices? one-based indices
+       lua                    ; one-based indices? one-based indices
        markdown               ; writing docs for people to ignore
-       nim                    ; python + lisp at the speed of c
+       ;;nim                  ; python + lisp at the speed of c
        ;;nix                  ; I hereby declare "nix geht mehr!"
-       ocaml                  ; an objective camel
+       ;;ocaml                ; an objective camel
        (org +brain            ; organize your plain life in plain text
             +dragndrop
             +hugo
@@ -193,9 +194,11 @@
 
        :app
        calendar
-       irc                    ; how neckbeards socialize
-       (rss +org)             ; emacs as an RSS reader
-       twitter                ; twitter client https://twitter.com/vnought
+       ;; irc                    ; how neckbeards socialize
+       ;; (rss +org)             ; emacs as an RSS reader
+       ;; twitter                ; twitter client https://twitter.com/vnought
+       emms
+       everywhere
 
        :config
        literate

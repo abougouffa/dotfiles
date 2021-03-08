@@ -30,11 +30,54 @@
 
 # Enable autocomplete layer
 [[layers]]
-name = 'autocomplete'
-auto_completion_return_key_behavior = "complete"
-auto_completion_tab_key_behavior = "cycle"
+  name = 'autocomplete'
+  auto_completion_return_key_behavior = "complete"
+  auto_completion_tab_key_behavior = "cycle"
 
 [[layers]]
-name = 'shell'
-default_position = 'top'
-default_height = 30
+  name = 'shell'
+  default_position = 'top'
+  default_height = 30
+
+[[layers]]
+  name = "VersionControl"
+
+[[layers]]
+  name = "lsp"
+  filetypes = [
+    "rust",
+    "python",
+    "c",
+    "cpp"
+  ]
+
+[[layers]]
+  name = "lang#c"
+  [layer.clang_std]
+    c = "c11"
+    cpp = "c++1z"
+
+[[layers]]
+  name = "lang#ipynb"
+
+[[layers]]
+  name = "lang#python"
+  format_on_save = true
+  python_file_head = [
+      '#!/usr/bin/env python',
+      '# -*- coding: utf-8 -*-',
+      '',
+      ''
+  ]
+
+[[layers]]
+  name = "lang#r"
+
+[[layers]]
+  name = "lang#rust"
+
+[[layers]]
+  name = "sudo"
+
+[[layers]]
+  name = "tools"

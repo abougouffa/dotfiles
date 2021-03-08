@@ -48,12 +48,12 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
-(package! emms)
-(package! ivy-emms)
 (package! md4rd)
-(package! peep-dired)
 (package! bitbake)
 (package! repo)
-
-(package! ox-moderncv
-  :recipe (:host github :repo "Titan-C/org-cv"))
+(package! zotxt)
+;; (package! peep-dired)
+;; (package! ivy-emms)
+;; (package! ox-moderncv
+;;   :recipe (:host github
+;;            :repo "Titan-C/org-cv"))
