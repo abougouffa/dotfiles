@@ -63,8 +63,6 @@ Enable native compile for the builtin package manager.
 Natively compile all Elisp files under a directory:
 
 #+begin_src emacs-lisp
-;; Use 6 parallel processes
-;;(native-compile-async "~/.emacs.d/.local/straight/repos" 6 t)
 (native-compile-async "~/.emacs.d/.local/straight/repos" 'recursively)
 #+end_src
 
@@ -338,29 +336,28 @@ Change Org Roam settings
 #+end_src
 
 ** Prettify Org Mode :prettify:
+*** Change font size for section levels
+#+begin_src emacs-lisp
+(custom-set-faces
+ '(org-document-title ((t (:inherit default :height 1.5 :underline nil))))
+ '(org-tag ((t (:inherit default :weight bold :height 1.0))))
+ '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ )
+#+end_src
+
 *** Ellipsis
 Change the three dots on collapsed Org Mode sections
 
 #+begin_src emacs-lisp
 ;; (require 'org)
-;; (setq org-ellipsis " ⤵ ")
-(setq org-ellipsis " [+]")
+(setq org-ellipsis " ⤵")
 
 (custom-set-faces
- '(org-ellipsis ((t (:foreground "#88883A"))))
- )
-#+end_src
-
-*** COMMENT Change font size for section levels
-#+begin_src emacs-lisp
-(custom-set-faces
- '(org-document-title ((t (:inherit default :height 1.6 :underline nil))))
- '(org-tag ((t (:inherit default :weight bold :height 1.0))))
- '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
- '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
- '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ '(org-ellipsis ((t (:weight normal :height 1.0 :foreground "#AAAA3A"))))
  )
 #+end_src
 
@@ -876,6 +873,90 @@ You will need to:
   a line in this format =machine mail.example.org port 587 login myuser password mypasswd=
 
 #+begin_src emacs-lisp
+(after! mu4e
+  ;; load package to be able to capture emails for GTD
+  (require 'org-mu4e)
+  ;; do not use rich text emails
+  ;; (remove-hook! 'mu4e-compose-mode-hook #'org-mu4e-compose-org-mode)
+  ;; ensure viewing messages and queries in mu4e workspace
+  ;; (advice-add 'mu4e-view-message-with-message-id :around #'+kandread/view-in-mu4e-workspace)
+  ;; (advice-add 'mu4e-headers-search :around #'+kandread/view-in-mu4e-workspace)
+  ;; instead of displaying the fallback buffer (dashboard) after quitting mu4e, switch to last active buffer in workspace
+  ;; (advice-add '+email|kill-mu4e :around #'+kandread/restore-buffer-after-mu4e)
+  ;; attach files to messages by marking them in dired buffer
+  ;;(require 'gnus-dired)
+  ;; (defalias 'gnus-dired-mail-buffers '+kandread/gnus-dired-mail-buffers)
+  ;; (setq gnus-dired-mail-mode 'mu4e-user-agent)
+  ;; (add-hook! 'dired-mode-hook #'turn-on-gnus-dired-mode)
+  ;; disable line wrapping when viewing headers
+  ;; (add-hook! 'mu4e-headers-mode-hook #'+kandread/turn-off-visual-line-mode)
+  ;; configure mu4e options
+
+  ;; (setq mu4e-confirm-quit nil ; quit without asking
+  ;;       mu4e-attachment-dir "~/Downloads"
+  ;;       mu4e-maildir (expand-file-name "~/Mail/jpl")
+  ;;       mu4e-get-mail-command "mbsync jpl"
+  ;;       mu4e-user-mail-address-list '("kandread@jpl.nasa.gov" "konstantinos.m.andreadis@jpl.nasa.gov")
+  ;;   user-mail-address "kandread@jpl.nasa.gov"
+  ;;   user-full-name "Kostas Andreadis")
+  ;; (setq mu4e-bookmarks
+  ;;   '(("flag:unread AND NOT flag:trashed" "Unread messages" ?u)
+  ;;         ("date:today..now AND maildir:/inbox" "Today's messages" ?t)
+  ;;         ("date:7d..now AND maildir:/inbox" "Last 7 days" ?w)))
+  ;; (setq message-send-mail-function 'smtpmail-send-it
+  ;;   smtpmail-stream-type 'starttls
+  ;;   smtpmail-default-smtp-server "smtp.jpl.nasa.gov"
+  ;;   smtpmail-smtp-server "smtp.jpl.nasa.gov"
+  ;;   smtpmail-smtp-service 587)
+  ;; ;; add custom actions for messages
+  ;; (add-to-list 'mu4e-view-actions
+  ;;          '("View in browser" . mu4e-action-view-in-browser) t))
+
+  ;; (setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
+  (setq smtpmail-auth-credentials "~/.authinfo.gpg")
+  (setq mu4e-update-interval (* 10 60)) ;; every 10min
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-maildir "~/Maildir")
+
+  (setq mu4e-bookmarks
+        '(("flag:unread AND NOT flag:trashed" "Unread messages" ?u)
+          ("date:today..now AND maildir:/inbox" "Today's messages" ?t)
+          ("date:7d..now AND maildir:/inbox" "Last 7 days" ?w))))
+
+(require 'smtpmail)
+(set-email-account! "Université Paris-Saclay"
+                    '((mu4e-sent-folder       . "/up-saclay/Sent")
+                      (mu4e-drafts-folder     . "/up-saclay/Drafts")
+                      (mu4e-trash-folder      . "/up-saclay/Trash")
+                      (mu4e-refile-folder     . "/up-saclay/All Mail")
+                      (smtpmail-smtp-user     . "abdelhak.bougouffa@universite-paris-saclay.fr")
+                      (user-full-name         . "Abdelhak Bougouffa")
+                      (mu4e-compose-signature . "---\nAbdelhak Bougouffa")
+                      (message-send-mail-function . smtpmail-send-it)
+                      (smtpmail-stream-type . ssl)
+                      (smtpmail-default-smtp-server . "zimbra.u-psud.fr")
+                      (smtpmail-smtp-server . "zimbra.u-psud.fr")
+                      (smtpmail-smtp-service . 465)
+                      ) t)
+
+(set-email-account! "Gmail"
+                    '((mu4e-sent-folder       . "/gmail/Sent Mail")
+                      (mu4e-drafts-folder     . "/gmail/Drafts")
+                      (mu4e-trash-folder      . "/gmail/Trash")
+                      (mu4e-refile-folder     . "/gmail/All Mail")
+                      (smtpmail-smtp-user     . "abdelhak.alg@gmail.com")
+                      (user-full-name         . "Abdelhak Bougouffa")
+                      (mu4e-compose-signature . "---\nAbdelhak Bougouffa")
+                      (message-send-mail-function . smtpmail-send-it)
+                      (smtpmail-stream-type . starttls)
+                      (smtpmail-default-smtp-server . "smtp.googlemail.com")
+                      (smtpmail-smtp-server . "smtp.gmail.com")
+                      (smtpmail-smtp-service . 587)
+                      ) t)
+#+end_src
+
+*** COMMENT Old config
+#+begin_src emacs-lisp :exports none
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 (require 'mu4e)
 (require 'smtpmail)
