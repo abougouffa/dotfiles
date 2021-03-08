@@ -874,54 +874,11 @@ You will need to:
 
 #+begin_src emacs-lisp
 (after! mu4e
-  ;; load package to be able to capture emails for GTD
   (require 'org-mu4e)
-  ;; do not use rich text emails
-  ;; (remove-hook! 'mu4e-compose-mode-hook #'org-mu4e-compose-org-mode)
-  ;; ensure viewing messages and queries in mu4e workspace
-  ;; (advice-add 'mu4e-view-message-with-message-id :around #'+kandread/view-in-mu4e-workspace)
-  ;; (advice-add 'mu4e-headers-search :around #'+kandread/view-in-mu4e-workspace)
-  ;; instead of displaying the fallback buffer (dashboard) after quitting mu4e, switch to last active buffer in workspace
-  ;; (advice-add '+email|kill-mu4e :around #'+kandread/restore-buffer-after-mu4e)
-  ;; attach files to messages by marking them in dired buffer
-  ;;(require 'gnus-dired)
-  ;; (defalias 'gnus-dired-mail-buffers '+kandread/gnus-dired-mail-buffers)
-  ;; (setq gnus-dired-mail-mode 'mu4e-user-agent)
-  ;; (add-hook! 'dired-mode-hook #'turn-on-gnus-dired-mode)
-  ;; disable line wrapping when viewing headers
-  ;; (add-hook! 'mu4e-headers-mode-hook #'+kandread/turn-off-visual-line-mode)
-  ;; configure mu4e options
-
-  ;; (setq mu4e-confirm-quit nil ; quit without asking
-  ;;       mu4e-attachment-dir "~/Downloads"
-  ;;       mu4e-maildir (expand-file-name "~/Mail/jpl")
-  ;;       mu4e-get-mail-command "mbsync jpl"
-  ;;       mu4e-user-mail-address-list '("kandread@jpl.nasa.gov" "konstantinos.m.andreadis@jpl.nasa.gov")
-  ;;   user-mail-address "kandread@jpl.nasa.gov"
-  ;;   user-full-name "Kostas Andreadis")
-  ;; (setq mu4e-bookmarks
-  ;;   '(("flag:unread AND NOT flag:trashed" "Unread messages" ?u)
-  ;;         ("date:today..now AND maildir:/inbox" "Today's messages" ?t)
-  ;;         ("date:7d..now AND maildir:/inbox" "Last 7 days" ?w)))
-  ;; (setq message-send-mail-function 'smtpmail-send-it
-  ;;   smtpmail-stream-type 'starttls
-  ;;   smtpmail-default-smtp-server "smtp.jpl.nasa.gov"
-  ;;   smtpmail-smtp-server "smtp.jpl.nasa.gov"
-  ;;   smtpmail-smtp-service 587)
-  ;; ;; add custom actions for messages
-  ;; (add-to-list 'mu4e-view-actions
-  ;;          '("View in browser" . mu4e-action-view-in-browser) t))
-
-  ;; (setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
   (setq smtpmail-auth-credentials "~/.authinfo.gpg")
-  (setq mu4e-update-interval (* 10 60)) ;; every 10min
+  (setq mu4e-update-interval (* 10 60)) ;; Every 10min
   (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-maildir "~/Maildir")
-
-  (setq mu4e-bookmarks
-        '(("flag:unread AND NOT flag:trashed" "Unread messages" ?u)
-          ("date:today..now AND maildir:/inbox" "Today's messages" ?t)
-          ("date:7d..now AND maildir:/inbox" "Last 7 days" ?w))))
+  (setq mu4e-maildir "~/Maildir"))
 
 (require 'smtpmail)
 (set-email-account! "Université Paris-Saclay"
@@ -955,30 +912,6 @@ You will need to:
                       ) t)
 #+end_src
 
-*** COMMENT Old config
-#+begin_src emacs-lisp :exports none
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
-(require 'mu4e)
-(require 'smtpmail)
-(setq user-mail-address "email@server"
-      user-full-name  "Abdelhak Bougouffa"
-      mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a"
-      mu4e-update-interval 300
-      mu4e-compose-signature
-      (concat "- Abdelhak BOUGOUFFA\n"
-              "- Doctorant | Ingénieur R&D\n"
-              "- Université Paris-Saclay - SATIE | ez-Wheel\n")
-      mu4e-main-buffer-hide-personal-addresses t
-      message-send-mail-function 'smtpmail-send-it
-      starttls-use-gnutls t
-      smtpmail-smtp-service 587
-      smtpmail-smtp-server "ex.mail.ovh.net"
-      smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg")
-      mu4e-sent-folder "/mail/Sent Items"
-      mu4e-drafts-folder "/mail/Drafts"
-      mu4e-trash-folder "/mail/Trash")
-#+end_src
-
 * Programming Languages :programming:
 ** COMMENT Rust :rust:
 #+begin_src emacs-lisp
@@ -1008,7 +941,9 @@ You will need to:
 ** ROS :ros:
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.urdf$" . xml-mode) auto-mode-alist))
 #+end_src
+
 ** LSP :lsp:
 *** Enable =lsp= over =tramp=
 **** For Python
