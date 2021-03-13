@@ -138,11 +138,19 @@ export PATH=$PATH:$HOME/.cargo/bin
 export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/sources-and-libs/build_installs
 export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
 
+# NPM, Set installation path to local
+NPM_PACKAGES="${HOME}/.npm-packages"
+
+export PATH="$PATH:$NPM_PACKAGES/bin"
+
+# Preserve MANPATH if you already defined it somewhere in your config.
+# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
+export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
 
 # STARTUP STUFF =====================================================
 # Install from AUR shell-color-scripts
 # Display random graphics
-colorscript random
+colorscript -e 30
 
 # Run fortune to display random quote
 # fortune
