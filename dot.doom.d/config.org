@@ -1,7 +1,8 @@
+# -*- fill-column: 100 -*-
 #+TITLE: My DOOM-Emacs config file
 #+AUTHOR: Abdelhak Bougouffa
 #+DESCRIPTION: My config file for DOOM-Emacs
-#+STARTUP: content showstars
+#+STARTUP: overview showstars
 #+KEYWORDS: configuration dotfile doom emacs
 
 * Introduction
@@ -29,6 +30,27 @@ For Irony:
 (irony-install-server)
 #+end_example
 
+* Early Bootstrap
+** Maximize Emacs
+At startup, maximize the default Emacs frame
+
+#+begin_src emacs-lisp
+(toggle-frame-maximized)
+#+end_src
+
+** Set Foreground
+To prevent showing the un-themed window at startup.
+
+#+begin_src emacs-lisp
+(set-background-color "#21242B")
+#+end_src
+
+** Hide Menus and Toolbar
+#+begin_src emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+#+end_src
+
 * Global settings :global:
 Some functionality uses this to identify you, e.g. GPG configuration,
 email clients, file templates and snippets.
@@ -37,6 +59,12 @@ email clients, file templates and snippets.
 #+begin_src emacs-lisp
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address "abougouffa@fedoraproject.org")
+#+end_src
+
+** Secrets :gpg:
+#+begin_src emacs-lisp
+(setq auth-sources '("~/.authinfo.gpg"))
+;; (setq auth-sources '("secrets:Login"))
 #+end_src
 
 ** Default encoding :encoding:
@@ -83,24 +111,18 @@ Block until finished!
   (sleep-for 1))
 #+end_src
 
+** Add customs to =load-path=
+*** COMMENT Add zaeph's Lisp scripts
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/.doom.d/zaeph.emacs.d/lisp/")
+#+end_src
+
+*** COMMENT Add GNU Emacs / N Λ N O
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/.doom.d/nano-emacs")
+#+end_src
+
 * User interface :ui:
-** At Startup :startup:
-*** Maximize Emacs
-At startup, maximize the default Emacs frame
-
-#+begin_src emacs-lisp
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+end_src
-
-*** Splash image
-Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
-
-[[file:splash-images/blackhole-lines.svg]]
-
-#+begin_src emacs-lisp
-(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-lines-small.svg")
-#+end_src
-
 ** Fonts :font:
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
 are the three important ones:
@@ -114,11 +136,8 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Fira Code Medium" :size 30)
-      doom-variable-pitch-font (font-spec :family "Fira Code Medium" :size 30))
-
-;;(setq doom-font (font-spec :family "JetBrains Mono" :size 30)
-;;      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 30))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 28)
+      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 28))
 #+end_src
 
 ** DOOM Theme and looking :theme:
@@ -132,20 +151,89 @@ Set =solaire-mode= globally:
 
 *** Load theme
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-one) ; Load theme
-;; (setq doom-theme 'doom-palenight) ; Load theme
-;; (setq doom-theme 'doom-horizon)   ; Load theme
-;; (setq doom-theme 'doom-old-hope)   ; Load theme
-;; (setq doom-theme 'doom-snazzy) ; Load theme
-;; (setq doom-theme 'doom-peacock) ; Load theme
+;;(setq doom-theme 'doom-one) ; Load theme
+(setq doom-theme 'doom-palenight) ; Load theme
+#+end_src
+
+*** Splash image
+Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
+
+[[file:splash-images/blackhole-lines.svg]]
+
+#+begin_src emacs-lisp
+(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-lines-small.svg")
+#+end_src
+
+** Beacon Mode
+Never lose your cursor!
+
+#+begin_src emacs-lisp
+(beacon-mode 1)
+#+end_src
+
+** Tabs (=centaur-tabs=)
+#+begin_src emacs-lisp
+;;(setq centaur-tabs-style "wave")
+(setq centaur-tabs-set-bar 'over)
+#+end_src
+
+#+RESULTS:
+: over
+
+** Child frames (=ivy-posframe=)
+Display =ivy-posframe= at frame top center.
+
+#+begin_src emacs-lisp
+(after! ivy-posframe
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center))))
 #+end_src
 
 ** Editor Settings :editor:
+*** Line numbers
 This determines the style of line numbers in effect. If set to =nil=, line
 numbers are disabled. For relative line numbers, set this to =relative=.
 
 #+begin_src emacs-lisp
 (setq display-line-numbers-type 'relative) ; Enable line numbers
+#+end_src
+
+*** Highlight Indent Guides
+
+#+begin_src emacs-lisp
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
+#+end_src
+
+** HiDPI
+*** COMMENT Fringe HiDPI icons
+Taken from Leo Vivier (=zaeph=) configuration
+
+#+begin_src emacs-lisp
+;; Set fringe sizes
+(fringe-mode 20)
+
+(use-package hidpi-fringe-bitmaps)
+
+(use-package prog-mode
+  ;; Force fringe indicators
+  :hook ((prog-mode . zp/enable-visual-line-fringe-indicators)
+         (prog-mode . outline-minor-mode)
+         (prog-mode . hs-minor-mode))
+  :config
+  (defun zp/enable-visual-line-fringe-indicators ()
+    "Enablle visual-line fringe-indicators."
+    (setq-local visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))))
+#+end_src
+
+*** Flycheck Margin icons
+From [[https://github.com/flycheck/flycheck/pull/1742]]
+
+#+begin_src emacs-lisp
+(use-package flycheck
+  :hook ((text-mode prog-mode) . flycheck-mode)
+  :hook (flycheck-mode . flycheck-set-indication-mode)
+  :config
+  (setq flycheck-indication-mode 'left-margin))
 #+end_src
 
 ** Evil :evil:
@@ -172,6 +260,12 @@ Customize the =doom-modeline=
 #+end_src
 
 * Spell checking :spell:
+Set =ispell='s dictionary to american english by default.
+
+#+begin_src emacs-lisp
+(setq ispell-dictionary "american")
+#+end_src
+
 ** COMMENT Configure =hunspell= :hunspell:
 Having =flyspell= and =hunspell= enabled in =init.el=, first install theses packages:
 
@@ -204,7 +298,7 @@ Then configure dictionaries:
       ispell-dictionary   "english")  ; Default dictionary to use
 #+end_src
 
-** COMMENT Define shortcuts to change dictionary :dict:
+** Shortcuts to change dictionary :dict:
 #+begin_src emacs-lisp
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
@@ -212,16 +306,14 @@ Then configure dictionaries:
   (cond ((eq lang 1)
          (setq flyspell-default-dictionary "american")
          (setq ispell-dictionary "american")
-         (ispell-kill-ispell)
-         (spell-fu-mode)
-         (spell-fu-mode)
+         (spell-fu-mode-disable)
+         (spell-fu-mode-enable)
          (message "Dictionary changed to 'american'"))
         ((eq lang 2)
          (setq flyspell-default-dictionary "francais")
          (setq ispell-dictionary "francais")
-         (ispell-kill-ispell)
-         (spell-fu-mode)
-         (spell-fu-mode)
+         (spell-fu-mode-disable)
+         (spell-fu-mode-enable)
          (message "Dictionary changed to 'francais'"))
         (t (message "No changes have been made."))))
 
@@ -229,19 +321,16 @@ Then configure dictionaries:
       :desc "spell/lang" "l")
 
 (map! :leader
-      :desc "spell" "l s")
+      :desc "ispell dictionary" "l d")
 
 (map! :leader
-      :desc "dictionary" "l s d")
+      :desc "American" "l d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
 
 (map! :leader
-      :desc "American" "l s d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
-
-(map! :leader
-      :desc "Français" "l s d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
+      :desc "Français" "l d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
 #+end_src
 
-** Enable LanguageTool :langtool:
+** Language Tool :langtool:
 #+begin_src emacs-lisp
 (require 'langtool)
 
@@ -274,34 +363,51 @@ Then configure dictionaries:
 #+end_src
 
 * Org-Mode settings :org:
+** Global Org settings
 Set the default org-mode directory
 
 #+begin_src emacs-lisp
-(setq org-directory "~/Org")
+(setq org-directory "~/Org/")
+(setq org-roam-db-location "~/Org/slip-box/org-roam.db")
+(setq org-roam-index-file "~/Org/slip-box/index.org")
+(setq org-roam-directory "~/Org/slip-box/")
 #+end_src
 
-** COMMENT Org Ref
-
+** Prettify Org Mode :prettify:
+*** COMMENT Change font size for section levels
 #+begin_src emacs-lisp
-(setq org-ref-default-bibliography '("~/Zotero/my-library.bib")
-      org-ref-pdf-directory "~/Zotero/storage"
-      org-ref-bibliography-notes "~/Org/bibtex/notes.org")
+(custom-set-faces
+ '(org-document-title ((t (:inherit default :height 1.5 :underline nil))))
+ '(org-tag ((t (:inherit default :weight bold :height 1.0))))
+ '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ )
 #+end_src
 
-** COMMENT Beamer on Org Mode
+*** Ellipsis
+Change the three dots on collapsed Org Mode sections
+
 #+begin_src emacs-lisp
-(custom-set-variables ; in ~/.emacs, only one instance
- '(org-export-latex-classes (quote ; in the init file!
-    (("beamer" "\\documentclass{beamer}"
-        org-beamer-sectioning))))
- '(org-latex-to-pdf-process (quote
-    ((concat "pdflatex -interaction nonstopmode"
-             "-shell-escape -output-directory %o %f")
-     "bibtex $(basename %b)"
-     (concat "pdflatex -interaction nonstopmode"
-             "-shell-escape -output-directory %o %f")
-     (concat "pdflatex -interaction nonstopmode"
-             "-shell-escape -output-directory %o %f")))))
+(setq org-ellipsis " ▼ ")
+
+(custom-set-faces
+ '(org-ellipsis ((t (:weight normal :height 0.8 :foreground "#AAAA3A")))))
+#+end_src
+
+*** COMMENT Org Bullets :bullets:
+Enable =org-bullets= to use prettier unicode symbols in Org files
+
+#+begin_src emacs-lisp
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
+*** Hide Markup
+#+begin_src emacs-lisp
+(setq org-hide-emphasis-markers t)
 #+end_src
 
 ** Export PDF with =mintex=
@@ -321,52 +427,136 @@ Enable syntax highlighting in exported PDFs
 (setq org-src-fontify-natively t)
 #+end_src
 
+* Zettelkasten and Note taking
+** Org Roam
+*** Org Roam Capture templates
+#+begin_src emacs-lisp
+(after! org-roam
+  (setq org-roam-capture-templates
+        '(("d" "default" plain
+           (function org-roam-capture--get-point)
+           "%?"
+           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n\n"
+           :unnarrowed t))
+
+        org-roam-capture-ref-templates
+        '(("r" "ref" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "web/${slug}"
+           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n- source: ${ref}\n\n${body}\n"
+           :unnarrowed t)
+
+          ("i" "incremental" plain
+           (function org-roam-capture--get-point)
+           "* ${body}"
+           :file-name "web/${slug}"
+           :head "#+title: ${title}\n#+roam_key: ${ref}\n#+created: %u\n#+last_modified: %U\n\n${body}"
+           :unnarrowed t
+           :empty-lines-before 1))
+
+        org-roam-dailies-capture-templates
+        '(("d" "default" entry #'org-roam-capture--get-point
+           "* %?"
+           :file-name "scratch/%<%Y-%m-%d>"
+           :head "#+title: %<%Y-%m-%d>\n\n"
+           :add-created t))))
+#+end_src
+
+*** Bookmark and protocol app
+Add this as a bookmark in your browser:
+
+#+begin_example js
+javascript:(function(){var escapeSym=(text)=>encodeURIComponent(text).replaceAll("[(]",escape("(")).replaceAll("[)]",escape(")")).replaceAll("[']",escape("'"));location.href='org-protocol://roam-ref?template=r'+'&ref='+encodeURIComponent(location.href)+'&title='+escapeSym(document.title)+'&body='+escapeSym(window.getSelection().toString())})()
+#+end_example
+
+And create this desktop application:
+
+#+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :exports code
+[Desktop Entry]
+Name=Org-Protocol
+Exec=emacsclient %u
+Icon=/home/abdelhak/.doom.d/images/org-mode.svg
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/org-protocol
+#+end_src
+
+Associate =org-protocol://= links with the app:
+
+#+begin_example sh
+xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+#+end_example
+
+*** Org Roam Server
+#+begin_src emacs-lisp
+(use-package org-roam-server
+  :ensure t
+  :config
+  (setq org-roam-server-host "127.0.0.1"
+        org-roam-server-port 8080
+        org-roam-server-authenticate nil
+        org-roam-server-export-inline-images t
+        org-roam-server-serve-files nil
+        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+        org-roam-server-network-poll t
+        org-roam-server-network-arrows nil
+        org-roam-server-network-label-truncate t
+        org-roam-server-network-label-truncate-length 60
+        org-roam-server-network-label-wrap-length 20))
+#+end_src
+
+*** Bidirectional Link Auto Complete
+#+begin_src emacs-lisp
+(set-company-backend! 'org-roam-mode '(company-capf
+                                       company-yasnippet
+                                       company-dabbrev))
+#+end_src
+
+** Deft
+#+begin_src emacs-lisp
+;; (defun ab-conf/deft-parse-summary (str title)
+;;   (cond ((string-match "#\\+\\broam_tags\\b: \\(.*\\)$" str) (match-string 1 str))
+;;         (t "no-tag")))
+;; (defcustom ab-conf/deft-strip-summary-regexp "#\\+\\broam_tags\\b: \\(.*\\)\n"
+;;   "Regular expression to remove file contents displayed in summary. Presently removes blank lines and `org-mode' metadata statements."
+;;  :type 'regexp
+;;  :safe 'stringp
+;;  :group 'deft)
+
+(use-package deft
+  :after org
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-extensions '("org" "md"))
+  ;;(deft-strip-summary-regexp "#\\+\\broam_tags\\b: \\(.*\\)$")
+  (deft-directory "~/Org/slip-box/"))
+;; (advice-add 'deft-parse-summary :around #'ab-conf/deft-parse-summary)
+#+end_src
+
+** Org Ref
+
+#+begin_src emacs-lisp
+(setq org-ref-default-bibliography '("~/Zotero/my-library.bib")
+      org-ref-pdf-directory "~/Zotero/storage"
+      org-ref-bibliography-notes "~/Org/ref/notes.org")
+#+end_src
+
 ** Org Journal
 #+begin_src emacs-lisp
-(setq org-journal-dir "~/Org/journal/")
-(setq org-journal-file-format "%Y-%m-%d")
-#+end_src
+(use-package org-journal
+  :bind
+  ("C-c n j" . org-journal-new-entry)
+  :custom
+  (org-journal-dir "~/Org/journal/")
+  (org-journal-date-prefix "#+TITLE: ")
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-date-format "%A, %d %B %Y"))
 
-** Org Roam
-Change Org Roam settings
-#+begin_src emacs-lisp
-(setq org-roam-db-location "~/Org/roam/org-roam.db")
-(setq org-roam-index-file "~/Org/roam/index.org")
-(setq org-roam-directory "~/Org/roam")
-#+end_src
-
-** Prettify Org Mode :prettify:
-*** Change font size for section levels
-#+begin_src emacs-lisp
-(custom-set-faces
- '(org-document-title ((t (:inherit default :height 1.5 :underline nil))))
- '(org-tag ((t (:inherit default :weight bold :height 1.0))))
- '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
- '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
- '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
- )
-#+end_src
-
-*** Ellipsis
-Change the three dots on collapsed Org Mode sections
-
-#+begin_src emacs-lisp
-;; (require 'org)
-(setq org-ellipsis " ⤵")
-
-(custom-set-faces
- '(org-ellipsis ((t (:weight normal :height 1.0 :foreground "#AAAA3A"))))
- )
-#+end_src
-
-*** COMMENT Org Bullets :bullets:
-Enable =org-bullets= to use prettier unicode symbols in Org files
-
-#+begin_src emacs-lisp
-(require 'org-bullets)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+;; To display the TODOs on the Org agenda
+(setq org-journal-enable-agenda-integration t)
 #+end_src
 
 ** Literate programming (=org-babel=) :babel:literate:
@@ -436,26 +626,26 @@ Enable =org-bullets= to use prettier unicode symbols in Org files
 **** Define templates
 To use this type the prefix (like =<s=) and then =TAB=
 
-| Prefix | Language                                        |
-|--------+-------------------------------------------------|
-| =<s=   | Generic (=#src= block)                          |
-|--------+-------------------------------------------------|
-| =<m=   | Emacs Lisp                                      |
-|--------+-------------------------------------------------|
-| =<r=   | R                                               |
-| =<R=   | R + session + graphics                          |
-| =<RR=  | Like =R=, with graphics stored with the project |
-|--------+-------------------------------------------------|
-| =<p=   | Python                                          |
-| =<P=   | Python + session                                |
-| =<PP=  | Python + session + graphics                     |
-|--------+-------------------------------------------------|
-| =<b=   | Bash shell                                      |
-| =<B=   | Badh shell + session                            |
-|--------+-------------------------------------------------|
-| =<g=   | Graphviz                                        |
-|--------+-------------------------------------------------|
-
+| *Prefix* | *Language + Options*                            |
+|----------+-------------------------------------------------|
+| =<s=     | Generic (=#src= block)                          |
+|----------+-------------------------------------------------|
+| =<m=     | Emacs Lisp                                      |
+|----------+-------------------------------------------------|
+| =<r=     | R                                               |
+| =<R=     | R + session + graphics                          |
+| =<RR=    | Like =R=, with graphics stored with the project |
+|----------+-------------------------------------------------|
+| =<p=     | Python                                          |
+| =<P=     | Python + session                                |
+| =<PP=    | Python + session + graphics                     |
+|----------+-------------------------------------------------|
+| =<b=     | Bash shell                                      |
+| =<B=     | Badh shell + session                            |
+| =<bn=    | Bash shell (no options)                         |
+|----------+-------------------------------------------------|
+| =<g=     | Graphviz                                        |
+|----------+-------------------------------------------------|
 
 ***** Generic =src= block =<s=
 #+begin_src emacs-lisp
@@ -528,7 +718,7 @@ To use this type the prefix (like =<s=) and then =TAB=
 (ab-conf/add-org-template
  '("g" "#+begin_src dot :results output graphics :file \"/tmp/graph.pdf\" :exports both
 digraph G {
-node [color=black,fillcolor=white,shape=rectangle,style=filled,fontname=\"Helvetica\"];
+node [color=black,fillcolor=white,shape=rectangle,style=filled,fontname=\"Lato\"];
 A[label=\"A\"]
 B[label=\"B\"]
 A->B
@@ -577,14 +767,12 @@ under a =:noexport:= section:
 #+end_example
 
 * GTD workflow :gtd:
-Parts from this section has been taken form
-[[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
+Parts from this section has been taken form [[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
 
 ** Files and directories
 #+begin_src emacs-lisp
 (setq org-agenda-files (list "~/Org/inbox.org" "~/Org/agenda.org"
                              "~/Org/notes.org" "~/Org/projects.org"))
-;; (setq org-agenda-files (list "~/Work/org"))
 #+end_src
 
 *** COMMENT Initial content of files
@@ -613,15 +801,16 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
 # UNCOMMEND THESE LINES
 # * Students :students:
 # * Team :team:
-# * Collaboratorive projects :collaborative:project:
+# * Collaboratorive projects :collab:project:
 # * Events organization :events:
 # * Academic papers :article:
+# * University :univ:
 # * Personal projects :personal:project:
 # * ez-Wheel :ezwheel:
 # * Home :home:
 #+end_example
 
-** Capture and inbox
+** Capture and inbox :capture:
 #+begin_src emacs-lisp
 (setq org-capture-templates
       `(("i" "Inbox" entry (file "inbox.org")
@@ -645,7 +834,7 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
   (org-capture nil "@"))
 #+end_src
 
-** Display and key bindings
+** COMMENT Display and key bindings
 #+begin_src emacs-lisp
 ;; Use full window for org-capture
 ;; (add-hook 'org-capture-mode-hook 'delete-other-windows)
@@ -708,8 +897,107 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 #+end_src
 
+*** Org Super Agenda
+#+begin_src emacs-lisp
+(use-package! org-super-agenda
+  :commands (org-super-agenda-mode))
+
+(after! org-agenda
+  (org-super-agenda-mode))
+
+(setq org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      org-agenda-block-separator nil
+      org-agenda-tags-column 100 ;; from testing this seems to be a good value
+      org-agenda-compact-blocks t)
+
+(setq org-agenda-custom-commands
+      '(("o" "Overview"
+         ((agenda "" ((org-agenda-span 'day)
+                      (org-super-agenda-groups
+                       '((:name "Today"
+                          :time-grid t
+                          :date today
+                          :todo "TODAY"
+                          :scheduled today
+                          :order 1)))))
+          (alltodo "" ((org-agenda-overriding-header "")
+                       (org-super-agenda-groups
+                        '((:name "Next to do"
+                           :todo "NEXT"
+                           :order 1)
+                          (:name "Important"
+                           :tag "Important"
+                           :priority "A"
+                           :order 6)
+                          (:name "Due Today"
+                           :deadline today
+                           :order 2)
+                          (:name "Due Soon"
+                           :deadline future
+                           :order 8)
+                          (:name "Overdue"
+                           :deadline past
+                           :face error
+                           :order 7)
+                          (:name "Assignments"
+                           :tag "assignment"
+                           :order 10)
+                          (:name "Issues"
+                           :tag "issue"
+                           :order 12)
+                          (:name "Emacs"
+                           :tag "emacs"
+                           :order 13)
+                          (:name "Projects"
+                           :tag "project"
+                           :order 14)
+                          (:name "Research"
+                           :tag "research"
+                           :order 15)
+                          (:name "To read"
+                           :tag "read"
+                           :order 30)
+                          (:name "Waiting"
+                           :todo "WAITING"
+                           :order 20)
+                          (:name "University"
+                           :tag "univ"
+                           :order 32)
+                          (:name "Trivial"
+                           :priority<= "E"
+                           :tag ("trivial" "unimportant")
+                           :todo ("SOMEDAY" )
+                           :order 90)
+                          (:discard (:tag ("chore" "routine" "daily")))))))))
+
+        ("g" "Get Things Done (GTD)"
+         ((agenda ""
+                  ((org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'deadline))
+                   (org-deadline-warning-days 0)))
+          (todo "NEXT"
+                ((org-agenda-skip-function
+                  '(org-agenda-skip-entry-if 'deadline))
+                 (org-agenda-prefix-format "  %i %-12:c [%e] ")
+                 (org-agenda-overriding-header "\nTasks\n")))
+          (agenda nil
+                  ((org-agenda-entry-types '(:deadline))
+                   (org-agenda-format-date "")
+                   (org-deadline-warning-days 7)
+                   (org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
+                   (org-agenda-overriding-header "\nDeadlines")))
+          (tags-todo "inbox"
+                     ((org-agenda-prefix-format "  %?-12t% s")
+                      (org-agenda-overriding-header "\nInbox\n")))
+          (tags "CLOSED>=\"<today>\""
+                ((org-agenda-overriding-header "\nCompleted today\n")))))))
+#+end_src
+
 * Windows and buffers :win:buffer:
-** Splits :split:
+** COMMENT Splits :split:
 Force splits to open on the right
 
 #+begin_src emacs-lisp
@@ -720,7 +1008,8 @@ Force splits to open on the right
 #+end_src
 
 ** Add margins to window
-Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the desired width of the actual window (in letters, and counting the line number).
+Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the desired width of
+the actual window (in letters, and counting the line number).
 
 #+begin_src emacs-lisp
 (defun ab-conf/org-mode-visual-fill ()
@@ -733,20 +1022,26 @@ Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the 
   :hook (org-mode . ab-conf/org-mode-visual-fill))
 #+end_src
 
-Add the same hook to other modes (=text-mode=, =markdown-mode=, =tex-mode-hook=, =repo-mode= and =magit-mode=), you can set additional modes in the list below:
+Add the same hook to other modes (=text-mode=, =markdown-mode=, =tex-mode=, =repo-mode= and =magit-mode=),
+you can set additional modes in the list below:
 
 #+begin_src emacs-lisp
-(dolist (hook '(text-mode-hook markdow-mode-hook tex-mode-hook magit-mode-hook repo-mode-hook))
+(dolist (hook '(text-mode-hook
+                markdow-mode-hook
+                tex-mode-hook
+                magit-mode-hook
+                mu4e-view-mode-hook
+                repo-mode-hook))
   (add-hook hook 'ab-conf/org-mode-visual-fill))
 #+end_src
 
 * Applications :apps:
-** PDF viewer
+** PDF viewer :pdf:
 Org opens PDF files with Zathura
 
 #+begin_example shell
 # First install the zathura and the plugins
-pacman -S zathura zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu
+pacman -S zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu zathura
 #+end_example
 
 #+begin_src emacs-lisp
@@ -754,7 +1049,27 @@ pacman -S zathura zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu
         (lambda (fpath)
           (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
 #+end_src
-** Browser (=eww=) :eww:
+
+** COMMENT Emacs Application Framework (=eaf=)
+#+begin_src emacs-lisp
+(use-package eaf
+  :load-path "~/.doom.d/eaf/"
+  :init
+  (use-package epc :defer t :ensure t)
+  (use-package ctable :defer t :ensure t)
+  (use-package deferred :defer t :ensure t)
+  (use-package s :defer t :ensure t)
+  :custom
+  (eaf-browser-continue-where-left-off t)
+  :config
+  (eaf-setq eaf-browser-enable-adblocker "true")
+  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+  (eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
+#+end_src
+
+** Browser (=eww=) :eww:browser:
 Set urls to open in a specific browser (=eww= here).
 
 *** COMMENT Display webpages in =eww=.
@@ -771,22 +1086,38 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
     (:map dired-mode-map
      "C-x i" #'peep-dired
      )))
+
 (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file
                                              (kbd "k") 'peep-dired-prev-file)
 (add-hook 'peep-dired-hook 'evil-normalize-keymaps)
 #+end_src
 
-** COMMENT Emacs Multi-Media System (=emms=) :emms:
-*** Define keybinding
+** Emacs Multi-Media System (=emms=) :emms:music:
 #+begin_src emacs-lisp
 (emms-all)
 (emms-default-players)
 (emms-mode-line 1)
 (emms-playing-time 1)
 (setq emms-source-file-default-directory "~/Music/"
-      emms-playlist-buffer-name "*Music*"
+      emms-playlist-buffer-name "*EMMS*"
+      emms-mode-line-format " [ %s ]"
+      emms-show-format "%s"
       emms-info-asynchronously t
       emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+
+(defun my-emms-track-description-function (track)
+  "Return a description of the current TRACK."
+  (file-name-nondirectory (file-name-sans-extension (emms-track-name track))))
+
+(setq emms-track-description-function
+      'my-emms-track-description-function)
+
+(require 'emms-mode-line-cycle)
+(emms-mode-line-cycle 1)
+#+end_src
+
+*** Define keybinding
+#+begin_src emacs-lisp
 (map! :leader
       :desc "Go to emms playlist"
       "a a" #'emms-playlist-mode-go
@@ -804,57 +1135,59 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
       "a n" #'emms-next)
 #+end_src
 
-*** COMMENT Mode line settings
-#+begin_src emacs-lisp
-(custom-set-variables
- '(emms-mode-line-format "%s")
- '(emms-show-format "EMMS: %s")
- '(emms-source-file-default-directory "~/Music/"))
-
-(defun string-shift-left (str &optional offset)
-  "Shift STR content to the left OFFSET characters."
-  (or offset (setq offset 1))
-  (let ((str-len (length str)))
-    (if (< offset str-len)
-        (concat (substring-no-properties str offset)
-                (substring-no-properties str 0 offset))
-      str)))
-
-(defun emms-tick-mode-line-description (offset)
-  "Tick emms track description OFFSET characters."
-  (setq emms-mode-line-string
-        (string-shift-left emms-mode-line-string offset)))
-
-(defvar *my-emms-ticker* nil
-  "Timer for current track info ticker.")
-
-(defun emms-track-ticker-start ()
-  "Start ticking current TRACK info."
-  (or *my-emms-ticker*
-      (setq *my-emms-ticker*
-            (run-at-time t 2
-                         'emms-tick-mode-line-description 5))))
-
-(defun emms-track-ticker-stop ()
-  "Stop ticking current TRACK info."
-  (when *my-emms-ticker*
-    (cancel-timer *my-emms-ticker*)
-    (setq *my-emms-ticker* nil)))
-
-(add-hook 'emms-player-started-hook 'emms-track-ticker-start)
-(add-hook 'emms-player-stopped-hook 'emms-track-ticker-stop)
-(add-hook 'emms-player-finished-hook 'emms-track-ticker-stop)
-(add-hook 'emms-player-paused-hook
-          (lambda () "Start/Stop track ticker."
-            (if *my-emms-ticker*
-                (emms-track-ticker-stop)
-              (emms-track-ticker-start))))
-#+end_src
-
 ** Serial port support (=serial-term=) :serial:
 #+begin_src emacs-lisp
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)
+#+end_src
+
+* Communication and messaging
+** Slack :slack:
+Needs to add =slack= to =$DOOMDIR/packages.el=
+See [[https://github.com/yuya373/emacs-slack#how-to-get-token]] to see how to get tokens.
+
+#+begin_src emacs-lisp
+;; (use-package helm-slack :after (slack)) ;; optional
+(use-package slack
+  :commands (slack-start)
+  :init
+  (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
+  (setq slack-prefer-current-team t)
+  :config
+  (slack-register-team
+   :name "YOUR_TEAM"
+   :default t
+   :token "YOUR-TOKEN-GOES-HERE"
+   :subscribed-channels '(YOUR SUBSCRIBED CHANNELS)
+   :full-and-display-names t)
+  (evil-define-key 'normal slack-info-mode-map
+    ",u" 'slack-room-update-messages)
+  (evil-define-key 'normal slack-mode-map
+    ",c" 'slack-buffer-kill
+    ",ra" 'slack-message-add-reaction
+    ",rr" 'slack-message-remove-reaction
+    ",rs" 'slack-message-show-reaction-users
+    ",pl" 'slack-room-pins-list
+    ",pa" 'slack-message-pins-add
+    ",pr" 'slack-message-pins-remove
+    ",mm" 'slack-message-write-another-buffer
+    ",me" 'slack-message-edit
+    ",md" 'slack-message-delete
+    ",u" 'slack-room-update-messages
+    ",2" 'slack-message-embed-mention
+    ",3" 'slack-message-embed-channel
+    "\C-n" 'slack-buffer-goto-next-message
+    "\C-p" 'slack-buffer-goto-prev-message)
+  (evil-define-key 'normal slack-edit-message-mode-map
+    ",k" 'slack-message-cancel-edit
+    ",s" 'slack-message-send-from-buffer
+    ",2" 'slack-message-embed-mention
+    ",3" 'slack-message-embed-channel))
+
+;; (use-package alert
+;;   :commands (alert)
+;;   :init
+;;   (setq alert-default-style 'notifier))
 #+end_src
 
 ** mu4e :mu4e:
@@ -874,45 +1207,47 @@ You will need to:
 
 #+begin_src emacs-lisp
 (after! mu4e
-  (require 'org-mu4e)
-  (setq smtpmail-auth-credentials "~/.authinfo.gpg")
-  (setq mu4e-update-interval (* 10 60)) ;; Every 10min
-  (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-maildir "~/Maildir"))
+  (require 'org-msg)
+  (require 'smtpmail)
+  ;; Common parameters
+  (setq smtpmail-auth-credentials "~/.authinfo.gpg"
+        mu4e-update-interval (* 5 60) ;; Every 5min
+        mu4e-get-mail-command "mbsync -a"
+        mu4e-maildir "~/Maildir"
+        ;;user-full-name "Abdelhak Bougouffa" ;; Already set at the beginning
+        mu4e-compose-signature "Abdelhak Bougouffa\n- Ph.D. Candidate | R&D Engineer"
+        message-send-mail-function 'smtpmail-send-it
+        mu4e-sent-messages-behavior 'sent)) ;; Save sent messages
 
-(require 'smtpmail)
-(set-email-account! "Université Paris-Saclay"
-                    '((mu4e-sent-folder       . "/up-saclay/Sent")
-                      (mu4e-drafts-folder     . "/up-saclay/Drafts")
-                      (mu4e-trash-folder      . "/up-saclay/Trash")
-                      (mu4e-refile-folder     . "/up-saclay/All Mail")
-                      (smtpmail-smtp-user     . "abdelhak.bougouffa@universite-paris-saclay.fr")
-                      (user-full-name         . "Abdelhak Bougouffa")
-                      (mu4e-compose-signature . "---\nAbdelhak Bougouffa")
-                      (message-send-mail-function . smtpmail-send-it)
-                      (smtpmail-stream-type . ssl)
-                      (smtpmail-default-smtp-server . "zimbra.u-psud.fr")
-                      (smtpmail-smtp-server . "zimbra.u-psud.fr")
-                      (smtpmail-smtp-service . 465)
+(set-email-account! "Univ Paris-Saclay"
+                    '((mu4e-sent-folder             . "/up-saclay/Sent")
+                      (mu4e-drafts-folder           . "/up-saclay/Drafts")
+                      (mu4e-trash-folder            . "/up-saclay/Trash")
+                      (mu4e-refile-folder           . "/up-saclay/Archives")
+                      (user-mail-address            . "abdelhak.bougouffa@universite-paris-saclay.fr")
+                      (smtpmail-smtp-user           . "abdelhak.bougouffa@universite-paris-saclay.fr")
+                      (smtpmail-stream-type         . ssl)
+                      (smtpmail-default-smtp-server . "smtps.universite-paris-saclay.fr")
+                      (smtpmail-smtp-server         . "smtps.universite-paris-saclay.fr")
+                      (smtpmail-smtp-service        . 465)
                       ) t)
 
 (set-email-account! "Gmail"
-                    '((mu4e-sent-folder       . "/gmail/Sent Mail")
-                      (mu4e-drafts-folder     . "/gmail/Drafts")
-                      (mu4e-trash-folder      . "/gmail/Trash")
-                      (mu4e-refile-folder     . "/gmail/All Mail")
-                      (smtpmail-smtp-user     . "abdelhak.alg@gmail.com")
-                      (user-full-name         . "Abdelhak Bougouffa")
-                      (mu4e-compose-signature . "---\nAbdelhak Bougouffa")
-                      (message-send-mail-function . smtpmail-send-it)
-                      (smtpmail-stream-type . starttls)
+                    '((mu4e-sent-folder             . "/gmail/Sent Mail")
+                      (mu4e-drafts-folder           . "/gmail/Drafts")
+                      (mu4e-trash-folder            . "/gmail/Trash")
+                      (mu4e-refile-folder           . "/gmail/All Mail")
+                      (user-mail-address            . "abdelhak.alg@gmail.com")
+                      (mu4e-compose-signature       . "Abdelhak")
+                      (smtpmail-smtp-user           . "abdelhak.alg@gmail.com")
+                      (smtpmail-stream-type         . starttls)
                       (smtpmail-default-smtp-server . "smtp.googlemail.com")
-                      (smtpmail-smtp-server . "smtp.gmail.com")
-                      (smtpmail-smtp-service . 587)
+                      (smtpmail-smtp-server         . "smtp.googlemail.com")
+                      (smtpmail-smtp-service        . 587)
                       ) t)
 #+end_src
 
-* Programming Languages :programming:
+* Programming :programming:
 ** COMMENT Rust :rust:
 #+begin_src emacs-lisp
 (use-package racer
@@ -939,13 +1274,16 @@ You will need to:
 #+end_src
 
 ** ROS :ros:
+Add ROS file formats:
+
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.urdf$" . xml-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.rviz$" . conf-unix-mode) auto-mode-alist))
 #+end_src
 
 ** LSP :lsp:
-*** Enable =lsp= over =tramp=
+*** Enable =lsp= over =tramp= :tramp:
 **** For Python
 #+begin_src emacs-lisp
 (require 'lsp-mode)
