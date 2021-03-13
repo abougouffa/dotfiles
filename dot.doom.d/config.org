@@ -2,7 +2,7 @@
 #+TITLE: My DOOM-Emacs config file
 #+AUTHOR: Abdelhak Bougouffa
 #+DESCRIPTION: My config file for DOOM-Emacs
-#+STARTUP: overview showstars
+#+STARTUP: fold showstars
 #+KEYWORDS: configuration dotfile doom emacs
 
 * Introduction
@@ -161,7 +161,7 @@ Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/d
 [[file:splash-images/blackhole-lines.svg]]
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-lines-small.svg")
+(setq fancy-splash-image "~/.doom.d/images/blackhole-lines-small.svg")
 #+end_src
 
 ** Beacon Mode
@@ -1223,7 +1223,7 @@ You will need to:
                     '((mu4e-sent-folder             . "/up-saclay/Sent")
                       (mu4e-drafts-folder           . "/up-saclay/Drafts")
                       (mu4e-trash-folder            . "/up-saclay/Trash")
-                      (mu4e-refile-folder           . "/up-saclay/Archives")
+                      (mu4e-refile-folder           . "/up-saclay/Archive")
                       (user-mail-address            . "abdelhak.bougouffa@universite-paris-saclay.fr")
                       (smtpmail-smtp-user           . "abdelhak.bougouffa@universite-paris-saclay.fr")
                       (smtpmail-stream-type         . ssl)
