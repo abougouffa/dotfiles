@@ -796,34 +796,32 @@ A->B
         mu4e-main-buffer-hide-personal-addresses t
         message-send-mail-function 'smtpmail-send-it
         starttls-use-gnutls t
-        ;; smtpmail-starttls-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg")
-        smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg"))
+        smtpmail-auth-credentials (expand-file-name "~/.config/mu4e/authinfo.gpg"))
 
   (setq mu4e-contexts
         `( ,(make-mu4e-context
-             :name "ez-Wheel"
-             :enter-func (lambda () (mu4e-message "Switch to the ez-Wheel context"))
+             :name "YYYYYYYY"
+             :enter-func (lambda () (mu4e-message "Switch to the XXXXXXXX context"))
              ;; leave-func not defined
              :match-func (lambda (msg)
                            (when msg
                              (mu4e-message-contact-field-matches msg
-                                                                 :to "a.bougouffa@ez-wheel.com")))
-             :vars '( ( user-mail-address . "a.bougouffa@ez-wheel.com"  )
+                                                                 :to "xxxxxxxxxxx@yyyyyyyy.com")))
+             :vars '( ( user-mail-address . "xxxxxxxxxxx@yyyyyyyy.com"  )
                       ( user-full-name . "Abdelhak Bougouffa" )
                       ( mu4e-compose-signature .
                                                (concat "- Abdelhak BOUGOUFFA\n"
                                                        "- Doctorant | Ingénieur R&D\n"
                                                        "- Université Paris-Saclay - SATIE | ez-Wheel\n"
                                                        "----------------\n"
-                                                       "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
-                                                       "- a.bougouffa@ez-wheel.com\n"))
+                                                       "- abdelhak.bougouffa@universite-paris-saclay.fr\n"))
 
                       ( mu4e-main-buffer-hide-personal-addresses . t )
                       ( message-send-mail-function . 'smtpmail-send-it )
                       ( starttls-use-gnutls . t )
                       ( smtpmail-smtp-service . 587 )
-                      ( smtpmail-smtp-server . "ex.mail.ovh.net" )
-                      ( smtpmail-auth-credentials . (expand-file-name "~/.config/mu4e/authinfo-ezwheel.gpg") )
+                      ( smtpmail-smtp-server . "xxxxxxxxxxx.net" )
+                      ( smtpmail-auth-credentials . (expand-file-name "~/.config/mu4e/authinfo.gpg") )
                       ))
            ,(make-mu4e-context
              :name "UP-Saclay"
@@ -840,13 +838,12 @@ A->B
                                                        "- Doctorant | Ingénieur R&D\n"
                                                        "- Université Paris-Saclay - SATIE | ez-Wheel\n"
                                                        "----------------\n"
-                                                       "- abdelhak.bougouffa@universite-paris-saclay.fr\n"
-                                                       "- a.bougouffa@ez-wheel.com\n"))
+                                                       "- abdelhak.bougouffa@universite-paris-saclay.fr\n"))
                       ( mu4e-main-buffer-hide-personal-addresses . t )
                       ( message-send-mail-function . 'smtpmail-send-it )
                       ( starttls-use-gnutls . t )
                       ( smtpmail-smtp-service . 587 )
-                      ( smtpmail-smtp-server . "ex.mail.ovh.net" )
+                      ( smtpmail-smtp-server . "xxxxxxxxxxx.net" )
                       ( smtpmail-auth-credentials . (expand-file-name "~/.config/mu4e/authinfo-univ-paris-saclay.gpg"))))))
 
   ;; set `mu4e-context-policy` and `mu4e-compose-policy` to tweak when mu4e should
@@ -859,7 +856,7 @@ A->B
   ;; compose with the current context is no context matches;
   ;; default is to ask
   ;; (setq mu4e-compose-context-policy nil)
-  ;; * Org-Mode settings :org:
+  ;; * Org-Mode settings org:
   ;; Set the default org-mode directory
   ;; ------------------------------
   (setq org-directory "~/Org/")
