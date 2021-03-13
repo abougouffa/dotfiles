@@ -49,6 +49,7 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 (package! bitbake)
+(package! systemd)
 (package! repo) ; TODO configure package
 (package! zotxt) ; TODO configure package
 (package! ivy-emms)
@@ -68,6 +69,12 @@
 (package! emms-mode-line-cycle
   :recipe (:host github
            :repo "abougouffa/emms-mode-line-cycle"))
+
+(package! wttrin
+  :recipe (:local-repo "lisp/wttrin"))
+
+;; Load huge files as chunks
+(package! vlf)
 
 ;;(package! svg-tag-mode
 ;;  :recipe (:host github

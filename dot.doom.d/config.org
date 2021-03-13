@@ -9,28 +9,9 @@
 Place your private configuration here! Remember, after modifying this file
 you need to run =doom sync= or =doom/reload= (aka =SPC h r r=) inside DOOM
 
-** One time commands :commands:
-*** =pdf-tools= :pdf:
-Install =pdf-tools=, call this if you enabled =tools: pdf= in =init.el=
-
-#+begin_example emacs-lisp
-(pdf-tools-install)
-#+end_example
-
-*** Languages servers :lsp:
-For LSP, you can install supported servers with:
-
-#+begin_example emacs-lisp
-(lsp-install-server) ; will asks which server to install
-#+end_example
-
-For Irony:
-
-#+begin_example emacs-lisp
-(irony-install-server)
-#+end_example
-
 * Early Bootstrap
+To prevent Emacs from showing the annoying white screen with tool and menu bars.
+
 ** Maximize Emacs
 At startup, maximize the default Emacs frame
 
@@ -63,8 +44,8 @@ email clients, file templates and snippets.
 
 ** Secrets :gpg:
 #+begin_src emacs-lisp
-(setq auth-sources '("~/.authinfo.gpg"))
-;; (setq auth-sources '("secrets:Login"))
+(setq auth-sources '("~/.authinfo.gpg")
+      auth-source-cache-expiry nil)
 #+end_src
 
 ** Default encoding :encoding:
@@ -76,6 +57,11 @@ Set the default encoding to UTF-8
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (setq default-buffer-file-coding-system 'utf-8)
+#+end_src
+
+** View Large Files
+#+begin_src emacs-lisp
+(require 'vlf-setup)
 #+end_src
 
 ** Native Comp Emacs :native:gcc:
@@ -109,17 +95,6 @@ Block until finished!
 (while (or comp-files-queue
            (> (comp-async-runnings) 0))
   (sleep-for 1))
-#+end_src
-
-** Add customs to =load-path=
-*** COMMENT Add zaeph's Lisp scripts
-#+begin_src emacs-lisp
-(add-to-list 'load-path "~/.doom.d/zaeph.emacs.d/lisp/")
-#+end_src
-
-*** COMMENT Add GNU Emacs / N Λ N O
-#+begin_src emacs-lisp
-(add-to-list 'load-path "~/.doom.d/nano-emacs")
 #+end_src
 
 * User interface :ui:
@@ -177,9 +152,6 @@ Never lose your cursor!
 (setq centaur-tabs-set-bar 'over)
 #+end_src
 
-#+RESULTS:
-: over
-
 ** Child frames (=ivy-posframe=)
 Display =ivy-posframe= at frame top center.
 
@@ -189,6 +161,11 @@ Display =ivy-posframe= at frame top center.
 #+end_src
 
 ** Editor Settings :editor:
+*** Trash vs. Delete
+#+begin_src emacs-lisp
+(setq-default delete-by-moving-to-trash t)
+#+end_src
+
 *** Line numbers
 This determines the style of line numbers in effect. If set to =nil=, line
 numbers are disabled. For relative line numbers, set this to =relative=.
@@ -202,6 +179,13 @@ numbers are disabled. For relative line numbers, set this to =relative=.
 #+begin_src emacs-lisp
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)
+#+end_src
+
+*** Undo & auto-save
+#+begin_src emacs-lisp
+(setq undo-limit 80000000     ; Raise undo-limit to 80Mb
+      evil-want-fine-undo t   ; By default while in insert all changes are one big blob. Be more granular
+      auto-save-default t)    ; Nobody likes to loose work, I certainly don't
 #+end_src
 
 ** HiDPI
@@ -225,6 +209,29 @@ Taken from Leo Vivier (=zaeph=) configuration
     (setq-local visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))))
 #+end_src
 
+*** Windows
+Taken from [[https://github.com/tecosaur/emacs-config][tecosaur/emacs-config]]:
+
+I find it rather handy to be asked which buffer I want to see after splitting
+the window. Let's make that happen.
+First, we'll enter the new window
+#+begin_src emacs-lisp
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+#+end_src
+
+Then, we'll pull up ~ivy~
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (+ivy/switch-buffer))
+#+end_src
+
+Oh, and previews are nice
+#+begin_src emacs-lisp
+(setq +ivy-buffer-preview t)
+#+end_src
+
 *** Flycheck Margin icons
 From [[https://github.com/flycheck/flycheck/pull/1742]]
 
@@ -236,7 +243,7 @@ From [[https://github.com/flycheck/flycheck/pull/1742]]
   (setq flycheck-indication-mode 'left-margin))
 #+end_src
 
-** Evil :evil:
+** COMMENT Evil :evil:
 *** Enable =evil-numbers=
 Enable =evil-numbers= for incrementing number in text
 
@@ -997,14 +1004,27 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
 #+end_src
 
 * Windows and buffers :win:buffer:
-** COMMENT Splits :split:
-Force splits to open on the right
+** Windows splitting
+Taken from [[https://github.com/tecosaur/emacs-config][tecosaur/emacs-config]]:
 
+I find it rather handy to be asked which buffer I want to see after splitting
+the window. Let's make that happen.
+First, we'll enter the new window
 #+begin_src emacs-lisp
-(defun ab-conf/prefer-horizontal-split ()
-  (set-variable 'split-height-threshold nil t)
-  (set-variable 'split-width-threshold 40 t)) ; make this as low as needed
-(add-hook 'markdown-mode-hook 'ab-conf/prefer-horizontal-split)
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+#+end_src
+
+Then, we'll pull up ~ivy~
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (+ivy/switch-buffer))
+#+end_src
+
+Oh, and previews are nice
+#+begin_src emacs-lisp
+(setq +ivy-buffer-preview t)
 #+end_src
 
 ** Add margins to window
