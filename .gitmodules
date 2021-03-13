@@ -1,3 +1,0 @@
-[submodule "dot.doom.d/zaeph.emacs.d"]
-	path = dot.doom.d/zaeph.emacs.d
-	url = https://github.com/zaeph/.emacs.d.git
