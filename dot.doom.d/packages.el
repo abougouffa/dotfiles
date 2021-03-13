@@ -48,12 +48,28 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
-(package! md4rd)
 (package! bitbake)
-(package! repo)
-(package! zotxt)
-;; (package! peep-dired)
-;; (package! ivy-emms)
-;; (package! ox-moderncv
-;;   :recipe (:host github
-;;            :repo "Titan-C/org-cv"))
+(package! repo) ; TODO configure package
+(package! zotxt) ; TODO configure package
+(package! ivy-emms)
+(package! beacon)
+(package! copy-as-format) ; TODO configure package
+
+;; OrgMode stuff
+(package! org-ref)
+(package! org-roam-bibtex)
+(package! org-roam-server)
+(package! org-super-agenda)
+
+;; Communication apps
+(package! slack)
+
+;; Custom
+(package! emms-mode-line-cycle
+  :recipe (:host github
+           :repo "abougouffa/emms-mode-line-cycle"))
+
+;;(package! svg-tag-mode
+;;  :recipe (:host github
+;;           :repo "rougier/svg-tag-mode"
+;;           :files ("svg-tag-mode.el")))
