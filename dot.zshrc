@@ -135,7 +135,7 @@ export PATH=$PATH:$HOME/.cargo/bin
 
 # Add my manually installed libraries to CMake
 # export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/libs/bin
-export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/sources-and-libs/build_installs
+export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
 export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
 
 # NPM, Set installation path to local
@@ -150,8 +150,11 @@ export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
 # STARTUP STUFF =====================================================
 # Install from AUR shell-color-scripts
 # Display random graphics
-colorscript -e 30
+colorscript -e 16
 
 # Run fortune to display random quote
 # fortune
 
+# GPG Agent
+# GPG_TTY=$(tty)
+# export GPG_TTY
