@@ -118,6 +118,7 @@ source $ZSH/oh-my-zsh.sh
 alias vim="nvim"
 alias vi="nvim"
 alias ec="emacsclient -t"
+alias dotfiles='git --git-dir=$HOME/Projects/dotfiles/.git --work-tree=$HOME'
 
 # Kitty settings
 # autoload -Uz compinit
