@@ -24,7 +24,7 @@ for DOTFILE in "${DOTFILES[@]}"; do
 	cp "$HOME/$DOTFILE" "$HOME/$DOTFILE.$BACKUPEXT" && $($DELETE_CMD "$HOME/$DOTFILE")
     fi
 
-    ln -s "$DOTFILES_DIR/dot$DOTFILE" "$HOME/$DOTFILE"
+    cp -r "$DOTFILES_DIR/dot$DOTFILE" "$HOME/$DOTFILE"
 done
 
 echo "Dotfiles installed successfuly!"
