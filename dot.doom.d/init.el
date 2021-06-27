@@ -17,11 +17,7 @@
 ;; Adding path to mu4e
 ;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
-(doom! :input
-       ;;chinese
-       ;;japanese
-
-       :completion
+(doom! :completion
        (company +childframe)  ; the ultimate code completion backend
        ;;helm                 ; the *other* search engine for love and life
        ;;ido                  ; the other *other* search engine...
@@ -46,7 +42,7 @@
        (popup +defaults)      ; tame sudden yet inevitable temporary windows
        (ligatures +extra)     ; ligatures or substitute text with pretty symbols
        tabs                   ; a tab bar for Emacs
-       ;;treemacs             ; a project drawer, like neotree but cooler
+       treemacs             ; a project drawer, like neotree but cooler
        ;;unicode              ; extended unicode support for various languages
        vc-gutter              ; vcs diff in the fringe
        ;;vi-tilde-fringe      ; displays tildes in the fringe on empty lines a la Vi.
@@ -60,7 +56,7 @@
        (evil +everywhere)     ; come to the dark side, we have cookies
        file-templates         ; auto-snippets for empty files
        fold                   ; (nigh) universal code folding
-       (format +onsave)       ; automated prettiness
+       format                 ; automated prettiness
        ;;god                  ; run Emacs commands without modifier keys
        ;;lispy                ; vim for lisp, for people who don't like vim
        multiple-cursors       ; editing in many places at once
@@ -86,13 +82,13 @@
 
        :checkers
        syntax                 ; tasing you for every semicolon you forget
-       (spell +hunspell)      ; tasing you for misspelling mispelling
+       spell                  ; tasing you for misspelling mispelling
        grammar                ; tasing grammar mistake every you make
 
        :tools
        ;;ansible
        biblio
-       debugger               ; FIXME stepping through code, to help you add bugs
+       (debugger +lsp)        ; FIXME stepping through code, to help you add bugs
        direnv
        (docker +lsp)
        editorconfig           ; let someone else argue about tabs vs spaces
@@ -156,7 +152,7 @@
             +gnuplot
             +dragndrop
             +jupyter
-            ;;+noter
+            +noter
             +journal
             +pandoc
             +present
@@ -193,6 +189,9 @@
        ;;notmuch
        ;;(wanderlust +gmail)
 
+       :os
+       tty
+
        :app
        calendar
        irc                    ; how neckbeards socialize
@@ -204,5 +203,5 @@
        :config
        literate
        (default +bindings
-         +smartparens)
-  )
+         +smartparens))
+  

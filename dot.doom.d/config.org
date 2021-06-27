@@ -3,7 +3,10 @@
 #+AUTHOR: Abdelhak Bougouffa
 #+DESCRIPTION: My config file for DOOM-Emacs
 #+STARTUP: fold showstars
+#+OPTIONS: toc:t
 #+KEYWORDS: configuration dotfile doom emacs
+#+LATEX_HEADER: \usepackage[paper=a4paper, left=2cm, right=2cm, top=3cm, bottom=3cm]{geometry}
+#+LATEX_HEADER: \emergencystretch 2em%
 
 * Introduction
 Place your private configuration here! Remember, after modifying this file
@@ -17,6 +20,7 @@ At startup, maximize the default Emacs frame
 
 #+begin_src emacs-lisp
 (toggle-frame-maximized)
+;;(toggle-frame-fullscreen)
 #+end_src
 
 ** Set Foreground
@@ -42,10 +46,20 @@ email clients, file templates and snippets.
       user-mail-address "abougouffa@fedoraproject.org")
 #+end_src
 
+** Add to load path
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/.doom.d/lisp/")
+#+end_src
+
 ** Secrets :gpg:
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo.gpg")
       auth-source-cache-expiry nil)
+#+end_src
+
+** Scratch buffer
+#+begin_src emacs-lisp
+(setq doom-scratch-initial-major-mode "emacs-lisp-mode")
 #+end_src
 
 ** Default encoding :encoding:
@@ -59,7 +73,7 @@ Set the default encoding to UTF-8
 (setq default-buffer-file-coding-system 'utf-8)
 #+end_src
 
-** View Large Files
+** View Large Files :large:file:
 #+begin_src emacs-lisp
 (require 'vlf-setup)
 #+end_src
@@ -116,7 +130,7 @@ font string. You generally only need these two:
 #+end_src
 
 ** DOOM Theme and looking :theme:
-*** Set =solaire-mode=
+*** COMMENT Set =solaire-mode=
 Set =solaire-mode= globally:
 
 #+begin_src emacs-lisp
@@ -126,8 +140,8 @@ Set =solaire-mode= globally:
 
 *** Load theme
 #+begin_src emacs-lisp
-;;(setq doom-theme 'doom-one) ; Load theme
-(setq doom-theme 'doom-palenight) ; Load theme
+(setq doom-theme 'doom-one) ; Load theme
+;;(setq doom-theme 'doom-palenight) ; Load theme
 #+end_src
 
 *** Splash image
@@ -148,11 +162,10 @@ Never lose your cursor!
 
 ** Tabs (=centaur-tabs=)
 #+begin_src emacs-lisp
-;;(setq centaur-tabs-style "wave")
-(setq centaur-tabs-set-bar 'over)
+(setq centaur-tabs-modified-marker "●")
 #+end_src
 
-** Child frames (=ivy-posframe=)
+** COMMENT Child frames (=ivy-posframe=)
 Display =ivy-posframe= at frame top center.
 
 #+begin_src emacs-lisp
@@ -189,24 +202,46 @@ numbers are disabled. For relative line numbers, set this to =relative=.
 #+end_src
 
 ** HiDPI
-*** COMMENT Fringe HiDPI icons
+*** COMMENT HiDPI Scaling
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil :height 160)
+#+end_src
+*** Fringe HiDPI icons
 Taken from Leo Vivier (=zaeph=) configuration
 
 #+begin_src emacs-lisp
 ;; Set fringe sizes
-(fringe-mode 20)
+;; (fringe-mode 20)
+;; (set-fringe-style (quote (20 . 10)))
 
-(use-package hidpi-fringe-bitmaps)
+(defun my-define-fringe-bitmap-advice (fun bitmap bits &optional
+                                           height width align)
+  (when (<= (or width 8) 8)
+    (setq width (* (or width 8) 2)
+          height (when height (* height 2))
+          bits (vconcat (mapcan
+                         (lambda (in)
+                           (let ((out 0))
+                             (dotimes (i 8 (list out out))
+                               (setq out (+ out (lsh (* (logand in 1)
+                                                        3) (* i 2)))
+                                     in (/ in 2)))))
+                         bits))))
+  (funcall fun bitmap bits height width align))
+(advice-add #'define-fringe-bitmap :around #'my-define-fringe-bitmap-advice)
 
-(use-package prog-mode
-  ;; Force fringe indicators
-  :hook ((prog-mode . zp/enable-visual-line-fringe-indicators)
-         (prog-mode . outline-minor-mode)
-         (prog-mode . hs-minor-mode))
-  :config
-  (defun zp/enable-visual-line-fringe-indicators ()
-    "Enablle visual-line fringe-indicators."
-    (setq-local visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))))
+;; (use-package fringe-hidpi-icons)
+;; (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+
+;; (use-package prog-mode
+;;   ;; Force fringe indicators
+;;   :hook ((prog-mode . ab:enable-visual-line-fringe-indicators)
+;;          (prog-mode . outline-minor-mode)
+;;          (prog-mode . hs-minor-mode))
+;;   :config
+;;   (defun ab:enable-visual-line-fringe-indicators ()
+;;     "Enablle visual-line fringe-indicators."
+;;     (setq-local visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))))
 #+end_src
 
 *** Windows
@@ -243,15 +278,25 @@ From [[https://github.com/flycheck/flycheck/pull/1742]]
   (setq flycheck-indication-mode 'left-margin))
 #+end_src
 
-** COMMENT Evil :evil:
-*** Enable =evil-numbers=
+** Evil :evil:
+*** COMMENT Enable =evil-numbers=
 Enable =evil-numbers= for incrementing number in text
 
 #+begin_src emacs-lisp
 (require 'evil-numbers)
 
-(global-set-key (kbd "C-c +") 'evil-numbers/inc-at-pt)
-(global-set-key (kbd "C-c -") 'evil-numbers/dec-at-pt)
+(define-key evil-normal-state-map "g=" 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map "g-" 'evil-numbers/dec-at-pt)
+
+;;(global-set-key (kbd "C-c +") 'evil-numbers/inc-at-pt)
+;;(global-set-key (kbd "C-c -") 'evil-numbers/dec-at-pt)
+#+end_src
+
+** Ligatures :ligatures:
+Disable extra ligatures in some programming modes:
+
+#+begin_src emacs-lisp
+(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
 #+end_src
 
 ** DOOM Modeline (=doom-modeline-mode=) :modeline:
@@ -266,7 +311,7 @@ Customize the =doom-modeline=
 (display-time-mode) ;; Display the time
 #+end_src
 
-* Spell checking :spell:
+* COMMENT Spell checking :spell:
 Set =ispell='s dictionary to american english by default.
 
 #+begin_src emacs-lisp
@@ -374,10 +419,10 @@ Then configure dictionaries:
 Set the default org-mode directory
 
 #+begin_src emacs-lisp
-(setq org-directory "~/Org/")
-(setq org-roam-db-location "~/Org/slip-box/org-roam.db")
-(setq org-roam-index-file "~/Org/slip-box/index.org")
-(setq org-roam-directory "~/Org/slip-box/")
+(setq org-directory "~/Dropbox/Org/")
+(setq org-roam-db-location "~/Dropbox/Org/slip-box/org-roam.db")
+(setq org-roam-index-file "~/Dropbox/Org/slip-box/index.org")
+(setq org-roam-directory "~/Dropbox/Org/slip-box/")
 #+end_src
 
 ** Prettify Org Mode :prettify:
@@ -394,6 +439,14 @@ Set the default org-mode directory
  )
 #+end_src
 
+*** COMMENT Org Bullets :bullets:
+Enable =org-bullets= to use prettier unicode symbols in Org files
+
+#+begin_src emacs-lisp
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
 *** Ellipsis
 Change the three dots on collapsed Org Mode sections
 
@@ -402,14 +455,6 @@ Change the three dots on collapsed Org Mode sections
 
 (custom-set-faces
  '(org-ellipsis ((t (:weight normal :height 0.8 :foreground "#AAAA3A")))))
-#+end_src
-
-*** COMMENT Org Bullets :bullets:
-Enable =org-bullets= to use prettier unicode symbols in Org files
-
-#+begin_src emacs-lisp
-(require 'org-bullets)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
 *** Hide Markup
@@ -433,6 +478,42 @@ Enable syntax highlighting in exported PDFs
 
 (setq org-src-fontify-natively t)
 #+end_src
+
+** COMMENT RTL languages :rtl:arabic:
+Enables [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bidirectional-Editing.html][bidirectional editing]]
+
+#+begin_src emacs-lisp
+(defun ab-conf/set-bidi-env ()
+  "interactive"
+  (setq bidi-paragraph-direction 'nil))
+(add-hook 'org-mode-hook 'ab-conf/set-bidi-env)
+#+end_src
+
+** COMMENT Org-CV :cv:
+#+begin_src emacs-lisp
+(require 'ox-moderncv)
+#+end_src
+
+*** Important notice
+In the CV project, you need to import the =moderncv= from the above repo.
+The compiling of the exported TeX file may fails, with a
+=File `l3regex.sty' not found= error, this seems to be in relation with the new
+package names in the TexLive distribution. To solve this, you need to
+replace =\RequirePackage{l3regex}= by =\RequirePackage{expl3}= in
+the =moderncv.cls= file.
+
+*** Compiling the CV file
+To compile, you need to call two functions, you can add them in the file
+under a =:noexport:= section:
+
+#+begin_example org
+
+#+begin_src emacs-lisp
+(org-export-to-file 'moderncv "filename.tex")
+(org-latex-compile "filename.tex")
+#+end_src
+
+#+end_example
 
 * Zettelkasten and Note taking
 ** Org Roam
@@ -539,25 +620,26 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
   (deft-default-extension "org")
   (deft-extensions '("org" "md"))
   ;;(deft-strip-summary-regexp "#\\+\\broam_tags\\b: \\(.*\\)$")
-  (deft-directory "~/Org/slip-box/"))
+  (deft-directory "~/Dropbox/Org/slip-box/"))
 ;; (advice-add 'deft-parse-summary :around #'ab-conf/deft-parse-summary)
 #+end_src
 
 ** Org Ref
-
 #+begin_src emacs-lisp
-(setq org-ref-default-bibliography '("~/Zotero/my-library.bib")
-      org-ref-pdf-directory "~/Zotero/storage"
-      org-ref-bibliography-notes "~/Org/ref/notes.org")
+(after! org-ref
+    (setq! org-ref-default-bibliography '("~/Dropbox/Org/zotero-library.bib")
+           org-ref-pdf-directory "~/Zotero/storage/"
+           org-ref-bibliography-notes "~/Dropbox/Org/ref/"
+           reftex-default-bibliography org-ref-default-bibliography))
 #+end_src
 
 ** Org Journal
 #+begin_src emacs-lisp
 (use-package org-journal
-  :bind
-  ("C-c n j" . org-journal-new-entry)
+  ;;:bind
+  ;;("C-c n j" . org-journal-new-entry)
   :custom
-  (org-journal-dir "~/Org/journal/")
+  (org-journal-dir "~/Dropbox/Org/journal/")
   (org-journal-date-prefix "#+TITLE: ")
   (org-journal-file-format "%Y-%m-%d.org")
   (org-journal-date-format "%A, %d %B %Y"))
@@ -567,7 +649,7 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 #+end_src
 
 ** Literate programming (=org-babel=) :babel:literate:
-*** Babel languages
+*** COMMENT Babel languages
 #+begin_src emacs-lisp
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -634,25 +716,25 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 To use this type the prefix (like =<s=) and then =TAB=
 
 | *Prefix* | *Language + Options*                            |
-|----------+-------------------------------------------------|
+|--------+-----------------------------------------------|
 | =<s=     | Generic (=#src= block)                          |
-|----------+-------------------------------------------------|
-| =<m=     | Emacs Lisp                                      |
-|----------+-------------------------------------------------|
-| =<r=     | R                                               |
-| =<R=     | R + session + graphics                          |
+|--------+-----------------------------------------------|
+| =<m=     | Emacs Lisp                                    |
+|--------+-----------------------------------------------|
+| =<r=     | R                                             |
+| =<R=     | R + session + graphics                        |
 | =<RR=    | Like =R=, with graphics stored with the project |
-|----------+-------------------------------------------------|
-| =<p=     | Python                                          |
-| =<P=     | Python + session                                |
-| =<PP=    | Python + session + graphics                     |
-|----------+-------------------------------------------------|
-| =<b=     | Bash shell                                      |
-| =<B=     | Badh shell + session                            |
-| =<bn=    | Bash shell (no options)                         |
-|----------+-------------------------------------------------|
-| =<g=     | Graphviz                                        |
-|----------+-------------------------------------------------|
+|--------+-----------------------------------------------|
+| =<p=     | Python                                        |
+| =<P=     | Python + session                              |
+| =<PP=    | Python + session + graphics                   |
+|--------+-----------------------------------------------|
+| =<b=     | Bash shell                                    |
+| =<B=     | Badh shell + session                          |
+| =<bn=    | Bash shell (no options)                       |
+|--------+-----------------------------------------------|
+| =<g=     | Graphviz                                      |
+|--------+-----------------------------------------------|
 
 ***** Generic =src= block =<s=
 #+begin_src emacs-lisp
@@ -737,49 +819,13 @@ A->B
 (setq org-ditaa-jar-path "/usr/share/java/ditaa/")
 #+end_src
 
-** COMMENT RTL languages :rtl:arabic:
-Enables [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Bidirectional-Editing.html][bidirectional editing]]
-
-#+begin_src emacs-lisp
-(defun ab-conf/set-bidi-env ()
-  "interactive"
-  (setq bidi-paragraph-direction 'nil))
-(add-hook 'org-mode-hook 'ab-conf/set-bidi-env)
-#+end_src
-
-** COMMENT Org-CV :cv:
-#+begin_src emacs-lisp
-(require 'ox-moderncv)
-#+end_src
-
-*** Important notice
-In the CV project, you need to import the =moderncv= from the above repo.
-The compiling of the exported TeX file may fails, with a
-=File `l3regex.sty' not found= error, this seems to be in relation with the new
-package names in the TexLive distribution. To solve this, you need to
-replace =\RequirePackage{l3regex}= by =\RequirePackage{expl3}= in
-the =moderncv.cls= file.
-
-*** Compiling the CV file
-To compile, you need to call two functions, you can add them in the file
-under a =:noexport:= section:
-
-#+begin_example org
-
-#+begin_src emacs-lisp
-(org-export-to-file 'moderncv "filename.tex")
-(org-latex-compile "filename.tex")
-#+end_src
-
-#+end_example
-
 * GTD workflow :gtd:
 Parts from this section has been taken form [[https://www.labri.fr/perso/nrougier/GTD/index.html][Nicolas P. Rougier - Get Things Done with Emacs]] article.
 
 ** Files and directories
 #+begin_src emacs-lisp
-(setq org-agenda-files (list "~/Org/inbox.org" "~/Org/agenda.org"
-                             "~/Org/notes.org" "~/Org/projects.org"))
+(setq org-agenda-files (list "~/Dropbox/Org/inbox.org" "~/Dropbox/Org/agenda.org"
+                             "~/Dropbox/Org/notes.org" "~/Dropbox/Org/projects.org"))
 #+end_src
 
 *** COMMENT Initial content of files
@@ -826,14 +872,14 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
          "* %? :meeting:\n<%<%Y-%m-%d %a %H:00>>")
         ("n" "Note" entry (file "notes.org")
          "* Note (%a)\n/Entered on/ %U\n" "\n" "%?")
-        ("@" "Inbox [mu4e]" entry (file "inbox.org")
+        ("e" "Inbox [mu4e]" entry (file "inbox.org")
          "* TODO Reply to \"%a\" %?\n/Entered on/ %U")))
 
 
 (defun org-capture-inbox ()
-     (interactive)
-     (call-interactively 'org-store-link)
-     (org-capture nil "i"))
+  (interactive)
+  (call-interactively 'org-store-link)
+  (org-capture nil "i"))
 
 (defun org-capture-mail ()
   (interactive)
@@ -841,7 +887,7 @@ while the =FILETAGS= line define a common tag that will be inherited by all entr
   (org-capture nil "@"))
 #+end_src
 
-** COMMENT Display and key bindings
+** Display and key bindings
 #+begin_src emacs-lisp
 ;; Use full window for org-capture
 ;; (add-hook 'org-capture-mode-hook 'delete-other-windows)
@@ -1027,7 +1073,7 @@ Oh, and previews are nice
 (setq +ivy-buffer-preview t)
 #+end_src
 
-** Add margins to window
+** COMMENT Add margins to window
 Add margins to buffer in Org Mode, change the =visual-fill-column-width= to the desired width of
 the actual window (in letters, and counting the line number).
 
@@ -1065,9 +1111,9 @@ pacman -S zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu zathura
 #+end_example
 
 #+begin_src emacs-lisp
-  (setq org-ref-open-pdf-function
-        (lambda (fpath)
-          (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
+(setq org-ref-open-pdf-function
+      (lambda (fpath)
+        (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
 #+end_src
 
 ** COMMENT Emacs Application Framework (=eaf=)
@@ -1268,6 +1314,19 @@ You will need to:
 #+end_src
 
 * Programming :programming:
+** editorconfig
+#+begin_src emacs-lisp
+#+end_src
+
+** CMake :cmake:
+*** COMMENT =cmake-ide=
+Disabled, it depends heavily on =rtags=, which runs slower than new LSP based configurations.
+
+#+begin_src emacs-lisp
+(require 'rtags)
+(cmake-ide-setup)
+#+end_src
+
 ** COMMENT Rust :rust:
 #+begin_src emacs-lisp
 (use-package racer
@@ -1294,7 +1353,7 @@ You will need to:
 #+end_src
 
 ** ROS :ros:
-Add ROS file formats:
+Add ROS specific file formats:
 
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
@@ -1303,6 +1362,16 @@ Add ROS file formats:
 #+end_src
 
 ** LSP :lsp:
+*** COMMENT Set LSP to use =clangd= in C/C++ :clangd:c:cpp:
+#+begin_src emacs-lisp
+(setq lsp-clients-clangd-args '("-j=3"
+                                "--background-index"
+                                "--clang-tidy"
+                                "--completion-style=detailed"
+                                "--header-insertion=never"))
+(after! lsp-clangd (set-lsp-priority! 'clangd 2))
+#+end_src
+
 *** Enable =lsp= over =tramp= :tramp:
 **** For Python
 #+begin_src emacs-lisp
@@ -1368,4 +1437,8 @@ Add ROS file formats:
 (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 #+end_src
 
-#+RESULTS:
+** DAP
+
+#+begin_src emacs-lisp
+(dap-auto-configure-mode -1)
+#+end_src

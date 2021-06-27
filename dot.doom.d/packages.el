@@ -48,35 +48,45 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
-(package! bitbake)
-(package! systemd)
-(package! repo) ; TODO configure package
-(package! zotxt) ; TODO configure package
-(package! ivy-emms)
-(package! beacon)
-(package! copy-as-format) ; TODO configure package
 
-;; OrgMode stuff
-(package! org-ref)
+;; Programming stuff
+(package! systemd)
+(package! bitbake)
+(package! repo) ; TODO configure package
+
+;; (package! cmake-build
+;;  :recipe (:host github
+;;            :repo "rpav/cmake-build.el"))
+;;            :files ("cmake-build.el")))
+
+;; OrgMode and note taking
+(package! zotxt) ; TODO configure package
+;; (package! org-ref)
 (package! org-roam-bibtex)
 (package! org-roam-server)
 (package! org-super-agenda)
 
-;; Communication apps
-(package! slack)
-
-;; Custom
+;; Misc
+(package! ivy-emms)
+(package! beacon)
+(package! copy-as-format)
+(package! vlf) ;; Load huge files as chunks
+(package! focus) ;; Dim the font color of text in surrounding paragraphs
 (package! emms-mode-line-cycle
   :recipe (:host github
            :repo "abougouffa/emms-mode-line-cycle"))
 
-(package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
+;; Communication apps
+(package! slack)
 
-;; Load huge files as chunks
-(package! vlf)
+;; (package! svg-tag-mode
+;;   :recipe (:host github
+;;            :repo "rougier/svg-tag-mode"
+;;            :files ("*.el")))
 
-;;(package! svg-tag-mode
-;;  :recipe (:host github
-;;           :repo "rougier/svg-tag-mode"
-;;           :files ("svg-tag-mode.el")))
+;; Academic
+(package! citeproc)
+(package! citeproc-org)
+(package! academic-phrases
+  :recipe (:host github
+           :repo "nashamri/academic-phrases"))
