@@ -1,0 +1,19 @@
+[user]
+	name = Abdelhak Bougouffa
+	email = abougouffa@fedoraproject.org
+[diff]
+	tool = meld
+[credential]
+	helper = store
+[cola]
+	spellcheck = false
+[alias]
+	ignore = "!gi() { curl -sL https://www.gitignore.io/api/$@ ;}; gi"
+[color]
+	ui = auto
+[github]
+	user = abougouffa
+[pull]
+	rebase = true
+[core]
+	editor = nvim
