@@ -1,3 +1,4 @@
 *.pdf
 *.tex
 .auctex-auto
+_minted*
