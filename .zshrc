@@ -2,7 +2,8 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Add ~/.emacs.d/bin to path (for DOOM Emacs stuff)
-export PATH=$PATH:$HOME/.emacs.d/bin
+# export PATH=$PATH:$HOME/.emacs.d/bin
+export PATH=$PATH:$HOME/.doom-emacs/bin
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -119,8 +120,10 @@ alias vim="nvim"
 alias vi="nvim"
 alias ec="emacsclient -t"
 alias dotfiles='git --git-dir=$HOME/Projects/dotfiles/.git --work-tree=$HOME'
+alias spacemacs='emacs --with-profile spacemacs'
+alias prelude-emacs='emacs --with-profile prelude'
 
-# Kitty settings
+# Kitty settingprelude
 # autoload -Uz compinit
 # compinit
 # Completion for kitty
