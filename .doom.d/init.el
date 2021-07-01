@@ -18,10 +18,10 @@
 ;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
 (doom! :completion
-       (company +childframe)  ; the ultimate code completion backend
+       company ;+childframe   ; the ultimate code completion backend
        ;;helm                 ; the *other* search engine for love and life
        ;;ido                  ; the other *other* search engine...
-       (ivy +childframe       ; a search engine for love and life
+       (ivy ;+childframe      ; a search engine for love and life
             +fuzzy
             +icons)
 
