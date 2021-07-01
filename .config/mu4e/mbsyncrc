@@ -4,7 +4,7 @@
 IMAPAccount autistici
 # Address to connect to
 Host mail.autistici.org
-User abdelhak@cryptolab.net
+User user@server.org
 # Create a plain text file that contains your password. Name it mbsyncpass-acc1. 
 # Then, gpg encrypt it by running: gpg2 -c mbsyncpass-acc1
 # Then delete the plain text file, leaving only mbsyncpass-acc1.gpg.
@@ -99,14 +99,14 @@ SyncState *
 # ================================================================================
 
 # ACCOUNT INFORMATION
-IMAPAccount ezwheel
+IMAPAccount work
 # Address to connect to
-Host ex.mail.ovh.net
-User a.bougouffa@ez-wheel.com
+Host work.smtp.server
+User user@work.com
 # Create a plain text file that contains your password. Name it mbsyncpass-acc2. 
 # Then, gpg encrypt it by running: gpg2 -c mbsyncpass-acc2
 # Then delete the plain text file, leaving only mbsyncpass-acc2.gpg.
-PassCmd "echo ${PASSWORD:-$(gpg --no-tty -qd ~/.authinfo.gpg | sed -n 's,^machine ez.mail.ovh.net .*password \\([^ ]*\\).*,\\1,p')}"
+PassCmd "echo ${PASSWORD:-$(gpg --no-tty -qd ~/.authinfo.gpg | sed -n 's,^machine work.smtp.server .*password \\([^ ]*\\).*,\\1,p')}"
 AuthMechs LOGIN
 SSLType IMAPS
 SSLVersions TLSv1.2
@@ -118,13 +118,13 @@ CertificateFile /etc/ssl/certs/ca-certificates.crt
 # - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
 
 # REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
-IMAPStore ezwheel-remote
-Account ezwheel
+IMAPStore work-remote
+Account work
 
 # LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p ~/Maildir/ezwheel)
-MaildirStore ezwheel-local
-Path ~/Maildir/ezwheel/
-Inbox ~/Maildir/ezwheel/Inbox
+MaildirStore work-local
+Path ~/Maildir/work/
+Inbox ~/Maildir/work/Inbox
 # REQUIRED ONLY IF YOU WANT TO DOWNLOAD ALL SUBFOLDERS; SYNCING SLOWS DOWN
 SubFolders Verbatim
 
@@ -137,9 +137,9 @@ SubFolders Verbatim
 # 2 "!DIR" TO EXCLUDE "DIR"
 # 3 "DIR" TO MATCH DIR
 
-Channel ezwheel-inbox
-Far :ezwheel-remote:
-Near :ezwheel-local:
+Channel work-inbox
+Far :work-remote:
+Near :work-local:
 Patterns "INBOX" "Archive" "Sent Items" "Drafts" "Inbox" "Junk Email" "Sent Items" "Trash"
 Create Both
 Expunge Both
@@ -150,7 +150,7 @@ SyncState *
 # Gmail
 IMAPAccount gmail
 Host imap.gmail.com
-User abdelhak.alg@gmail.com
+User example@gmail.com
 PassCmd "echo ${PASSWORD:-$(gpg --no-tty -qd ~/.authinfo.gpg | sed -n 's,^machine smtp.googlemail.com .*password \\([^ ]*\\).*,\\1,p')}"
 #PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.config/mu4e/mbsync-passwords.gpg | grep ^gmail | cut -d' ' -f2"
 AuthMechs LOGIN
