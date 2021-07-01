@@ -23,6 +23,7 @@
        ;;ido                  ; the other *other* search engine...
        (ivy ;+childframe      ; a search engine for love and life
             +fuzzy
+            +prescient
             +icons)
 
        :ui
