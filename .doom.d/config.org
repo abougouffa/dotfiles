@@ -629,8 +629,44 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 (after! org-ref
     (setq! org-ref-default-bibliography '("~/Dropbox/Org/zotero-library.bib")
            org-ref-pdf-directory "~/Zotero/storage/"
-           org-ref-bibliography-notes "~/Dropbox/Org/ref/"
+           org-ref-bibliography-notes "~/Dropbox/Org/ref/notes.org"
            reftex-default-bibliography org-ref-default-bibliography))
+
+;;(setq org-latex-pdf-process
+;;      '("pdflatex -interaction nonstopmode -output-directory %o %f"
+;;	"bibtex %b"
+;;	"pdflatex -interaction nonstopmode -output-directory %o %f"
+;;	"pdflatex -interaction nonstopmode -output-directory %o %f"))
+
+(setq bibtex-autokey-year-length 4
+      bibtex-autokey-name-year-separator "-"
+      bibtex-autokey-year-title-separator "-"
+      bibtex-autokey-titleword-separator "-"
+      bibtex-autokey-titlewords 2
+      bibtex-autokey-titlewords-stretch 1
+      bibtex-autokey-titleword-length 5)
+
+(require 'dash)
+(setq org-latex-default-packages-alist
+      (-remove-item
+       '("" "hyperref" nil)
+       org-latex-default-packages-alist))
+
+;; Append new packages
+(add-to-list 'org-latex-default-packages-alist '("" "natbib" "") t)
+(add-to-list 'org-latex-default-packages-alist
+	     '("linktocpage,pdfstartview=FitH,colorlinks,
+linkcolor=blue,anchorcolor=blue,
+citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
+	       "hyperref" nil)
+	     t)
+
+;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+
+;; some requires for basic org-ref usage
+(require 'org-ref)
+(require 'org-ref-pdf)
+(require 'org-ref-url-utils)
 #+end_src
 
 ** Org Journal
