@@ -9,6 +9,8 @@
 #+LATEX_HEADER: \emergencystretch 2em%
 
 * Introduction
+[[~/.doom.d/assets/doom-emacs-dark.svg]]
+
 Place your private configuration here! Remember, after modifying this file
 you need to run =doom sync= or =doom/reload= (aka =SPC h r r=) inside DOOM
 
@@ -87,10 +89,11 @@ Enable native compile for the builtin package manager.
 (setq package-native-compile t)
 #+end_src
 
-*** COMMENT Compile all Emacs packages
-Natively compile all Elisp files under a directory:
+*** Compile all Emacs packages
+Natively compile all Elisp files under a directory,
+no need to do this since =doom sync= natively compile packages.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (native-compile-async "~/.emacs.d/.local/straight/repos" 'recursively)
 #+end_src
 
@@ -98,13 +101,13 @@ Natively compile all Elisp files under a directory:
 
 Get the number of running compilations:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (comp-async-runnings)
 #+end_src
 
 Block until finished!
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 ;; block until native compilation has finished
 (while (or comp-files-queue
            (> (comp-async-runnings) 0))
@@ -125,10 +128,10 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Calling Code" :size 30)
-      doom-variable-pitch-font (font-spec :family "Calling Code" :size 30))
-;(setq doom-font (font-spec :family "JetBrains Mono" :size 28)
-;      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 28))
+;(setq doom-font (font-spec :family "Calling Code" :size 16)
+;      doom-variable-pitch-font (font-spec :family "Calling Code" :size 16))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 15)
+      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 15))
 #+end_src
 
 ** DOOM Theme and looking :theme:
@@ -142,11 +145,12 @@ Set =solaire-mode= globally:
 
 *** Load theme
 #+begin_src emacs-lisp
-; (setq doom-theme 'doom-one) ; Load theme
+;;(setq doom-theme 'doom-one) ; Load theme
 (setq doom-theme 'doom-nord) ; Load theme
 #+end_src
 
 *** Splash image
+**** COMMENT The smart way!
 Taken from [[https://github.com/tecosaur/emacs-config/blob/master/config.org#splash-screen][tecosaur/emacs-config]]
 
 #+begin_src emacs-lisp
@@ -243,13 +247,14 @@ Taken from [[https://github.com/tecosaur/emacs-config/blob/master/config.org#spl
 (add-hook 'doom-load-theme-hook #'set-appropriate-splash)
 #+end_src
 
-**** COMMENT My old one
+**** My old one
 Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
 
 [[file:splash-images/blackhole-lines.svg]]
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image "~/.doom.d/images/blackhole-lines-small.svg")
+(setq fancy-splash-image "~/.doom.d/assets/doom-emacs-white.svg")
+;;(setq fancy-splash-image "~/.doom.d/images/blackhole-lines-small.svg")
 #+end_src
 
 ** Beacon Mode
