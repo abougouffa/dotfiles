@@ -9,7 +9,7 @@
 #+LATEX_HEADER: \emergencystretch 2em%
 
 * Introduction
-[[~/.doom.d/assets/doom-emacs-dark.svg]]
+[[assets/doom-emacs-dark.svg]]
 
 Place your private configuration here! Remember, after modifying this file
 you need to run =doom sync= or =doom/reload= (aka =SPC h r r=) inside DOOM
