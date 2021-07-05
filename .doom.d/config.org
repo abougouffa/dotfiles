@@ -22,14 +22,13 @@ At startup, maximize the default Emacs frame
 
 #+begin_src emacs-lisp
 (toggle-frame-maximized)
-;;(toggle-frame-fullscreen)
 #+end_src
 
 ** Set Foreground
 To prevent showing the un-themed window at startup.
 
 #+begin_src emacs-lisp
-(set-background-color "#21242B")
+(set-background-color "#21242B") ; Color matches with =doom-one theme
 #+end_src
 
 ** Hide Menus and Toolbar
@@ -48,7 +47,7 @@ email clients, file templates and snippets.
       user-mail-address "abougouffa@fedoraproject.org")
 #+end_src
 
-** Add to load path
+** Add custom scripts to load path
 #+begin_src emacs-lisp
 (add-to-list 'load-path "~/.doom.d/lisp/")
 #+end_src
@@ -310,7 +309,8 @@ numbers are disabled. For relative line numbers, set this to =relative=.
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil :height 160)
 #+end_src
-*** Fringe HiDPI icons
+
+*** COMMENT Fringe HiDPI icons
 Taken from Leo Vivier (=zaeph=) configuration
 
 #+begin_src emacs-lisp
@@ -371,8 +371,8 @@ Oh, and previews are nice
 (setq +ivy-buffer-preview t)
 #+end_src
 
-*** Flycheck Margin icons
-From [[https://github.com/flycheck/flycheck/pull/1742]]
+*** COMMENT Flycheck Margin icons
+From [[github.com/flycheck/flycheck/pull/1742]]
 
 #+begin_src emacs-lisp
 (use-package flycheck
@@ -524,9 +524,13 @@ Set the default org-mode directory
 
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/")
-(setq org-roam-db-location "~/Dropbox/Org/slip-box/org-roam.db")
-(setq org-roam-index-file "~/Dropbox/Org/slip-box/index.org")
-(setq org-roam-directory "~/Dropbox/Org/slip-box/")
+(setq org-roam-db-location (concat org-directory "/slip-box/org-roam.db"))
+(setq org-roam-index-file (concat org-directory "/slip-box/index.org"))
+(setq org-roam-directory (concat org-directory "/slip-box/"))
+(setq +org-capture-emails-file (concat org-directory "/inbox.org"))
+(setq +org-capture-todo-file (concat org-directory "/inbox.org"))
+(setq +org-capture-projects-file (concat org-directory "/projects.org"))
+(setq +org-capture-todo-file (concat org-directory "/agenda.org"))
 #+end_src
 
 ** Prettify Org Mode :prettify:
@@ -566,7 +570,7 @@ Change the three dots on collapsed Org Mode sections
 (setq org-hide-emphasis-markers t)
 #+end_src
 
-** Export PDF with =mintex=
+** COMMENT Export PDF with =mintex=
 Enable syntax highlighting in exported PDFs
 
 #+begin_src emacs-lisp
@@ -728,49 +732,83 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 ;; (advice-add 'deft-parse-summary :around #'ab-conf/deft-parse-summary)
 #+end_src
 
-** Org Ref
+** Org Ref :ref:bibtex:
 #+begin_src emacs-lisp
-(after! org-ref
-    (setq! org-ref-default-bibliography '("~/Dropbox/Org/zotero-library.bib")
+(use-package! org-ref
+    :after org
+    :init
+        ; code to run before loading org-ref
+        (let ((cache-dir (concat doom-cache-dir "org-ref")))
+          (unless (file-exists-p cache-dir)
+            (make-directory cache-dir t))
+          (setq orhc-bibtex-cache-file (concat cache-dir "/orhc-bibtex-cache")))
+    :config
+        ; code to run after loading org-ref
+        (setq! org-ref-default-bibliography '("~/Dropbox/Org/zotero-library.bib")
            org-ref-pdf-directory "~/Zotero/storage/"
            org-ref-bibliography-notes "~/Dropbox/Org/ref/notes.org"
-           reftex-default-bibliography org-ref-default-bibliography))
+           reftex-default-bibliography org-ref-default-bibliography
+           org-export-with-broken-links t
+           org-latex-pdf-process '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f")))
 
-;;(setq org-latex-pdf-process
-;;      '("pdflatex -interaction nonstopmode -output-directory %o %f"
-;;	"bibtex %b"
-;;	"pdflatex -interaction nonstopmode -output-directory %o %f"
-;;	"pdflatex -interaction nonstopmode -output-directory %o %f"))
+(after! org
+  (require 'org-ref))
 
-(setq bibtex-autokey-year-length 4
-      bibtex-autokey-name-year-separator "-"
-      bibtex-autokey-year-title-separator "-"
-      bibtex-autokey-titleword-separator "-"
-      bibtex-autokey-titlewords 2
-      bibtex-autokey-titlewords-stretch 1
-      bibtex-autokey-titleword-length 5)
+;; (setq bibtex-autokey-year-length 4
+;;       bibtex-autokey-name-year-separator "-"
+;;       bibtex-autokey-year-title-separator "-"
+;;       bibtex-autokey-titleword-separator "-"
+;;       bibtex-autokey-titlewords 2
+;;       bibtex-autokey-titlewords-stretch 1
+;;       bibtex-autokey-titleword-length 5)
 
-(require 'dash)
-(setq org-latex-default-packages-alist
-      (-remove-item
-       '("" "hyperref" nil)
-       org-latex-default-packages-alist))
+;; (require 'dash)
+;; (setq org-latex-default-packages-alist
+;;       (-remove-item
+;;        '("" "hyperref" nil)
+;;        org-latex-default-packages-alist))
 
-;; Append new packages
-(add-to-list 'org-latex-default-packages-alist '("" "natbib" "") t)
-(add-to-list 'org-latex-default-packages-alist
-	     '("linktocpage,pdfstartview=FitH,colorlinks,
-linkcolor=blue,anchorcolor=blue,
-citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
-	       "hyperref" nil)
-	     t)
-
-;; (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+;; ;; Append new packages
+;; (add-to-list 'org-latex-default-packages-alist '("" "natbib" "") t)
+;; (add-to-list 'org-latex-default-packages-alist
+;; 	     '("linktocpage,pdfstartview=FitH,colorlinks,
+;; linkcolor=blue,anchorcolor=blue,
+;; citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
+;; 	       "hyperref" nil)
+;; 	     t)
 
 ;; some requires for basic org-ref usage
-(require 'org-ref)
-(require 'org-ref-pdf)
-(require 'org-ref-url-utils)
+;; (require 'org-ref)
+;; (require 'org-ref-pdf)
+;; (require 'org-ref-url-utils)
+#+end_src
+
+*** Pandoc :pandoc:
+#+begin_src emacs-lisp
+(use-package! ox-pandoc
+  :after org)
+;; default options for all output formats
+(setq org-pandoc-options '((standalone . _)))
+;; cancel above settings only for 'docx' format
+(setq org-pandoc-options-for-docx '((standalone . nil)))
+;; special settings for beamer-pdf and latex-pdf exporters
+(setq org-pandoc-options-for-beamer-pdf '((pdf-engine . "xelatex")))
+(setq org-pandoc-options-for-latex-pdf '((pdf-engine . "pdflatex")))
+;; special extensions for markdown_github output
+(setq org-pandoc-format-extensions '(markdown_github+pipe_tables+raw_html))
+#+end_src
+*** PDF viewer :pdf:
+Org opens PDF files with Zathura
+
+#+begin_example shell
+# First install the zathura and the plugins
+pacman -S zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu zathura
+#+end_example
+
+#+begin_src emacs-lisp
+(setq org-ref-open-pdf-function
+      (lambda (fpath)
+        (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
 #+end_src
 
 ** Org Journal
@@ -1540,20 +1578,6 @@ you can set additional modes in the list below:
 #+end_src
 
 * Applications :apps:
-** PDF viewer :pdf:
-Org opens PDF files with Zathura
-
-#+begin_example shell
-# First install the zathura and the plugins
-pacman -S zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu zathura
-#+end_example
-
-#+begin_src emacs-lisp
-(setq org-ref-open-pdf-function
-      (lambda (fpath)
-        (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
-#+end_src
-
 ** Browser (=eww=) :eww:browser:
 Set urls to open in a specific browser (=eww= here).
 
