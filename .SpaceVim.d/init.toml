@@ -18,7 +18,7 @@
     enable_guicolors = false
     # Disable statusline separator, if you want to use other value, please
     # install nerd fonts
-    statusline_separator = "nil"
+    statusline_separator = "arrow"
     statusline_iseparator = "bar"
     buffer_index_type = 4
     windows_index_type = 3
@@ -27,6 +27,11 @@
     statusline_unicode_symbols = false
     # Enable vim compatible mode, avoid changing origin vim key bindings
     vimcompatible = true
+    automatic_update = true
+
+# SpaceVim default layer contains no plugins, but It provides some better default config for SpaceVim.
+[[layers]]
+  name = "default"
 
 # Enable autocomplete layer
 [[layers]]
@@ -61,6 +66,9 @@
   name = "lang#ipynb"
 
 [[layers]]
+  name = "lang#toml"
+
+[[layers]]
   name = "lang#python"
   format_on_save = true
   python_file_head = [
@@ -80,4 +88,31 @@
   name = "sudo"
 
 [[layers]]
+  name = "git"
+  git_plugin = "gina"
+
+[[layers]]
+  name = "fzf"
+
+[[layers]]
+  name = "format"
+  enable = true
+  format_on_save = true
+
+[[layers]]
   name = "tools"
+
+[[layers]]
+  name = "edit"
+
+[[layers]]
+  name = "debug"
+
+[[layers]]
+  name = "tools"
+
+[[layers]]
+  name = "tools"
+
+[[layers]]
+    name = "incsearch"
