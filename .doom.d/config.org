@@ -52,6 +52,13 @@ email clients, file templates and snippets.
 (add-to-list 'load-path "~/.doom.d/lisp/")
 #+end_src
 
+** Yas-snippet :snippet:yasnippet:
+Add my local templates:
+
+#+begin_src emacs-lisp
+(add-to-list 'yas-snippet-dirs "~/.doom.d/yasnippets/")
+#+end_src
+
 ** Secrets :gpg:
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo.gpg")
@@ -79,7 +86,7 @@ Set the default encoding to UTF-8
 (require 'vlf-setup)
 #+end_src
 
-** Native Comp Emacs :native:gcc:
+** COMMENT Native Comp Emacs :native:gcc:
 More information on [[https://akrl.sdf.org/gccemacs.html#orgf5ebdd1][akrl.sdf.org/gccemacs.html]]
 
 Enable native compile for the builtin package manager.
@@ -144,8 +151,8 @@ Set =solaire-mode= globally:
 
 *** Load theme
 #+begin_src emacs-lisp
-;;(setq doom-theme 'doom-one) ; Load theme
-(setq doom-theme 'doom-nord) ; Load theme
+(setq doom-theme 'doom-one) ; Load theme
+;;(setq doom-theme 'doom-nord) ; Load theme
 #+end_src
 
 *** Splash image
@@ -252,8 +259,8 @@ Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/d
 [[file:splash-images/blackhole-lines.svg]]
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image "~/.doom.d/assets/doom-emacs-white.svg")
-;;(setq fancy-splash-image "~/.doom.d/images/blackhole-lines-small.svg")
+;; (setq fancy-splash-image "~/.doom.d/assets/blackhole-lines.svg")
+(setq fancy-splash-image "~/.doom.d/images/blackhole-lines-small.svg")
 #+end_src
 
 ** Beacon Mode
@@ -304,7 +311,7 @@ numbers are disabled. For relative line numbers, set this to =relative=.
       auto-save-default t)    ; Nobody likes to loose work, I certainly don't
 #+end_src
 
-** HiDPI
+** HiDPI :hidpi:
 *** COMMENT HiDPI Scaling
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil :height 160)
@@ -416,13 +423,14 @@ Customize the =doom-modeline=
 #+end_src
 
 * COMMENT Spell checking :spell:
-Set =ispell='s dictionary to american english by default.
+** Set the default =ispell= dictionary
+Set =ispell='s dictionary to american  english by default.
 
 #+begin_src emacs-lisp
 (setq ispell-dictionary "american")
 #+end_src
 
-** COMMENT Configure =hunspell= :hunspell:
+** Use =hunspell= to correct mistakes :hunspell:
 Having =flyspell= and =hunspell= enabled in =init.el=, first install theses packages:
 
 #+begin_example shell
@@ -454,7 +462,7 @@ Then configure dictionaries:
       ispell-dictionary   "english")  ; Default dictionary to use
 #+end_src
 
-** Shortcuts to change dictionary :dict:
+** COMMENT Shortcuts to change dictionary :dict:
 #+begin_src emacs-lisp
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
@@ -486,7 +494,7 @@ Then configure dictionaries:
       :desc "Français" "l d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
 #+end_src
 
-** Language Tool :langtool:
+** COMMENT Language Tool :langtool:
 #+begin_src emacs-lisp
 (require 'langtool)
 
@@ -524,13 +532,13 @@ Set the default org-mode directory
 
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/")
-(setq org-roam-db-location (concat org-directory "/slip-box/org-roam.db"))
-(setq org-roam-index-file (concat org-directory "/slip-box/index.org"))
-(setq org-roam-directory (concat org-directory "/slip-box/"))
-(setq +org-capture-emails-file (concat org-directory "/inbox.org"))
-(setq +org-capture-todo-file (concat org-directory "/inbox.org"))
-(setq +org-capture-projects-file (concat org-directory "/projects.org"))
-(setq +org-capture-todo-file (concat org-directory "/agenda.org"))
+(setq org-roam-db-location (concat org-directory "slip-box/org-roam.db"))
+(setq org-roam-index-file (concat org-directory "slip-box/index.org"))
+(setq org-roam-directory (concat org-directory "slip-box/"))
+(setq +org-capture-emails-file (concat org-directory "inbox.org"))
+(setq +org-capture-todo-file (concat org-directory "inbox.org"))
+(setq +org-capture-projects-file (concat org-directory "projects.org"))
+(setq +org-capture-todo-file (concat org-directory "agenda.org"))
 #+end_src
 
 ** Prettify Org Mode :prettify:
@@ -622,10 +630,18 @@ under a =:noexport:= section:
 #+end_src
 
 #+end_example
-
 * Zettelkasten and Note taking
-** Org Roam
-*** Org Roam Capture templates
+** COMMENT Org Roam
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-roam
+  :defer t
+  :custom (org-roam-directory (concat "~/Dropbox/Org/slip-box"))
+  ; :bind (("C-c n l" . org-roam-buffer-toggle)
+  ;       ("C-c n f" . org-roam-node-find))
+  :config (org-roam-setup))
+#+end_src
+
+*** COMMENT Org Roam Capture templates
 #+begin_src emacs-lisp
 (after! org-roam
   (setq org-roam-capture-templates
@@ -659,7 +675,7 @@ under a =:noexport:= section:
            :add-created t))))
 #+end_src
 
-*** Bookmark and protocol app
+*** COMMENT Bookmark and protocol app
 Add this as a bookmark in your browser:
 
 #+begin_example js
@@ -684,7 +700,7 @@ Associate =org-protocol://= links with the app:
 xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 #+end_example
 
-*** Org Roam Server
+*** COMMENT Org Roam Server
 #+begin_src emacs-lisp
 (use-package org-roam-server
   :ensure t
@@ -702,12 +718,80 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
         org-roam-server-network-label-wrap-length 20))
 #+end_src
 
-*** Bidirectional Link Auto Complete
+*** COMMENT Bidirectional Link Auto Complete
 #+begin_src emacs-lisp
 (set-company-backend! 'org-roam-mode '(company-capf
                                        company-yasnippet
                                        company-dabbrev))
 #+end_src
+
+** COMMENT Vulpea
+#+begin_src emacs-lisp :tangle yes
+(use-package vulpea
+  :config
+     (vulpea-setup))
+#+end_src
+
+*** Migration
+#+begin_src emacs-lisp :tangle yes
+(defun org-roam-v1-to-v2 ()
+  ;; Create file level ID
+  (org-with-point-at 1
+    (org-id-get-create))
+  ;; Replace roam_key into properties drawer roam_ref
+  (when-let* ((refs (mapcan #'split-string-and-unquote
+                            (cdar (org-collect-keywords '("roam_key"))))))
+    (let ((case-fold-search t))
+      (org-with-point-at 1
+        (org-set-property "ROAM_REFS" (combine-and-quote-strings refs))
+        (while (re-search-forward "^#\\+roam_key:" (point-max) t)
+          (kill-line 1)))))
+
+  ;; Replace roam_alias into properties drawer roam_aliases
+  (when-let* ((aliases (mapcan #'split-string-and-unquote
+                               (cdar (org-collect-keywords '("roam_alias"))))))
+    (let ((case-fold-search t))
+      (org-with-point-at 1
+        (org-set-property "ROAM_ALIASES" (combine-and-quote-strings aliases))
+        (while (re-search-forward "^#\\+roam_alias:" (point-max) t)
+          (kill-line 1)))))
+
+  ;; Replace #+roam_tags into #+filetags
+  (org-with-point-at 1
+    (let ((case-fold-search t))
+      (while (search-forward "#+roam_tags:" nil t)
+        (replace-match "#+filetags:" nil t))))
+  (save-buffer))
+
+;; Step 1: Convert all v1 files to v2 files
+(dolist (f (org-roam--list-all-files))
+  (with-current-buffer (find-file-noselect f)
+    (org-roam-v1-to-v2)))
+
+;; Step 2: Build cache
+(org-roam-db-sync 'force)
+
+;; Step 3: Replace all file links with id links where possible
+(defun org-roam-replace-file-links-with-id ()
+  (org-with-point-at 1
+    (while (re-search-forward org-link-bracket-re nil t)
+      (let* ((mdata (match-data))
+             (path (match-string 1))
+             (desc (match-string 2)))
+        (when (string-prefix-p "file:" path)
+          (setq path (expand-file-name (substring path 5)))
+          (when-let ((node-id (caar (org-roam-db-query [:select [id] :from nodes
+                                                        :where (= file $s1)
+                                                        :and (= level 0)] path))))
+            (set-match-data mdata)
+            (replace-match (org-link-make-string (concat "id:" node-id) desc))))))))
+
+(dolist (f (org-roam--list-all-files))
+  (with-current-buffer (find-file-noselect f)
+    (org-roam-replace-file-links-with-id)))
+#+end_src
+
+#+RESULTS:
 
 ** Deft
 #+begin_src emacs-lisp
@@ -731,7 +815,6 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
   (deft-directory "~/Dropbox/Org/slip-box/"))
 ;; (advice-add 'deft-parse-summary :around #'ab-conf/deft-parse-summary)
 #+end_src
-
 ** Org Ref :ref:bibtex:
 #+begin_src emacs-lisp
 (use-package! org-ref
@@ -813,7 +896,7 @@ pacman -S zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu zathura
 
 ** Org Journal
 #+begin_src emacs-lisp
-(use-package org-journal
+(use-package! org-journal
   ;;:bind
   ;;("C-c n j" . org-journal-new-entry)
   :custom
@@ -864,7 +947,7 @@ pacman -S zathura-pdf-poppler zathura-ps zathura-cb zathura-djvu zathura
 ;; (setq org-src-preserve-indentation t)
 #+end_src
 
-*** Source blocks (=src=) templates
+*** COMMENT Source blocks (=src=) templates
 **** Enable the new template system for Org Mode 9.2 and later
 #+begin_src emacs-lisp
 (setq ab-conf/new-org-templates t) ;;; (version<= "9.2" (org-version))
@@ -1524,6 +1607,13 @@ no modeline.
           (tags "CLOSED>=\"<today>\""
                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 #+end_src
+*** Org-gcal
+#+begin_src emacs-lisp
+(after! org-gcal
+        (setq org-gcal-client-id "ID.apps.googleusercontent.com"
+              org-gcal-client-secret "I-D"
+              org-gcal-fetch-file-alist '(("calendar@gmail.com" .  "~/Dropbox/Org/schedule.org"))))
+#+end_src
 
 * Windows and buffers :win:buffer:
 ** Windows splitting
@@ -1651,7 +1741,7 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
 #+end_src
 
 * Communication and messaging
-** Slack :slack:
+** COMMENT Slack :slack:
 Needs to add =slack= to =$DOOMDIR/packages.el=
 See [[https://github.com/yuya373/emacs-slack#how-to-get-token]] to see how to get tokens.
 
@@ -1757,10 +1847,6 @@ You will need to:
 #+end_src
 
 * Programming :programming:
-** editorconfig
-#+begin_src emacs-lisp
-#+end_src
-
 ** CMake :cmake:
 *** COMMENT =cmake-ide=
 Disabled, it depends heavily on =rtags=, which runs slower than new LSP based configurations.
@@ -1881,7 +1967,6 @@ Add ROS specific file formats:
 #+end_src
 
 ** DAP
-
 #+begin_src emacs-lisp
 (dap-auto-configure-mode -1)
 #+end_src

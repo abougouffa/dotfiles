@@ -54,19 +54,22 @@
 (package! bitbake)
 (package! repo) ; TODO configure package
 
-;; (package! cmake-build
-;;  :recipe (:host github
-;;            :repo "rpav/cmake-build.el"))
-;;            :files ("cmake-build.el")))
-
 ;; OrgMode and note taking
 (package! zotxt) ; TODO configure package
-;; (package! org-ref)
 (package! org-roam-bibtex)
 (package! org-roam-server)
 (package! org-super-agenda)
 
+;; Use Org-Roam v2
+(package! org-roam
+  :pin "7286cd939302a75f02bf542f08f53632232ebf0f")
+
+(package! vulpea
+  :recipe (:host github
+           :repo "d12frosted/vulpea"))
+
 ;; Misc
+(package! doct)
 (package! ivy-emms)
 (package! beacon)
 (package! copy-as-format)
@@ -79,14 +82,18 @@
 ;; Communication apps
 (package! slack)
 
-;; (package! svg-tag-mode
-;;   :recipe (:host github
-;;            :repo "rougier/svg-tag-mode"
-;;            :files ("*.el")))
+(package! svg-tag-mode
+  :recipe (:host github
+           :repo "rougier/svg-tag-mode"))
+
+(package! nano-theme
+  :recipe (:host github
+           :repo "rougier/nano-theme"))
 
 ;; Academic
 (package! citeproc)
 (package! citeproc-org)
+(package! org-ref)
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))

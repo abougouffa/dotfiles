@@ -14,14 +14,11 @@
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-;; Adding path to mu4e
-;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-
 (doom! :completion
-       company ;+childframe   ; the ultimate code completion backend
+       (company +childframe)  ; the ultimate code completion backend
        ;;helm                 ; the *other* search engine for love and life
        ;;ido                  ; the other *other* search engine...
-       (ivy ;+childframe      ; a search engine for love and life
+       (ivy +childframe       ; a search engine for love and life
             +fuzzy
             +prescient
             +icons)
@@ -33,7 +30,7 @@
        ;;doom-quit            ; DOOM quit-message prompts when you quit Emacs
        ;;fill-column          ; a `fill-column' indicator
        hl-todo                ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       hydra ;; TODO: configure keybinding
+       hydra                  ; TODO: configure keybinding
        indent-guides          ; highlighted indent columns
        ;;minimap              ; show a map of the code on the side
        modeline               ; snazzy, Atom-inspired modeline, plus API
@@ -41,9 +38,9 @@
        neotree                ; a project drawer, like NERDTree for vim
        ophints                ; highlight the region an operation acts on
        (popup +defaults)      ; tame sudden yet inevitable temporary windows
-       (ligatures +extra)     ; ligatures or substitute text with pretty symbols
+       ligatures ;+extra)     ; ligatures or substitute text with pretty symbols
        tabs                   ; a tab bar for Emacs
-       treemacs             ; a project drawer, like neotree but cooler
+       treemacs               ; a project drawer, like neotree but cooler
        ;;unicode              ; extended unicode support for various languages
        vc-gutter              ; vcs diff in the fringe
        ;;vi-tilde-fringe      ; displays tildes in the fringe on empty lines a la Vi.
@@ -58,14 +55,14 @@
        file-templates         ; auto-snippets for empty files
        fold                   ; (nigh) universal code folding
        format                 ; automated prettiness
-       ;;god                  ; run Emacs commands without modifier keys
-       ;;lispy                ; vim for lisp, for people who don't like vim
+       ;;god                 ; run Emacs commands without modifier keys
+       ;;lispy               ; vim for lisp, for people who don't like vim
        multiple-cursors       ; editing in many places at once
-       ;;objed                ; text object editing for the innocent
+       ;;objed               ; text object editing for the innocent
        (parinfer +rust)       ; turn lisp into python, sort of
-       ;;rotate-text          ; cycle region at point between text candidates
+       ;;rotate-text         ; cycle region at point between text candidates
        snippets               ; my elves. They type so I don't have to
-       ;;word-wrap            ; soft wrapping with language-aware indent
+       ;;word-wrap           ; soft wrapping with language-aware indent
 
        :emacs
        (dired +icons          ; making dired pretty [functional]
@@ -83,7 +80,7 @@
 
        :checkers
        syntax                 ; tasing you for every semicolon you forget
-       spell                  ; tasing you for misspelling mispelling
+       (spell +hunspell)      ; tasing you for misspelling mispelling
        grammar                ; tasing grammar mistake every you make
 
        :tools
@@ -135,7 +132,7 @@
        ;;idris                ;
        json                   ; At least it ain't XML
        ;;(java +meghanada)    ; the poster child for carpal tunnel syndrome
-       javascript             ; all(hope(abandon(ye(who(enter(here))))))
+       ;;javascript           ; all(hope(abandon(ye(who(enter(here))))))
        julia                  ; a better, faster MATLAB
        ;;kotlin               ; a better, slicker Java(Script)
        latex                  ; writing papers in Emacs has never been so fun
@@ -158,8 +155,9 @@
             +pandoc
             +present
             +pomodoro
-            +pretty
-            +roam)
+            ;+roam
+            +pretty)
+
        ;;php                  ; perl's insecure younger brother
        plantuml               ; diagrams for confusing people more
        ;;purescript           ; javascript, but functional
@@ -191,18 +189,17 @@
        ;;(wanderlust +gmail)
 
        :os
-       tty
+       tty                    ; Configures Emacs for use in the terminal
 
        :app
        calendar
        irc                    ; how neckbeards socialize
        (rss +org)             ; emacs as an RSS reader
-       twitter                ; twitter client https://twitter.com/vnought
+       ;;twitter              ; twitter client https://twitter.com/vnought
        emms
        everywhere
 
        :config
        literate
        (default +bindings
-         +smartparens))
-  
+                +smartparens))
