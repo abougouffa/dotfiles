@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Python with session
+# uuid: py-session
+# key: py-session
+# --
+#+begin_src python :results output :session *py* :exports both
+`%`$0
+#+end_src
