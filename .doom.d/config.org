@@ -263,6 +263,54 @@ Change the logo to a fancy black hole icon, form [[https://github.com/hlissner/d
 (setq fancy-splash-image "~/.doom.d/images/blackhole-lines-small.svg")
 #+end_src
 
+** COMMENT SVG tags
+#+begin_src emacs-lisp
+(require 'svg-tag-mode)
+
+(defface svg-tag-note-face
+  '((t :foreground "black" :background "white" :box "black"
+       :family "Roboto Mono" :weight light :height 120))
+  "Face for note tag" :group nil)
+
+(defface svg-tag-keyboard-face
+  '((t :foreground "#333333" :background "#f9f9f9" :box "#333333"
+       :family "Roboto Mono" :weight light :height 120))
+  "Face for keyboard bindings tag" :group nil)
+
+(defface svg-tag-org-face
+  '((t :foreground "#333333" :background "#fffff0" :box "#333333"
+       :family "Roboto Mono" :weight light :height 120))
+  "Face for keyboard bindings tag" :group nil)
+
+(setq svg-tag-todo
+  (svg-tag-make "TODO" nil 1 1 2))
+
+(setq svg-tag-note
+  (svg-tag-make "NOTE" 'svg-tag-note-face 2 0 2))
+
+(defun svg-tag-round (text)
+  (svg-tag-make (substring text 1 -1) 'svg-tag-note-face 1 1 12))
+
+(defun svg-tag-quasi-round (text)
+  (svg-tag-make (substring text 1 -1) 'svg-tag-note-face 1 1 8))
+
+(defun svg-tag-keyboard (text)
+  (svg-tag-make (substring text 1 -1) 'svg-tag-keyboard-face 1 1 2))
+
+(defun svg-tag-org (text)
+  (svg-tag-make (substring text 1 -1) 'svg-tag-org-face 1 1 2))
+
+(setq svg-tag-tags
+      '(("@[0-9a-zA-Z]+:"                   . svg-tag-org)
+        (":TODO:"                           . svg-tag-todo)
+        (":NOTE:"                           . svg-tag-note)
+        ("\([0-9a-zA-Z]\)"                  . svg-tag-round)
+        ("\([0-9a-zA-Z][0-9a-zA-Z]\)"       . svg-tag-quasi-round)
+        ("|[0-9a-zA-Z- ⇥></%⌘^→←↑↓]+?|"    . svg-tag-keyboard)))
+
+(svg-tag-mode 1)
+#+end_src
+
 ** Beacon Mode
 Never lose your cursor!
 
@@ -403,7 +451,7 @@ Enable =evil-numbers= for incrementing number in text
 ;;(global-set-key (kbd "C-c -") 'evil-numbers/dec-at-pt)
 #+end_src
 
-** Ligatures :ligatures:
+** COMMENT Ligatures :ligatures:
 Disable extra ligatures in some programming modes:
 
 #+begin_src emacs-lisp
@@ -422,15 +470,20 @@ Customize the =doom-modeline=
 (display-time-mode) ;; Display the time
 #+end_src
 
-* COMMENT Spell checking :spell:
-** Set the default =ispell= dictionary
+* Spell checking :spell:
+** COMMENT Disable =spell-fu= by default
+#+begin_src emacs-lisp :tangle yes
+(remove-hook 'text-mode-hook #'spell-fu-mode)
+#+end_src
+
+** COMMENT Set the default =ispell= dictionary
 Set =ispell='s dictionary to american  english by default.
 
 #+begin_src emacs-lisp
 (setq ispell-dictionary "american")
 #+end_src
 
-** Use =hunspell= to correct mistakes :hunspell:
+** COMMENT Use =hunspell= to correct mistakes :hunspell:
 Having =flyspell= and =hunspell= enabled in =init.el=, first install theses packages:
 
 #+begin_example shell
@@ -468,13 +521,13 @@ Then configure dictionaries:
   "Switch between language dictionaries."
   (interactive)
   (cond ((eq lang 1)
-         (setq flyspell-default-dictionary "american")
+         ; (setq flyspell-default-dictionary "american")
          (setq ispell-dictionary "american")
          (spell-fu-mode-disable)
          (spell-fu-mode-enable)
          (message "Dictionary changed to 'american'"))
         ((eq lang 2)
-         (setq flyspell-default-dictionary "francais")
+         ; (setq flyspell-default-dictionary "francais")
          (setq ispell-dictionary "francais")
          (spell-fu-mode-disable)
          (spell-fu-mode-enable)
@@ -634,11 +687,25 @@ under a =:noexport:= section:
 ** COMMENT Org Roam
 #+begin_src emacs-lisp :tangle yes
 (use-package! org-roam
-  :defer t
-  :custom (org-roam-directory (concat "~/Dropbox/Org/slip-box"))
-  ; :bind (("C-c n l" . org-roam-buffer-toggle)
-  ;       ("C-c n f" . org-roam-node-find))
-  :config (org-roam-setup))
+      ;:ensure t
+      :custom (org-roam-directory (file-truename "/path/to/org-files/"))
+      :bind (("C-c n l" . org-roam-buffer-toggle)
+             ("C-c n f" . org-roam-node-find)
+             ("C-c n g" . org-roam-graph)
+             ("C-c n i" . org-roam-node-insert)
+             ("C-c n c" . org-roam-capture)
+             ;; Dailies
+             ("C-c n j" . org-roam-dailies-capture-today))
+      :config (org-roam-setup)
+      ;; If using org-roam-protocol
+      (require 'org-roam-protocol))
+
+;; (use-package! org-roam
+;;   :defer t
+;;   :custom (org-roam-directory (concat "~/Dropbox/Org/slip-box"))
+;;   ; :bind (("C-c n l" . org-roam-buffer-toggle)
+;;   ;       ("C-c n f" . org-roam-node-find))
+;;   :config (org-roam-setup))
 #+end_src
 
 *** COMMENT Org Roam Capture templates
@@ -1676,7 +1743,7 @@ Set urls to open in a specific browser (=eww= here).
 (setq browse-url-browser-function 'eww-browse-url)
 #+end_src
 
-** File manager (=dired=) :dired:
+** COMMENT File manager (=dired=) :dired:
 Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<DOWN>=
 
 #+begin_src emacs-lisp
@@ -1715,7 +1782,7 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
 (emms-mode-line-cycle 1)
 #+end_src
 
-*** Define keybinding
+*** COMMENT Define keybinding
 #+begin_src emacs-lisp
 (map! :leader
       :desc "Go to emms playlist"
@@ -1734,7 +1801,7 @@ Enable image previews in =dired= and use Vim-style key binding for =<UP>= and =<
       "a n" #'emms-next)
 #+end_src
 
-** Serial port support (=serial-term=) :serial:
+** COMMENT Serial port support (=serial-term=) :serial:
 #+begin_src emacs-lisp
 (map! :leader
       :desc "Open serial port terminal" "o s" #'serial-term)
@@ -1806,7 +1873,7 @@ You will need to:
 
 #+begin_src emacs-lisp
 (after! mu4e
-  (require 'org-msg)
+;  (require 'org-msg)
   (require 'smtpmail)
   ;; Common parameters
   (setq smtpmail-auth-credentials "~/.authinfo.gpg"
@@ -1887,10 +1954,11 @@ Add ROS specific file formats:
 #+begin_src emacs-lisp
 (setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.urdf$" . xml-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("\\.xacro$" . xml-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.rviz$" . conf-unix-mode) auto-mode-alist))
 #+end_src
 
-** LSP :lsp:
+** COMMENT LSP :lsp:
 *** COMMENT Set LSP to use =clangd= in C/C++ :clangd:c:cpp:
 #+begin_src emacs-lisp
 (setq lsp-clients-clangd-args '("-j=3"
