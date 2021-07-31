@@ -18,10 +18,11 @@
        (company +childframe)  ; the ultimate code completion backend
        ;;helm                 ; the *other* search engine for love and life
        ;;ido                  ; the other *other* search engine...
-       (ivy +childframe       ; a search engine for love and life
-            +fuzzy
-            +prescient
-            +icons)
+       (vertico +icons)       ; the search engine of the future
+       ;;(ivy +childframe       ; a search engine for love and life
+       ;;     +fuzzy
+       ;;     +prescient)
+       ;;     +icons
 
        :ui
        deft                   ; notational velocity for Emacs
@@ -30,7 +31,7 @@
        ;;doom-quit            ; DOOM quit-message prompts when you quit Emacs
        ;;fill-column          ; a `fill-column' indicator
        hl-todo                ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       hydra                  ; TODO: configure keybinding
+       ;;hydra                ; TODO: configure keybinding
        indent-guides          ; highlighted indent columns
        ;;minimap              ; show a map of the code on the side
        modeline               ; snazzy, Atom-inspired modeline, plus API
@@ -38,7 +39,7 @@
        neotree                ; a project drawer, like NERDTree for vim
        ophints                ; highlight the region an operation acts on
        (popup +defaults)      ; tame sudden yet inevitable temporary windows
-       ligatures ;+extra)     ; ligatures or substitute text with pretty symbols
+       ;ligatures ;+extra)     ; ligatures or substitute text with pretty symbols
        tabs                   ; a tab bar for Emacs
        treemacs               ; a project drawer, like neotree but cooler
        ;;unicode              ; extended unicode support for various languages
@@ -155,7 +156,7 @@
             +pandoc
             +present
             +pomodoro
-            ;+roam
+            +roam2
             +pretty)
 
        ;;php                  ; perl's insecure younger brother

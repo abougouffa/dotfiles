@@ -55,14 +55,10 @@
 (package! repo) ; TODO configure package
 
 ;; OrgMode and note taking
-(package! zotxt) ; TODO configure package
-(package! org-roam-bibtex)
-(package! org-roam-server)
+; (package! zotxt) ; TODO configure package
+; (package! org-roam-bibtex)
+; (package! org-roam-server)
 (package! org-super-agenda)
-
-;; Use Org-Roam v2
-(package! org-roam
-  :pin "7286cd939302a75f02bf542f08f53632232ebf0f")
 
 (package! vulpea
   :recipe (:host github
