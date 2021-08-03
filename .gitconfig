@@ -19,3 +19,11 @@
 	editor = nvim
 [init]
 	defaultBranch = main
+[format]
+	signoff = true
+[sendemail]
+	smtpserver = mail.server.com
+	smtpserverport = 587
+	smtpencryption = tls
+	smtpuser = user@server.com
+	smtppass = password
