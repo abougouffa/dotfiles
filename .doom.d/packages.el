@@ -55,36 +55,31 @@
 (package! repo) ; TODO configure package
 
 ;; OrgMode and note taking
+(package! org-super-agenda)
 ; (package! zotxt) ; TODO configure package
 ; (package! org-roam-bibtex)
 ; (package! org-roam-server)
-(package! org-super-agenda)
-
-(package! vulpea
-  :recipe (:host github
-           :repo "d12frosted/vulpea"))
 
 ;; Misc
 (package! doct)
-(package! ivy-emms)
-(package! beacon)
-(package! copy-as-format)
 (package! vlf) ;; Load huge files as chunks
 (package! focus) ;; Dim the font color of text in surrounding paragraphs
-(package! emms-mode-line-cycle
-  :recipe (:host github
-           :repo "abougouffa/emms-mode-line-cycle"))
+;; (package! ivy-emms)
+;; (package! beacon)
+;; (package! copy-as-format)
+;; (package! emms-mode-line-cycle
+;;   :recipe (:host github))
+;;            :repo "abougouffa/emms-mode-line-cycle"))
+;; (package! svg-tag-mode
+;;   :recipe (:host github))
+;;            :repo "rougier/svg-tag-mode"))
 
 ;; Communication apps
-(package! slack)
+;; (package! slack)
 
-(package! svg-tag-mode
-  :recipe (:host github
-           :repo "rougier/svg-tag-mode"))
-
-(package! nano-theme
-  :recipe (:host github
-           :repo "rougier/nano-theme"))
+;; (package! nano-theme
+;;   :recipe (:host github))
+;;            :repo "rougier/nano-theme"
 
 ;; Academic
 (package! citeproc)
