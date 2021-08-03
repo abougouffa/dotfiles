@@ -29,6 +29,10 @@
     vimcompatible = true
     automatic_update = true
 
+[[custom_plugins]]
+    repo = "kristijanhusak/orgmode.nvim"
+    merged = false
+
 # SpaceVim default layer contains no plugins, but It provides some better default config for SpaceVim.
 [[layers]]
   name = "default"
