@@ -114,51 +114,7 @@ source $ZSH/oh-my-zsh.sh
 # 	# Pop the stash
 # 	cd $ZSH && git stash pop
 # }
+#
 
-# ALIASES ===========================================================
-alias vim="nvim"
-alias vi="nvim"
-alias ec="emacsclient -t"
-alias dotfiles='git --git-dir=$HOME/Projects/dotfiles/.git --work-tree=$HOME'
-alias spacemacs='emacs --with-profile spacemacs'
-alias prelude-emacs='emacs --with-profile prelude'
-
-# Kitty settingprelude
-# autoload -Uz compinit
-# compinit
-# Completion for kitty
-# kitty + complete setup zsh | source /dev/stdin
-
-# EXPORTS ===========================================================
-
-# Enable Meta key + colors in minicom
-export MINICOM='-m -c on'
-
-export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
-export PATH=$PATH:$HOME/.cargo/bin
-
-# Add my manually installed libraries to CMake
-# export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$HOME/libs/bin
-export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
-export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
-
-# NPM, Set installation path to local
-NPM_PACKAGES="${HOME}/.npm-packages"
-
-export PATH="$PATH:$NPM_PACKAGES/bin"
-
-# Preserve MANPATH if you already defined it somewhere in your config.
-# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
-export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
-
-# STARTUP STUFF =====================================================
-# Install from AUR shell-color-scripts
-# Display random graphics
-colorscript -e 16
-
-# Run fortune to display random quote
-# fortune
-
-# GPG Agent
-# GPG_TTY=$(tty)
-# export GPG_TTY
+# Include my personal customizations
+source ~/.env_stuff
