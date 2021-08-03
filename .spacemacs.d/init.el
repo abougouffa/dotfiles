@@ -48,6 +48,7 @@ This function should only modify configuration layer settings."
      markdown
      multiple-cursors
      org
+     bibtex
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
@@ -543,7 +544,23 @@ dump.")
 This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
-before packages are loaded.")
+before packages are loaded."
+
+  ;; * Bibtex
+  (setq org-ref-default-bibliography '("~/Papers/references.bib")
+        org-ref-pdf-directory "~/Papers/"
+        org-ref-bibliography-notes "~/Papers/notes.org")
+
+  ;; ** Org-Ref
+  (setq org-ref-open-pdf-function
+        (lambda (fpath)
+          (start-process "zathura" "*helm-bibtex-zathura*" "/usr/bin/zathura" fpath)))
+
+  (setq! org-ref-default-bibliography '("~/Dropbox/Org/zotero-library.bib")
+         org-ref-pdf-directory "~/Zotero/storage/"
+         org-ref-bibliography-notes "~/Dropbox/Org/ref/notes.org"
+         reftex-default-bibliography org-ref-default-bibliography)
+  )
 
 
 ;; Do not write anything past this comment. This is where Emacs will
