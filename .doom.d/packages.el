@@ -1,90 +1,39 @@
 ;; -*- no-byte-compile: t; -*-
-;;; $DOOMDIR/packages.el
 
-;; To install a package with Doom you must declare them here and run 'doom sync'
-;; on the command line, then restart Emacs for the changes to take effect -- or
-;; use 'M-x doom/reload'.
+(package! wttrin :recipe (:local-repo "lisp/wttrin"))
 
+(package! theme-magic :pin "844c4311bd26ebafd4b6a1d72ddcc65d87f074e3")
 
-;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
-;(package! some-package)
+(package! focus)
 
-;; To install a package directly from a remote git repo, you must specify a
-;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
-;; https://github.com/raxod502/straight.el#the-recipe-format
-;(package! another-package
-;  :recipe (:host github :repo "username/repo"))
+(package! ess-view :pin "925cafd876e2cc37bc756bb7fcf3f34534b457e2")
 
-;; If the package you are trying to install does not contain a PACKAGENAME.el
-;; file, or is located in a subdirectory of the repo, you'll need to specify
-;; `:files' in the `:recipe':
-;(package! this-package
-;  :recipe (:host github :repo "username/repo"
-;           :files ("some-file.el" "src/lisp/*.el")))
+(package! vlf :recipe (:host github :repo "m00natic/vlfi" :files ("*.el"))
+  :pin "cc02f2533782d6b9b628cec7e2dcf25b2d05a27c" :disable t)
 
-;; If you'd like to disable a package included with Doom, you can do so here
-;; with the `:disable' property:
-;(package! builtin-package :disable t)
+(package! nov :pin "b3c7cc28e95fe25ce7b443e5f49e2e45360944a3")
 
-;; You can override the recipe of a built in package without having to specify
-;; all the properties for `:recipe'. These will inherit the rest of its recipe
-;; from Doom or MELPA/ELPA/Emacsmirror:
-;(package! builtin-package :recipe (:nonrecursive t))
-;(package! builtin-package-2 :recipe (:repo "myfork/package"))
-
-;; Specify a `:branch' to install a package from a particular branch or tag.
-;; This is required for some packages whose default branch isn't 'master' (which
-;; our package manager can't deal with; see raxod502/straight.el#279)
-;(package! builtin-package :recipe (:branch "develop"))
-
-;; Use `:pin' to specify a particular commit to install.
-;(package! builtin-package :pin "1a2b3c4d5e")
-
-
-;; Doom's packages are pinned to a specific commit and updated from release to
-;; release. The `unpin!' macro allows you to unpin single packages...
-;(unpin! pinned-package)
-;; ...or multiple packages
-;(unpin! pinned-package another-pinned-package)
-;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
-;(unpin! t)
-
-;; Programming stuff
-(package! systemd)
-(package! bitbake)
-(package! repo) ; TODO configure package
-
-;; OrgMode and note taking
-(package! org-super-agenda)
-; (package! zotxt) ; TODO configure package
-; (package! org-roam-bibtex)
-; (package! org-roam-server)
-
-;; Misc
 (package! doct)
-(package! vlf) ;; Load huge files as chunks
-(package! focus) ;; Dim the font color of text in surrounding paragraphs
-;; (package! ivy-emms)
-;; (package! beacon)
-;; (package! copy-as-format)
-;; (package! emms-mode-line-cycle
-;;   :recipe (:host github))
-;;            :repo "abougouffa/emms-mode-line-cycle"))
-;; (package! svg-tag-mode
-;;   :recipe (:host github))
-;;            :repo "rougier/svg-tag-mode"))
-
-;; Communication apps
-;; (package! slack)
-
-;; (package! nano-theme
-;;   :recipe (:host github))
-;;            :repo "rougier/nano-theme"
-
-;; Academic
-(package! citeproc)
-(package! citeproc-org)
 (package! org-ref)
+(package! org-super-agenda)
+(package! org-fragtog)
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+
+(package! repo) ;; TODO: configure me!
+
+(package! systemd :pin "b6ae63a236605b1c5e1069f7d3afe06ae32a7bae")
+
+(package! bitbake)
+
+(package! websocket)
+(package! org-roam-ui :recipe (:host github :repo "org-roam/org-roam-ui" :files ("*.el" "out")))
+
+(package! aas :recipe (:host github :repo "ymarco/auto-activating-snippets")
+  :pin "3076cefea0f6ae9d7757f13c27b5602e007b58ec")
+(package! laas :recipe (:local-repo "lisp/LaTeX-auto-activating-snippets"))
+
+(package! auctex :pin "6440ec5964dcbe58155e28f00f84ec0118d8fb7b")
+
+(package! graphviz-dot-mode :pin "3642a0a5f41a80c8ecef7c6143d514200b80e194")
