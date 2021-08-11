@@ -3317,7 +3317,7 @@ functionality as in LaTeX. Let's try viewing possible output files with this.
   "File formats that should be opened externally.")
 #+end_src
 
-**** Super agenda
+**** Super agenda :agenda:
 #+begin_src emacs-lisp
 (use-package! org-super-agenda
   :commands (org-super-agenda-mode))
@@ -3390,6 +3390,11 @@ functionality as in LaTeX. Let's try viewing possible output files with this.
                            :todo ("SOMEDAY" )
                            :order 90)
                           (:discard (:tag ("Chore" "Routine" "Daily")))))))))))
+#+end_src
+
+**** Google calendar (=org-gcal=) :calendar:google:
+#+begin_src emacs-lisp
+(load! "lisp/private/org-gcal.el")
 #+end_src
 
 **** Capture
@@ -4147,8 +4152,12 @@ It's also nice to make use of the Unicode characters for check boxes, and other 
             :results       "🠶"
             :begin_export  "⏩"
             :end_export    "⏪"
+            :filetags      "#"
+            :created       "⏱"
+            :include       "⇩"
+            :setupfile     "⇩"
             :properties    "⚙"
-            :end           "∎"
+            :end           "᛫"
             :priority_a   ,(propertize "⚑" 'face 'all-the-icons-red)
             :priority_b   ,(propertize "⬆" 'face 'all-the-icons-orange)
             :priority_c   ,(propertize "■" 'face 'all-the-icons-yellow)
@@ -4187,6 +4196,10 @@ It's also nice to make use of the Unicode characters for check boxes, and other 
   :header        "#+header:"
   :begin_export  "#+begin_export"
   :end_export    "#+end_export"
+  :filetags      "#+filetags:"
+  :created       "#+created:"
+  :include       "#+include:"
+  :setupfile     "#+setupfile:"
   :results       "#+RESULTS:"
   :property      ":PROPERTIES:"
   :end           ":END:"
@@ -6547,8 +6560,14 @@ the language identifier, not =ess-jags=.
 
 *** Deft :deft:note:
 #+begin_src emacs-lisp
-(setq deft-directory "~/Dropbox/Org/slip-box")
-(setq deft-default-extension "org")
+(after! deft
+  :custom (setq deft-directory "~/Dropbox/Org/slip-box/"
+                deft-recursive t
+                deft-use-filter-string-for-filename t
+                deft-default-extension "org"
+                deft-extensions '("org" "md")
+                deft-strip-summary-regexp ":PROPERTIES:\n\\(.+\n\\)+:END:\n"))
+;  (setq deft-use-filename-as-title t)
 #+end_src
 
 ** LaTeX
