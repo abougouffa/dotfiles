@@ -1,4 +1,4 @@
-(("default"   . ((user-emacs-directory . "~/.doom-emacs")))
- ("doom"      . ((user-emacs-directory . "~/.doom-emacs")))
- ("prelude"   . ((user-emacs-directory . "~/.emcas-prelude")))
+(("default"   . ((user-emacs-directory . "~/.emacs-doom")))
+ ("doom"      . ((user-emacs-directory . "~/.emacs-doom")))
+ ("scimax"    . ((user-emacs-directory . "~/.emcas-scimax")))
  ("spacemacs" . ((user-emacs-directory . "~/.emacs-spacemacs"))))
