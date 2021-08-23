@@ -104,3 +104,5 @@ source $OSH/oh-my-bash.sh
 
 # Include my personal cutomizations
 source $HOME/.env_stuff
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
