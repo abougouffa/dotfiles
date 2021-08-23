@@ -77,7 +77,7 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 
 (display-time-mode 1) ; Enable time in the mode-line
 
-(unless (string-match-p "^Power N/A" (battery)) ; On laptops...
+(unless (or (string-match-p "^Power N/A" (battery)) (string-match-p "unknown" (battery))) ; On laptops...
   (display-battery-mode 1)) ; it's nice to know how much power you have
 #+end_src
 
@@ -184,7 +184,7 @@ deft                         ; notational velocity for Emacs
 doom                         ; what makes DOOM look the way it does
 doom-dashboard               ; a nifty splash screen for Emacs
 ;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
-(emoji +unicode)
+;;(emoji +unicode)
 hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
 ;;fill-column                ; a `fill-column' indicator
 ;;hydra                      ; quick documentation for related commands
@@ -332,11 +332,11 @@ qt                     ; the 'cutest' gui framework ever
         +cython
         +pyenv)
 (org +dragndrop        ; organize your plain life in plain text
-     +hugo
      +gnuplot
      +jupyter
-     +noter
-     +journal
+     ;+noter
+     ;+hugo
+     ;+journal
      +pandoc
      +present
      +pomodoro
@@ -448,6 +448,11 @@ thus not worth noting in the modeline. So, let's conditionally hide it.
                 t)))
 
 (add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
+#+end_src
+**** COMMENT Set transparency
+#+begin_src emacs-lisp
+(set-frame-parameter (selected-frame) 'alpha '(95 95))
+(add-to-list 'default-frame-alist '(alpha 95 95))
 #+end_src
 
 ** COMMENT Allow babel execution in =doom= CLI actions :babel:cli:
@@ -809,6 +814,18 @@ these as horizontal rules.
                 :desc "Next page break" :nv "]" #'forward-page))
 #+end_src
 
+*** COMMENT Prettier tags
+#+begin_src emacs-lisp
+(package! svg-tag-mode
+  :recipe (:host github
+           :repo "rougier/svg-tag-mode"
+           :files ("svg-tag-mode.el")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+
+#+end_src
+
 ** Programming :programming:
 *** Repo :repo:
 #+begin_src emacs-lisp
@@ -881,6 +898,22 @@ Graphviz is a nice method of visualising simple graphs, based on plaintext
 #+begin_src emacs-lisp
 (package! graphviz-dot-mode
   :pin "3642a0a5f41a80c8ecef7c6143d514200b80e194")
+#+end_src
+
+*** COMMENT Maxima :maxima:math:
+#+begin_src emacs-lisp
+(package! maxima)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;(use-package! maxima
+;  :init
+;  (add-hook 'maxima-mode-hook #'maxima-hook-function)
+;  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+;  ;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
+;  ;      maxima-display-maxima-buffer nil)
+;  :mode ("\\.mac\\'" . maxima-mode)
+;  :interpreter ("maxima" . maxima-mode))
 #+end_src
 
 * Package configuration
@@ -1435,6 +1468,13 @@ Nested snippets are good, enable that.
 (setq yas-triggers-in-field t)
 #+end_src
 
+** Ligatures :ligatures:
+Disable extra ligatures in some programming modes:
+
+#+begin_src emacs-lisp
+(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
+#+end_src
+
 * Applications
 ** e-Books :ebook:
 To read the ebooks we use =nov=.
@@ -1627,7 +1667,7 @@ Let's do our *bold*, /italic/, and _underline_ in org-syntax, using IRC control 
 (add-hook 'lui-pre-input-hook #'lui-org-to-irc)
 #+end_src
 
-*** Emojis
+*** COMMENT Emojis
 Let us setup Circe to use some emojis
 #+name: circe-emojis
 #+begin_src emacs-lisp :tangle no
@@ -3319,6 +3359,21 @@ functionality as in LaTeX. Let's try viewing possible output files with this.
   "File formats that should be opened externally.")
 #+end_src
 
+**** TODOs
+#+begin_src emacs-lisp
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "|" "DONE(d)" "KILL(k)")
+        (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+        (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+;(defun log-todo-next-creation-date (&rest ignore)
+;  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+;  (when (and (string= (org-get-todo-state) "NEXT")
+;             (not (org-entry-get nil "ACTIVATED")))
+;    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+;(add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+#+end_src
+
 **** Super agenda :agenda:
 Set files for =org-agenda=
 #+begin_src emacs-lisp
@@ -3739,7 +3794,17 @@ the [[*Window title][Window title]].
     (funcall orig-fun)))
 #+end_src
 
-***** COMMENT Registering roam protocol
+
+***** Org Roam Capture template
+#+begin_src emacs-lisp
+(after! org-roam
+  (setq org-roam-capture-ref-templates
+        '(("r" "ref" plain "%?"
+           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n- source: ${ref}\n\n${body}\n")
+           :unnarrowed t))))
+#+end_src
+
+***** Registering roam protocol
 The recommended method of registering a protocol is by registering a desktop
 application, which seems reasonable.
 #+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
@@ -3910,6 +3975,7 @@ cause issues. Let's make their failure less eventful.
 (defadvice! shut-up-org-problematic-hooks (orig-fn &rest args)
   :around #'org-fancy-priorities-mode
   :around #'org-superstar-mode
+  :around #'dap-mode-hook
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
@@ -4138,7 +4204,7 @@ I've also added some fun alternatives, just commented out.
 It's also nice to make use of the Unicode characters for check boxes, and other commands.
 #+begin_src emacs-lisp
 (appendq! +ligatures-extra-symbols
-          `(:checkbox      "☐"
+          '(:checkbox      "☐"
             :pending       "◼"
             :checkedbox    "☑"
             :list_property "∷"
@@ -4523,8 +4589,8 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
 
-*** Exporting
-**** General settings
+*** COMMENT Exporting
+**** COMMENT General settings
 By default Org only exports the first three levels of headings as ... headings.
 This is rather unfortunate as my documents frequently stray far beyond three
 levels of depth. The two main formats I care about exporting to are LaTeX and
@@ -4624,7 +4690,8 @@ simply superior combination.
 
 #+begin_src emacs-lisp
 ;; org-latex-compilers = ("pdflatex" "xelatex" "lualatex"), which are the possible values for %latex
-(setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+;; (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 #+end_src
 
 While ~org-latex-pdf-process~ does support a function, and we could use that
