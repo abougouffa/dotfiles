@@ -77,8 +77,8 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 
 (display-time-mode 1) ; Enable time in the mode-line
 
-(unless (or (string-match-p "^Power N/A" (battery)) (string-match-p "unknown" (battery))) ; On laptops...
-  (display-battery-mode 1)) ; it's nice to know how much power you have
+;(unless (or (string-match-p "^Power N/A" (battery)) (string-match-p "unknown" (battery))) ; On laptops...
+;  (display-battery-mode 1)) ; it's nice to know how much power you have
 #+end_src
 
 *** Editing :edit:cursor:
@@ -198,7 +198,7 @@ ophints                      ; highlight the region an operation acts on
 (popup +all                  ; tame sudden yet inevitable temporary windows
        +defaults)
 tabs                         ; a tab bar for Emacs
-treemacs                     ; a project drawer, like neotree but cooler
+(treemacs +lsp)              ; a project drawer, like neotree but cooler
 ;;unicode                    ; extended unicode support for various languages
 vc-gutter                    ; vcs diff in the fringe
 ;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
@@ -260,7 +260,7 @@ default, and I enable it when I need to.
 #+name: doom-checkers
 #+begin_src emacs-lisp
 (syntax +childframe)   ; tasing you for every semicolon you forget
-(spell +hunspell)      ; tasing you for misspelling mispelling
+(spell +flyspell)      ; tasing you for misspelling mispelling
 grammar                ; tasing grammar mistake every you make
 #+end_src
 
@@ -283,7 +283,7 @@ biblio
 gist                   ; interacting with github gists
 (lookup +docsets)      ; navigate your code and its documentation
 (lsp +peek)            ; LPS
-(magit +forge)         ; a git porcelain for Emacs
+magit                  ; a git porcelain for Emacs
 make                   ; run make tasks from Emacs
 ;;pass                 ; password manager for nerds
 pdf                    ; pdf enhancements
@@ -423,8 +423,8 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "mononoki Nerd Font Mono" :size 32)
-      doom-variable-pitch-font (font-spec :family "Overpass" :size 36)
+(setq doom-font (font-spec :family "JuliaMono" :size 30)
+      doom-variable-pitch-font (font-spec :family "Overpass" :size 30)
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Overpass" :weight 'light))
 #+end_src
@@ -787,6 +787,7 @@ Together these should give me a rather good experience reading ebooks.
 #+begin_src emacs-lisp
 (package! doct)
 (package! org-ref)
+(package! citeproc)
 (package! org-super-agenda)
 (package! org-fragtog)
 (package! academic-phrases
@@ -890,6 +891,13 @@ I think the latest AucTeX may be a bit dodgy, so
 #+begin_src emacs-lisp
 (package! auctex
   :pin "6440ec5964dcbe58155e28f00f84ec0118d8fb7b")
+#+end_src
+
+*** Franca IDL
+#+begin_src emacs-lisp
+(package! franca-idl
+  :recipe (:host github
+           :repo "zeph1e/franca-idl.el"))
 #+end_src
 
 *** Graphviz :graphviz:
@@ -1088,10 +1096,10 @@ Set =ispell='s dictionary to American English by default.
 
 #+begin_src emacs-lisp
 (setq ispell-dictionary "american")
-(setq ispell-personal-dictionary (expand-file-name ".ispell_personal_dict" doom-private-dir))
+;;(setq ispell-personal-dictionary (expand-file-name ".ispell_personal_dict" doom-private-dir))
 #+end_src
 
-*** Use =hunspell= to correct mistakes :hunspell:
+*** COMMENT Use =hunspell= to correct mistakes :hunspell:
 Having =flyspell= and =hunspell= enabled in =init.el=, first install these packages:
 
 #+begin_example shell
@@ -1184,7 +1192,7 @@ Then configure dictionaries:
       :desc "Switch default language" "l l L" #'langtool-switch-default-language)
 #+end_src
 
-** Mixed pitch :mixed:pitch:
+** COMMENT Mixed pitch :mixed:pitch:
 We'd like to use mixed pitch in certain modes. If we simply add a hook, when
 directly opening a file with (a new) Emacs =mixed-pitch-mode= runs before UI
 initialization, which is problematic. To resolve this, we create a hook that
@@ -2797,7 +2805,7 @@ We also want to define ~mu4e-compose-from-mailto~.
 (defun mu4e-compose-from-mailto (mailto-string)
   (require 'mu4e)
   (unless mu4e~server-props (mu4e t) (sleep-for 0.1))
-  (let* ((mailto (rfc2368-parse-mailto-url mailto-string))
+  (let* ((mailto (message-parse-mailto-url mailto-string))
          (to (cdr (assoc "To" mailto)))
          (subject (or (cdr (assoc "Subject" mailto)) ""))
          (body (cdr (assoc "Body" mailto)))
@@ -2873,6 +2881,12 @@ need to have a template assigned.
 (setq auto-mode-alist (cons '("\\.inc$" . bitbake-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbappend$" . bitbake-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass$" . bitbake-mode) auto-mode-alist))
+#+end_src
+
+** Franca IDL
+#+begin_src emacs-lisp
+(require 'franca-idl)
+(add-to-list 'auto-mode-alist '("\\.fidl$" . franca-idl-mode))
 #+end_src
 
 ** ROS :ros:
@@ -3159,7 +3173,8 @@ pdftotext "$@" -
       org-use-property-inheritance t              ; it's convenient to have properties inherited
       org-log-done 'time                          ; having the time a item is done sounds convenient
       org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
-      org-export-in-background t                  ; run export processes in external emacs process
+      ;org-export-in-background t                  ; run export processes in external emacs process
+      ;org-export-async-debug t
       org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
       org-export-with-sub-superscripts '{})       ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
 #+end_src
@@ -3287,10 +3302,11 @@ a good idea in my case at least.
 
 ***** Spellcheck
 I turn off spell checking by default to make Org files open quickly.
+
 #+begin_src emacs-lisp
 ;;(add-hook 'org-mode-hook 'turn-on-flyspell)
 (add-hook 'org-mode-hook 'turn-off-flyspell)
-(add-hook 'org-mode-hook 'spell-fu-mode-disable)
+;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
 
 ***** LSP support in ~src~ blocks
@@ -3979,6 +3995,47 @@ cause issues. Let's make their failure less eventful.
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
+*** Custom links
+This defines a new link type =subfig= to enable exporting sub-figures to LaTeX,
+taken form [[https://orgmode.org/list/87mty1an66.fsf@posteo.net/][Export subfigures to LaTeX (and HTML)]].
+
+#+begin_src emacs-lisp
+  (org-link-set-parameters
+   "subfig"
+   :follow (lambda (file) (find-file file))
+   :face '(:foreground "chocolate" :weight bold :underline t)
+   :display 'full
+   :export (lambda (file desc backend)
+             (when (eq backend 'latex)
+               (if (string-match ">(\\(.+\\))" desc)
+                   (concat "\\begin{subfigure}[b]"
+                           "\\caption{"
+                           (replace-regexp-in-string "\s+>(.+)" "" desc)
+                           "}"
+                           "\\includegraphics"
+                           "["
+                           (match-string 1 desc)
+                           "]"
+                           "{"
+                           file
+                           "}"
+                           "\\end{subfigure}")
+                 (format "\\begin{subfigure}\\includegraphics{%s}\\end{subfigure}" desc file)))))
+#+end_src
+
+Example of usage:
+#+begin_example org
+  ,#+CAPTION: Lorem impsum dolor
+  ,#+ATTR_LaTeX: :options \centering
+  ,#+begin_figure
+  [[subfig:img1.jpg][Caption of img1 >(width=.3\textwidth)]]
+
+  [[subfig:img2.jpg][Caption of img2 >(width=.3\textwidth)]]
+
+  [[subfig:img3.jpg][Caption of img3 >(width=.6\textwidth)]]
+  ,#+end_figure
+#+end_example
+
 *** Visuals
 Here I try to do two things: improve the styling of the various documents, via
 font changes etc, and also propagate colours from the current theme.
@@ -4589,8 +4646,8 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
 
-*** COMMENT Exporting
-**** COMMENT General settings
+*** Exporting
+**** General settings
 By default Org only exports the first three levels of headings as ... headings.
 This is rather unfortunate as my documents frequently stray far beyond three
 levels of depth. The two main formats I care about exporting to are LaTeX and
@@ -4690,8 +4747,12 @@ simply superior combination.
 
 #+begin_src emacs-lisp
 ;; org-latex-compilers = ("pdflatex" "xelatex" "lualatex"), which are the possible values for %latex
-;; (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
-(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+(setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+;;(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+;(setq org-latex-pdf-process
+;      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 #+end_src
 
 While ~org-latex-pdf-process~ does support a function, and we could use that
@@ -6049,7 +6110,7 @@ able to handle anyway. For them we define a table of LaTeX translations
 <<gen-latex-non-ascii-char-substitutions()>>
 #+end_src
 
-***** Extra special strings
+***** COMMENT Extra special strings
 LaTeX already recognises =---= and =--= as em/en-dashes, =\-= as a shy hyphen, and the
 conversion of =...= to =\ldots{}= is hardcoded into ~org-latex-plain-text~ (unlike
 ~org-html-plain-text~).
@@ -6286,7 +6347,7 @@ This gives the same advantages as mentioned in the [[*Make verbatim different to
         (underline . "\\uline{%s}")
         (verbatim . verb)))
 #+end_src
-***** No AucTeX please
+***** COMMENT No AucTeX please
 For some reason, the way that ~org-export-to-file~ works, I find that =latex-mode=
 is called on the produced buffer prior to saving. This has two undesirable
 side-effects:
@@ -6494,7 +6555,7 @@ information."
             (cdr unicode) latex)))))
 #+end_src
 
-**** COMMENT Markdown Export
+**** Markdown Export
 When I want to paste exported markdown somewhere (for example when using [[Emacs Everywhere][Emacs
 Everywhere]]), it can be preferable to have unicode characters for =---= etc. instead
 of =&#x2014;=.
@@ -6655,7 +6716,7 @@ the language identifier, not =ess-jags=.
 ;  (setq deft-use-filename-as-title t)
 #+end_src
 
-** LaTeX
+** COMMENT LaTeX
 *** COMMENT To-be-implemented ideas
 - Paste image from clipboard
   + Determine first folder in ~graphicspath~ if applicable
