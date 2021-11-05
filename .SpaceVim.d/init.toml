@@ -16,7 +16,7 @@
     # Disable guicolors in basic mode, many terminal do not support 24bit
     # true colors
     enable_guicolors = true
-    guifont = "Overpass Mono"
+    guifont = "Overpass Mono:h11"
     # Disable statusline separator, if you want to use other value, please
     # install nerd fonts
     statusline_separator = "arrow"
@@ -106,7 +106,7 @@
 [[layers]]
   name = "format"
   enable = true
-  format_on_save = true
+  format_on_save = false
 
 [[layers]]
   name = "tools"
