@@ -450,8 +450,8 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "JuliaMono" :size 15)
-      doom-variable-pitch-font (font-spec :family "JuliaMono" :size 15)
+(setq doom-font (font-spec :family "JuliaMono" :size 30)
+      doom-variable-pitch-font (font-spec :family "JuliaMono" :size 30)
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "JuliaMono" :weight 'light))
 #+end_src
@@ -462,6 +462,8 @@ Set Doom's theme:
 #+begin_src emacs-lisp
 ; (setq doom-theme 'doom-palenight) ; Load theme
 (setq doom-theme 'doom-one) ; Load theme
+;;(setq doom-theme 'nano-dark) ; Load theme
+;;(load-theme 'nano t) ; Load theme
 #+end_src
 
 **** COMMENT Mode-line encoding tweak
@@ -788,19 +790,39 @@ This file shouldn't be byte compiled.
 #+end_src
 
 ** Themes and UI
-*** COMMENT N Λ N O Theme
+*** COMMENT N Λ N O Packages
 
 #+begin_src emacs-lisp
 (package! nano-theme
   :recipe (:host github
            :repo "rougier/nano-theme"))
+
+(package! nano-modeline
+  :recipe (:host github
+           :repo "rougier/nano-modeline"))
+
+(package! nano-agenda
+  :recipe (:host github
+           :repo "rougier/nano-agenda"))
+
+(package! nano-bell
+  :recipe (:host github
+           :repo "rougier/nano-bell"))
+
+(package! svg-lib
+  :recipe (:host github
+           :repo "rougier/svg-lib"))
+
+(package! svg-tag-mode
+  :recipe (:host github
+           :repo "rougier/svg-tag-mode"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package! nano-theme
-  :defer t
-  :ensure nil
-  :init (nano-setup))
+;; (use-package! nano-theme
+;;   :ensure nil
+;;   :defer t)
+;;   :config (nano-setup))
 #+end_src
 
 *** Magic theme
@@ -830,9 +852,6 @@ The /very large files/ mode loads large files in chunks, allowing one to open ri
 
 #+begin_src emacs-lisp
 (package! vlf)
-  ;; :recipe (:host github
-  ;;          :repo "m00natic/vlfi"
-  ;;          :files ("*.el")))
 #+end_src
 
 To make VLF available without delaying startup, we'll just load it in quiet moments.
@@ -882,19 +901,6 @@ these as horizontal rules.
           (map! :prefix "g"
                 :desc "Prev page break" :nv "[" #'backward-page
                 :desc "Next page break" :nv "]" #'forward-page))
-#+end_src
-
-*** COMMENT Prettier tags
-
-#+begin_src emacs-lisp
-(package! svg-tag-mode
-  :recipe (:host github
-           :repo "rougier/svg-tag-mode"
-           :files ("svg-tag-mode.el")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-
 #+end_src
 
 ** Programming :programming:
@@ -989,6 +995,9 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
 ;;  :pin "3642a0a5f41a80c8ecef7c6143d514200b80e194")
 #+end_src
 
+*** TODO ROS :graphviz:
+Check [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for the =rosemacs= integration.
+
 *** COMMENT Maxima :maxima:math:
 
 #+begin_src emacs-lisp
@@ -1014,18 +1023,20 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
 * Package configuration
 ** All the icons :icon:
 Set some custom icons for some file extensions, basically for =.m= files.
+
 #+begin_src emacs-lisp
 (after! all-the-icons
   (setcdr (assoc "m" all-the-icons-extension-icon-alist)
           (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
 #+end_src
 
-** Centaur tabs :tab:
+** COMMENT Centaur tabs :tab:
 A 'active-bar' is nice, so let's have one of those. If we have it ~under~ needs us to
 turn on ~x-underline-at-decent~ though. For some reason this didn't seem to work
 inside the src_elisp{(after! ... )} block ¯\_(ツ)_/¯.
 Then let's change the font to a sans serif, but the default one doesn't fit too
 well somehow, so let's switch to 'P22 Underground Book'; it looks much nicer.
+
 #+begin_src emacs-lisp
 (after! centaur-tabs
   (centaur-tabs-mode -1)
@@ -3257,8 +3268,9 @@ I turn off spell checking by default to make Org files open quickly.
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
 
-***** LSP support in ~src~ blocks
+***** COMMENT LSP support in ~src~ blocks
 Now, by default, LSPs don't really function at all in ~src~ blocks.
+
 #+begin_src emacs-lisp
 (cl-defmacro lsp-org-babel-enable (lang)
   "Support LANG in org source code block."
@@ -3343,6 +3355,7 @@ Set files for =org-agenda=
 #+begin_src emacs-lisp
 (setq org-agenda-files '("~/Dropbox/Org/inbox.org"
                          "~/Dropbox/Org/agenda.org"
+                         "~/Dropbox/Org/gcal-agenda.org"
                          "~/Dropbox/Org/notes.org"
                          "~/Dropbox/Org/projects.org"))
 #+end_src
