@@ -28,6 +28,7 @@ other shell scripts, app launchers...
 
 Make =config.el= run (slightly) faster with lexical binding (see [[https://nullprogram.com/blog/2016/12/22/][this blog post]]
 for more info).
+
 #+begin_src emacs-lisp :comments no
 ;;; config.el -*- lexical-binding: t; -*-
 #+end_src
@@ -38,6 +39,7 @@ for more info).
 
 * General Settings :global:
 ** User information :user:info:
+
 #+begin_src emacs-lisp
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address "abougouffa@fedoraproject.org")
@@ -55,12 +57,14 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 
 ** Better defaults :default:
 *** File deletion :delete:
+
 #+begin_src emacs-lisp
 (setq-default delete-by-moving-to-trash t  ; Delete files to trash
               window-combination-resize t) ; take new window space from all other windows (not just current)
 #+end_src
 
 *** Undo and auto-save :save:undo:
+
 #+begin_src emacs-lisp
 (setq undo-limit 80000000   ; Raise undo-limit to 80Mb
       evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
@@ -70,6 +74,7 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 #+end_src
 
 *** Mode-line :modeline:
+
 #+begin_src emacs-lisp
 ;; This will set the time format to 24h
 (setq display-time-string-forms
@@ -77,11 +82,17 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 
 (display-time-mode 1) ; Enable time in the mode-line
 
-;(unless (or (string-match-p "^Power N/A" (battery)) (string-match-p "unknown" (battery))) ; On laptops...
-;  (display-battery-mode 1)) ; it's nice to know how much power you have
+;; Show battery level unless battery is not present or battery information is unknown
+;; (unless (or (string-match-p "^Power N/A" (battery)) (string-match-p "unknown" (battery)))
+;;   (display-battery-mode 1)) ; it's nice to know how much power you have
+(setq ~some-text "the lazy dog jumps over the quick brown fox")
+(unless (or (string-match-p "cat" ~some-text)
+            (string-match-p "dog" ~some-text))
+  (message "No DOGS no CATS"))
 #+end_src
 
 *** Editing :edit:cursor:
+
 #+begin_src emacs-lisp
 (setq-default x-stretch-cursor t)  ; Stretch cursor to the glyph width
 (setq display-line-numbers-type 'relative) ; Enable relative line numbers
@@ -89,6 +100,7 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 #+end_src
 
 *** Frame sizing :frame:
+
 #+begin_src emacs-lisp
 ;; start the initial frame maximized
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
@@ -153,22 +165,23 @@ contains all the enabled Doom modules with the appropriate flags.
 
 *** Config (=:config=)
 Enable =literate= configuration (like this file!), and some defaults.
+
 #+name: doom-config
 #+begin_src emacs-lisp
 literate
-(default +bindings
-         +smartparens)
+(default +bindings)
 #+end_src
 
 *** Completion (=:completion=)
 I'm lazy, I like Emacs to complete my writings.
+
 #+name: doom-completion
 #+begin_src emacs-lisp
 (company +childframe)        ; the ultimate code completion backend
 (vertico +icons)             ; the search engine of the future
 ;;helm                       ; the *other* search engine for love and life
 ;;ido                        ; the other *other* search engine...
-;;(ivy +childframe           ; a search engine for love and life
+;;(ivy   ; a search engine for love and life
 ;;     +fuzzy
 ;;     +icons
 ;;     +prescient)
@@ -178,6 +191,7 @@ I'm lazy, I like Emacs to complete my writings.
 Enables some UI feautures for better user experience, Atom like =tabs=, the
 beautiful =modeline=, project tree, better version control integration with
 =vc-gutter=... and other useful stuff.
+
 #+name: doom-ui
 #+begin_src emacs-lisp
 deft                         ; notational velocity for Emacs
@@ -197,23 +211,24 @@ nav-flash                    ; blink the current line after jumping
 ophints                      ; highlight the region an operation acts on
 (popup +all                  ; tame sudden yet inevitable temporary windows
        +defaults)
-tabs                         ; a tab bar for Emacs
+;;tabs                       ; a tab bar for Emacs
 (treemacs +lsp)              ; a project drawer, like neotree but cooler
 ;;unicode                    ; extended unicode support for various languages
 vc-gutter                    ; vcs diff in the fringe
-;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
+vi-tilde-fringe              ; fringe tildes to mark beyond EOB
 (window-select +numbers)     ; visually switch windows
 workspaces                   ; tab emulation, persistence & separate workspaces
 zen                          ; distraction-free coding or writing
 #+end_src
 
 *** Editor (=:editor=)
-Some editing modules, the most important feauture is EVIL to enable Vim style
+Some editing modules, the most important feature is EVIL to enable Vim style
 editing in Emacs. I like also to edit with multiple cursors, enable =yasnippet=
 support, wrap long lines, auto format support (however, I don't enable =+onsave=
 flag even if I like to, I'm experiencing an annoying behavior when I use it with
 projects that defines =.editorconfig= rules, the formatter do not respect that,
 nor the =clang-format= rules, I need to fix this).
+
 #+name: doom-editor
 #+begin_src emacs-lisp
 (evil +everywhere)           ; come to the dark side, we have cookies
@@ -232,6 +247,7 @@ word-wrap                    ; soft wrapping with language-aware indent
 
 *** Emacs' builtin (=:emacs=)
 Beautify Emacs builtin packages.
+
 #+name: doom-emacs
 #+begin_src emacs-lisp
 (dired +icons                ; making dired pretty [functional]
@@ -245,18 +261,20 @@ vc                           ; version-control and Emacs, sitting in a tree
 *** Terminals (=:term=)
 Run commands in terminal from Emacs. I use mainly =vterm=, I do enable =eshell= just
 as a second choice.
+
 #+name: doom-term
 #+begin_src emacs-lisp
 eshell                       ; the elisp shell that works everywhere
+vterm                        ; the best terminal emulation in Emacs
 ;;shell                      ; simple shell REPL for Emacs
 ;;term                       ; basic terminal emulator for Emacs
-vterm                        ; the best terminal emulation in Emacs
 #+end_src
 
 *** Checkers (=:checkers=)
 I like to check my documents for errors while I'm typing, however, sometimes it
 makes Emacs runs slowly, specially on big files, so I will disable checking by
 default, and I enable it when I need to.
+
 #+name: doom-checkers
 #+begin_src emacs-lisp
 (syntax +childframe)   ; tasing you for every semicolon you forget
@@ -270,12 +288,13 @@ Docker support, [[https://editorconfig.org][EditorConfig]] is a good feature to 
 =lsp-mode= and =dap-mode= for coding and debugging by enabling the =lsp= and =debugger=
 modules with =+lsp= support.
 I do enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
+
 #+name: doom-tools
 #+begin_src emacs-lisp
 ;;ansible
 (debugger +lsp)        ; FIXME stepping through code, to help you add bugs
 ;;direnv
-docker
+(docker +lsp)
 editorconfig           ; let someone else argue about tabs vs spaces
 ein                    ; tame Jupyter notebooks with emacs
 (eval +overlay)        ; run code, run (also, repls)
@@ -283,7 +302,7 @@ biblio
 gist                   ; interacting with github gists
 (lookup +docsets)      ; navigate your code and its documentation
 (lsp +peek)            ; LPS
-magit                  ; a git porcelain for Emacs
+(magit +forge)         ; a git porcelain for Emacs
 make                   ; run make tasks from Emacs
 ;;pass                 ; password manager for nerds
 pdf                    ; pdf enhancements
@@ -299,6 +318,7 @@ upload                 ; map local to remote projects via ssh/ftp
 I enable =tty= for better support of terminal editing, however, I use Vim (with
 SpaceVim) in terminal editing, mainly because I'm facing problems every time I
 try to use it, I need to investigate why!
+
 #+name: doom-os
 #+begin_src emacs-lisp
 (tty +osc)             ; Configures Emacs for use in the terminal
@@ -309,6 +329,7 @@ try to use it, I need to investigate why!
 Most of the projects I'm working on are written in C/C++, Python and Rust, I use
 Org-mode to manage all my papers and notes, so I need to enable as many
 features as I need.
+
 #+name: doom-lang
 #+begin_src emacs-lisp
 plantuml               ; diagrams for confusing people more
@@ -342,8 +363,13 @@ qt                     ; the 'cutest' gui framework ever
      +pomodoro
      +roam2
      +pretty)
+(scheme +mit           ; a fully conniving family of lisps
+        +racket
+        +guile
+        +gambit
+        +chez)
 ;;agda                 ; types of types of types of types...
-;;clojure              ; java with a lisp
+;; (clojure +lsp)      ; java with a lisp
 ;;coq                  ; proofs-as-programs
 ;;crystal              ; ruby at the speed of c
 ;;csharp               ; unity, .NET, and mono shenanigans
@@ -375,7 +401,6 @@ qt                     ; the 'cutest' gui framework ever
 ;;rest                 ; Emacs as a REST client
 ;;(ruby +rails)        ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
 ;;scala                ; java, but good
-;;scheme               ; a fully conniving family of lisps
 ;;sml
 ;;solidity             ; do you need a blockchain? No.
 ;;swift                ; who asked for emoji variables?
@@ -386,6 +411,7 @@ qt                     ; the 'cutest' gui framework ever
 *** Email (=:email=)
 I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= support and
 =+gmail= for better management of Gmail accounts.
+
 #+name: doom-email
 #+begin_src emacs-lisp
 (mu4e +org
@@ -399,6 +425,7 @@ Emacs contains a ton of applications, some of them are supported by Doom, I like
 to use Emacs manage my calendar, chat on IRC, and receive news. I do use EMMS
 sometimes to play music without leaving Emacs, and I like to enable support for
 =emacs-everywhere=.
+
 #+name: doom-app
 #+begin_src emacs-lisp
 calendar
@@ -423,21 +450,24 @@ They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "JuliaMono" :size 30)
-      doom-variable-pitch-font (font-spec :family "Overpass" :size 30)
+(setq doom-font (font-spec :family "JuliaMono" :size 15)
+      doom-variable-pitch-font (font-spec :family "JuliaMono" :size 15)
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Overpass" :weight 'light))
+      doom-serif-font (font-spec :family "JuliaMono" :weight 'light))
 #+end_src
 
 *** Theme and Mode-line :theme:modeline:
 Set Doom's theme:
+
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-palenight) ; Load theme
+; (setq doom-theme 'doom-palenight) ; Load theme
+(setq doom-theme 'doom-one) ; Load theme
 #+end_src
 
 **** COMMENT Mode-line encoding tweak
 While we're modifying the modeline, =LF UTF-8= is the default file encoding, and
 thus not worth noting in the modeline. So, let's conditionally hide it.
+
 #+begin_src emacs-lisp
 (defun doom-modeline-conditional-buffer-encoding ()
   "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
@@ -449,13 +479,15 @@ thus not worth noting in the modeline. So, let's conditionally hide it.
 
 (add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
 #+end_src
+
 **** COMMENT Set transparency
+
 #+begin_src emacs-lisp
 (set-frame-parameter (selected-frame) 'alpha '(95 95))
 (add-to-list 'default-frame-alist '(alpha 95 95))
 #+end_src
 
-** COMMENT Allow babel execution in =doom= CLI actions :babel:cli:
+** Allow babel execution in =doom= CLI actions :babel:cli:
 This file generates all my Doom config files, it works nicely, but for it to
 work with =doom sync= et al. I need to make sure that Org doesn't try to confirm
 that I want to allow evaluation (I do!).
@@ -477,7 +509,7 @@ avoid polluting the output.
 (advice-add 'org-babel-execute-src-block :around #'doom-shut-up-a)
 #+end_src
 
-** Asyncronous config tangling :async:babel:tangle:
+** Asynchronous config tangling :async:babel:tangle:
 Doom adds an =org-mode= hook ~+literate-enable-recompile-h~. This is a nice idea,
 but it's too blocking for my taste. Since I trust my tangling to be fairly
 straightforward, I'll just redefine it to a simpler, async, function.
@@ -497,6 +529,8 @@ straightforward, I'll just redefine it to a simpler, async, function.
 * Other Settings
 ** Editor Interaction :edit:
 *** Mouse Buttons :mouse:
+Map extra mouse buttons to jump between buffers
+
 #+begin_src emacs-lisp
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
@@ -505,6 +539,7 @@ straightforward, I'll just redefine it to a simpler, async, function.
 *** Splash Screen :splash:
 **** Custom Splash Image :image:banner:
 Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
+
 #+begin_src emacs-lisp
 (setq fancy-splash-image (expand-file-name "assets/blackhole-lines-small.svg" doom-private-dir))
 #+end_src
@@ -529,9 +564,12 @@ something simple.
 #+begin_src emacs-lisp
 (defun doom-dashboard-draw-ascii-emacs-banner-fn ()
   (let* ((banner
-          '(",---.,-.-.,---.,---.,---."
-            "|---'| | |,---||    `---."
-            "`---'` ' '`---^`---'`---'"))
+          '("______  _____  _____ ___  ___"
+            "|  _  \|  _  ||  _  ||  \/  |"
+            "| | | || | | || | | || .  . |"
+            "| | | || | | || | | || |\/| |"
+            "| |/ / \ \_/ /\ \_/ /| |  | |"
+            "|___/   \___/  \___/ \_|  |_/"))
          (longest-line (apply #'max (mapcar #'length banner))))
     (put-text-property
      (point)
@@ -548,8 +586,10 @@ something simple.
   (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
 
-** Systemd Daemon :daemon:systemd:
+** Emacs Daemon :daemon:
+*** Systemd Daemon :systemd:
 For running a systemd service for an Emacs server I have the following
+
 #+name: emacsclient service
 #+begin_src systemd :tangle ~/.config/systemd/user/emacs.service :mkdirp yes
 [Unit]
@@ -566,7 +606,8 @@ Restart=on-failure
 WantedBy=default.target
 #+end_src
 
-which is then enabled by
+Which is then enabled by
+
 #+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled emacs.service")) "no" "setup.sh")
 systemctl --user enable emacs.service
 #+end_src
@@ -575,6 +616,41 @@ For some reason if a frame isn't opened early in the initialization process, the
 daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
 part of the =ExecStart= value.
 
+When the daemon is running, I almost always want to do a few particular things
+with it, so I may as well eat the load time at startup. We also want to keep
+=mu4e= running.
+
+It would be good to start the IRC client (=circe=) too, but that seems to have
+issues when started in a non-graphical session.
+
+*** Daemon initialization :init:
+Lastly, while I'm not sure quite why it happens, but after a bit it seems that
+new Emacsclient frames start on the =*scratch*= buffer instead of the dashboard.
+I prefer the dashboard, so let's ensure that's always switched to in new frames.
+
+#+name: daemon initialization
+#+begin_src emacs-lisp
+(defun greedily-do-daemon-setup ()
+  (require 'org)
+  (when (featurep 'mu4e)
+    (require 'mu4e)
+    (setq mu4e-confirm-quit t)
+    (setq +mu4e-lock-greedy t)
+    (setq +mu4e-lock-relaxed t)
+    (+mu4e-lock-add-watcher)
+    (when (+mu4e-lock-available t)
+      (mu4e~start)))
+  (when (require 'elfeed nil t)
+    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+
+(when (daemonp)
+  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
+  (add-hook! 'server-after-make-frame-hook (switch-to-buffer +doom-dashboard-name))
+  (add-hook! 'server-after-make-frame-hook (doom/reload-theme)))
+#+end_src
+
+*** Emacs Client :emacsclient:
+**** Desktop Integration
 It can now be nice to use this as a 'default app' for opening files. If we add
 an appropriate desktop entry, and enable it in the desktop environment.
 
@@ -594,38 +670,7 @@ Keywords=Text;Editor;
 X-KDE-StartupNotify=false
 #+end_src
 
-When the daemon is running, I almost always want to do a few particular things
-with it, so I may as well eat the load time at startup. We also want to keep
-=mu4e= running.
-
-It would be good to start the IRC client (=circe=) too, but that seems to have
-issues when started in a non-graphical session.
-
-Lastly, while I'm not sure quite why it happens, but after a bit it seems that
-new Emacsclient frames start on the =*scratch*= buffer instead of the dashboard.
-I prefer the dashboard, so let's ensure that's always switched to in new frames.
-
-#+name: daemon initialization
-#+begin_src emacs-lisp
-(defun greedily-do-daemon-setup ()
-  (require 'org)
-  (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (setq +mu4e-lock-greedy t)
-    (setq +mu4e-lock-relaxed t)
-    (+mu4e-lock-add-watcher)
-    (when (+mu4e-lock-available t)
-      (mu4e~start)))
-  (when (require 'elfeed nil t)
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
-
-(when (daemonp)
-  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
-  (add-hook! 'server-after-make-frame-hook (switch-to-buffer +doom-dashboard-name))
-  (add-hook! 'server-after-make-frame-hook (doom/reload-theme)))
-#+end_src
-
-** Emacs Client Wrapper :client:
+**** Command-line Wrapper :wrapper:
 I frequently want to make use of Emacs while in a terminal emulator. To make
 this easier, I can construct a few handy aliases.
 
@@ -717,6 +762,7 @@ fi
 
 Now, to set an alias to use =e= with magit, and then for maximum laziness we can
 set aliases for the terminal-forced variants.
+
 #+begin_src shell :tangle no
 alias m='e --eval "(progn (magit-status) (delete-other-windows))"'
 alias mt="m -t"
@@ -729,24 +775,44 @@ alias et="e -t"
 :END:
 
 This file shouldn't be byte compiled.
+
 #+begin_src emacs-lisp :tangle "packages.el" :comments no
 ;; -*- no-byte-compile: t; -*-
 #+end_src
 
 ** General Packages :general:
-*** Wheater
+*** Weather
+
 #+begin_src emacs-lisp
 (package! wttrin :recipe (:local-repo "lisp/wttrin"))
 #+end_src
 
+** Themes and UI
+*** COMMENT N Λ N O Theme
+
+#+begin_src emacs-lisp
+(package! nano-theme
+  :recipe (:host github
+           :repo "rougier/nano-theme"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! nano-theme
+  :defer t
+  :ensure nil
+  :init (nano-setup))
+#+end_src
+
 *** Magic theme
 With all our fancy Emacs themes, my terminal is missing out!
+
 #+begin_src emacs-lisp
 (package! theme-magic :pin "844c4311bd26ebafd4b6a1d72ddcc65d87f074e3")
 #+end_src
 
 *** Focus
 Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
 #+begin_src emacs-lisp
 (package! focus)
 #+end_src
@@ -754,22 +820,23 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 ** Features :features:
 *** ESS :ess:
 View data frames better with
+
 #+begin_src emacs-lisp
 (package! ess-view :pin "925cafd876e2cc37bc756bb7fcf3f34534b457e2")
 #+end_src
 
 *** Large files :large:vlf:
 The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
+
 #+begin_src emacs-lisp
-(package! vlf 
-  :recipe (:host github 
-           :repo "m00natic/vlfi" 
-           :files ("*.el"))
-  :pin "cc02f2533782d6b9b628cec7e2dcf25b2d05a27c" 
-  :disable t)
+(package! vlf)
+  ;; :recipe (:host github
+  ;;          :repo "m00natic/vlfi"
+  ;;          :files ("*.el")))
 #+end_src
 
 To make VLF available without delaying startup, we'll just load it in quiet moments.
+
 #+begin_src emacs-lisp :tangle yes
 (use-package! vlf-setup
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
@@ -777,6 +844,7 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
 
 *** Ebook reading :ebook:
 Then for reading them, the only currently viable options seems to be [[https://depp.brause.cc/nov.el/][nov.el]].
+
 #+begin_src emacs-lisp
 (package! nov :pin "b3c7cc28e95fe25ce7b443e5f49e2e45360944a3")
 #+end_src
@@ -784,10 +852,10 @@ Then for reading them, the only currently viable options seems to be [[https://d
 Together these should give me a rather good experience reading ebooks.
 
 *** Org related :org:
+
 #+begin_src emacs-lisp
 (package! doct)
 (package! org-ref)
-(package! citeproc)
 (package! org-super-agenda)
 (package! org-fragtog)
 (package! academic-phrases
@@ -799,6 +867,7 @@ Together these should give me a rather good experience reading ebooks.
 In some files, =^L= appears as a page break character. This isn't that visually
 appealing, and Steve Purcell has been nice enough to make a package to display
 these as horizontal rules.
+
 #+begin_src emacs-lisp
 (package! page-break-lines 
   :recipe (:host github 
@@ -816,6 +885,7 @@ these as horizontal rules.
 #+end_src
 
 *** COMMENT Prettier tags
+
 #+begin_src emacs-lisp
 (package! svg-tag-mode
   :recipe (:host github
@@ -829,18 +899,27 @@ these as horizontal rules.
 
 ** Programming :programming:
 *** Repo :repo:
+
 #+begin_src emacs-lisp
 (package! repo) ;; TODO: configure me!
 #+end_src
 
+*** Magit Delta :magit:delta:
+
+#+begin_src emacs-lisp
+(package! magit-delta)
+#+end_src
+
 *** Systemd :systemd:
 For editing systemd unit files
+
 #+begin_src emacs-lisp
 (package! systemd
   :pin "b6ae63a236605b1c5e1069f7d3afe06ae32a7bae")
 #+end_src
 
 *** Bitbake (Yocto) :bitbake:yocto:
+
 #+begin_src emacs-lisp
 (package! bitbake)
 #+end_src
@@ -848,6 +927,7 @@ For editing systemd unit files
 *** Org Roam :roam:
 Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
 with it.
+
 #+begin_src emacs-lisp
 (package! websocket)
 (package! org-roam-ui
@@ -862,10 +942,6 @@ with it.
 
 (use-package! org-roam-ui
   :commands org-roam-ui-open
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
   :config (setq org-roam-ui-sync-theme t
                 org-roam-ui-follow t
                 org-roam-ui-update-on-save t
@@ -874,26 +950,30 @@ with it.
 
 *** LaTeX :latex:
 For mathematical convenience, WIP
+
 #+begin_src emacs-lisp
 (package! aas
   :recipe (:host github
-           :repo "ymarco/auto-activating-snippets")
-  :pin "3076cefea0f6ae9d7757f13c27b5602e007b58ec")
+           :repo "ymarco/auto-activating-snippets"))
+;;  :pin "3076cefea0f6ae9d7757f13c27b5602e007b58ec")
 #+end_src
 
 And some basic config
+
 #+begin_src emacs-lisp :tangle yes
 (use-package! aas
   :commands aas-mode)
 #+end_src
 
 I think the latest AucTeX may be a bit dodgy, so
+
 #+begin_src emacs-lisp
-(package! auctex
-  :pin "6440ec5964dcbe58155e28f00f84ec0118d8fb7b")
+(package! auctex)
+;;  :pin "6440ec5964dcbe58155e28f00f84ec0118d8fb7b")
 #+end_src
 
 *** Franca IDL
+
 #+begin_src emacs-lisp
 (package! franca-idl
   :recipe (:host github
@@ -901,27 +981,34 @@ I think the latest AucTeX may be a bit dodgy, so
 #+end_src
 
 *** Graphviz :graphviz:
-Graphviz is a nice method of visualising simple graphs, based on plaintext
+Graphviz is a nice method of visualizing simple graphs, based on plaintext
 =.dot= / =.gv= files.
+
 #+begin_src emacs-lisp
-(package! graphviz-dot-mode
-  :pin "3642a0a5f41a80c8ecef7c6143d514200b80e194")
+(package! graphviz-dot-mode)
+;;  :pin "3642a0a5f41a80c8ecef7c6143d514200b80e194")
 #+end_src
 
 *** COMMENT Maxima :maxima:math:
+
 #+begin_src emacs-lisp
 (package! maxima)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-;(use-package! maxima
-;  :init
-;  (add-hook 'maxima-mode-hook #'maxima-hook-function)
-;  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-;  ;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
-;  ;      maxima-display-maxima-buffer nil)
-;  :mode ("\\.mac\\'" . maxima-mode)
-;  :interpreter ("maxima" . maxima-mode))
+;; (use-package! maxima
+;;   :defer t
+;;   :init (add-hook! 'maxima-mode-hook #'maxima-hook-function)
+;;         (add-hook! 'maxima-inferior-mode-hook #'maxima-hook-function))
+        ;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
+        ; maxima-display-maxima-buffer nil)
+  ;; :mode ("\\.mac\\'" . maxima-mode)
+  ;; :interpreter ("maxima" . maxima-mode))
+
+(autoload 'maxima-mode "maxima" "Maxima mode" t)
+(autoload 'maxima "maxima" "Maxima interaction" t)
+(setq auto-mode-alist (cons '("\\.mac" . maxima-mode) auto-mode-alist))
+(setq interpreter-mode-alist (cons '("maxima" . maxima-mode) interpreter-mode-alist))
 #+end_src
 
 * Package configuration
@@ -1022,27 +1109,6 @@ icon. Then we'll redefine two functions used to generate the modeline.
 (setq elcord-use-major-mode-as-main-icon t)
 #+end_src
 
-** Emacs everywhere :everywhere:
-#+begin_src emacs-lisp
-(use-package! emacs-everywhere
-  :if (daemonp)
-  :config
-  (require 'spell-fu)
-  (setq emacs-everywhere-major-mode-function #'org-mode
-        emacs-everywhere-frame-name-format "Edit ∷ %s — %s")
-  (defadvice! emacs-everywhere-raise-frame ()
-    :after #'emacs-everywhere-set-frame-name
-    (setq emacs-everywhere-frame-name (format emacs-everywhere-frame-name-format
-                                (emacs-everywhere-app-class emacs-everywhere-current-app)
-                                (truncate-string-to-width
-                                 (emacs-everywhere-app-title emacs-everywhere-current-app)
-                                 45 nil nil "…")))
-    ;; need to wait till frame refresh happen before really set
-    (run-with-timer 0.1 nil #'emacs-everywhere-raise-frame-1))
-  (defun emacs-everywhere-raise-frame-1 ()
-    (call-process "wmctrl" nil nil nil "-a" emacs-everywhere-frame-name)))
-#+end_src
-
 ** Emojify :emoji:
 For starters, twitter's emojis look nicer than emoji-one.
 Other than that, this is pretty great OOTB 😀.
@@ -1082,7 +1148,7 @@ Email and IRC.
 (add-hook! '(mu4e-compose-mode org-msg-edit-mode circe-channel-mode) (emoticon-to-emoji 1))
 #+end_src
 
-** COMMENT Eros-eval
+** Eros-eval
 This makes the result of evals with =gr= and =gR= just slightly prettier. Every bit
 counts right?
 
@@ -1192,70 +1258,14 @@ Then configure dictionaries:
       :desc "Switch default language" "l l L" #'langtool-switch-default-language)
 #+end_src
 
-** COMMENT Mixed pitch :mixed:pitch:
-We'd like to use mixed pitch in certain modes. If we simply add a hook, when
-directly opening a file with (a new) Emacs =mixed-pitch-mode= runs before UI
-initialization, which is problematic. To resolve this, we create a hook that
-runs after UI initialization and both
-+ conditionally enables =mixed-pitch-mode=
-+ sets up the mixed pitch hooks
-
-#+begin_src emacs-lisp
-(defvar mixed-pitch-modes '(org-mode LaTeX-mode markdown-mode gfm-mode Info-mode)
-  "Modes that `mixed-pitch-mode' should be enabled in, but only after UI initialization.")
-(defun init-mixed-pitch-h ()
-  "Hook `mixed-pitch-mode' into each mode in `mixed-pitch-modes'.
-Also, immediately enables `mixed-pitch-modes' if currently in one of the modes."
-  (when (memq major-mode mixed-pitch-modes)
-    (mixed-pitch-mode 1))
-  (dolist (hook mixed-pitch-modes)
-    (add-hook (intern (concat (symbol-name hook) "-hook")) #'mixed-pitch-mode)))
-(add-hook 'doom-init-ui-hook #'init-mixed-pitch-h)
-#+end_src
-
-As mixed pitch uses the variable =mixed-pitch-face=, we can create a new function
-to apply mixed pitch with a serif face instead of the default. This was created
-for writeroom mode.
-
-#+begin_src emacs-lisp
-(autoload #'mixed-pitch-serif-mode "mixed-pitch"
-  "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch." t)
-
-(after! mixed-pitch
-  (defface variable-pitch-serif
-    '((t (:family "serif")))
-    "A variable-pitch face with serifs."
-    :group 'basic-faces)
-  (setq mixed-pitch-set-height t)
-  (setq variable-pitch-serif-font (font-spec :family "Droid Serif" :size 32))
-  (set-face-attribute 'variable-pitch-serif nil :font variable-pitch-serif-font)
-  (defun mixed-pitch-serif-mode (&optional arg)
-    "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch."
-    (interactive)
-    (let ((mixed-pitch-face 'variable-pitch-serif))
-      (mixed-pitch-mode (or arg 'toggle)))))
-#+end_src
-
-Now, as Harfbuzz is currently used in Emacs, we'll be missing out on the
-following Alegreya ligatures:
-#+begin_center
-ff /ff/ ffi /ffi/ ffj /ffj/ ffl /ffl/
-fft /fft/ fi /fi/ fj /fj/ ft /ft/
-Th /Th/
-#+end_center
-
-Thankfully, it isn't too hard to add these to the ~composition-function-table~.
-#+begin_src emacs-lisp
-(set-char-table-range composition-function-table ?f '(["\\(?:ff?[fijlt]\\)" 0 font-shape-gstring]))
-(set-char-table-range composition-function-table ?T '(["\\(?:Th\\)" 0 font-shape-gstring]))
-#+end_src
-
 ** Projectile :projectile:
 Looking at documentation via =SPC h f= and =SPC h v= and looking at the source can
 add package src directories to projectile. This isn't desirable in my opinion.
 
 #+begin_src emacs-lisp
 (setq projectile-ignored-projects '("~/" "/tmp" "~/.emacs.d/.local/straight/repos/"))
+(setq projectile-project-search-path '("~/PhD/workspace" "~/PhD/workspace-no" "~/Projects/foss_projects"))
+
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
   (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
@@ -1263,8 +1273,7 @@ add package src directories to projectile. This isn't desirable in my opinion.
 
 ** COMMENT Smart Parentheses
 #+begin_src emacs-lisp
-(sp-local-pair
- '(org-mode)
+(sp-local-pair '(org-mode)
  "<<" ">>"
  :actions '(insert))
 #+end_src
@@ -1299,7 +1308,7 @@ we're at it.
         "q" #'spray-quit))
 #+end_src
 
-** Theme magic :theme:magic:terminal:
+** COMMENT Theme magic :theme:magic:terminal:
 Let's automatically update terminals on theme change (as long as ~pywal~ is available).
 
 Unfortunately, as the theme is set on startup this causes the hook to be run
@@ -1345,7 +1354,7 @@ That's no problem though, we just need to help TRAMP find them.
               "/run/current-system/profile/sbin")))
 #+end_src
 
-** Treemacs :tree:treemacs:
+** COMMENT Treemacs :tree:treemacs:
 Quite often there are superfluous files I'm not that interested in. There's no
 good reason for them to take up space. Let's add a mechanism to ignore them.
 
@@ -1402,74 +1411,14 @@ Now, we just identify the files in question.
         "*/_region_.log"
         "*/_region_.tex"))
 #+end_src
-** COMMENT Writeroom :zen:
-For starters, I think Doom is a bit over-zealous when zooming in
+
+** Magit Delta
 
 #+begin_src emacs-lisp
-(setq +zen-text-scale 0.8)
+(use-package! magit-delta
+  :hook (magit-mode . magit-delta-mode))
 #+end_src
 
-Then, when using Org it would be nice to make a number of other aesthetic
-tweaks. Namely:
-
-+ Use a serifed variable-pitch font
-+ Hiding headline leading stars
-+ Using fleurons as headline bullets
-+ Hiding line numbers
-+ Removing outline indentation
-+ Centring the text
-+ Turning on ~org-pretty-table-mode~
-
-#+begin_src emacs-lisp
-(defvar +zen-serif-p t
-  "Whether to use a serifed font with `mixed-pitch-mode'.")
-(after! writeroom-mode
-  (defvar-local +zen--original-org-indent-mode-p nil)
-  (defvar-local +zen--original-mixed-pitch-mode-p nil)
-  (defvar-local +zen--original-org-pretty-table-mode-p nil)
-  (defun +zen-enable-mixed-pitch-mode-h ()
-    "Enable `mixed-pitch-mode' when in `+zen-mixed-pitch-modes'."
-    (when (apply #'derived-mode-p +zen-mixed-pitch-modes)
-      (if writeroom-mode
-          (progn
-            (setq +zen--original-mixed-pitch-mode-p mixed-pitch-mode)
-            (funcall (if +zen-serif-p #'mixed-pitch-serif-mode #'mixed-pitch-mode) 1))
-        (funcall #'mixed-pitch-mode (if +zen--original-mixed-pitch-mode-p 1 -1)))))
-  (pushnew! writeroom--local-variables
-            'display-line-numbers
-            'visual-fill-column-width
-            'org-adapt-indentation
-            'org-superstar-headline-bullets-list
-            'org-superstar-remove-leading-stars)
-  (add-hook 'writeroom-mode-enable-hook
-            (defun +zen-prose-org-h ()
-              "Reformat the current Org buffer appearance for prose."
-              (when (eq major-mode 'org-mode)
-                (setq display-line-numbers nil
-                      visual-fill-column-width 60
-                      org-adapt-indentation nil)
-                (when (featurep 'org-superstar)
-                  (setq-local org-superstar-headline-bullets-list '("🙘" "🙙" "🙚" "🙛")
-                              ;; org-superstar-headline-bullets-list '("🙐" "🙑" "🙒" "🙓" "🙔" "🙕" "🙖" "🙗")
-                              org-superstar-remove-leading-stars t)
-                  (org-superstar-restart))
-                (setq
-                 +zen--original-org-indent-mode-p org-indent-mode
-                 +zen--original-org-pretty-table-mode-p (bound-and-true-p org-pretty-table-mode))
-                (org-indent-mode -1)
-                (org-pretty-table-mode 1))))
-  (add-hook 'writeroom-mode-disable-hook
-            (defun +zen-nonprose-org-h ()
-              "Reverse the effect of `+zen-prose-org'."
-              (when (eq major-mode 'org-mode)
-                (when (featurep 'org-superstar)
-                  (org-superstar-restart))
-                (when +zen--original-org-indent-mode-p (org-indent-mode 1))
-                ;; (unless +zen--original-org-pretty-table-mode-p (org-pretty-table-mode -1))
-                ))))
-#+end_src
-
-#+attr_html: :class invertible :alt Writeroom applied to an Org file
 ** YASnippet :snippet:
 Nested snippets are good, enable that.
 #+begin_src emacs-lisp
@@ -1883,7 +1832,7 @@ module. Let's just try to patch on the main things I like the look of.
       :nm "s" #'elfeed-show-new-live-search
       :nm "y" #'elfeed-show-yank)
 #+end_src
-*** Usability enhancements
+*** COMMENT Usability enhancements
 #+begin_src emacs-lisp
 (after! elfeed-search
   (set-evil-initial-state! 'elfeed-search-mode 'normal))
@@ -2057,7 +2006,7 @@ module. Let's just try to patch on the main things I like the look of.
 
   )
 #+end_src
-** COMMENT Mail :mail:
+** Mail :mail:
 [[xkcd:1467]]
 
 *** Fetching
@@ -2106,7 +2055,7 @@ Here's the general plan:
 
 Let's start off by handling the elisp side of things
 
-**** Rebuild mail index while using mu4e
+**** COMMENT Rebuild mail index while using mu4e
 #+begin_src emacs-lisp
 (after! mu4e
   (defvar mu4e-reindex-request-file "/tmp/mu_reindex_now"
@@ -2161,7 +2110,7 @@ Prevents a series of redisplays from being called (when set to an appropriate va
                        #'mu4e-reindex-maybe))))))
 #+end_src
 
-**** Config transcoding & service management
+**** COMMENT Config transcoding & service management
 As long as the =mbsyncrc= file exists, this is as easy as running
 #+begin_src shell :tangle (if (file-exists-p "~/.config/imapnotify") "no" "setup.sh")
 ~/.config/doom/misc/mbsync-imapnotify.py
@@ -2541,6 +2490,7 @@ if __name__ == "__main__":
 **** Systemd
 We then have a service file to run ~goimapnotify~ on all of these generated config files.
 We'll use a template service file so we can enable a unit per-account.
+
 #+begin_src systemd :tangle ~/.config/systemd/user/goimapnotify@.service
 [Unit]
 Description=IMAP notifier using IDLE, golang version.
@@ -2591,7 +2541,7 @@ Type=oneshot
 ExecStart=/usr/bin/mbsync -c %h/.mbsyncrc --all
 
 [Install]
-WantedBy=mail.target
+WantedBy=default.target
 #+end_src
 
 Enabling (and starting) this is as simple as
@@ -2631,10 +2581,7 @@ curl --silent "https://api.github.com/repos/djcb/mu/releases/latest" | grep '"ta
 mu --version | head -n 1 | sed 's/.* version //'
 #+end_src
 
-#+results:
-| 1.4.6 |
-| 1.4.6 |
-*** Sending
+*** COMMENT Sending
 [[https://www.nongnu.org/smtpmail/][SmtpMail]] seems to be the 'default' starting point, but that's not packaged for
 me. [[https://marlam.de/msmtp/][msmtp]] is however, so I'll give that a shot. Reading around a bit (googling
 "msmtp vs sendmail" for example) almost every comparison mentioned seems to
@@ -2696,7 +2643,7 @@ earlier on in my ~$PATH~.
 LD_LIBRARY_PATH=/usr/local/lib exec /usr/local/bin/msmtp "$@"
 #+end_src
 
-*** Mu4e
+*** COMMENT Mu4e
 Webmail clients are nice and all, but I still don't believe that SPAs in my
 browser can replaced desktop apps ... sorry Gmail. I'm also liking google less
 and less.
@@ -2833,7 +2780,7 @@ We can also use this a signature,
 #+begin_src emacs-lisp
 (setq message-signature mu4e-from-name)
 #+end_src
-*** Org Msg
+*** COMMENT Org Msg
 Doom does a fantastic stuff with the defaults with this, so we only make a few
 minor tweaks.
 #+begin_src emacs-lisp
@@ -2844,7 +2791,7 @@ minor tweaks.
       :after org-msg
       :n "G" #'org-msg-goto-body)
 #+end_src
-** mu4e :mail:mu4e:
+*** mu4e :mail:mu4e:
 Configuring =mu4e= email accounts, note that you need to have a proper
 =mbsyncrc= file in the right directory.
 
@@ -2884,6 +2831,7 @@ need to have a template assigned.
 #+end_src
 
 ** Franca IDL
+
 #+begin_src emacs-lisp
 (require 'franca-idl)
 (add-to-list 'auto-mode-alist '("\\.fidl$" . franca-idl-mode))
@@ -3262,7 +3210,7 @@ I think it makes sense to have list bullets change with depth
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
-***** Citation (=org-ref=)
+***** COMMENT Citation (=org-ref=)
 Occasionally I want to cite something, and =org-ref= is /the/ package for that.
 
 Unfortunately, it ignores the ~file = {...}~ =.bib= keys though. Let's fix that.
@@ -3798,7 +3746,8 @@ to initialise), let's not load roam.
 
 ***** Modeline file name
 All those numbers! It's messy. Let's adjust this in a similar way that I have in
-the [[*Window title][Window title]].
+the window title
+
 #+begin_src emacs-lisp
 (defadvice! doom-modeline--buffer-file-name-roam-aware-a (orig-fun)
   :around #'doom-modeline-buffer-file-name ; takes no args
@@ -3809,7 +3758,6 @@ the [[*Window title][Window title]].
        (subst-char-in-string ?_ ?  buffer-file-name))
     (funcall orig-fun)))
 #+end_src
-
 
 ***** Org Roam Capture template
 #+begin_src emacs-lisp
@@ -6716,551 +6664,10 @@ the language identifier, not =ess-jags=.
 ;  (setq deft-use-filename-as-title t)
 #+end_src
 
-** COMMENT LaTeX
-*** COMMENT To-be-implemented ideas
-- Paste image from clipboard
-  + Determine first folder in ~graphicspath~ if applicable
-  + Ask for file name
-  + Use ~xclip~ to save file to graphics folder, or current directory (whichever applies)
-  #+begin_src shell :eval no :tangle no
-command -v xclip >/dev/null 2>&1 || { echo >&1 "no xclip"; exit 1; }
-
-if
-    xclip -selection clipboard -target image/png -o >/dev/null 2>&1
-then
-    xclip -selection clipboard -target image/png -o >$1 2>/dev/null
-    echo $1
-else
-    echo "no image"
-fi
-  #+end_src
-  + Insert figure, with filled in details as a result (activate =yasnippet= with
-    filename as variable maybe?)
-
-*** Compilation
-#+begin_src emacs-lisp
-(setq TeX-save-query nil
-      TeX-show-compilation t
-      TeX-command-extra-options "-shell-escape")
-(after! latex
-  (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex%(mode)%' %t" TeX-run-TeX nil t)))
-#+end_src
-
-For viewing the PDF, I rather like the pdf-tools viewer. While auctex is trying
-to be nice in recognising that I have some PDF viewing apps installed, I'd
-rather not have it default to using them, so let's re-order the preferences.
-#+begin_src emacs-lisp
-(setq +latex-viewers '(pdf-tools evince zathura okular skim sumatrapdf))
-#+end_src
-
-*** Snippet helpers
-**** COMMENT Template
-For use in the new-file template, let's set out a nice preamble we may want to use.
-#+name: latex-nice-preamble
-#+begin_src latex :tangle no
-\\usepackage[pdfa,unicode=true,hidelinks]{hyperref}
-
-\\usepackage[dvipsnames,svgnames,table,hyperref]{xcolor}
-\\renewcommand{\\UrlFont}{\\ttfamily\\small}
-
-\\usepackage[a-2b]{pdfx} % why not be archival
-
-\\usepackage[T1]{fontenc}
-\\usepackage[osf]{newpxtext}  % Palatino
-\\usepackage{gillius}
-\\usepackage[scale=0.9]{sourcecodepro}
-
-\\usepackage[varbb]{newpxmath}
-\\usepackage{mathtools}
-\\usepackage{amssymb}
-
-\\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=2000]{microtype}
-% microtype makes text look nicer
-
-\\usepackage{graphicx} % include graphics
-
-\\usepackage{booktabs} % nice table rules
-#+end_src
-Then let's bind the content to a function, and define some nice helpers.
-#+begin_src emacs-lisp :noweb no-export
-(setq tec/yas-latex-template-preamble "
-<<latex-nice-preamble>>
-")
-
-(defun tec/yas-latex-get-class-choice ()
-  "Prompt user for LaTeX class choice"
-  (setq tec/yas-latex-class-choice (completing-read "Select document class: " '("article" "scrartcl" "bmc"))))
-
-(defun tec/yas-latex-preamble-if ()
-  "Based on class choice prompt for insertion of default preamble"
-  (if (equal tec/yas-latex-class-choice "bmc") 'nil
-    (eq (read-char-choice "Include default preamble? [Type y/n]" '(?y ?n)) ?y)))
-#+end_src
-**** Deliminators
-#+begin_src emacs-lisp
-(after! tex
-  (defvar tec/tex-last-delim-char nil
-    "Last open delim expanded in a tex document")
-  (defvar tec/tex-delim-dot-second t
-    "When the `tec/tex-last-delim-char' is . a second character (this) is prompted for")
-  (defun tec/get-open-delim-char ()
-    "Exclusivly read next char to tec/tex-last-delim-char"
-    (setq tec/tex-delim-dot-second nil)
-    (setq tec/tex-last-delim-char (read-char-exclusive "Opening deliminator, recognises: 9 ( [ { < | ."))
-    (when (eql ?. tec/tex-last-delim-char)
-      (setq tec/tex-delim-dot-second (read-char-exclusive "Other deliminator, recognises: 0 9 (  ) [ ] { } < > |"))))
-  (defun tec/tex-open-delim-from-char (&optional open-char)
-    "Find the associated opening delim as string"
-    (unless open-char (setq open-char (if (eql ?. tec/tex-last-delim-char)
-                                          tec/tex-delim-dot-second
-                                        tec/tex-last-delim-char)))
-    (pcase open-char
-      (?\( "(")
-      (?9  "(")
-      (?\[ "[")
-      (?\{ "\\{")
-      (?<  "<")
-      (?|  (if tec/tex-delim-dot-second "." "|"))
-      (_   ".")))
-  (defun tec/tex-close-delim-from-char (&optional open-char)
-    "Find the associated closing delim as string"
-    (if tec/tex-delim-dot-second
-        (pcase tec/tex-delim-dot-second
-          (?\) ")")
-          (?0  ")")
-          (?\] "]")
-          (?\} "\\}")
-          (?\> ">")
-          (?|  "|")
-          (_   "."))
-      (pcase (or open-char tec/tex-last-delim-char)
-        (?\( ")")
-        (?9  ")")
-        (?\[ "]")
-        (?\{ "\\}")
-        (?<  ">")
-        (?\) ")")
-        (?0  ")")
-        (?\] "]")
-        (?\} "\\}")
-        (?\> ">")
-        (?|  "|")
-        (_   "."))))
-  (defun tec/tex-next-char-smart-close-delim (&optional open-char)
-    (and (bound-and-true-p smartparens-mode)
-         (eql (char-after) (pcase (or open-char tec/tex-last-delim-char)
-                             (?\( ?\))
-                             (?\[ ?\])
-                             (?{ ?})
-                             (?< ?>)))))
-  (defun tec/tex-delim-yas-expand (&optional open-char)
-    (yas-expand-snippet (yas-lookup-snippet "_deliminators" 'latex-mode) (point) (+ (point) (if (tec/tex-next-char-smart-close-delim open-char) 2 1)))))
-#+end_src
-*** Editor visuals
-Let's enhance ~TeX-fold-math~ a bit
-#+begin_src emacs-lisp
-(after! latex
-  (setcar (assoc "⋆" LaTeX-fold-math-spec-list) "★")) ;; make \star bigger
-
-(setq TeX-fold-math-spec-list
-      `(;; missing/better symbols
-        ("≤" ("le"))
-        ("≥" ("ge"))
-        ("≠" ("ne"))
-        ;; convenience shorts -- these don't work nicely ATM
-        ;; ("‹" ("left"))
-        ;; ("›" ("right"))
-        ;; private macros
-        ("ℝ" ("RR"))
-        ("ℕ" ("NN"))
-        ("ℤ" ("ZZ"))
-        ("ℚ" ("QQ"))
-        ("ℂ" ("CC"))
-        ("ℙ" ("PP"))
-        ("ℍ" ("HH"))
-        ("𝔼" ("EE"))
-        ("𝑑" ("dd"))
-        ;; known commands
-        ("" ("phantom"))
-        (,(lambda (num den) (if (and (TeX-string-single-token-p num) (TeX-string-single-token-p den))
-                                (concat num "／" den)
-                              (concat "❪" num "／" den "❫"))) ("frac"))
-        (,(lambda (arg) (concat "√" (TeX-fold-parenthesize-as-necessary arg))) ("sqrt"))
-        (,(lambda (arg) (concat "⭡" (TeX-fold-parenthesize-as-necessary arg))) ("vec"))
-        ("‘{1}’" ("text"))
-        ;; private commands
-        ("|{1}|" ("abs"))
-        ("‖{1}‖" ("norm"))
-        ("⌊{1}⌋" ("floor"))
-        ("⌈{1}⌉" ("ceil"))
-        ("⌊{1}⌉" ("round"))
-        ("𝑑{1}/𝑑{2}" ("dv"))
-        ("∂{1}/∂{2}" ("pdv"))
-        ;; fancification
-        ("{1}" ("mathrm"))
-        (,(lambda (word) (string-offset-roman-chars 119743 word)) ("mathbf"))
-        (,(lambda (word) (string-offset-roman-chars 119951 word)) ("mathcal"))
-        (,(lambda (word) (string-offset-roman-chars 120003 word)) ("mathfrak"))
-        (,(lambda (word) (string-offset-roman-chars 120055 word)) ("mathbb"))
-        (,(lambda (word) (string-offset-roman-chars 120159 word)) ("mathsf"))
-        (,(lambda (word) (string-offset-roman-chars 120367 word)) ("mathtt"))
-        )
-      TeX-fold-macro-spec-list
-      '(
-        ;; as the defaults
-        ("[f]" ("footnote" "marginpar"))
-        ("[c]" ("cite"))
-        ("[l]" ("label"))
-        ("[r]" ("ref" "pageref" "eqref"))
-        ("[i]" ("index" "glossary"))
-        ("..." ("dots"))
-        ("{1}" ("emph" "textit" "textsl" "textmd" "textrm" "textsf" "texttt"
-                "textbf" "textsc" "textup"))
-        ;; tweaked defaults
-        ("©" ("copyright"))
-        ("®" ("textregistered"))
-        ("™"  ("texttrademark"))
-        ("[1]:||►" ("item"))
-        ("❡❡ {1}" ("part" "part*"))
-        ("❡ {1}" ("chapter" "chapter*"))
-        ("§ {1}" ("section" "section*"))
-        ("§§ {1}" ("subsection" "subsection*"))
-        ("§§§ {1}" ("subsubsection" "subsubsection*"))
-        ("¶ {1}" ("paragraph" "paragraph*"))
-        ("¶¶ {1}" ("subparagraph" "subparagraph*"))
-        ;; extra
-        ("⬖ {1}" ("begin"))
-        ("⬗ {1}" ("end"))
-        ))
-
-(defun string-offset-roman-chars (offset word)
-  "Shift the codepoint of each character in WORD by OFFSET with an extra -6 shift if the letter is lowercase"
-  (apply 'string
-         (mapcar (lambda (c)
-                   (string-offset-apply-roman-char-exceptions
-                    (+ (if (>= c 97) (- c 6) c) offset)))
-                 word)))
-
-(defvar string-offset-roman-char-exceptions
-  '(;; lowercase serif
-    (119892 .  8462) ; ℎ
-    ;; lowercase caligraphic
-    (119994 . 8495) ; ℯ
-    (119996 . 8458) ; ℊ
-    (120004 . 8500) ; ℴ
-    ;; caligraphic
-    (119965 . 8492) ; ℬ
-    (119968 . 8496) ; ℰ
-    (119969 . 8497) ; ℱ
-    (119971 . 8459) ; ℋ
-    (119972 . 8464) ; ℐ
-    (119975 . 8466) ; ℒ
-    (119976 . 8499) ; ℳ
-    (119981 . 8475) ; ℛ
-    ;; fraktur
-    (120070 . 8493) ; ℭ
-    (120075 . 8460) ; ℌ
-    (120076 . 8465) ; ℑ
-    (120085 . 8476) ; ℜ
-    (120092 . 8488) ; ℨ
-    ;; blackboard
-    (120122 . 8450) ; ℂ
-    (120127 . 8461) ; ℍ
-    (120133 . 8469) ; ℕ
-    (120135 . 8473) ; ℙ
-    (120136 . 8474) ; ℚ
-    (120137 . 8477) ; ℝ
-    (120145 . 8484) ; ℤ
-    )
-  "An alist of deceptive codepoints, and then where the glyph actually resides.")
-
-(defun string-offset-apply-roman-char-exceptions (char)
-  "Sometimes the codepoint doesn't contain the char you expect.
-Such special cases should be remapped to another value, as given in `string-offset-roman-char-exceptions'."
-  (if (assoc char string-offset-roman-char-exceptions)
-      (cdr (assoc char string-offset-roman-char-exceptions))
-    char))
-
-(defun TeX-fold-parenthesize-as-necessary (tokens &optional suppress-left suppress-right)
-  "Add ❪ ❫ parenthesis as if multiple LaTeX tokens appear to be present"
-  (if (TeX-string-single-token-p tokens) tokens
-    (concat (if suppress-left "" "❪")
-            tokens
-            (if suppress-right "" "❫"))))
-
-(defun TeX-string-single-token-p (teststring)
-  "Return t if TESTSTRING appears to be a single token, nil otherwise"
-  (if (string-match-p "^\\\\?\\w+$" teststring) t nil))
-#+end_src
-
-Some local keybindings to make life a bit easier
-#+begin_src emacs-lisp
-(after! tex
-  (map!
-   :map LaTeX-mode-map
-   :ei [C-return] #'LaTeX-insert-item)
-  (setq TeX-electric-math '("\\(" . "")))
-#+end_src
-
-Maths deliminators can be de-emphasised a bit
-#+begin_src emacs-lisp
-;; Making \( \) less visible
-(defface unimportant-latex-face
-  '((t :inherit font-lock-comment-face :weight extra-light))
-  "Face used to make \\(\\), \\[\\] less visible."
-  :group 'LaTeX-math)
-
-(font-lock-add-keywords
- 'latex-mode
- `((,(rx (and "\\" (any "()[]"))) 0 'unimportant-latex-face prepend))
- 'end)
-
-(font-lock-add-keywords
- 'latex-mode
- `((,"\\\\[[:word:]]+" 0 'font-lock-keyword-face prepend))
- 'end)
-#+end_src
-
-And enable shell escape for the preview
-#+begin_src emacs-lisp
-(setq preview-LaTeX-command '("%`%l \"\\nonstopmode\\nofiles\
-\\PassOptionsToPackage{" ("," . preview-required-option-list) "}{preview}\
-\\AtBeginDocument{\\ifx\\ifPreview\\undefined"
-preview-default-preamble "\\fi}\"%' \"\\detokenize{\" %t \"}\""))
-#+end_src
-*** CDLaTeX
-The symbols and modifies are very nice by default, but could do with a bit of
-fleshing out. Let's change the prefix to a key which is similarly rarely used,
-but more convenient, like =;=.
-#+begin_src emacs-lisp
-(after! cdlatex
-  (setq ;; cdlatex-math-symbol-prefix ?\; ;; doesn't work at the moment :(
-   cdlatex-math-symbol-alist
-   '( ;; adding missing functions to 3rd level symbols
-     (?_    ("\\downarrow"  ""           "\\inf"))
-     (?2    ("^2"           "\\sqrt{?}"     ""     ))
-     (?3    ("^3"           "\\sqrt[3]{?}"  ""     ))
-     (?^    ("\\uparrow"    ""           "\\sup"))
-     (?k    ("\\kappa"      ""           "\\ker"))
-     (?m    ("\\mu"         ""           "\\lim"))
-     (?c    (""             "\\circ"     "\\cos"))
-     (?d    ("\\delta"      "\\partial"  "\\dim"))
-     (?D    ("\\Delta"      "\\nabla"    "\\deg"))
-     ;; no idea why \Phi isnt on 'F' in first place, \phi is on 'f'.
-     (?F    ("\\Phi"))
-     ;; now just convenience
-     (?.    ("\\cdot" "\\dots"))
-     (?:    ("\\vdots" "\\ddots"))
-     (?*    ("\\times" "\\star" "\\ast")))
-   cdlatex-math-modify-alist
-   '( ;; my own stuff
-     (?B    "\\mathbb"        nil          t    nil  nil)
-     (?a    "\\abs"           nil          t    nil  nil))))
-#+end_src
-
-*** SyncTeX
-#+begin_src emacs-lisp
-(after! tex
-  (add-to-list 'TeX-view-program-list '("Evince" "evince %o"))
-  (add-to-list 'TeX-view-program-selection '(output-pdf "Evince")))
-#+end_src
-
-*** Fixes
-In case of Emacs28,
-#+begin_src emacs-lisp
-(when EMACS28+
-  (add-hook 'latex-mode-hook #'TeX-latex-mode))
-#+end_src
-
-** Python
-Since I'm using =mypyls=, as suggested in [[file:~/.emacs.d/modules/lang/python/README.org::*Language Server Protocol Support][:lang python LSP support]] I'll tweak the
-priority of =mypyls=
-#+begin_src emacs-lisp
-(after! lsp-python-ms
-  (set-lsp-priority! 'mspyls 1))
-#+end_src
-
-** COMMENT PDF
-=pdf-tools= is quite nice (though =paper= is looking quite promising), however
-sometimes I'm in a terminal and I still want to see the content. Additionally,
-sometimes I'd like to act on the content and so would like a plaintext version.
-
-#+begin_info
-This is a candidate for a dedicated package.
-Let me know if you'd like to see this.
-#+end_info
-
-Thanks to src_shell{pdftotext} we have a convenient way of performing this
-conversion.
-
-#+begin_src emacs-lisp
-(defun pdf-text--update (&optional _window)
-  (when (eq major-mode 'pdf-text-mode)
-    (let* ((converted-file (expand-file-name (concat
-                                              (file-name-base buffer-file-name)
-                                              "-"
-                                              (substring (secure-hash 'sha1 (expand-file-name buffer-file-name)) 0 6)
-                                              ".txt")
-                                             temporary-file-directory))
-           (width (number-to-string (- (min (window-width) fill-column)
-                                       (if display-line-numbers display-line-numbers-width 0))))
-           (width-adjusted-file (concat (file-name-sans-extension converted-file) "-w" width ".txt")))
-      (unless (and (file-exists-p converted-file)
-                   (> (time-convert (file-attribute-modification-time (file-attributes converted-file)) 'integer)
-                      (time-convert (file-attribute-modification-time (file-attributes buffer-file-name)) 'integer)))
-        (call-process "pdftotext" nil nil nil "-layout" "-eol" "unix" buffer-file-name converted-file))
-      (unless (and (file-exists-p width-adjusted-file)
-                   (>= (time-convert (file-attribute-modification-time (file-attributes width-adjusted-file)) 'integer)
-                       (time-convert (file-attribute-modification-time (file-attributes converted-file)) 'integer)))
-        (call-process "fmt" nil (list :file width-adjusted-file) nil "-w" width converted-file))
-      (unless (and (boundp 'pdf-text--file)
-                   (string= pdf-text--file width-adjusted-file))
-        (let ((pos (when (boundp 'pdf-text--file) (pdf-text--position-info))))
-          (with-silent-modifications
-            (let ((inhibit-read-only t)
-                  (coding-system-for-read 'utf-8))
-              (erase-buffer)
-              (insert-file-contents width-adjusted-file)
-              (while (re-search-forward "\n?\f\n?" nil t)
-                (replace-match "\n\f\n"))
-              (goto-char (point-min)))
-            (setq-local pdf-text--file width-adjusted-file))
-          (setq-default saved-pos pos)
-          (when pos (ignore-errors (pdf-text--goto-pos pos))))))))
-#+end_src
-
-Now we just need to make a mode to use this.
-#+begin_src emacs-lisp
-(define-derived-mode pdf-text-mode so-long-mode "PDF Text" ; so-long for the initial buffer load time
-  "Major mode for viewing the plaintext version of a PDF."
-  (set-buffer-multibyte t)
-  (read-only-mode t)
-  (add-hook 'before-save-hook (lambda () (user-error "Will not overwrite PDF with plaintext version")))
-  (dolist (hook '(window-configuration-change-hook
-                  window-size-change-functions
-                  display-line-numbers-mode-hook))
-    (add-hook hook 'pdf-text--update))
-  (pdf-text--update)
-  (text-mode)
-  (setq mode-name "PDF Text"))
-#+end_src
-
-In src_elisp{(pdf-text--update)} there's mention of position saving and
-restoring. This needs to be implemented, and it's a bit difficult since the line
-numbers and buffer positions are liable to change. So, instead we can try to
-take note of some markers (such as the line breaks) and try to make our way to
-them.
-
-#+begin_src emacs-lisp
-(defun pdf-text--position-info ()
-  (list :page-no (let ((current-point (point))
-                       (page-no 0))
-                   (save-excursion
-                     (while (search-forward "\f" current-point t)
-                       (setq page-no (1+ page-no))))
-                   page-no)
-        :par-start (save-excursion
-                     (forward-paragraph -1)
-                     (forward-line 1)
-                     (thing-at-point 'line t))
-        :previous-line-content (save-excursion
-                                 (forward-line -1)
-                                 (thing-at-point 'line t))))
-
-(defun pdf-text--goto-pos (pos)
-  (goto-char (point-min))
-  (search-forward "\f" nil nil (plist-get pos :page-no))
-  (re-search-forward (replace-regexp-in-string " +" "[ \n]+" (regexp-quote (plist-get pos :par-start))))
-  (unless (string= (plist-get pos :par-start)
-                   (plist-get pos :previous-line-content))
-    (re-search-forward (replace-regexp-in-string " +" "[ \n]+" (regexp-quote (plist-get pos :previous-line-content)))
-                       (save-excursion (forward-paragraph 1) (point)))))
-#+end_src
-
-Unfortunately while in isolated testing this position restoring works well, for
-some reason as it's currently used it doesn't seem to work at all.
-
-The output can be slightly nicer without spelling errors, and with prettier page
-feeds (=^L= by default).
-
-#+begin_src emacs-lisp
-(add-hook 'pdf-text-mode-hook #'spell-fu-mode-disable)
-(add-hook 'pdf-text-mode-hook (lambda () (page-break-lines-mode 1)))
-#+end_src
-
-This is very nice, now we just need to associate it with =.pdf= files, and make
-sure =pdf-tools= doesn't take priority.
-
-#+begin_src emacs-lisp
-(defconst pdf-text-auto-mode-alist-entry
-  '("\\.[pP][dD][fF]\\'" . pdf-text-mode)
-  "The entry to use for `auto-mode-alist'.")
-
-(defun pdf-text-install ()
-  "Add a \".pdf\" associaton for all future buffers."
-  (interactive)
-  (add-to-list 'auto-mode-alist pdf-text-auto-mode-alist-entry)
-  (when (featurep 'pdf-tools)
-    (setq-default auto-mode-alist
-                  (remove pdf-tools-auto-mode-alist-entry auto-mode-alist))
-    (setq-default magic-mode-alist
-                  (remove pdf-tools-magic-mode-alist-entry magic-mode-alist))))
-
-(defun pdf-tools-uninstall ()
-  "Remove the \".pdf\" associaton for all future buffers."
-  (interactive)
-  (setq-default auto-mode-alist
-                (remove pdf-text-auto-mode-alist-entry auto-mode-alist)))
-#+end_src
-
-Lastly, whenever Emacs is non-graphical (i.e. a TUI), we want to use this by default.
-
-#+begin_src emacs-lisp :tangle (if (executable-find "pdftotext") "yes" "no")
-(unless (display-graphic-p)
-  (pdf-text-install)
-  ;; From Doom's :tools pdf (use-package! pdf-tools)
-  (setq-default auto-mode-alist
-                (remove '("\\.pdf\\'" . pdf-view-mode) auto-mode-alist))
-  (setq-default magic-mode-alist
-                (remove '("%PDF" . pdf-view-mode) magic-mode-alist))
-  ;; I have no idea why this is needed
-  (map! :map pdf-text-mode-map
-        "<mouse-4>" (cmd! (scroll-down mouse-wheel-scroll-amount-horizontal))
-        "<mouse-5>" (cmd! (scroll-up mouse-wheel-scroll-amount-horizontal))))
-#+end_src
-
-** COMMENT R
-*** Editor Visuals
-#+begin_src emacs-lisp
-(after! ess-r-mode
-  (appendq! +ligatures-extra-symbols
-            '(:assign "⟵"
-              :multiply "×"))
-  (set-ligatures! 'ess-r-mode
-    ;; Functional
-    :def "function"
-    ;; Types
-    :null "NULL"
-    :true "TRUE"
-    :false "FALSE"
-    :int "int"
-    :floar "float"
-    :bool "bool"
-    ;; Flow
-    :not "!"
-    :and "&&"
-    :or "||"
-    :for "for"
-    :in "%in%"
-    :return "return"
-    ;; Other
-    :assign "<-"
-    :multiply "%*%"))
-#+end_src
-
 ** Julia
 As mentioned in [[https://github.com/non-Jedi/lsp-julia/issues/35][lsp-julia#35]], =lsp-mode= seems to serve an invalid response to the
 Julia server. The pseudo-fix is rather simple at least
+
 #+begin_src emacs-lisp
 (after! julia-mode
   (add-hook! 'julia-mode-hook
@@ -7269,6 +6676,7 @@ Julia server. The pseudo-fix is rather simple at least
 #+end_src
 
 ** Graphviz
+
 #+begin_src emacs-lisp
 (use-package! graphviz-dot-mode
   :commands graphviz-dot-mode

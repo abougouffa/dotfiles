@@ -29,7 +29,8 @@
   :group 'wttrn
   :type '(choice (const 1) (const 2)))
 
-(defcustom wttrin-default-cities '("Baghdad"
+(defcustom wttrin-default-cities '("Algiers"
+                                   "Baghdad"
                                    "Beijing"
                                    "Brussels"
                                    "Buenos Aires"
@@ -68,8 +69,8 @@
 (defcustom wttrin-default-accept-language '("Accept-Language" . "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4")
   "Specify default HTTP request Header for Accept-Language."
   :group 'wttrin
-  :type '(list)
-  )
+  :type '(list))
+  
 
 (defun wttrin-fetch-raw-string (query &optional api-version)
   "Get the weather information based on your QUERY."
