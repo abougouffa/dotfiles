@@ -8,10 +8,13 @@
 #+startup: fold
 
 * Intro :intro:
-I started using *Emacs* about a year ago, in the beginning, I started my Vanilla
-Emacs configuration which becomes very incontinent for a new Emacs user. I
-discovered then Spacemacs, which made things much easier, and just after, I
-found Doom Emacs, and since, I didn't quit my Emacs screen!
+I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
+my machine but I didn't discover the *real* Emacs until 2020, in the beginning, I
+started my Vanilla Emacs configuration from scratch, but after a while, it
+become a mess. As a new Emacs user, I didn't understand the in the beginning how
+to optimize my configuration and how to do things correctly. I discovered then
+[[github:syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and just
+after, I found the awesome [[https://github.com/hlissner/doom-emacs][Doom Emacs]], and since, I didn't quit my Emacs screen!
 
 In the beginning, I was basically copying chunks of configs from the internet,
 which quickly becomes a mess, specially because I was using a mixture of vanilla
@@ -81,15 +84,22 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 (global-subword-mode 1)            ; Iterate through CamelCase words
 #+end_src
 
-*** COMMENT Frame :frame:
-**** Maximizing
+*** Frame :frame:
+**** Maximizing :maximize:
 
 #+begin_src emacs-lisp
 ;; start the initial frame maximized
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+;; (add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 ;; start every frame maximized
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+#+end_src
+
+To avoid conflict when launching Emacs in =emacs-everywhere= mode. I'm using it in
+command line when calling =emacsclient=, by adding this to the launcher:
+
+#+begin_src shell :tangle no
+emacsclient --create-frame --frame-parameters="'(fullscreen . maximized)" ...
 #+end_src
 
 **** COMMENT Focus
@@ -99,7 +109,7 @@ Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working 
 (add-hook 'server-switch-hook #'raise-frame)
 #+end_src
 
-* Doom Configuration :doom:config:
+* Doom Configuration :config:doom:
 ** Modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
@@ -501,7 +511,8 @@ Show battery level unless battery is not present or battery information is unkno
 #+end_src
 
 *** Splash Screen :splash:
-**** Fancy Splash
+**** COMMENT Fancy Splash
+Works fine, but not centered correctly
 
 #+begin_src emacs-lisp :tangle yes
 (defvar fancy-splash-image-template
@@ -597,11 +608,13 @@ Show battery level unless battery is not present or battery information is unkno
 (add-hook 'doom-load-theme-hook #'set-appropriate-splash)
 #+end_src
 
-**** COMMENT Custom Splash Image :image:banner:
+**** Custom Splash Image :image:banner:
 Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/blackhole-lines-small.svg" doom-private-dir))
+;; (setq fancy-splash-image (expand-file-name "assets/blackhole-lines-small.svg" doom-private-dir))
+;; (setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
 #+end_src
 
 **** Clean Screen :clean:
@@ -771,7 +784,7 @@ Name=Emacs client
 GenericName=Text Editor
 Comment=A flexible platform for end-user applications
 MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
-Exec=emacsclient -create-frame --alternate-editor="" --no-wait %F
+Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
 Icon=emacs
 Type=Application
 Terminal=false
@@ -884,12 +897,12 @@ alias et="e -t"
 When editing files with Emacs client, the files does not get stored by =recentf=,
 making Emacs forgets about recently opened files. A quick fix is to hook the
 #src_elisp{recentf-save-list} command to the
-#src_elisp{delete-terminal-functions} which gets executed each time a terminal
-is closed.
+#src_elisp{delete-frame-functions} and #src_elisp{delete-terminal-functions}
+which gets executed each time a frame/terminal is deleted.
 
 #+begin_src emacs-lisp
 (when (daemonp)
-  (add-hook 'delete-terminal-functions (lambda (terminal) (recentf-save-list))))
+  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
 #+end_src
 
 * Packages (=packages.el=) :package:
@@ -924,7 +937,19 @@ This file shouldn't be byte compiled.
 #+end_src
 
 ** Themes and UI
-*** COMMENT N Λ N O Packages
+*** SVG Tag Mode
+
+#+begin_src emacs-lisp
+(package! svg-tag-mode
+  :recipe (:host github
+           :repo "rougier/svg-tag-mode"))
+
+(package! svg-lib
+  :recipe (:host github
+           :repo "rougier/svg-lib"))
+#+end_src
+
+*** N Λ N O Packages
 
 #+begin_src emacs-lisp
 (package! nano-theme
@@ -942,6 +967,10 @@ This file shouldn't be byte compiled.
 (package! nano-bell
   :recipe (:host github
            :repo "rougier/nano-bell"))
+
+(package! nano-sidebar
+  :recipe (:host github
+           :repo "rougier/nano-sidebar"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -949,6 +978,17 @@ This file shouldn't be byte compiled.
 ;;   :ensure nil
 ;;   :defer t)
 ;;   :config (nano-setup))
+#+end_src
+*** Bespoke themes
+
+#+begin_src emacs-lisp
+(package! bespoke-themes
+  :recipe (:host github
+           :repo "mclear-tools/bespoke-themes"))
+
+(package! bespoke-modeline
+  :recipe (:host github
+           :repo "mclear-tools/bespoke-modeline"))
 #+end_src
 
 *** Focus
