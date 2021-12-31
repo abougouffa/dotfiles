@@ -11,8 +11,6 @@ export ZSH="$HOME/.oh-my-zsh"
 
 # Typewritten customizations
 TYPEWRITTEN_RELATIVE_PATH="adaptive"
-TYPEWRITTEN_PROMPT_LAYOUT="singleline_verbose"
-TYPEWRITTEN_SYMBOL="->"
 TYPEWRITTEN_CURSOR="underscore"
 
 ZSH_THEME="typewritten/typewritten" #"robbyrussell"
