@@ -8,8 +8,15 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="typewritten/typewritten" #"robbyrussell"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Typewritten customizations
+TYPEWRITTEN_RELATIVE_PATH="adaptive"
+TYPEWRITTEN_PROMPT_LAYOUT="singleline_verbose"
+TYPEWRITTEN_SYMBOL="->"
+TYPEWRITTEN_CURSOR="underscore"
+
+ZSH_THEME="typewritten/typewritten" #"robbyrussell"
+# ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -71,7 +78,6 @@ ZSH_CUSTOM=$HOME/.my_ohmyzsh_customizations
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
     archlinux
-    rustup
     rust
     zsh-autosuggestions
     git

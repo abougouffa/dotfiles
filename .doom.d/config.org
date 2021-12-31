@@ -109,6 +109,17 @@ Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working 
 (add-hook 'server-switch-hook #'raise-frame)
 #+end_src
 
+**** COMMENT Margins
+
+#+begin_src emacs-lisp
+(set-frame-parameter nil 'internal-border-width 15)
+#+end_src
+** Debug
+
+#+begin_src emacs-lisp
+(setq use-package-verbose t)
+#+end_src
+
 * Doom Configuration :config:doom:
 ** Modules (=init.el=) :module:
 :PROPERTIES:
@@ -655,13 +666,39 @@ something simple.
   (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
 
-** Editor Interaction :edit:
+** Editor :edit:
 *** Mouse Buttons :mouse:
 Map extra mouse buttons to jump between buffers
 
 #+begin_src emacs-lisp
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
+#+end_src
+
+*** Binary files :binary:hexl:
+Taken from [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this answer]].
+
+#+begin_src emacs-lisp
+(defun buffer-binary-p (&optional buffer)
+  "Return whether BUFFER or the current buffer is binary.
+
+A binary buffer is defined as containing at least one null byte.
+
+Returns either nil, or the position of the first null byte."
+  (with-current-buffer (or buffer (current-buffer))
+    (save-excursion
+      (goto-char (point-min))
+      (search-forward (string ?\x00) nil t 1))))
+
+(defun hexl-if-binary ()
+  "If `hexl-mode' is not already active, and the current buffer
+is binary, activate `hexl-mode'."
+  (interactive)
+  (unless (eq major-mode 'hexl-mode)
+    (when (buffer-binary-p)
+      (hexl-mode))))
+
+(add-to-list 'magic-fallback-mode-alist '(buffer-binary-p . hexl-mode) t)
 #+end_src
 
 ** Allow babel execution in =doom= CLI actions :babel:cli:
@@ -949,7 +986,7 @@ This file shouldn't be byte compiled.
            :repo "rougier/svg-lib"))
 #+end_src
 
-*** N Λ N O Packages
+*** COMMENT N Λ N O Packages
 
 #+begin_src emacs-lisp
 (package! nano-theme
@@ -971,6 +1008,14 @@ This file shouldn't be byte compiled.
 (package! nano-sidebar
   :recipe (:host github
            :repo "rougier/nano-sidebar"))
+
+(package! mu4e-dashboard
+  :recipe (:host github
+           :repo "rougier/mu4e-dashboard"))
+
+(package! mu4e-thread-folding
+  :recipe (:host github
+           :repo "rougier/mu4e-thread-folding"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -979,6 +1024,7 @@ This file shouldn't be byte compiled.
 ;;   :defer t)
 ;;   :config (nano-setup))
 #+end_src
+
 *** Bespoke themes
 
 #+begin_src emacs-lisp
@@ -1104,7 +1150,7 @@ these as horizontal rules.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! magit-delta
-  :defer t
+  :commands magit-status
   :hook (magit-mode . magit-delta-mode))
 #+end_src
 
@@ -1119,7 +1165,13 @@ For editing systemd unit files
 *** Bitbake (Yocto) :bitbake:yocto:
 
 #+begin_src emacs-lisp
+;; See https://bitbucket.org/olanilsson/bitbake-modes also
 (package! bitbake)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package bitbake
+  :commands (bitbake-mode bitbake-clean bitbake-fetch))
 #+end_src
 
 *** Org Roam :roam:
@@ -1163,13 +1215,6 @@ And some basic config
   :commands aas-mode)
 #+end_src
 
-I think the latest AucTeX may be a bit dodgy, so
-
-#+begin_src emacs-lisp
-(package! auctex)
-;;  :pin "6440ec5964dcbe58155e28f00f84ec0118d8fb7b")
-#+end_src
-
 *** Franca IDL
 
 #+begin_src emacs-lisp
@@ -1178,13 +1223,22 @@ I think the latest AucTeX may be a bit dodgy, so
            :repo "zeph1e/franca-idl.el"))
 #+end_src
 
+#+begin_src emacs-lisp :tangle yes
+(use-package franca-idl
+  :commands franca-idl-mode)
+#+end_src
+
 *** Graphviz :graphviz:
 Graphviz is a nice method of visualizing simple graphs, based on plaintext
 =.dot= / =.gv= files.
 
 #+begin_src emacs-lisp
 (package! graphviz-dot-mode)
-;;  :pin "3642a0a5f41a80c8ecef7c6143d514200b80e194")
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! graphviz-dot-mode
+  :commands (graphviz-dot-mode graphviz-dot-preview))
 #+end_src
 
 *** TODO ROS :graphviz:
@@ -1390,7 +1444,6 @@ Then configure dictionaries:
 #+begin_src emacs-lisp
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
-  (interactive)
   (cond ((eq lang 1)
          (setq flyspell-default-dictionary "american")
          (setq ispell-dictionary "english")
@@ -1466,14 +1519,6 @@ add package src directories to projectile. This isn't desirable in my opinion.
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
   (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
-#+end_src
-
-** Smart Parentheses
-
-#+begin_src emacs-lisp
-(sp-local-pair '(org-mode)
- "<<" ">>"
- :actions '(insert))
 #+end_src
 
 ** Tramp :tramp:
@@ -1824,76 +1869,203 @@ xdg-mime default emacs.desktop text/org
 #+end_src
 
 **** Git diffs :git:
-Based on this [[https://gist.github.com/ruediger/5647207][gist]].
-
-Protesilaos wrote a [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][very helpful article]] in which he explains how to change the
-git diff chunk heading to something more useful than just the immediate line
-above the hunk --- like the parent heading.
-
-This can be achieved by first adding a new diff mode to git in =~/.config/git/attributes=
+Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
 
 #+begin_src fundamental :tangle ~/.config/git/attributes :mkdirp yes
-,*.tex   diff=tex
-,*.bib   diff=bibtex
-,*.c     diff=cpp
-,*.h     diff=cpp
-,*.c++   diff=cpp
-,*.h++   diff=cpp
-,*.cpp   diff=cpp
-,*.hpp   diff=cpp
-,*.cc    diff=cpp
-,*.hh    diff=cpp
-,*.m     diff=matlab
-,*.py    diff=python
-,*.rb    diff=ruby
-,*.php   diff=php
-,*.pl    diff=perl
-,*.html  diff=html
-,*.xhtml diff=html
-,*.f     diff=fortran
-,*.lisp  diff=lisp
-,*.el    diff=lisp
-,*.r     diff=rstats
-,*.texi* diff=texinfo
-,*.org   diff=org
-,*.rs    diff=rust
+,*.tex          diff=tex
+,*.bib          diff=bibtex
+,*.c            diff=cpp
+,*.h            diff=cpp
+,*.c++          diff=cpp
+,*.h++          diff=cpp
+,*.cpp          diff=cpp
+,*.hpp          diff=cpp
+,*.cc           diff=cpp
+,*.hh           diff=cpp
+,*.m            diff=matlab
+,*.py           diff=python
+,*.rb           diff=ruby
+,*.php          diff=php
+,*.pl           diff=perl
+,*.html         diff=html
+,*.xhtml        diff=html
+,*.f            diff=fortran
+,*.lisp         diff=lisp
+,*.el           diff=lisp
+,*.r            diff=rstats
+,*.texi*        diff=texinfo
+,*.org          diff=org
+,*.rs           diff=rust
 
-,*.pdf   diff=pdf
-,*.png   diff=exif
-,*.jpg   diff=exif
-,*.jpeg  diff=exif
-,*.gif   diff=exif
+,*.pdf          diff=pdf
+,*.djvu         diff=djvu
+
+,*.odt          diff=odt
+,*.odp          diff=libreoffice
+,*.ods          diff=libreoffice
+
+,*.doc          diff=doc
+,*.xls          diff=xls
+,*.ppt          diff=ppt
+
+,*.docx         diff=docx
+,*.xlsx         diff=xlsx
+,*.pptx         diff=pptx
+
+,*.rtf          diff=rtf
+
+,*.png          diff=exif
+,*.jpg          diff=exif
+,*.jpeg         diff=exif
+,*.gif          diff=exif
+
+,*.epub         diff=pandoc
+,*.chm          diff=tika
+,*.mhtml?       diff=tika
+
+,*.{class,jar}  diff=tika
+,*.{rar,7z,zip} diff=tika
 #+end_src
 
 Then adding a regex for it to =~/.config/git/config=
+
 #+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
+# ===== TEXT FORMATS =====
 [diff "org"]
   xfuncname = "^(\\*+ +.*)$"
+
 [diff "lisp"]
   xfuncname = "^(\\(.*)$"
-#      xfuncname = "^(\\((cl-)?def(un|macro|method).*)$"
+
 [diff "rstats"]
   xfuncname = "^([a-zA-z.]+ <- function.*)$"
+
 [diff "texinfo"]
 # from http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
   xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
+
 [diff "orgmode"]
   xfuncname = "^(\\*+.*)$"
-[diff "rust"] # Thanks to csabahenk
+
+[diff "rust"]
   xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
+
+# ===== BINARY FORMATS =====
+[diff "pdf"]
+  binary = true
+# textconv = pdfinfo
+# textconv = sh -c 'pdftotext "$@" -' # sudo apt install pdftotext
+  textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
+  cachetextconv = true
+
+[diff "djvu"]
+  binary = true
+# textconv = pdfinfo
+  textconv = djvutxt # yay -S djvulibre
+  cachetextconv = true
+
+[diff "odt"]
+  textconv = odt2txt
+  # textconv = pandoc --standalone --from=odt --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "doc"]
+# textconv = wvText
+  textconv = catdoc # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "xls"]
+# textconv = in2csv
+# textconv = xlscat -a UTF-8
+# textconv = soffice --headless --convert-to csv
+  textconv = xls2csv # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "ppt"]
+  textconv = catppt # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "docx"]
+  textconv = pandoc --standalone --from=docx --to=plain
+# textconv = sh -c 'docx2txt.pl "$0" -'
+  binary = true
+  cachetextconv = true
+
+[diff "xlsx"]
+  textconv = xlsx2csv # pip install xlsx2csv
+# textconv = in2csv
+# textconv = soffice --headless --convert-to csv
+  binary = true
+  cachetextconv = true
+
+[diff "pptx"]
+  textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
+  binary = true
+  cachetextconv = true
+
+[diff "rtf"]
+  textconv = unrtf --text # yay -S unrtf
+  binary = true
+  cachetextconv = true
+
+[diff "epub"]
+  textconv = pandoc --standalone --from=epub --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "tika"]
+  textconv = "tika --text"
+  binary = true
+  cachetextconv = true
+
+[diff "libreoffice"]
+  textconv = "soffice --cat"
+  binary = true
+  cachetextconv = true
+
 [diff "exif"]
   binary = true
-# sudo apt-get install perl-image-exiftool
-  textconv = exiftool
-[diff "pdf"]
-  textconv = pdftotext-stdout
-# sudo apt-get install pdftotext
+  textconv = exiftool # sudo apt install perl-image-exiftool
 #+end_src
 
-Add a custom script to output =pdftotext='s output to stdout:
-#+begin_src shell :tangle ~/.local/bin/pdftotext-stdout :mkdirp yes :tangle-mode (identity #o755)
-#!/bin/bash
-pdftotext "$@" -
+Add a custom script to for =tika=:
+
+#+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
+#!/bin/sh
+APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
+
+if [ -f ${APACHE_TIKA_JAR} ]; then
+  exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
+else
+  echo "JAR file not found at ${APACHE_TIKA_JAR}"
+fi
+#+end_src
+
+#+begin_src shell :tangle "setup.sh"
+TIKA_JAR_PATH=$HOME/.local/share/tika
+TIKA_VERSION=2.2.1
+TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
+TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
+
+if [ ! -d ${TIKA_JAR_PATH} ]; then
+  mkdir -p ${TIKA_JAR_PATH}
+fi
+
+if [ ! -f ${TIKA_JAR} ]; then
+  curl -o ${TIKA_JAR} https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar
+fi
+
+# Check the existance of the symbolic link
+if [ -L ${TIKA_JAR_LINK} ]; then
+  unlink ${TIKA_JAR_LINK}
+fi
+
+# Create a symbolic link to the installed version
+ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
 #+end_src
 
 *** Behavior :behavior:
@@ -1904,8 +2076,8 @@ pdftotext "$@" -
       org-use-property-inheritance t              ; it's convenient to have properties inherited
       org-log-done 'time                          ; having the time a item is done sounds convenient
       org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
-      ;org-export-in-background t                  ; run export processes in external emacs process
-      ;org-export-async-debug t
+;;    org-export-in-background t                  ; run export processes in external emacs process
+;;    org-export-async-debug t
       org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
       org-export-with-sub-superscripts '{})       ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
 #+end_src
