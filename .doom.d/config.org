@@ -114,10 +114,12 @@ Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working 
 #+begin_src emacs-lisp
 (set-frame-parameter nil 'internal-border-width 15)
 #+end_src
+
 ** Debug
 
 #+begin_src emacs-lisp
-(setq use-package-verbose t)
+;; The `use-package-verbose' takes the value of `doom-debug-p'.
+(setq doom-debug-p t)
 #+end_src
 
 * Doom Configuration :config:doom:
@@ -2084,6 +2086,8 @@ else
 fi
 #+end_src
 
+Add =tika='s installation instructions to the =setup.sh= file.
+
 #+begin_src shell :tangle "setup.sh"
 TIKA_JAR_PATH=$HOME/.local/share/tika
 TIKA_VERSION=2.2.1
@@ -2157,15 +2161,15 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
       :n "g <right>" #'org-down-element)
 #+end_src
 
-**** Extra functionality
-***** List bullet sequence
+**** Extra functionality :extra:
+***** List bullet sequence :bullet:
 I think it makes sense to have list bullets change with depth
 
 #+begin_src emacs-lisp
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
-***** Citation (=org-ref=)
+***** Citation (=org-ref=) :ref:
 Occasionally I want to cite something, and =org-ref= is /the/ package for that.
 
 Unfortunately, it ignores the ~file = {...}~ =.bib= keys though. Let's fix that.
@@ -2203,7 +2207,7 @@ a good idea in my case at least.
           (org-ref-open-bibtex-pdf))))))
 #+end_src
 
-***** Spellcheck
+***** Spellcheck :spell:
 I turn off spell checking by default to make Org files open quickly.
 
 #+begin_src emacs-lisp
@@ -2212,7 +2216,7 @@ I turn off spell checking by default to make Org files open quickly.
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
 
-***** COMMENT LSP support in ~src~ blocks
+***** COMMENT LSP support in ~src~ blocks :lsp:
 Now, by default, LSPs don't really function at all in ~src~ blocks.
 
 #+begin_src emacs-lisp
@@ -2246,7 +2250,7 @@ Now, by default, LSPs don't really function at all in ~src~ blocks.
   (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 
-***** COMMENT View exported file
+***** COMMENT View exported file :export:
 ='localeader v= has no pre-existing binding, so I may as well use it with the same
 functionality as in LaTeX. Let's try viewing possible output files with this.
 
@@ -2280,7 +2284,7 @@ functionality as in LaTeX. Let's try viewing possible output files with this.
   "File formats that should be opened externally.")
 #+end_src
 
-**** TODOs
+**** TODOs :todo:
 
 #+begin_src emacs-lisp
 (setq org-todo-keywords
@@ -2311,10 +2315,8 @@ Configure =org-super-agenda=
 
 #+begin_src emacs-lisp
 (use-package! org-super-agenda
-  :commands (org-super-agenda-mode))
-
-(after! org-agenda
-  (org-super-agenda-mode))
+  :after org-agenda
+  :config (org-super-agenda-mode))
 
 (setq org-agenda-skip-scheduled-if-done t
       org-agenda-skip-deadline-if-done t
@@ -2371,7 +2373,7 @@ Configure =org-super-agenda=
                            :tag "Read"
                            :order 30)
                           (:name "Waiting"
-                           :todo "WAITING"
+                           :todo "WAIT"
                            :order 20)
                           (:name "University"
                            :tag "Univ"
@@ -2379,7 +2381,7 @@ Configure =org-super-agenda=
                           (:name "Trivial"
                            :priority<= "E"
                            :tag ("Trivial" "Unimportant")
-                           :todo ("SOMEDAY" )
+                           :todo ("SOMEDAY")
                            :order 90)
                           (:discard (:tag ("Chore" "Routine" "Daily")))))))))))
 #+end_src
@@ -2390,7 +2392,7 @@ Configure =org-super-agenda=
 (load! "lisp/private/+org-gcal.el")
 #+end_src
 
-**** Capture
+**** Capture :capture:
 Set capture files
 
 #+begin_src emacs-lisp
@@ -2568,6 +2570,7 @@ Let's setup some org-capture templates, and make them visually nice to access.
 #+end_src
 
 It would also be nice to improve how the capture dialogue looks
+
 #+name: prettify-capture
 #+begin_src emacs-lisp :tangle no
 (defun org-capture-select-template-prettier (&optional keys)
@@ -2693,7 +2696,7 @@ no modeline.
         (org-capture)))
 #+end_src
 
-**** Roam
+**** Roam :roam:
 ***** Basic settings
 
 #+begin_src emacs-lisp :noweb-ref none :tangle yes
@@ -2711,7 +2714,7 @@ to initialize), let's not load roam.
 (package! org-roam :disable t)
 #+end_src
 
-***** Modeline file name
+***** Modeline file name :modeline:
 All those numbers! It's messy. Let's adjust this in a similar way that I have in
 the window title
 
@@ -2726,7 +2729,7 @@ the window title
     (funcall orig-fun)))
 #+end_src
 
-***** Org Roam Capture template
+***** Org Roam Capture template :template:
 
 #+begin_src emacs-lisp
 (after! org-roam
@@ -2736,7 +2739,7 @@ the window title
            :unnarrowed t))))
 #+end_src
 
-***** Registering roam protocol
+***** Registering roam protocol :desktop:
 The recommended method of registering a protocol is by registering a desktop
 application, which seems reasonable.
 
