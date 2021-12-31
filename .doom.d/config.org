@@ -1556,19 +1556,12 @@ Use =nov= to read EPUB e-books.
         :n "RET" #'nov-scroll-up)
 
   (defun doom-modeline-segment--nov-info ()
-    (concat
-     " "
-     (propertize
-      (cdr (assoc 'creator nov-metadata))
-      'face 'doom-modeline-project-parent-dir)
-     " "
-     (cdr (assoc 'title nov-metadata))
-     " "
-     (propertize
-      (format "%d/%d"
-              (1+ nov-documents-index)
-              (length nov-documents))
-      'face 'doom-modeline-info)))
+    (concat " "
+            (propertize (cdr (assoc 'creator nov-metadata)) 'face 'doom-modeline-project-parent-dir)
+            " "
+            (cdr (assoc 'title nov-metadata))
+            " "
+            (propertize (format "%d/%d" (1+ nov-documents-index) (length nov-documents)) 'face 'doom-modeline-info)))
 
   (advice-add 'nov-render-title :override #'ignore)
 
@@ -1625,9 +1618,55 @@ Set RSS news feeds
 #+end_src
 
 ** VPN Config :vpn:
+*** NetExtender wrapper
+I store my NetExtender VPN parameters in a GPG encrypted file. The credentials file
+contains a line of private parameters to pass to =netExtender=, like this:
+
+#+begin_src shell
+echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" > gpg -c > netExtender-params.gpg
+#+end_src
+
+Then I like to have a simple script which decrypt the credentials and launch a
+session via the =netExtender= command.
+
+#+begin_src shell :tangle ~/.local/bin/netextender :tangle-mode (identity #o755)
+#!/bin/bash
+
+if ! command -v netExtender &> /dev/null
+then
+  echo "netExtender not found, installing from AUR using 'yay'"
+  yay -S netextender
+fi
+
+MY_LOGIN_PARAMS_FILE="$HOME/.ssh/netExtender-params.gpg"
+
+echo "Y\n" | netExtender --auto-reconnect $(gpg -q --for-your-eyes-only --no-tty -d ${MY_LOGIN_PARAMS_FILE})
+#+end_src
+
+*** Launch NetExtender session from Emacs
 
 #+begin_src emacs-lisp
-(load! "lisp/private/+netextender.el")
+(setq netextender-process-name "netextender"
+      netextender-buffer-name "*netextender*"
+      netextender-command '("~/.local/bin/netextender"))
+
+(defun netextender-start ()
+  "Launch a NetExtender VPN session"
+  (interactive)
+  (unless (get-process netextender-process-name)
+    (if (make-process :name netextender-process-name
+                      :buffer netextender-buffer-name
+                      :command netextender-command)
+        (message "Started NetExtender VPN session")
+      (message "Cannot start NetExtender"))))
+
+(defun netextender-kill ()
+  "Kill the created NetExtender VPN session"
+  (interactive)
+  (when (get-process netextender-process-name)
+    (if (kill-buffer netextender-buffer-name)
+        (message "Killed NetExtender VPN session")
+      (message "Cannot kill NetExtender"))))
 #+end_src
 
 ** Email =mu4e= :mail:mu4e:
