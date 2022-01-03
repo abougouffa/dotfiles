@@ -16,18 +16,18 @@ to optimize my configuration and how to do things correctly. I discovered then
 [[github:syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and just
 after, I found the awesome [[https://github.com/hlissner/doom-emacs][Doom Emacs]], and since, I didn't quit my Emacs screen!
 
-In the beginning, I was basically copying chunks of configs from the internet,
-which quickly becomes a mess, specially because I was using a mixture of vanilla
-Emacs style configs and Doom style ones.
+In the beginning, I was basically copying chunks of Emacs Lisp code from the
+internet, which quickly becomes a mess, specially because I was using a mixture
+of vanilla Emacs style configurations and Doom style ones.
 
-Now I decided to rewrite a cleaner version of my config which will be more Doom
-friendly, and for that, I found an inspiration in /[[https://github.com/tecosaur][tecosaur]]/'s [[https://github.com/tecosaur/emacs-config.git][emacs-config]], so my
-current config is heavily derived from /tecosaur/'s.
+Now I decided to rewrite a cleaner version of my configuration which will be
+more Doom friendly, and for that, I found an excellent example in /[[https://github.com/tecosaur][tecosaur]]/'s
+[[https://github.com/tecosaur/emacs-config.git][emacs-config]], so my current configuration is heavily inspired by /tecosaur/'s.
 
 ** This file
 This is my literate configuration file, I use it to generate Doom's config files
 (=$DOOMDIR/init.el=, =$DOOMDIR/packages.el= and =$DOOMDIR/config.el=), as well as some
-other shell scripts, app launchers...
+other shell scripts, app installers, app launchers... etc.
 
 Make =config.el= run (slightly) faster with lexical binding (see [[https://nullprogram.com/blog/2016/12/22/][this blog post]]
 for more info).
@@ -36,8 +36,16 @@ for more info).
 ;;; config.el -*- lexical-binding: t; -*-
 #+end_src
 
+Add the shebang and the description to the =setup.sh= file, which will be used to
+set system settings and install some missing dependencies.
+
 #+begin_src shell :exports none :comments no :tangle-mode (identity #o755)
 #!/bin/bash
+
+# This is an automatically generated setup file, it installes some missing
+# dependencies, configure system services, set system settings form better
+# desktop integration... etc.
+# Abdelhak BOUGOUFFA (c) 2022
 #+end_src
 
 * General Settings :global:
@@ -49,8 +57,8 @@ for more info).
 #+end_src
 
 ** Secrets :gpg:pass:secret:
-Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil=,
-+however, I still get a password prompt if I reopen =mu4e= after a while+.
+Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil=
+instead of the default 2h.
 
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo.gpg")
@@ -60,10 +68,17 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 
 ** Better defaults :default:
 *** File deletion :delete:
+Delete files by moving them to trash.
 
 #+begin_src emacs-lisp
-(setq-default delete-by-moving-to-trash t  ; Delete files to trash
-              window-combination-resize t) ; take new window space from all other windows (not just current)
+(setq-default delete-by-moving-to-trash t)
+#+end_src
+
+*** Window
+Take new window space from all other windows (not just current).
+
+#+begin_src emacs-lisp
+(setq-default window-combination-resize t)
 #+end_src
 
 *** Undo and auto-save :save:undo:
@@ -79,27 +94,32 @@ Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil
 *** Editing :edit:cursor:
 
 #+begin_src emacs-lisp
-(setq-default x-stretch-cursor t)  ; Stretch cursor to the glyph width
-(setq display-line-numbers-type 'relative) ; Enable relative line numbers
-(global-subword-mode 1)            ; Iterate through CamelCase words
+;; Stretch cursor to the glyph width
+(setq-default x-stretch-cursor t)
+
+;; Enable relative line numbers
+(setq display-line-numbers-type 'relative)
+
+;; Iterate through CamelCase words
+(global-subword-mode 1)
 #+end_src
 
-*** Frame :frame:
-**** Maximizing :maximize:
+*** COMMENT Frame :frame:
+**** COMMENT Maximizing :maximize:
 
 #+begin_src emacs-lisp
 ;; start the initial frame maximized
-;; (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 ;; start every frame maximized
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+end_src
 
 To avoid conflict when launching Emacs in =emacs-everywhere= mode. I'm using it in
-command line when calling =emacsclient=, by adding this to the launcher:
+command line when calling =emacsclient=, by adding this:
 
 #+begin_src shell :tangle no
-emacsclient --create-frame --frame-parameters="'(fullscreen . maximized)" ...
+--frame-parameters="'(fullscreen . maximized)"
 #+end_src
 
 **** COMMENT Focus
@@ -115,21 +135,29 @@ Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working 
 (set-frame-parameter nil 'internal-border-width 15)
 #+end_src
 
-** Debug
+** COMMENT Debug
 
 #+begin_src emacs-lisp
 ;; The `use-package-verbose' takes the value of `doom-debug-p'.
 (setq doom-debug-p t)
 #+end_src
 
-* Doom Configuration :config:doom:
+* Doom Configuration :doom:
 ** Modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
 :END:
 
-Here is the literate config which generates the Doom's =init.el= file, this file
-contains all the enabled Doom modules with the appropriate flags.
+Here is the literate configuration which generates the Doom's =init.el= file, this
+file contains all the enabled Doom modules with the appropriate flags.
+
+This section defines the default source blocks arguments
+#src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
+inherits this headers, so they will not be tangled unless overwriting in the
+block's header.
+
+This first section defines the template for the sub-sections, it uses the =no-web=
+syntax to include subsections specified as #src_org{<<sub-section-name>>}.
 
 #+name: init.el
 #+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
@@ -173,7 +201,7 @@ contains all the enabled Doom modules with the appropriate flags.
 
        :config
        <<doom-config>>
-       )
+)
 #+end_src
 
 *** Config (=:config=)
@@ -182,7 +210,8 @@ Enable =literate= configuration (like this file!), and some defaults.
 #+name: doom-config
 #+begin_src emacs-lisp
 literate
-(default +bindings)
+(default +bindings
+         +smartparens)
 #+end_src
 
 *** Completion (=:completion=)
@@ -201,8 +230,8 @@ I'm lazy, I like Emacs to complete my writings.
 #+end_src
 
 *** User interface (=:ui=)
-Enables some UI feautures for better user experience, Atom like =tabs=, the
-beautiful =modeline=, project tree, better version control integration with
+Enables some user interface features for better user experience, the beautiful
+=modeline=, the =treemacs= project tree, better version control integration with
 =vc-gutter=... and other useful stuff.
 
 #+name: doom-ui
@@ -211,10 +240,12 @@ deft                         ; notational velocity for Emacs
 doom                         ; what makes DOOM look the way it does
 doom-dashboard               ; a nifty splash screen for Emacs
 ;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
-;;(emoji +unicode)
+(emoji +ascii
+       +unicode
+       +github)
 hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
 ;;fill-column                ; a `fill-column' indicator
-;;hydra                      ; quick documentation for related commands
+hydra                        ; quick documentation for related commands
 ;;indent-guides              ; highlighted indent columns, notoriously slow
 (ligatures +extra)           ; ligatures and symbols to make your code pretty again
 ;;minimap                    ; show a map of the code on the side
@@ -228,7 +259,7 @@ ophints                      ; highlight the region an operation acts on
 (treemacs +lsp)              ; a project drawer, like neotree but cooler
 ;;unicode                    ; extended unicode support for various languages
 vc-gutter                    ; vcs diff in the fringe
-vi-tilde-fringe              ; fringe tildes to mark beyond EOB
+;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
 (window-select +numbers)     ; visually switch windows
 workspaces                   ; tab emulation, persistence & separate workspaces
 zen                          ; distraction-free coding or writing
@@ -252,7 +283,7 @@ format                       ; automated prettiness
 lispy                        ; vim for lisp, for people who don't like vim
 multiple-cursors             ; editing in many places at once
 (objed +manual)              ; text object editing for the innocent
-(parinfer +rust)             ; turn lisp into python, sort of
+parinfer                     ; turn lisp into python, sort of
 rotate-text                  ; cycle region at point between text candidates
 snippets                     ; my elves. They type, so I don't have to
 word-wrap                    ; soft wrapping with language-aware indent
@@ -272,14 +303,15 @@ vc                           ; version-control and Emacs, sitting in a tree
 #+end_src
 
 *** Terminals (=:term=)
-Run commands in terminal from Emacs. I use mainly =vterm=, I do enable =eshell= just
-as a second choice.
+Run commands in terminal from Emacs. I use mainly =vterm= on my local machine,
+however, I like to have =eshell=, =shell= and =term= installed to use them for remote
+file editing (via Tramp).
 
 #+name: doom-term
 #+begin_src emacs-lisp
 eshell                       ; the elisp shell that works everywhere
 vterm                        ; the best terminal emulation in Emacs
-;;shell                      ; simple shell REPL for Emacs
+shell                        ; simple shell REPL for Emacs
 term                         ; basic terminal emulator for Emacs
 #+end_src
 
@@ -291,7 +323,7 @@ default, and I enable it when I need to.
 #+name: doom-checkers
 #+begin_src emacs-lisp
 (syntax +childframe)   ; tasing you for every semicolon you forget
-(spell +flyspell)      ; tasing you for misspelling mispelling
+(spell +aspell)        ; tasing you for misspelling mispelling
 grammar                ; tasing grammar mistake every you make
 #+end_src
 
@@ -299,8 +331,9 @@ grammar                ; tasing grammar mistake every you make
 I enable some useful tools which facilitate my work flow, I like to enable
 Docker support, [[https://editorconfig.org][EditorConfig]] is a good feature to have. I like to enable
 =lsp-mode= and =dap-mode= for coding and debugging by enabling the =lsp= and =debugger=
-modules with =+lsp= support.
-I do enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
+modules with =+lsp= support. =pdf= adds support for =pdf-tools=, which are great for
+viewing PDF files inside Emacs, I also enable some extra tools, like =magit=,
+=lookup=, =tmux=... etc.
 
 #+name: doom-tools
 #+begin_src emacs-lisp
@@ -328,20 +361,19 @@ upload                 ; map local to remote projects via ssh/ftp
 #+end_src
 
 *** Operating system (=:os=)
-I enable =tty= for better support of terminal editing, however, I use Vim (with
-SpaceVim) in terminal editing, mainly because I'm facing problems every time I
-try to use it, I need to investigate why!
+I enable =tty= for better support of terminal editing.
 
 #+name: doom-os
 #+begin_src emacs-lisp
 (tty +osc)             ; Configures Emacs for use in the terminal
-(:if IS-MAC macos)     ; improve compatibility with macOS
 #+end_src
 
 *** Language support (=:lang=)
-Most of the projects I'm working on are written in C/C++, Python and Rust, I use
-Org-mode to manage all my papers and notes, so I need to enable as many
-features as I need.
+Most of the projects I'm working on are mainly written in C/C++, Python, Rust
+and some Lisp stuff, I edit also a lot of configuration and data files in
+several formats (=csv=, =yaml=, =xml=, =json=...). I use Org-mode to manage all my
+papers and notes, so I need to enable as many features as I need, I do enable
+=plantuml= also to quickly plot UML models withing Org documents.
 
 #+name: doom-lang
 #+begin_src emacs-lisp
@@ -356,7 +388,7 @@ qt                     ; the 'cutest' gui framework ever
 (json +lsp)            ; At least it ain't XML
 (julia +lsp)           ; a better, faster MATLAB
 (latex +lsp)           ; writing papers in Emacs has never been so fun
-(lua +lsp)             ; one-based indices? one-based indices
+;;(lua +lsp)           ; one-based indices? one-based indices
 (rust +lsp)            ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
 (ess +lsp)             ; emacs speaks statistics
 (yaml +lsp)            ; JSON, but readable
@@ -376,13 +408,15 @@ qt                     ; the 'cutest' gui framework ever
      +pomodoro
      +roam2
      +pretty)
+(racket +lsp           ; a DSL for DSLs
+        +xp)
 (scheme +mit           ; a fully conniving family of lisps
         +racket
         +guile
         +gambit
         +chez)
 ;;agda                 ; types of types of types of types...
-;; (clojure +lsp)      ; java with a lisp
+;;(clojure +lsp)       ; java with a lisp
 ;;coq                  ; proofs-as-programs
 ;;crystal              ; ruby at the speed of c
 ;;csharp               ; unity, .NET, and mono shenanigans
@@ -409,7 +443,6 @@ qt                     ; the 'cutest' gui framework ever
 ;;ocaml                ; an objective camel
 ;;php                  ; perl's insecure younger brother
 ;;purescript           ; javascript, but functional
-;;racket               ; a DSL for DSLs
 ;;raku                 ; the artist formerly known as perl6
 ;;rest                 ; Emacs as a REST client
 ;;(ruby +rails)        ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
@@ -423,7 +456,7 @@ qt                     ; the 'cutest' gui framework ever
 
 *** Email (=:email=)
 I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= support and
-=+gmail= for better management of Gmail accounts.
+=+gmail= adds better management of Gmail accounts.
 
 #+name: doom-email
 #+begin_src emacs-lisp
@@ -443,7 +476,7 @@ sometimes to play music without leaving Emacs, and I like to enable support for
 #+begin_src emacs-lisp
 calendar
 irc                    ; how neckbeards socialize
-emms
+;;emms
 everywhere
 (rss +org)             ; emacs as an RSS reader
 ;;twitter              ; twitter client https://twitter.com/vnought
@@ -451,18 +484,17 @@ everywhere
 
 ** User Interface :ui:
 *** Font Face :font:
-Doom exposes five (optional) variables for controlling fonts in Doom. Here
-are the three important ones:
-
-- =doom-font=
-- =doom-unicode-font=
-- =doom-variable-pitch-font=
-- =doom-big-font= -- used for =doom-big-font-mode=; use this for presentations or streaming.
+Doom exposes five (optional) variables for controlling fonts in Doom. Here are
+the three important ones: =doom-font=, =doom-unicode-font= and
+=doom-variable-pitch-font=. The =doom-big-font= is used for =doom-big-font-mode=; use
+this for presentations or streaming.
 
 They all accept either a =font-spec=, font string (="Input Mono-12"=), or xlfd
 font string. You generally only need these two:
 
 Some good fonts:
+- =Iosevka Fixed= (THE FONT)
+- =Cascadia Code=
 - =JuliaMono= (good Unicode support)
 - =mononoki Nerd Font Mono= (good Unicode support)
 - =IBM Plex Mono=
@@ -473,10 +505,10 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Input Mono Narrow" :size 15)
-      doom-variable-pitch-font (font-spec :family "Input Mono Narrow") ; inherits the :size from doom-font
-      doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Input Mono Narrow" :weight 'light))
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 32)
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ; inherits the :size from doom-font
+      doom-unicode-font (font-spec :family "Iosevka Fixed")
+      doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
 
 *** Theme :theme:
@@ -494,7 +526,7 @@ Set Doom's theme, some good choices:
 
 *** Modeline :modeline:
 **** Clock
-Display time and set the time format to 24h
+Display time and set the format to 24h.
 
 #+begin_src emacs-lisp
 (setq display-time-string-forms
@@ -503,10 +535,11 @@ Display time and set the time format to 24h
 (display-time-mode 1) ; Enable time in the mode-line
 #+end_src
 
-**** Battery
-Show battery level unless battery is not present or battery information is unknown
+**** COMMENT Battery
+Show battery level unless battery is not present or battery information is unknown.
 
 #+begin_src emacs-lisp
+;; This code causes 'doom doctor' to fail. TODO: Whats wrong with this function?
 (defun ab/display-battery ()
   (let ((batt-status (battery)))
     (unless (or (string-match-p "unknown"    batt-status)
@@ -519,13 +552,13 @@ Show battery level unless battery is not present or battery information is unkno
 *** COMMENT Set transparency :transparent:
 
 #+begin_src emacs-lisp
-(set-frame-parameter (selected-frame) 'alpha '(95 95))
-(add-to-list 'default-frame-alist '(alpha 95 95))
+(set-frame-parameter (selected-frame) 'alpha '(98 100))
+(add-to-list 'default-frame-alist '(alpha 98 100))
 #+end_src
 
 *** Splash Screen :splash:
 **** COMMENT Fancy Splash
-Works fine, but not centered correctly
+Works fine, but not centered correctly.
 
 #+begin_src emacs-lisp :tangle yes
 (defvar fancy-splash-image-template
@@ -626,14 +659,14 @@ Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-e
 
 #+begin_src emacs-lisp
 ;; (setq fancy-splash-image (expand-file-name "assets/blackhole-lines-small.svg" doom-private-dir))
-;; (setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
-(setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
+;; (setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-white.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
+;; (setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
 #+end_src
 
 **** Clean Screen :clean:
-Lastly, the doom dashboard "useful commands" are no longer useful to me.
-So, we'll disable them and then for a particularly /clean/ look disable
-the modeline and ~hl-line-mode~, then also hide the cursor.
+Lets disable the dashboard commands, for a particularly /clean/ look disable the
+modeline and ~hl-line-mode~, then also hide the cursor.
 
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
@@ -642,8 +675,7 @@ the modeline and ~hl-line-mode~, then also hide the cursor.
 #+end_src
 
 **** The ASCII Banner :ascii:banner:
-I haven't forgotten about the ASCII banner though! Once again we're going for
-something simple.
+Add an ASCII banner, used in terminal mode.
 
 #+begin_src emacs-lisp
 (defun doom-dashboard-draw-ascii-emacs-banner-fn ()
@@ -667,8 +699,22 @@ something simple.
 (unless (display-graphic-p) ; for some reason this messes up the graphical splash screen atm
   (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
+*** Which key :key:
+Make =which-key= popup faster.
+
+#+begin_src emacs-lisp :tangle yes
+(setq which-key-idle-delay 0.5) ;; Default is 1.0
+;; (setq which-key-idle-secondary-delay 0.2) ;; Default is nil
+#+end_src
 
 ** Editor :edit:
+*** Scratch buffer :scratch:
+Tell the scratch buffer to start in =emacs-lisp-mode=.
+
+#+begin_src emacs-lisp
+(setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
+#+end_src
+
 *** Mouse Buttons :mouse:
 Map extra mouse buttons to jump between buffers
 
@@ -742,9 +788,273 @@ straightforward, I'll just redefine it to a simpler, async, function.
              +literate-config-file))))
 #+end_src
 
-* Emacs Daemon :daemon:
-** Systemd Daemon :systemd:
-For running a systemd service for an Emacs server I have the following
+* System configuration :linux:system:
+** Mime types :mime:
+*** Org Mode files :org:
+Org mode isn't recognized as it's own mime type by default, but that can easily
+be changed with the following file. For system-wide changes try
+~/usr/share/mime/packages/org.xml~.
+
+#+begin_src xml :tangle ~/.local/share/mime/packages/org.xml :mkdirp yes :comments no
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/org">
+    <comment>Emacs Org-mode File</comment>
+    <glob pattern="*.org"/>
+    <alias type="text/org"/>
+  </mime-type>
+</mime-info>
+#+end_src
+
+What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=.
+One simply needs to refresh their mime database
+
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
+update-mime-database ~/.local/share/mime
+#+end_src
+
+Then set Emacs as the default editor:
+
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "setup.sh")
+xdg-mime default emacs.desktop text/org
+#+end_src
+
+*** Registering Org Roam protocol :roam:
+The recommended method of registering a protocol is by registering a desktop
+application, which seems reasonable.
+
+#+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
+[Desktop Entry]
+Name=Emacs Org-Protocol
+Exec=emacsclient %u
+Icon=/home/abdelhak/.doom.d/assets/org-roam.png
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/org-protocol
+#+end_src
+
+To associate ~org-protocol://~ links with the desktop file,
+
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "setup.sh")
+xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+#+end_src
+
+** GIT :git:
+*** Git diffs :diff:
+Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
+
+#+begin_src fundamental :tangle ~/.config/git/attributes :mkdirp yes
+,*.tex                                       diff=tex
+,*.bib                                       diff=bibtex
+,*.{c,h,c++,h++,cc,hh,cpp,hpp}               diff=cpp
+,*.m                                         diff=matlab
+,*.py                                        diff=python
+,*.rb                                        diff=ruby
+,*.php                                       diff=php
+,*.pl                                        diff=perl
+,*.{html,xhtml}                              diff=html
+,*.f                                         diff=fortran
+,*.{el,lisp,scm}                             diff=lisp
+,*.r                                         diff=rstats
+,*.texi*                                     diff=texinfo
+,*.org                                       diff=org
+,*.rs                                        diff=rust
+
+,*.odt                                       diff=odt
+,*.odp                                       diff=libreoffice
+,*.ods                                       diff=libreoffice
+,*.doc                                       diff=doc
+,*.xls                                       diff=xls
+,*.ppt                                       diff=ppt
+,*.docx                                      diff=docx
+,*.xlsx                                      diff=xlsx
+,*.pptx                                      diff=pptx
+,*.rtf                                       diff=rtf
+
+,*.{png,jpg,jpeg,gif}                        diff=exif
+
+,*.pdf                                       diff=pdf
+,*.djvu                                      diff=djvu
+,*.epub                                      diff=pandoc
+,*.chm                                       diff=tika
+,*.mhtml?                                    diff=tika
+
+,*.{class,jar}                               diff=tika
+,*.{rar,7z,zip,apk}                          diff=tika
+#+end_src
+
+Then adding a regex for it to =~/.config/git/config=
+
+#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
+# ===== TEXT FORMATS =====
+[diff "org"]
+  xfuncname = "^(\\*+ +.*)$"
+
+[diff "lisp"]
+  xfuncname = "^(\\(.*)$"
+
+[diff "rstats"]
+  xfuncname = "^([a-zA-z.]+ <- function.*)$"
+
+[diff "texinfo"]
+# from http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
+  xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
+
+[diff "orgmode"]
+  xfuncname = "^(\\*+.*)$"
+
+[diff "rust"]
+  xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
+
+# ===== BINARY FORMATS =====
+[diff "pdf"]
+  binary = true
+# textconv = pdfinfo
+# textconv = sh -c 'pdftotext "$@" -' # sudo apt install pdftotext
+  textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
+  cachetextconv = true
+
+[diff "djvu"]
+  binary = true
+# textconv = pdfinfo
+  textconv = djvutxt # yay -S djvulibre
+  cachetextconv = true
+
+[diff "odt"]
+  textconv = odt2txt
+  # textconv = pandoc --standalone --from=odt --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "doc"]
+# textconv = wvText
+  textconv = catdoc # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "xls"]
+# textconv = in2csv
+# textconv = xlscat -a UTF-8
+# textconv = soffice --headless --convert-to csv
+  textconv = xls2csv # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "ppt"]
+  textconv = catppt # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "docx"]
+  textconv = pandoc --standalone --from=docx --to=plain
+# textconv = sh -c 'docx2txt.pl "$0" -'
+  binary = true
+  cachetextconv = true
+
+[diff "xlsx"]
+  textconv = xlsx2csv # pip install xlsx2csv
+# textconv = in2csv
+# textconv = soffice --headless --convert-to csv
+  binary = true
+  cachetextconv = true
+
+[diff "pptx"]
+# pip install --user pptx2md (currently not wotking with Python 3.10)
+# textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
+# Alternative hack, convert PPTX to PPT, then use the catppt tool
+  textconv = sh -c 'soffice --headless --convert-to ppt --outdir /tmp "$0" && TMP_FILENAME=$(basename -- "$0") && catppt "/tmp/${TMP_FILENAME%.*}.ppt"'
+  binary = true
+  cachetextconv = true
+
+[diff "rtf"]
+  textconv = unrtf --text # yay -S unrtf
+  binary = true
+  cachetextconv = true
+
+[diff "epub"]
+  textconv = pandoc --standalone --from=epub --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "tika"]
+  textconv = "tika --text"
+  binary = true
+  cachetextconv = true
+
+[diff "libreoffice"]
+  textconv = "soffice --cat"
+  binary = true
+  cachetextconv = true
+
+[diff "exif"]
+  binary = true
+  textconv = exiftool # sudo apt install perl-image-exiftool
+#+end_src
+
+*** Apache Tika App wrapper
+*Apache Tika* is a content detection and analysis framework. It detects and
+extracts metadata and text from over a thousand different file types. We will be
+using the command-line app to show some meaningful diff information for some
+binary files.
+
+First, lets add a custom script to run =tika-app=:
+
+#+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
+#!/bin/sh
+APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
+
+if [ -f ${APACHE_TIKA_JAR} ]; then
+  exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
+else
+  echo "JAR file not found at ${APACHE_TIKA_JAR}"
+fi
+#+end_src
+
+Add =tika='s installation instructions to the =setup.sh= file.
+
+#+begin_src shell :tangle "setup.sh"
+TIKA_JAR_PATH=$HOME/.local/share/tika
+
+if [ ! -d ${TIKA_JAR_PATH} ]; then
+  mkdir -p ${TIKA_JAR_PATH}
+fi
+
+TIKA_BASE_URL=https://archive.apache.org/dist/tika/
+TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
+
+echo -n "Checking for new Apache Tika App version... "
+
+# Get the lastest version (uses html2text from 'python-html2text')
+TIKA_VERSION=$(
+  curl -s ${TIKA_BASE_URL} | # Get the page
+  html2text --ignore-images --ignore-emphasis --ignore-links | # Convert page to HTML without images, emphasis and links.
+  awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
+  sort -rV | # Sort versions, newest first
+  head -n 1 # Get the first (newest) version
+)
+
+echo "Lastest version is ${TIKA_VERSION}"
+
+TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
+TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
+
+if [ ! -f ${TIKA_JAR} ]; then
+  echo "New version available, downloading Apache Tika App v${TIKA_VERSION}"
+  curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
+else
+  echo "Apache Tika App is up to date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
+fi
+
+# Check the existance of the symbolic link
+if [ -L ${TIKA_JAR_LINK} ]; then
+  unlink ${TIKA_JAR_LINK}
+fi
+
+# Create a symbolic link to the installed version
+ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
+#+end_src
+
+** Emacs' Systemd Daemon :systemd:
+Let's define a Systemd service to launch Emacs server automatically.
 
 #+name: emacs daemon
 #+begin_src systemd :tangle ~/.config/systemd/user/emacs.service :mkdirp yes
@@ -762,7 +1072,7 @@ Restart=on-failure
 WantedBy=default.target
 #+end_src
 
-Which is then enabled by
+Which is then enabled by:
 
 #+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled emacs.service")) "no" "setup.sh")
 systemctl --user enable emacs.service
@@ -772,7 +1082,127 @@ For some reason if a frame isn't opened early in the initialization process, the
 daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
 part of the =ExecStart= value.
 
-** Daemon initialization :init:
+** Emacs Client :emacsclient:
+*** Desktop Integration :desktop:
+It can now be nice to use this as a 'default app' for opening files. If we add
+an appropriate desktop entry, and enable it in the desktop environment.
+
+#+begin_src conf :tangle ~/.local/share/applications/emacs-client.desktop :mkdirp yes
+[Desktop Entry]
+Name=DOOM Emacs client
+GenericName=Text Editor
+Comment=A flexible platform for end-user applications
+MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
+Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
+Icon=/home/abdelhak/.doom.d/assets/doom-emacs-cute.svg
+Type=Application
+Terminal=false
+Categories=TextEditor;Utility;
+StartupWMClass=Emacs
+Keywords=Text;Editor;
+X-KDE-StartupNotify=false
+#+end_src
+
+*** Command-line Wrapper :wrapper:cli:
+A wrapper around =emacsclient=:
++ Accepting =stdin= by putting it in a temporary file and immediately opening it.
++ Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
+  sessions, among other things).
++ With a whiff of 24-bit color support, sets ~TERM~ variable to a =terminfo= that
+  (probably) announces 24-bit color support.
++ Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
+  and instead take a flag to suppress this behavior (~-w~).
+
+I would use =sh=, but using arrays for argument manipulation is just too
+convenient, so I'll raise the requirement to =bash=. Since arrays are the only
+'extra' compared to =sh=, other shells like =ksh= etc. should work too.
+
+#+name: e
+#+begin_src shell :tangle ~/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+force_tty=false
+force_wait=false
+stdin_mode=""
+
+args=()
+
+usage () {
+  echo -e "Usage: e [-t] [-m MODE] [OPTIONS] FILE [-]
+
+Emacs client convenience wrapper.
+
+Options:
+-h, --help            Show this message
+-t, -nw, --tty        Force terminal mode
+-w, --wait            Don't supply --no-wait to graphical emacsclient
+-                     Take stdin (when last argument)
+-m MODE, --mode MODE  Mode to open stdin with
+
+Run emacsclient --help to see help for the emacsclient."
+}
+
+while :; do
+  case "$1" in
+    -t | -nw | --tty)
+      force_tty=true
+      shift ;;
+    -w | --wait)
+      force_wait=true
+      shift ;;
+    -m | --mode)
+      stdin_mode=" ($2-mode)"
+      shift 2 ;;
+    -h | --help)
+      usage
+      exit 0 ;;
+    --*=*)
+      set -- "$@" "${1%%=*}" "${1#*=}"
+      shift ;;
+    ,*)
+      if [ "$#" = 0 ]; then
+        break; fi
+      args+=("$1")
+      shift ;;
+  esac
+done
+
+if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
+  unset 'args[-1]'
+  TMP="$(mktemp /tmp/emacsstdin-XXX)"
+  cat > "$TMP"
+  args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
+fi
+
+if [ -z "$DISPLAY" ] || $force_tty; then
+  # detect terminals with sneaky 24-bit support
+  if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
+    && [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
+    if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
+      termstub="${TERM%%-*}"; else
+      termstub="${TERM#*-}"; fi
+    if infocmp "$termstub-direct" >/dev/null 2>&1; then
+      TERM="$termstub-direct"; else
+      TERM="xterm-direct"; fi # should be fairly safe
+  fi
+  emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
+else
+  if ! $force_wait; then
+    args+=(--no-wait); fi
+  emacsclient -create-frame --alternate-editor="" "${args[@]}"
+fi
+#+end_src
+
+Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
+set aliases for the terminal-forced variants.
+
+#+begin_src shell :tangle no
+alias m='e --eval "(progn (magit-status) (delete-other-windows))"'
+alias mt="m -t"
+alias et="e -t"
+#+end_src
+
+* Emacs Daemon
+** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
 with it, so I may as well eat the load time at startup. We also want to keep
 =mu4e= running.
@@ -805,134 +1235,15 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
 (when (daemonp)
   (add-hook  'emacs-startup-hook #'ab/greedily-do-daemon-setup)
-  (add-hook  'server-after-make-frame-hook #'ab/focus-new-client-frame)
+;;(add-hook  'server-after-make-frame-hook #'ab/focus-new-client-frame)
   (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
   (add-hook! 'server-after-make-frame-hook
     (unless (string-match-p "\\*draft" (buffer-name))
       (switch-to-buffer +doom-dashboard-name))))
 #+end_src
 
-** Emacs Client :emacsclient:
-*** Desktop Integration :desktop:
-It can now be nice to use this as a 'default app' for opening files. If we add
-an appropriate desktop entry, and enable it in the desktop environment.
-
-#+begin_src conf :tangle ~/.local/share/applications/emacs-client.desktop :mkdirp yes
-[Desktop Entry]
-Name=Emacs client
-GenericName=Text Editor
-Comment=A flexible platform for end-user applications
-MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
-Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
-Icon=emacs
-Type=Application
-Terminal=false
-Categories=TextEditor;Utility;
-StartupWMClass=Emacs
-Keywords=Text;Editor;
-X-KDE-StartupNotify=false
-#+end_src
-
-*** Command-line Wrapper :wrapper:cli:
-I frequently want to make use of Emacs while in a terminal emulator. To make
-this easier, I can construct a few handy aliases.
-
-However, a little convenience script in =~/.local/bin= can have the same effect,
-be available beyond the specific shell I plop the alias in, then also allow me
-to add a few bells and whistles --- namely:
-+ Accepting stdin by putting it in a temporary file and immediately opening it.
-+ Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
-  sessions, among other things).
-+ With a whiff of 24-bit color support, sets ~TERM~ variable to a =terminfo= that
-  (probably) announces 24-bit color support.
-+ Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
-  and instead take a flag to suppress this behaviour (~-w~).
-
-I would use =sh=, but using arrays for argument manipulation is just too
-convenient, so I'll raise the requirement to =bash=. Since arrays are the only
-'extra' compared to =sh=, other shells like =ksh= etc. should work too.
-
-#+name: e
-#+begin_src shell :tangle ~/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
-#!/usr/bin/env bash
-force_tty=false
-force_wait=false
-stdin_mode=""
-
-args=()
-
-while :; do
-    case "$1" in
-        -t | -nw | --tty)
-            force_tty=true
-            shift ;;
-        -w | --wait)
-            force_wait=true
-            shift ;;
-        -m | --mode)
-            stdin_mode=" ($2-mode)"
-            shift 2 ;;
-        -h | --help)
-            echo -e "\033[1mUsage: e [-t] [-m MODE] [OPTIONS] FILE [-]\033[0m
-
-Emacs client convenience wrapper.
-
-\033[1mOptions:\033[0m
-\033[0;34m-h, --help\033[0m            Show this message
-\033[0;34m-t, -nw, --tty\033[0m        Force terminal mode
-\033[0;34m-w, --wait\033[0m            Don't supply \033[0;34m--no-wait\033[0m to graphical emacsclient
-\033[0;34m-\033[0m                     Take \033[0;33mstdin\033[0m (when last argument)
-\033[0;34m-m MODE, --mode MODE\033[0m  Mode to open \033[0;33mstdin\033[0m with
-
-Run \033[0;32memacsclient --help\033[0m to see help for the emacsclient."
-            exit 0 ;;
-        --*=*)
-            set -- "$@" "${1%%=*}" "${1#*=}"
-            shift ;;
-        ,*)
-            if [ "$#" = 0 ]; then
-                break; fi
-            args+=("$1")
-            shift ;;
-    esac
-done
-
-if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
-    unset 'args[-1]'
-    TMP="$(mktemp /tmp/emacsstdin-XXX)"
-    cat > "$TMP"
-    args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
-fi
-
-if [ -z "$DISPLAY" ] || $force_tty; then
-    # detect terminals with sneaky 24-bit support
-    if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
-        && [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
-        if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
-            termstub="${TERM%%-*}"; else
-            termstub="${TERM#*-}"; fi
-        if infocmp "$termstub-direct" >/dev/null 2>&1; then
-            TERM="$termstub-direct"; else
-            TERM="xterm-direct"; fi # should be fairly safe
-    fi
-    emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
-else
-    if ! $force_wait; then
-        args+=(--no-wait); fi
-    emacsclient -create-frame --alternate-editor="" "${args[@]}"
-fi
-#+end_src
-
-Now, to set an alias to use =e= with magit, and then for maximum laziness we can
-set aliases for the terminal-forced variants.
-
-#+begin_src shell :tangle no
-alias m='e --eval "(progn (magit-status) (delete-other-windows))"'
-alias mt="m -t"
-alias et="e -t"
-#+end_src
-*** Tweaks :tweak:
-**** Save recent files :recentf:
+** Tweaks :tweak:
+*** Save recent files :recentf:
 When editing files with Emacs client, the files does not get stored by =recentf=,
 making Emacs forgets about recently opened files. A quick fix is to hook the
 #src_elisp{recentf-save-list} command to the
@@ -959,6 +1270,8 @@ This file shouldn't be byte compiled.
 *** Weather :wttrin:
 
 #+begin_src emacs-lisp
+;; lisp/wttrin/wttrin.el is taken from:
+;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin :recipe (:local-repo "lisp/wttrin"))
 #+end_src
 
@@ -979,13 +1292,12 @@ This file shouldn't be byte compiled.
 *** SVG Tag Mode
 
 #+begin_src emacs-lisp
-(package! svg-tag-mode
-  :recipe (:host github
-           :repo "rougier/svg-tag-mode"))
+(package! svg-tag-mode)
+#+end_src
 
-(package! svg-lib
-  :recipe (:host github
-           :repo "rougier/svg-lib"))
+#+begin_src emacs-lisp :tangle yes
+(use-package! svg-tag-mode
+  :commands svg-tag-mode)
 #+end_src
 
 *** COMMENT N Λ N O Packages
@@ -1051,10 +1363,10 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 View data frames better with
 
 #+begin_src emacs-lisp
-(package! ess-view :pin "925cafd876e2cc37bc756bb7fcf3f34534b457e2")
+(package! ess-view)
 #+end_src
 
-*** Large files :large:vlf:
+*** Very large files :large:vlf:
 The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
 
 #+begin_src emacs-lisp
@@ -1088,60 +1400,49 @@ Together these should give me a rather good experience reading ebooks.
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
 #+end_src
+*** Info colors
+Better colors for manual pages.
 
 #+begin_src emacs-lisp
-;; (package! org-pretty-tags)
-#+end_src
-
-Use icons for my tags (not working ATM, it displays empty icons).
-
-#+begin_src emacs-lisp :tangle yes
-;; (use-package! org-pretty-tags
-;;   :config
-;;   (setq org-pretty-tags-surrogate-strings
-;;         `(("univ"       . ,(all-the-icons-faicon   "graduation-cap" :face 'all-the-icons-purple  :v-adjust 0.01))
-;;           ("prog"       . ,(all-the-icons-material "computer"       :face 'all-the-icons-silver  :v-adjust 0.01))
-;;           ("assignment" . ,(all-the-icons-material "library_books"  :face 'all-the-icons-orange  :v-adjust 0.01))
-;;           ("test"       . ,(all-the-icons-material "timer"          :face 'all-the-icons-red     :v-adjust 0.01))
-;;           ("lecture"    . ,(all-the-icons-fileicon "keynote"        :face 'all-the-icons-orange  :v-adjust 0.01))
-;;           ("email"      . ,(all-the-icons-faicon   "envelope"       :face 'all-the-icons-blue    :v-adjust 0.01))
-;;           ("read"       . ,(all-the-icons-octicon  "book"           :face 'all-the-icons-lblue   :v-adjust 0.01))
-;;           ("article"    . ,(all-the-icons-octicon  "file-text"      :face 'all-the-icons-yellow  :v-adjust 0.01))
-;;           ("web"        . ,(all-the-icons-faicon   "globe"          :face 'all-the-icons-green   :v-adjust 0.01))
-;;           ("info"       . ,(all-the-icons-faicon   "info-circle"    :face 'all-the-icons-blue    :v-adjust 0.01))
-;;           ("issue"      . ,(all-the-icons-faicon   "bug"            :face 'all-the-icons-red     :v-adjust 0.01))
-;;           ("someday"    . ,(all-the-icons-faicon   "calendar-o"     :face 'all-the-icons-cyan    :v-adjust 0.01))
-;;           ("idea"       . ,(all-the-icons-octicon  "light-bulb"     :face 'all-the-icons-yellow  :v-adjust 0.01))
-;;           ("emacs"      . ,(all-the-icons-fileicon "emacs"          :face 'all-the-icons-lpurple :v-adjust 0.01))))
-;;   (org-pretty-tags-global-mode))
-#+end_src
-
-*** Prettier page break lines
-In some files, =^L= appears as a page break character. This isn't that visually
-appealing, and Steve Purcell has been nice enough to make a package to display
-these as horizontal rules.
-
-#+begin_src emacs-lisp
-(package! page-break-lines 
-  :recipe (:host github 
-           :repo "purcell/page-break-lines"))
+(package! info-colors)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package! page-break-lines
-  :commands page-break-lines-mode
-  :init (autoload 'turn-on-page-break-lines-mode "page-break-lines")
-  :config (setq page-break-lines-max-width fill-column)
-          (map! :prefix "g"
-                :desc "Prev page break" :nv "[" #'backward-page
-                :desc "Next page break" :nv "]" #'forward-page))
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+#+end_src
+
+*** Selectric mode
+Selectric
+Every so often, you want everyone else to know that you’re typing, or just to amuse oneself. Introducing: typewriter sounds!
+
+#+begin_src emacs-lisp
+(package! selectric-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! selectic-mode
+  :commands selectic-mode)
 #+end_src
 
 ** Programming :programming:
-*** Repo :repo:
+*** TODO Repo :repo:
 
 #+begin_src emacs-lisp
 (package! repo) ;; TODO: configure me!
+#+end_src
+
+*** TODO LSP :lsp:
+
+#+begin_src emacs-lisp
+(package! lsp-sonarlint)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! lsp-sonarlint
+  :commands lsp)
 #+end_src
 
 *** Magit Delta :magit:delta:
@@ -1246,26 +1547,40 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
 *** TODO ROS :graphviz:
 Check [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for the =rosemacs= integration.
 
-*** COMMENT Maxima :maxima:math:
+*** TODO Maxima :maxima:math:
+**** COMMENT Maxima
+Not working ATM, it searches in
+=~/.emacs-doom/.local/straight/repos-28.0.90/maxima/keywords/functions= instead of
+=~/.../build-28.0.90/...=
 
 #+begin_src emacs-lisp
 (package! maxima)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-;; (use-package! maxima
-;;   :defer t
-;;   :init (add-hook! 'maxima-mode-hook #'maxima-hook-function)
-;;         (add-hook! 'maxima-inferior-mode-hook #'maxima-hook-function))
-        ;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
-        ; maxima-display-maxima-buffer nil)
-  ;; :mode ("\\.mac\\'" . maxima-mode)
-  ;; :interpreter ("maxima" . maxima-mode))
+(use-package! maxima
+  :init
+  (add-hook 'maxima-mode-hook #'maxima-hook-function)
+  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0) maxima-display-maxima-buffer nil)
+  :commands (maxima-mode maxima)
+  :config
+  (require 'company-maxima)
+  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+  :mode ("\\.mac\\'" . maxima-mode)
+  :interpreter ("maxima" . maxima-mode))
+#+end_src
 
-(autoload 'maxima-mode "maxima" "Maxima mode" t)
-(autoload 'maxima "maxima" "Maxima interaction" t)
-(setq auto-mode-alist (cons '("\\.mac" . maxima-mode) auto-mode-alist))
-(setq interpreter-mode-alist (cons '("maxima" . maxima-mode) interpreter-mode-alist))
+**** COMMENT iMaxima :maxima:math:
+
+#+begin_src emacs-lisp
+(package! imaxima)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(autoload 'imaxima "imaxima" "Frontend of Maxima CAS" t)
+(autoload 'imath "imath" "Interactive Math mode" t)
+(autoload 'imath-mode "imath" "Interactive Math mode" t)
 #+end_src
 
 * Package configuration :config:
@@ -1403,7 +1718,7 @@ This makes the result of evals with =gr= and =gR= just slightly prettier.
 #+end_src
 
 ** Ispell :spell:
-*** Set the default =ispell= dictionary :ispell:dict:
+*** COMMENT Set the default =ispell= dictionary :ispell:dict:
 Set =ispell='s dictionary to American English by default.
 
 #+begin_src emacs-lisp
@@ -1442,7 +1757,7 @@ Then configure dictionaries:
       ispell-dictionary   "english")  ; Default dictionary to use
 #+end_src
 
-*** Shortcuts to change dictionary :dict:
+*** COMMENT Shortcuts to change dictionary :dict:
 #+begin_src emacs-lisp
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
@@ -1473,7 +1788,7 @@ Then configure dictionaries:
       :desc "Français" "l d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
 #+end_src
 
-*** Shortcuts to check grammar :langtool:
+*** COMMENT Shortcuts to check grammar :langtool:
 #+begin_src emacs-lisp
 (map! :leader
       :desc "langtool" "l l")
@@ -1624,7 +1939,7 @@ Set RSS news feeds
 I store my NetExtender VPN parameters in a GPG encrypted file. The credentials file
 contains a line of private parameters to pass to =netExtender=, like this:
 
-#+begin_src shell
+#+begin_src shell :tangle no
 echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" > gpg -c > netExtender-params.gpg
 #+end_src
 
@@ -1733,7 +2048,7 @@ This file includes multi-account configuration as follow:
 #+end_src
 
 * Programming :prog:
-** File Templates
+** File Templates :template:
 For some file types, we overwrite defaults in the [[file:./snippets][snippets]] directory, others
 need to have a template assigned.
 #+begin_src emacs-lisp
@@ -1852,8 +2167,7 @@ Add ROS specific file formats:
    :remote? t
    :server-id 'clangd-remote)))
 #+end_src
-
-** Plaintext
+** Plain text :text:
 It's nice to see ANSI colour codes displayed. However, until Emacs 28 it's not
 possible to do this without modifying the buffer, so let's condition this block
 on that.
@@ -1879,236 +2193,6 @@ it in an src_elisp{(after! ...)} block.
 (after! org
   <<org-conf>>
 )
-#+end_src
-
-*** System config :config:desktop:system:
-**** Mime types :mime:
-Org mode isn't recognized as it's own mime type by default, but that can easily
-be changed with the following file. For system-wide changes try
-~/usr/share/mime/packages/org.xml~.
-
-#+begin_src xml :tangle ~/.local/share/mime/packages/org.xml :mkdirp yes :comments no
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-  <mime-type type="text/org">
-    <comment>Emacs Org-mode File</comment>
-    <glob pattern="*.org"/>
-    <alias type="text/org"/>
-  </mime-type>
-</mime-info>
-#+end_src
-
-What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=.
-One simply needs to refresh their mime database
-
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
-update-mime-database ~/.local/share/mime
-#+end_src
-
-Then set Emacs as the default editor
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "setup.sh")
-xdg-mime default emacs.desktop text/org
-#+end_src
-
-**** Git diffs :git:
-Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
-
-#+begin_src fundamental :tangle ~/.config/git/attributes :mkdirp yes
-,*.tex          diff=tex
-,*.bib          diff=bibtex
-,*.c            diff=cpp
-,*.h            diff=cpp
-,*.c++          diff=cpp
-,*.h++          diff=cpp
-,*.cpp          diff=cpp
-,*.hpp          diff=cpp
-,*.cc           diff=cpp
-,*.hh           diff=cpp
-,*.m            diff=matlab
-,*.py           diff=python
-,*.rb           diff=ruby
-,*.php          diff=php
-,*.pl           diff=perl
-,*.html         diff=html
-,*.xhtml        diff=html
-,*.f            diff=fortran
-,*.lisp         diff=lisp
-,*.el           diff=lisp
-,*.r            diff=rstats
-,*.texi*        diff=texinfo
-,*.org          diff=org
-,*.rs           diff=rust
-
-,*.pdf          diff=pdf
-,*.djvu         diff=djvu
-
-,*.odt          diff=odt
-,*.odp          diff=libreoffice
-,*.ods          diff=libreoffice
-
-,*.doc          diff=doc
-,*.xls          diff=xls
-,*.ppt          diff=ppt
-
-,*.docx         diff=docx
-,*.xlsx         diff=xlsx
-,*.pptx         diff=pptx
-
-,*.rtf          diff=rtf
-
-,*.png          diff=exif
-,*.jpg          diff=exif
-,*.jpeg         diff=exif
-,*.gif          diff=exif
-
-,*.epub         diff=pandoc
-,*.chm          diff=tika
-,*.mhtml?       diff=tika
-
-,*.{class,jar}  diff=tika
-,*.{rar,7z,zip} diff=tika
-#+end_src
-
-Then adding a regex for it to =~/.config/git/config=
-
-#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
-# ===== TEXT FORMATS =====
-[diff "org"]
-  xfuncname = "^(\\*+ +.*)$"
-
-[diff "lisp"]
-  xfuncname = "^(\\(.*)$"
-
-[diff "rstats"]
-  xfuncname = "^([a-zA-z.]+ <- function.*)$"
-
-[diff "texinfo"]
-# from http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
-  xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
-
-[diff "orgmode"]
-  xfuncname = "^(\\*+.*)$"
-
-[diff "rust"]
-  xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
-
-# ===== BINARY FORMATS =====
-[diff "pdf"]
-  binary = true
-# textconv = pdfinfo
-# textconv = sh -c 'pdftotext "$@" -' # sudo apt install pdftotext
-  textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
-  cachetextconv = true
-
-[diff "djvu"]
-  binary = true
-# textconv = pdfinfo
-  textconv = djvutxt # yay -S djvulibre
-  cachetextconv = true
-
-[diff "odt"]
-  textconv = odt2txt
-  # textconv = pandoc --standalone --from=odt --to=plain
-  binary = true
-  cachetextconv = true
-
-[diff "doc"]
-# textconv = wvText
-  textconv = catdoc # yay -S catdoc
-  binary = true
-  cachetextconv = true
-
-[diff "xls"]
-# textconv = in2csv
-# textconv = xlscat -a UTF-8
-# textconv = soffice --headless --convert-to csv
-  textconv = xls2csv # yay -S catdoc
-  binary = true
-  cachetextconv = true
-
-[diff "ppt"]
-  textconv = catppt # yay -S catdoc
-  binary = true
-  cachetextconv = true
-
-[diff "docx"]
-  textconv = pandoc --standalone --from=docx --to=plain
-# textconv = sh -c 'docx2txt.pl "$0" -'
-  binary = true
-  cachetextconv = true
-
-[diff "xlsx"]
-  textconv = xlsx2csv # pip install xlsx2csv
-# textconv = in2csv
-# textconv = soffice --headless --convert-to csv
-  binary = true
-  cachetextconv = true
-
-[diff "pptx"]
-  textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
-  binary = true
-  cachetextconv = true
-
-[diff "rtf"]
-  textconv = unrtf --text # yay -S unrtf
-  binary = true
-  cachetextconv = true
-
-[diff "epub"]
-  textconv = pandoc --standalone --from=epub --to=plain
-  binary = true
-  cachetextconv = true
-
-[diff "tika"]
-  textconv = "tika --text"
-  binary = true
-  cachetextconv = true
-
-[diff "libreoffice"]
-  textconv = "soffice --cat"
-  binary = true
-  cachetextconv = true
-
-[diff "exif"]
-  binary = true
-  textconv = exiftool # sudo apt install perl-image-exiftool
-#+end_src
-
-Add a custom script to for =tika=:
-
-#+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
-#!/bin/sh
-APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
-
-if [ -f ${APACHE_TIKA_JAR} ]; then
-  exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
-else
-  echo "JAR file not found at ${APACHE_TIKA_JAR}"
-fi
-#+end_src
-
-Add =tika='s installation instructions to the =setup.sh= file.
-
-#+begin_src shell :tangle "setup.sh"
-TIKA_JAR_PATH=$HOME/.local/share/tika
-TIKA_VERSION=2.2.1
-TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
-TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
-
-if [ ! -d ${TIKA_JAR_PATH} ]; then
-  mkdir -p ${TIKA_JAR_PATH}
-fi
-
-if [ ! -f ${TIKA_JAR} ]; then
-  curl -o ${TIKA_JAR} https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar
-fi
-
-# Check the existance of the symbolic link
-if [ -L ${TIKA_JAR_LINK} ]; then
-  unlink ${TIKA_JAR_LINK}
-fi
-
-# Create a symbolic link to the installed version
-ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
 #+end_src
 
 *** Behavior :behavior:
@@ -2169,7 +2253,7 @@ I think it makes sense to have list bullets change with depth
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
-***** Citation (=org-ref=) :ref:
+***** COMMENT Citation (=org-ref=) :ref:
 Occasionally I want to cite something, and =org-ref= is /the/ package for that.
 
 Unfortunately, it ignores the ~file = {...}~ =.bib= keys though. Let's fix that.
@@ -2292,12 +2376,12 @@ functionality as in LaTeX. Let's try viewing possible output files with this.
         (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
         (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
-;(defun log-todo-next-creation-date (&rest ignore)
-;  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-;  (when (and (string= (org-get-todo-state) "NEXT")
-;             (not (org-entry-get nil "ACTIVATED")))
-;    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-;(add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+;; (defun log-todo-next-creation-date (&rest ignore)
+;;  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+;;  (when (and (string= (org-get-todo-state) "NEXT")
+;;             (not (org-entry-get nil "ACTIVATED")))
+;;    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
 **** Super agenda :agenda:
@@ -2739,26 +2823,6 @@ the window title
            :unnarrowed t))))
 #+end_src
 
-***** Registering roam protocol :desktop:
-The recommended method of registering a protocol is by registering a desktop
-application, which seems reasonable.
-
-#+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
-[Desktop Entry]
-Name=Org-Protocol
-Exec=emacsclient %u
-Icon=$HOME/.doom.d/assets/org-roam.png
-Type=Application
-Terminal=false
-MimeType=x-scheme-handler/org-protocol
-#+end_src
-
-To associate ~org-protocol://~ links with the desktop file,
-
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "setup.sh")
-xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
-#+end_src
-
 **** Snippet Helpers
 I often want to set =src-block= headers, and it's a pain to
 + type them out
@@ -2964,12 +3028,14 @@ Here I try to do two things: improve the styling of the various documents, via
 font changes etc, and also propagate colours from the current theme.
 
 **** Font Display
+***** Org Pretty Mode
 Activate ~+org-pretty-mode~.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :
 (add-hook 'org-mode-hook #'+org-pretty-mode)
 #+end_src
 
+***** COMMENT Headings
 Let's make the title and the headings a bit bigger:
 
 #+begin_src emacs-lisp
@@ -2987,6 +3053,7 @@ Let's make the title and the headings a bit bigger:
   '(outline-9 :weight semi-bold))
 #+end_src
 
+***** Deadlines
 It seems reasonable to have deadlines in the error face when they're passed.
 
 #+begin_src emacs-lisp
@@ -2997,6 +3064,7 @@ It seems reasonable to have deadlines in the error face when they're passed.
         (0.0 . org-upcoming-distant-deadline)))
 #+end_src
 
+***** Font styling
 We can then have quote blocks stand out a bit more by making them /italic/.
 
 #+begin_src emacs-lisp
@@ -3285,7 +3353,7 @@ passed, and so we can override the background as discussed above.
 (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
 #+end_src
 
-***** More eager rendering
+***** COMMENT More eager rendering
 What's better than syntax-highlighted LaTeX is /rendered/ LaTeX though, and we can
 have this be performed automatically with =org-fragtog=.
 
@@ -3334,124 +3402,6 @@ let's make it transparent.
 #+begin_src emacs-lisp
 (setq org-format-latex-options
       (plist-put org-format-latex-options :background "Transparent"))
-#+end_src
-
-**** Stolen from [[https://github.com/jkitchin/scimax][scimax]] (semi-working right now)
-I want fragment justification
-
-#+begin_src emacs-lisp
-(defun scimax-org-latex-fragment-justify (justification)
-  "Justify the latex fragment at point with JUSTIFICATION.
-JUSTIFICATION is a symbol for 'left, 'center or 'right."
-  (interactive
-   (list (intern-soft
-          (completing-read "Justification (left): " '(left center right)
-                           nil t nil nil 'left))))
-  (let* ((ov (ov-at))
-         (beg (ov-beg ov))
-         (end (ov-end ov))
-         (shift (- beg (line-beginning-position)))
-         (img (overlay-get ov 'display))
-         (img (and (and img (consp img) (eq (car img) 'image)
-                        (image-type-available-p (plist-get (cdr img) :type)))
-                   img))
-         space-left offset)
-    (when (and img
-               ;; This means the equation is at the start of the line
-               (= beg (line-beginning-position))
-               (or
-                (string= "" (s-trim (buffer-substring end (line-end-position))))
-                (eq 'latex-environment (car (org-element-context)))))
-      (setq space-left (- (window-max-chars-per-line) (car (image-size img)))
-            offset (floor (cond
-                           ((eq justification 'center)
-                            (- (/ space-left 2) shift))
-                           ((eq justification 'right)
-                            (- space-left shift))
-                           (t
-                            0))))
-      (when (>= offset 0)
-        (overlay-put ov 'before-string (make-string offset ?\ ))))))
-
-(defun scimax-org-latex-fragment-justify-advice (beg end image imagetype)
-  "After advice function to justify fragments."
-  (scimax-org-latex-fragment-justify (or (plist-get org-format-latex-options :justify) 'left)))
-
-
-(defun scimax-toggle-latex-fragment-justification ()
-  "Toggle if LaTeX fragment justification options can be used."
-  (interactive)
-  (if (not (get 'scimax-org-latex-fragment-justify-advice 'enabled))
-      (progn
-        (advice-add 'org--format-latex-make-overlay :after 'scimax-org-latex-fragment-justify-advice)
-        (put 'scimax-org-latex-fragment-justify-advice 'enabled t)
-        (message "Latex fragment justification enabled"))
-    (advice-remove 'org--format-latex-make-overlay 'scimax-org-latex-fragment-justify-advice)
-    (put 'scimax-org-latex-fragment-justify-advice 'enabled nil)
-    (message "Latex fragment justification disabled")))
-#+end_src
-
-***** COMMENT Equations numbering
-There's also this lovely equation numbering stuff I'll nick
-#+begin_src emacs-lisp
-;; Numbered equations all have (1) as the number for fragments with vanilla
-;; org-mode. This code injects the correct numbers into the previews so they
-;; look good.
-(defun scimax-org-renumber-environment (orig-func &rest args)
-  "A function to inject numbers in LaTeX fragment previews."
-  (let ((results '())
-        (counter -1)
-        (numberp))
-    (setq results (cl-loop for (begin . env) in
-                           (org-element-map (org-element-parse-buffer) 'latex-environment
-                             (lambda (env)
-                               (cons
-                                (org-element-property :begin env)
-                                (org-element-property :value env))))
-                           collect
-                           (cond
-                            ((and (string-match "\\\\begin{equation}" env)
-                                  (not (string-match "\\\\tag{" env)))
-                             (cl-incf counter)
-                             (cons begin counter))
-                            ((string-match "\\\\begin{align}" env)
-                             (prog2
-                                 (cl-incf counter)
-                                 (cons begin counter)
-                               (with-temp-buffer
-                                 (insert env)
-                                 (goto-char (point-min))
-                                 ;; \\ is used for a new line. Each one leads to a number
-                                 (cl-incf counter (count-matches "\\\\$"))
-                                 ;; unless there are nonumbers.
-                                 (goto-char (point-min))
-                                 (cl-decf counter (count-matches "\\nonumber")))))
-                            (t
-                             (cons begin nil)))))
-
-    (when (setq numberp (cdr (assoc (point) results)))
-      (setf (car args)
-            (concat
-             (format "\\setcounter{equation}{%s}\n" numberp)
-             (car args)))))
-
-  (apply orig-func args))
-
-
-(defun scimax-toggle-latex-equation-numbering ()
-  "Toggle whether LaTeX fragments are numbered."
-  (interactive)
-  (if (not (get 'scimax-org-renumber-environment 'enabled))
-      (progn
-        (advice-add 'org-create-formula-image :around #'scimax-org-renumber-environment)
-        (put 'scimax-org-renumber-environment 'enabled t)
-        (message "Latex numbering enabled"))
-    (advice-remove 'org-create-formula-image #'scimax-org-renumber-environment)
-    (put 'scimax-org-renumber-environment 'enabled nil)
-    (message "Latex numbering disabled.")))
-
-(advice-add 'org-create-formula-image :around #'scimax-org-renumber-environment)
-(put 'scimax-org-renumber-environment 'enabled t)
 #+end_src
 
 **** Org Plot
@@ -3596,4 +3546,5 @@ While the ~-%latex~ above is slightly hacky (~-pdflatex~ expects to be given a
 value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
+
 
