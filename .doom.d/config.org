@@ -1012,45 +1012,54 @@ fi
 Add =tika='s installation instructions to the =setup.sh= file.
 
 #+begin_src shell :tangle "setup.sh"
-TIKA_JAR_PATH=$HOME/.local/share/tika
+update_apache_tika () {
+  TIKA_JAR_PATH=$HOME/.local/share/tika
 
-if [ ! -d ${TIKA_JAR_PATH} ]; then
-  mkdir -p ${TIKA_JAR_PATH}
-fi
+  if [ ! -d ${TIKA_JAR_PATH} ]; then
+    mkdir -p ${TIKA_JAR_PATH}
+  fi
 
-TIKA_BASE_URL=https://archive.apache.org/dist/tika/
-TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
+  TIKA_BASE_URL=https://archive.apache.org/dist/tika/
+  TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
 
-echo -n "Checking for new Apache Tika App version... "
+  echo -n "Checking for new Apache Tika App version... "
 
-# Get the lastest version (uses html2text from 'python-html2text')
-TIKA_VERSION=$(
-  curl -s ${TIKA_BASE_URL} | # Get the page
-  html2text --ignore-images --ignore-emphasis --ignore-links | # Convert page to HTML without images, emphasis and links.
-  awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
-  sort -rV | # Sort versions, newest first
-  head -n 1 # Get the first (newest) version
-)
+  # Get the lastest version (uses html2text from 'python-html2text')
+  TIKA_VERSION=$(
+    curl -s ${TIKA_BASE_URL} | # Get the page
+    html2text --ignore-images --ignore-emphasis --ignore-links | # Convert page to HTML without images, emphasis and links.
+    awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
+    sort -rV | # Sort versions, newest first
+    head -n 1 # Get the first (newest) version
+  )
 
-echo "Lastest version is ${TIKA_VERSION}"
+  if [ -z ${TIKA_VERSION} ]; then
+    echo "Failed, check your internet connection."
+    exit 1
+  fi
 
-TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
-TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
+  echo "Lastest version is ${TIKA_VERSION}"
 
-if [ ! -f ${TIKA_JAR} ]; then
-  echo "New version available, downloading Apache Tika App v${TIKA_VERSION}"
-  curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
-else
-  echo "Apache Tika App is up to date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
-fi
+  TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
+  TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
 
-# Check the existance of the symbolic link
-if [ -L ${TIKA_JAR_LINK} ]; then
-  unlink ${TIKA_JAR_LINK}
-fi
+  if [ ! -f ${TIKA_JAR} ]; then
+    echo "New version available, downloading Apache Tika App v${TIKA_VERSION}"
+    curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
+  else
+    echo "Apache Tika App is up to date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
+  fi
 
-# Create a symbolic link to the installed version
-ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
+  # Check the existance of the symbolic link
+  if [ -L ${TIKA_JAR_LINK} ]; then
+    unlink ${TIKA_JAR_LINK}
+  fi
+
+  # Create a symbolic link to the installed version
+  ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
+}
+
+update_apache_tika;
 #+end_src
 
 ** Emacs' Systemd Daemon :systemd:
