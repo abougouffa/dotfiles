@@ -241,7 +241,7 @@ doom                         ; what makes DOOM look the way it does
 doom-dashboard               ; a nifty splash screen for Emacs
 ;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
 (emoji +ascii
-       +unicode
+;;       +unicode
        +github)
 hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
 ;;fill-column                ; a `fill-column' indicator
@@ -462,8 +462,9 @@ I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= su
 #+begin_src emacs-lisp
 (mu4e +org
       +gmail)
-;;notmuch
-;;(wanderlust +gmail)
+;; (notmuch +org
+;;          +afew)
+;; (wanderlust +gmail)
 #+end_src
 
 *** Apps (=:app=)
@@ -507,7 +508,7 @@ Some good fonts:
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 32)
       doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ; inherits the :size from doom-font
-      doom-unicode-font (font-spec :family "Iosevka Fixed")
+      doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
 
@@ -815,10 +816,10 @@ update-mime-database ~/.local/share/mime
 Then set Emacs as the default editor:
 
 #+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "setup.sh")
-xdg-mime default emacs.desktop text/org
+xdg-mime default emacs-client.desktop text/org
 #+end_src
 
-*** Registering Org Roam protocol :roam:
+*** Registering ~org-protocol://~ :org:
 The recommended method of registering a protocol is by registering a desktop
 application, which seems reasonable.
 
@@ -826,16 +827,52 @@ application, which seems reasonable.
 [Desktop Entry]
 Name=Emacs Org-Protocol
 Exec=emacsclient %u
-Icon=/home/abdelhak/.doom.d/assets/org-roam.png
+Icon=/home/abdelhak/.doom.d/assets/org-mode.svg
 Type=Application
 Terminal=false
 MimeType=x-scheme-handler/org-protocol
 #+end_src
 
-To associate ~org-protocol://~ links with the desktop file,
+To associate =org-protocol://= links with the desktop file:
 
 #+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "setup.sh")
 xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+#+end_src
+
+*** Configuring Chrome/Brave
+As specified in the [[https://www.orgroam.com/manual.html#Org_002droam-Protocol][official documentation]], we would like to invoke the
+=org-protocol://= without confirmation. To do this, we need to add this system
+wide configuration.
+
+#+begin_comment
+It seems that this setting is not persistent, each time I reboot my machine,
+this file gets deleted.
+#+end_comment
+
+#+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "setup.sh")
+echo "Setting Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration."
+
+sudo mkdir -p /etc/opt/chrome/policies/managed/
+
+sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json >/dev/null <<'EOF'
+{
+  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
+}
+EOF
+
+sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+#+end_src
+
+Then add a bookmarklet in your browser with this code:
+
+#+begin_src javascript
+javascript:location.href =
+    'org-protocol://roam-ref?template=r&ref='
+    + encodeURIComponent(location.href)
+    + '&title='
+    + encodeURIComponent(document.title)
+    + '&body='
+    + encodeURIComponent(window.getSelection())
 #+end_src
 
 ** GIT :git:
@@ -976,12 +1013,12 @@ Then adding a regex for it to =~/.config/git/config=
   cachetextconv = true
 
 [diff "tika"]
-  textconv = "tika --text"
+  textconv = tika --config=/home/abdelhak/.local/share/tika/tika-conf.xml --text
   binary = true
   cachetextconv = true
 
 [diff "libreoffice"]
-  textconv = "soffice --cat"
+  textconv = soffice --cat
   binary = true
   cachetextconv = true
 
@@ -993,8 +1030,8 @@ Then adding a regex for it to =~/.config/git/config=
 *** Apache Tika App wrapper
 *Apache Tika* is a content detection and analysis framework. It detects and
 extracts metadata and text from over a thousand different file types. We will be
-using the command-line app to show some meaningful diff information for some
-binary files.
+using the Tika App in command-line mode to show some meaningful diff information
+for some binary files.
 
 First, lets add a custom script to run =tika-app=:
 
@@ -1024,10 +1061,10 @@ update_apache_tika () {
 
   echo -n "Checking for new Apache Tika App version... "
 
-  # Get the lastest version (uses html2text from 'python-html2text')
+  # Get the lastest version
   TIKA_VERSION=$(
     curl -s ${TIKA_BASE_URL} | # Get the page
-    html2text --ignore-images --ignore-emphasis --ignore-links | # Convert page to HTML without images, emphasis and links.
+    pandoc -f html -t plain | # Convert HTML page to plain text.
     awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
     sort -rV | # Sort versions, newest first
     head -n 1 # Get the first (newest) version
@@ -1060,6 +1097,22 @@ update_apache_tika () {
 }
 
 update_apache_tika;
+#+end_src
+
+When it detects that Tesseract is installed, Tika App will try to extract text
+from some file types, for some reason, it does the same thing with files like ~*.bz2~,
+~*.apk~... etc. I would like to disable this feature by exporting an XML config
+file which will be used when launching the Tika App (using ~--config=<tika-config.xml>~).
+
+#+begin_src xml :tangle ~/.local/share/tika/tika-conf.xml :mkdirp yes
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+  <parsers>
+    <parser class="org.apache.tika.parser.DefaultParser">
+      <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
+    </parser>
+  </parsers>
+</properties>
 #+end_src
 
 ** Emacs' Systemd Daemon :systemd:
@@ -1209,6 +1262,10 @@ alias m='e --eval "(progn (magit-status) (delete-other-windows))"'
 alias mt="m -t"
 alias et="e -t"
 #+end_src
+
+** TODO tmux
+Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
+[[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
 
 * Emacs Daemon
 ** Initialization :init:
@@ -1367,6 +1424,17 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 (package! focus)
 #+end_src
 
+*** COMMENT Posframe
+
+#+begin_src emacs-lisp
+(package! vertico-posframe)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! vertico-posframe
+  :hook (vertico-mode . vertico-posframe-mode))
+#+end_src
+
 ** Features :features:
 *** ESS :ess:
 View data frames better with
@@ -1409,6 +1477,7 @@ Together these should give me a rather good experience reading ebooks.
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
 #+end_src
+
 *** Info colors
 Better colors for manual pages.
 
@@ -2054,6 +2123,12 @@ This file includes multi-account configuration as follow:
 
 ; Tell Doom's mu4e module to override some commands to fix issues on Gmail accounts
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-directory")))
+#+end_src
+** COMMENT Notmuch
+Use =mbsync= as sync backend.
+
+#+begin_src emacs-lisp
+(setq +notmuch-sync-backend 'mbsync)
 #+end_src
 
 * Programming :prog:
@@ -2826,10 +2901,10 @@ the window title
 
 #+begin_src emacs-lisp
 (after! org-roam
-  (setq org-roam-capture-ref-templates
-        '(("r" "ref" plain "%?"
-           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n- source: ${ref}\n\n${body}\n")
-           :unnarrowed t))))
+   (setq org-roam-capture-ref-templates
+         '(("r" "ref" plain "%?"
+            :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
+            :unnarrowed t))))
 #+end_src
 
 **** Snippet Helpers
