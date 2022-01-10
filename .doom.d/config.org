@@ -48,6 +48,18 @@ set system settings and install some missing dependencies.
 # Abdelhak BOUGOUFFA (c) 2022
 #+end_src
 
+Add the shebang to the =~/.env_stuff= file used to define some aliases and helpers.
+This needs to be sourced in the shell session (source it in =~/.zshrc=).
+
+#+begin_src shell :exports none :comments no :tangle ~/.env_stuff
+#!/bin/zsh
+
+# This is an automatically generated file, it should be sourced from `~/.zshrc',
+# it defines some useful aliases, and customize some environment variables for
+# better defaults.
+# Abdelhak BOUGOUFFA (c) 2022
+#+end_src
+
 * General Settings :global:
 ** User information :user:info:
 
@@ -67,14 +79,14 @@ instead of the default 2h.
 #+end_src
 
 ** Better defaults :default:
-*** File deletion :delete:
+*** File deletion :delete:trash:
 Delete files by moving them to trash.
 
 #+begin_src emacs-lisp
 (setq-default delete-by-moving-to-trash t)
 #+end_src
 
-*** Window
+*** Window :window:
 Take new window space from all other windows (not just current).
 
 #+begin_src emacs-lisp
@@ -152,12 +164,12 @@ Here is the literate configuration which generates the Doom's =init.el= file, th
 file contains all the enabled Doom modules with the appropriate flags.
 
 This section defines the default source blocks arguments
-#src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
+src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
 inherits this headers, so they will not be tangled unless overwriting in the
 block's header.
 
 This first section defines the template for the sub-sections, it uses the =no-web=
-syntax to include subsections specified as #src_org{<<sub-section-name>>}.
+syntax to include subsections specified as src_org{<<sub-section-name>>}.
 
 #+name: init.el
 #+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
@@ -525,7 +537,7 @@ Set Doom's theme, some good choices:
 (setq doom-theme 'doom-one) ; Load theme
 #+end_src
 
-*** Modeline :modeline:
+*** Mode line :modeline:
 **** Clock
 Display time and set the format to 24h.
 
@@ -558,7 +570,7 @@ Show battery level unless battery is not present or battery information is unkno
 #+end_src
 
 *** Splash Screen :splash:
-**** COMMENT Fancy Splash
+**** Fancy Splash
 Works fine, but not centered correctly.
 
 #+begin_src emacs-lisp :tangle yes
@@ -655,13 +667,13 @@ Works fine, but not centered correctly.
 (add-hook 'doom-load-theme-hook #'set-appropriate-splash)
 #+end_src
 
-**** Custom Splash Image :image:banner:
+**** COMMENT Custom Splash Image :image:banner:
 Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
 
 #+begin_src emacs-lisp
+(setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
 ;; (setq fancy-splash-image (expand-file-name "assets/blackhole-lines-small.svg" doom-private-dir))
 ;; (setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-white.svg" doom-private-dir))
-(setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
 ;; (setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
 #+end_src
 
@@ -700,6 +712,7 @@ Add an ASCII banner, used in terminal mode.
 (unless (display-graphic-p) ; for some reason this messes up the graphical splash screen atm
   (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
+
 *** Which key :key:
 Make =which-key= popup faster.
 
@@ -1039,7 +1052,8 @@ First, lets add a custom script to run =tika-app=:
 #!/bin/sh
 APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
 
-if [ -f ${APACHE_TIKA_JAR} ]; then
+if [ -f ${APACHE_TIKA_JAR} ]
+then
   exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
 else
   echo "JAR file not found at ${APACHE_TIKA_JAR}"
@@ -1052,7 +1066,8 @@ Add =tika='s installation instructions to the =setup.sh= file.
 update_apache_tika () {
   TIKA_JAR_PATH=$HOME/.local/share/tika
 
-  if [ ! -d ${TIKA_JAR_PATH} ]; then
+  if [ ! -d ${TIKA_JAR_PATH} ]
+  then
     mkdir -p ${TIKA_JAR_PATH}
   fi
 
@@ -1070,7 +1085,8 @@ update_apache_tika () {
     head -n 1 # Get the first (newest) version
   )
 
-  if [ -z ${TIKA_VERSION} ]; then
+  if [ -z ${TIKA_VERSION} ]
+  then
     echo "Failed, check your internet connection."
     exit 1
   fi
@@ -1080,7 +1096,8 @@ update_apache_tika () {
   TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
   TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
 
-  if [ ! -f ${TIKA_JAR} ]; then
+  if [ ! -f ${TIKA_JAR} ]
+  then
     echo "New version available, downloading Apache Tika App v${TIKA_VERSION}"
     curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
   else
@@ -1088,7 +1105,8 @@ update_apache_tika () {
   fi
 
   # Check the existance of the symbolic link
-  if [ -L ${TIKA_JAR_LINK} ]; then
+  if [ -L ${TIKA_JAR_LINK} ]
+  then
     unlink ${TIKA_JAR_LINK}
   fi
 
@@ -1100,9 +1118,10 @@ update_apache_tika;
 #+end_src
 
 When it detects that Tesseract is installed, Tika App will try to extract text
-from some file types, for some reason, it does the same thing with files like ~*.bz2~,
-~*.apk~... etc. I would like to disable this feature by exporting an XML config
-file which will be used when launching the Tika App (using ~--config=<tika-config.xml>~).
+from some file types. For some reason, it tries to use Tesseract with some
+compressed files like ~*.bz2~, ~*.apk~... etc. I would like to disable this feature
+by exporting an XML config file which will be used when launching the Tika App
+(using ~--config=<tika-config.xml>~).
 
 #+begin_src xml :tangle ~/.local/share/tika/tika-conf.xml :mkdirp yes
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1199,11 +1218,13 @@ Options:
 -w, --wait            Don't supply --no-wait to graphical emacsclient
 -                     Take stdin (when last argument)
 -m MODE, --mode MODE  Mode to open stdin with
+-mm, --maximized      Start Emacs client in maximized window
 
 Run emacsclient --help to see help for the emacsclient."
 }
 
-while :; do
+while :
+do
   case "$1" in
     -t | -nw | --tty)
       force_tty=true
@@ -1214,6 +1235,9 @@ while :; do
     -m | --mode)
       stdin_mode=" ($2-mode)"
       shift 2 ;;
+    -mm | --maximized)
+        args+=("--frame-parameters='(fullscreen . maximized)")
+        shift ;;
     -h | --help)
       usage
       exit 0 ;;
@@ -1221,51 +1245,185 @@ while :; do
       set -- "$@" "${1%%=*}" "${1#*=}"
       shift ;;
     ,*)
-      if [ "$#" = 0 ]; then
-        break; fi
+      [ "$#" = 0 ] && break
       args+=("$1")
       shift ;;
   esac
 done
 
-if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
+if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]
+then
   unset 'args[-1]'
   TMP="$(mktemp /tmp/emacsstdin-XXX)"
   cat > "$TMP"
   args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
 fi
 
-if [ -z "$DISPLAY" ] || $force_tty; then
+if [ -z "$DISPLAY" ] || $force_tty
+then
   # detect terminals with sneaky 24-bit support
   if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
-    && [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
-    if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
-      termstub="${TERM%%-*}"; else
-      termstub="${TERM#*-}"; fi
-    if infocmp "$termstub-direct" >/dev/null 2>&1; then
-      TERM="$termstub-direct"; else
-      TERM="xterm-direct"; fi # should be fairly safe
+    && [ "$(tput colors 2>/dev/null)" -lt 257 ]
+  then
+    if echo "$TERM" | grep -q "^\w\+-[0-9]"
+    then
+      termstub="${TERM%%-*}"
+    else
+      termstub="${TERM#*-}"
+    fi
+
+    if infocmp "$termstub-direct" >/dev/null 2>&1
+    then
+      TERM="$termstub-direct"
+    else
+      TERM="xterm-direct"
+    fi # should be fairly safe
   fi
+
   emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
 else
-  if ! $force_wait; then
-    args+=(--no-wait); fi
+  if ! $force_wait
+  then
+    args+=(--no-wait)
+  fi
+
   emacsclient -create-frame --alternate-editor="" "${args[@]}"
 fi
 #+end_src
 
+**** Useful aliases
 Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
 set aliases for the terminal-forced variants.
 
-#+begin_src shell :tangle no
-alias m='e --eval "(progn (magit-status) (delete-other-windows))"'
-alias mt="m -t"
+#+begin_src shell :tangle ~/.env_stuff
+# Alias to run emacs in terminal mode
 alias et="e -t"
+# Aliases to run emacs+magit
+alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
+alias magitt="magit -t"
+# Aliases to run emacs+mu4e
+alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
+alias emut="e -t"
 #+end_src
 
 ** TODO tmux
 Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
 [[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
+
+** Custom environment
+I would like to customize my Linux environment in a separate file, which I
+source from my =~/.zshrc= file.
+
+I like to define MacOS-like commands (=pbcopy= and =pbpaste=) to copy and paste in
+terminal (from =stdin=, to =stdout=). The =pbcopy= and =pbpaste= are defined using
+either =xclip= or =xsel=, you would need install these tools, otherwise we wouldn't
+define the aliases.
+
+#+begin_src shell :tangle ~/.env_stuff
+# Define aliases to 'pbcopy' and 'pbpaste'
+if command -v xclip &> /dev/null
+then
+  # Define aliases using xclip
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+elif command -v xsel &> /dev/null
+then
+  # Define aliases using xsel
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output'
+fi
+#+end_src
+
+And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
+with root permissions, this needs =xhost=.
+
+#+begin_src shell :tangle ~/.env_stuff
+# To run GUI apps from terminal with root permissions
+if command -v xhost &> /dev/null
+then
+  alias gsuon='xhost si:localuser:root'
+  alias gsuoff='xhost -si:localuser:root'
+fi
+#+end_src
+
+Define a =netpaste= command to paste to [[https://ptpb.pw][https://ptpb.pw]].
+
+#+begin_src shell :tangle ~/.env_stuff
+# To copy the output of a command to ptpb.pw
+alias netpaste='curl -F c=@- https://ptpb.pw'
+#+end_src
+
+Use NeoVIM instead of VIM to provide =vi= and =vim= commands.
+
+#+begin_src shell :tangle ~/.env_stuff
+# NeoVim
+if command -v nvim &> /dev/null
+then
+  alias vim="nvim"
+  alias vi="nvim"
+fi
+#+end_src
+
+Some useful aliases:
+
+#+begin_src shell :tangle ~/.env_stuff
+# ESP-IDF
+if [ -d $HOME/sources-and-libs/esp-idf/ ]
+then
+  # If not, clone "https://github.com/espressif/esp-idf.git"
+  alias esp_env='. $HOME/sources-and-libs/esp-idf/export.sh'
+  alias esp_update='cd $HOME/sources-and-libs/esp-idf ; git pull --all'
+fi
+
+# Dotfiles
+alias dotfiles='git --git-dir=$HOME/Projects/dotfiles/.git --work-tree=$HOME'
+#+end_src
+
+Define some environment variables for better defaults (=minicom=, Rust,
+Clang-format, NPM, Doom Emacs... etc):
+
+#+begin_src shell :tangle ~/.env_stuff
+# Enable Meta key + colors in minicom
+export MINICOM='-m -c on'
+
+# RUST
+export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
+export PATH=$PATH:$HOME/.cargo/bin
+
+# Multiple versions of Clang-format are installed here,
+# from the AUR package "clang-format-static-bin", I used it with some work projects
+# requiring a specific version of Clang-format
+export PATH=/opt/clang-format-static:$PATH
+
+# Add my manually installed libraries to CMake
+export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
+export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
+
+# Set NPM installation path to local
+NPM_PACKAGES="${HOME}/.npm-packages"
+
+# Export NPM bin path
+export PATH="$PATH:$NPM_PACKAGES/bin"
+
+# Preserve MANPATH if you already defined it somewhere in your config.
+# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
+export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
+
+# FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Start or attach to the default tmux session
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]
+then
+    tmux attach -t default || tmux new -s default
+fi
+
+# opam configuration
+[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+# Add ~/.emacs-doom.d/bin to path (for DOOM Emacs stuff)
+export PATH=$PATH:$HOME/.emacs-doom/bin
+#+end_src
 
 * Emacs Daemon
 ** Initialization :init:
@@ -1273,16 +1431,13 @@ When the daemon is running, I almost always want to do a few particular things
 with it, so I may as well eat the load time at startup. We also want to keep
 =mu4e= running.
 
-It would be good to start the IRC client (=circe=) too, but that seems to have
-issues when started in a non-graphical session.
-
 Lastly, while I'm not sure quite why it happens, but after a bit it seems that
-new Emacsclient frames start on the =*scratch*= buffer instead of the dashboard.
+new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
 I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
 #+name: daemon initialization
 #+begin_src emacs-lisp
-(defun ab/greedily-do-daemon-setup ()
+(defun greedy-on-daemon-startup ()
   (require 'org)
   (when (require 'mu4e nil t)
     (setq mu4e-confirm-quit t)
@@ -1292,16 +1447,8 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
   (when (require 'elfeed nil t)
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
-;; To focus the newly created frame (not working actually)
-;; I figured out how to fix the focus on my KDE distro by setting the
-;; "Focus stealing prevention" to "None" in KDE settings under:
-;; "Settings > Workspace > Window management > Window Behavior > Focus"
-(defun ab/focus-new-client-frame ()
-  (select-frame-set-input-focus (selected-frame)))
-
 (when (daemonp)
-  (add-hook  'emacs-startup-hook #'ab/greedily-do-daemon-setup)
-;;(add-hook  'server-after-make-frame-hook #'ab/focus-new-client-frame)
+  (add-hook  'emacs-startup-hook #'greedy-on-daemon-startup)
   (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
   (add-hook! 'server-after-make-frame-hook
     (unless (string-match-p "\\*draft" (buffer-name))
@@ -1312,9 +1459,9 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 *** Save recent files :recentf:
 When editing files with Emacs client, the files does not get stored by =recentf=,
 making Emacs forgets about recently opened files. A quick fix is to hook the
-#src_elisp{recentf-save-list} command to the
-#src_elisp{delete-frame-functions} and #src_elisp{delete-terminal-functions}
-which gets executed each time a frame/terminal is deleted.
+src_elisp{recentf-save-list} command to the src_elisp{delete-frame-functions}
+and src_elisp{delete-terminal-functions} which gets executed each time a
+frame/terminal is deleted.
 
 #+begin_src emacs-lisp
 (when (daemonp)
@@ -2009,7 +2156,9 @@ Set RSS news feeds
 
 #+begin_src emacs-lisp
 (setq elfeed-feeds
-      '("https://this-week-in-rust.org/rss.xml"))
+      '("https://this-week-in-rust.org/rss.xml"
+        "https://www.omgubuntu.co.uk/feed"
+        "https://lwn.net/headlines/rss"))
 #+end_src
 
 ** VPN Config :vpn:
@@ -2135,6 +2284,7 @@ Use =mbsync= as sync backend.
 ** File Templates :template:
 For some file types, we overwrite defaults in the [[file:./snippets][snippets]] directory, others
 need to have a template assigned.
+
 #+begin_src emacs-lisp
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
 (set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
@@ -2153,6 +2303,7 @@ Add ROS specific file formats:
 
 ** LSP :lsp:
 *** COMMENT Tell LSP to use =clangd= in C/C++ :clangd:c:cpp:
+
 #+begin_src emacs-lisp
 (setq lsp-clients-clangd-args '("-j=3"
                                 "--background-index"
@@ -2251,8 +2402,9 @@ Add ROS specific file formats:
    :remote? t
    :server-id 'clangd-remote)))
 #+end_src
+
 ** Plain text :text:
-It's nice to see ANSI colour codes displayed. However, until Emacs 28 it's not
+It's nice to see ANSI color codes displayed. However, until Emacs 28 it's not
 possible to do this without modifying the buffer, so let's condition this block
 on that.
 
@@ -2379,8 +2531,8 @@ a good idea in my case at least.
 I turn off spell checking by default to make Org files open quickly.
 
 #+begin_src emacs-lisp
-;;(add-hook 'org-mode-hook 'turn-on-flyspell)
 (add-hook 'org-mode-hook 'turn-off-flyspell)
+;;(add-hook 'org-mode-hook 'turn-on-flyspell)
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
 
@@ -3096,15 +3248,15 @@ taken form [[https://orgmode.org/list/87mty1an66.fsf@posteo.net/][Export subfigu
 Example of usage:
 
 #+begin_example org
-  ,#+CAPTION: Lorem impsum dolor
-  ,#+ATTR_LaTeX: :options \centering
-  ,#+begin_figure
-  [[subfig:img1.jpg][Caption of img1 >(width=.3\textwidth)]]
+,#+caption: Lorem impsum dolor
+,#+attr_latex: :options \centering
+,#+begin_figure
+[[subfig:img1.jpg][Caption of img1 >(width=.3\textwidth)]]
 
-  [[subfig:img2.jpg][Caption of img2 >(width=.3\textwidth)]]
+[[subfig:img2.jpg][Caption of img2 >(width=.3\textwidth)]]
 
-  [[subfig:img3.jpg][Caption of img3 >(width=.6\textwidth)]]
-  ,#+end_figure
+[[subfig:img3.jpg][Caption of img3 >(width=.6\textwidth)]]
+,#+end_figure
 #+end_example
 
 *** Visuals
@@ -3205,7 +3357,7 @@ fontification, but simply applied the =org-code= face to the content.
 We can do better than that, and we shall! Using ~org-src-font-lock-fontify-block~
 we can apply language-appropriate syntax highlighting. Then, continuing on to
 ={{{results(...)}}}= , it can have the =org-block= face applied to match, and then
-the value-surrounding constructs hidden by mimicking the behaviour of
+the value-surrounding constructs hidden by mimicking the behavior of
 ~prettify-symbols-mode~.
 
 #+begin_warning
@@ -3427,7 +3579,7 @@ doesn't look too great --- particularly when the fragments are previewed.
 
 Ideally ~org-src-font-lock-fontify-block~ wouldn't add the =org-block= face, but we
 can avoid advising that entire function by just adding another face with
-=:inherit default= which will override the background colour.
+=:inherit default= which will override the background color.
 
 Inspecting ~org-do-latex-and-related~ shows that ="latex"= is the language argument
 passed, and so we can override the background as discussed above.
@@ -3490,7 +3642,7 @@ let's make it transparent.
 
 **** Org Plot
 We can use some of the variables in =org-plot= to use the current doom theme
-colours.
+colors.
 
 #+begin_src emacs-lisp
 (after! org-plot
@@ -3630,5 +3782,4 @@ While the ~-%latex~ above is slightly hacky (~-pdflatex~ expects to be given a
 value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
-
 
