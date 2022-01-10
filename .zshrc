@@ -13,8 +13,7 @@ export ZSH="$HOME/.oh-my-zsh"
 TYPEWRITTEN_RELATIVE_PATH="adaptive"
 TYPEWRITTEN_CURSOR="underscore"
 
-ZSH_THEME="typewritten/typewritten" #"robbyrussell"
-# ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME="typewritten/typewritten"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -89,8 +88,6 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-# export MANPATH="/usr/local/man:$MANPATH"
-
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
@@ -104,28 +101,9 @@ source $ZSH/oh-my-zsh.sh
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-#
-#
-
-# Rename the "update_ohmyszh" function to "_uptate_ohmyzsh"
-# eval "`declare -f update_ohmyzsh | sed '1s/.*/_&/'`"
-
-# update_ohmyzsh () {
-# 	# Stash customized stuff (mainly, my modified "amuse" theme)
-# 	cd $ZSH && git stash
-# 	_update_ohmyzsh
-# 	# Pop the stash
-# 	cd $ZSH && git stash pop
-# }
-#
+# Aliases
+alias zshconfig="vim ~/.zshrc"
+alias ohmyzsh="ranger $ZSH"
 
 # Include my personal customizations
 source ~/.env_stuff
