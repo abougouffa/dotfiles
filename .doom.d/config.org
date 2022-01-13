@@ -1364,7 +1364,7 @@ then
 fi
 #+end_src
 
-Some useful aliases:
+Add some aliases to work with the ESP-IDF framework.
 
 #+begin_src shell :tangle ~/.env_stuff
 # ESP-IDF
@@ -1374,32 +1374,60 @@ then
   alias esp_env='. $HOME/sources-and-libs/esp-idf/export.sh'
   alias esp_update='cd $HOME/sources-and-libs/esp-idf ; git pull --all'
 fi
+#+end_src
 
+For the moment, I'm not using a particular tool to manage my dotfiles, instead,
+I use a bare Git repository to manage files, when the workspace is set to the
+home directory. To be able to add/commit files to the dotfiles repo, I define an
+alias to =git= which takes the bare repo as =--git-dir=, and my home directory as
+=--work-tree=.
+
+#+begin_src shell :tangle ~/.env_stuff
 # Dotfiles
 alias dotfiles='git --git-dir=$HOME/Projects/dotfiles/.git --work-tree=$HOME'
+#+end_src
+
+Define an alias to get weather information for my city:
+
+#+begin_src shell :tangle ~/.env_stuff
+export WTTRIN_CITY=Orsay
+alias wttrin='curl https://wttr.in/$WTTRIN_CITY'
 #+end_src
 
 Define some environment variables for better defaults (=minicom=, Rust,
 Clang-format, NPM, Doom Emacs... etc):
 
-#+begin_src shell :tangle ~/.env_stuff
-# Enable Meta key + colors in minicom
-export MINICOM='-m -c on'
+Enable Meta key + colors in minicom
 
-# RUST
+#+begin_src shell :tangle ~/.env_stuff
+export MINICOM='-m -c on'
+#+end_src
+
+Define Rust sources path, and add packages installed from =cargo= to the =PATH=.
+
+#+begin_src shell :tangle ~/.env_stuff
 export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
 export PATH=$PATH:$HOME/.cargo/bin
+#+end_src
 
-# Multiple versions of Clang-format are installed here,
-# from the AUR package "clang-format-static-bin", I used it with some work projects
-# requiring a specific version of Clang-format
+I'm using the AUR package =clang-format-static-bin=, which provide multiple
+versions of Clang-format, I use it with some work projects requiring a specific
+version of Clang-format.
+
+#+begin_src shell :tangle ~/.env_stuff
 export PATH=/opt/clang-format-static:$PATH
+#+end_src
 
-# Add my manually installed libraries to CMake
+Add my manually installed libraries to CMake and =PATH=.
+
+#+begin_src shell :tangle ~/.env_stuff
 export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
 export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
+#+end_src
 
-# Set NPM installation path to local
+Set NPM installation path to local:
+
+#+begin_src shell :tangle ~/.env_stuff
 NPM_PACKAGES="${HOME}/.npm-packages"
 
 # Export NPM bin path
@@ -1408,21 +1436,30 @@ export PATH="$PATH:$NPM_PACKAGES/bin"
 # Preserve MANPATH if you already defined it somewhere in your config.
 # Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
 export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
+#+end_src
 
+Some useful stuff (=fzf=, =opam=, Doom Emacs...)
+
+#+begin_src shell :tangle ~/.env_stuff
 # FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Start or attach to the default tmux session
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]
-then
-    tmux attach -t default || tmux new -s default
-fi
 
 # opam configuration
 [[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
 # Add ~/.emacs-doom.d/bin to path (for DOOM Emacs stuff)
 export PATH=$PATH:$HOME/.emacs-doom/bin
+#+end_src
+
+I like to use =tmux= by default, even on my local sessions, I like to start a =tmux=
+in a =default= session on the first time I launch a terminal, and then, attach any
+other terminal to this default session:
+
+#+begin_src shell :tangle ~/.env_stuff
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]
+then
+    tmux attach -t default || tmux new -s default
+fi
 #+end_src
 
 * Emacs Daemon
@@ -2493,7 +2530,7 @@ I think it makes sense to have list bullets change with depth
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
-***** COMMENT Citation (=org-ref=) :ref:
+***** Citation (=org-ref=) :ref:
 Occasionally I want to cite something, and =org-ref= is /the/ package for that.
 
 Unfortunately, it ignores the ~file = {...}~ =.bib= keys though. Let's fix that.
