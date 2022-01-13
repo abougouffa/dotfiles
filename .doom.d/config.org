@@ -116,7 +116,7 @@ Take new window space from all other windows (not just current).
 (global-subword-mode 1)
 #+end_src
 
-*** COMMENT Frame :frame:
+*** Frame :frame:
 **** COMMENT Maximizing :maximize:
 
 #+begin_src emacs-lisp
@@ -2232,21 +2232,17 @@ You will need to:
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 #+end_src
 
-My Email accounts are configured in a private file in =lisp/private/+mu4e.el=:
+My Email accounts are configured in a private file in
+=lisp/private/+mu4e-accounts.el=, which will be loaded after the common part:
 
 #+begin_src emacs-lisp
-(load! "lisp/private/+mu4e.el")
-#+end_src
-
-This file includes multi-account configuration as follow:
-#+begin_src emacs-lisp :eval no :tangle no
 (after! mu4e
   (require 'org-msg)
   (require 'smtpmail)
 
   ;; Common parameters
   (setq smtpmail-auth-credentials "~/.authinfo.gpg"
-        mu4e-update-interval (* 5 60) ;; Every 5min
+        mu4e-update-interval (* 3 60) ;; Every 3 min
         mu4e-get-mail-command "mbsync -a"
         mu4e-maildir "~/Maildir"
         user-full-name "Abdelhak Bougouffa" ;; Already set at the beginning
@@ -2254,6 +2250,13 @@ This file includes multi-account configuration as follow:
         message-send-mail-function 'smtpmail-send-it
         mu4e-sent-messages-behavior 'sent)) ;; Save sent messages
 
+(load! "lisp/private/+mu4e-accounts.el")
+#+end_src
+
+The =lisp/private/+mu4e-accounts.el= file includes Doom's mu4e multi-account
+configuration as follow:
+
+#+begin_src emacs-lisp :eval no :tangle no
 (set-email-account! "Work"
                     '((mu4e-sent-folder             . "/account-directory/Sent")
                       (mu4e-drafts-folder           . "/account-directory/Drafts")
@@ -2273,6 +2276,7 @@ This file includes multi-account configuration as follow:
 ; Tell Doom's mu4e module to override some commands to fix issues on Gmail accounts
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-directory")))
 #+end_src
+
 ** COMMENT Notmuch
 Use =mbsync= as sync backend.
 
