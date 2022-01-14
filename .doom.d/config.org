@@ -1370,9 +1370,12 @@ Add some aliases to work with the ESP-IDF framework.
 # ESP-IDF
 if [ -d $HOME/sources-and-libs/esp-idf/ ]
 then
-  # If not, clone "https://github.com/espressif/esp-idf.git"
-  alias esp_env='. $HOME/sources-and-libs/esp-idf/export.sh'
-  alias esp_update='cd $HOME/sources-and-libs/esp-idf ; git pull --all'
+  alias esp-prepare-env='. $HOME/sources-and-libs/esp-idf/export.sh'
+  alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/sources-and-libs/esp-idf && git pull --all && echo "Updated successfully"'
+else
+  echo "esp-idf repo not found."
+  # If not, ask to clone the Git repo
+  # git clone https://github.com/espressif/esp-idf.git
 fi
 #+end_src
 
@@ -1391,7 +1394,9 @@ Define an alias to get weather information for my city:
 
 #+begin_src shell :tangle ~/.env_stuff
 export WTTRIN_CITY=Orsay
-alias wttrin='curl https://wttr.in/$WTTRIN_CITY'
+
+alias wttrin='curl wttr.in/$WTTRIN_CITY'
+alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
 #+end_src
 
 Define some environment variables for better defaults (=minicom=, Rust,
