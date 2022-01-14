@@ -1364,7 +1364,7 @@ then
 fi
 #+end_src
 
-Add some aliases to work with the ESP-IDF framework.
+Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
 
 #+begin_src shell :tangle ~/.env_stuff
 # ESP-IDF
@@ -1381,13 +1381,13 @@ fi
 
 For the moment, I'm not using a particular tool to manage my dotfiles, instead,
 I use a bare Git repository to manage files, when the workspace is set to the
-home directory. To be able to add/commit files to the dotfiles repo, I define an
-alias to =git= which takes the bare repo as =--git-dir=, and my home directory as
-=--work-tree=.
+home directory. To be able to add/commit files to the dotfiles repository, I
+define an alias to =git= which takes the bare repository as =--git-dir=, and my home
+directory as =--work-tree=.
 
 #+begin_src shell :tangle ~/.env_stuff
 # Dotfiles
-alias dotfiles='git --git-dir=$HOME/Projects/dotfiles/.git --work-tree=$HOME'
+alias dotfiles='git --git-dir=$HOME/Projects/dotfiles.git --work-tree=$HOME'
 #+end_src
 
 Define an alias to get weather information for my city:
