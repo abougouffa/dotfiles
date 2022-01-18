@@ -1062,7 +1062,7 @@ fi
 
 Add =tika='s installation instructions to the =setup.sh= file.
 
-#+begin_src shell :tangle "setup.sh"
+#+begin_src shell
 update_apache_tika () {
   TIKA_JAR_PATH=$HOME/.local/share/tika
 
@@ -1098,8 +1098,12 @@ update_apache_tika () {
 
   if [ ! -f ${TIKA_JAR} ]
   then
-    echo "New version available, downloading Apache Tika App v${TIKA_VERSION}"
-    curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
+    echo "New version available!"
+    read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
+    if [[ $INSTALL_CONFIRM == "Y" ]]
+    then
+      curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
+    fi
   else
     echo "Apache Tika App is up to date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
   fi
@@ -1310,6 +1314,36 @@ alias emut="e -t"
 Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
 [[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
 
+** AppImage
+Install/update the =appimageupdatetool.AppImage= tool:
+
+#+begin_src shell
+update_appimageupdatetool () {
+  TOOL_NAME=appimageupdatetool
+  MACHINE_ARCH=$(uname -m)
+  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
+  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
+
+  if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ] && $APPIMAGE_UPDATE_TOOL_PATH -j ${APPIMAGE_UPDATE_TOOL_PATH} 2&>/dev/null
+  then
+    echo "${TOOL_NAME} already up to date"
+  else
+    if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ]
+    then
+      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+      mv ${APPIMAGE_UPDATE_TOOL_PATH} "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    else
+      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+    fi
+    [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] && rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    wget -O ${APPIMAGE_UPDATE_TOOL_PATH} ${APPIMAGE_UPDATE_TOOL_URL} && echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
+    chmod a+x ${APPIMAGE_UPDATE_TOOL_PATH}
+  fi
+}
+
+update_appimageupdatetool;
+#+end_src
+
 ** Custom environment
 I would like to customize my Linux environment in a separate file, which I
 source from my =~/.zshrc= file.
@@ -1367,15 +1401,12 @@ fi
 Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
 
 #+begin_src shell :tangle ~/.env_stuff
-# ESP-IDF
 if [ -d $HOME/sources-and-libs/esp-idf/ ]
 then
-  alias esp-prepare-env='. $HOME/sources-and-libs/esp-idf/export.sh'
+  alias esp-prepare-env='source $HOME/sources-and-libs/esp-idf/export.sh'
   alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/sources-and-libs/esp-idf && git pull --all && echo "Updated successfully"'
 else
-  echo "esp-idf repo not found."
-  # If not, ask to clone the Git repo
-  # git clone https://github.com/espressif/esp-idf.git
+  echo "esp-idf repo not found. You can clone the esp-idf repo using 'git clone https://github.com/espressif/esp-idf.git'"
 fi
 #+end_src
 
@@ -1386,7 +1417,6 @@ define an alias to =git= which takes the bare repository as =--git-dir=, and my 
 directory as =--work-tree=.
 
 #+begin_src shell :tangle ~/.env_stuff
-# Dotfiles
 alias dotfiles='git --git-dir=$HOME/Projects/dotfiles.git --work-tree=$HOME'
 #+end_src
 
@@ -1399,10 +1429,7 @@ alias wttrin='curl wttr.in/$WTTRIN_CITY'
 alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
 #+end_src
 
-Define some environment variables for better defaults (=minicom=, Rust,
-Clang-format, NPM, Doom Emacs... etc):
-
-Enable Meta key + colors in minicom
+Enable Meta key and colors in =minicom=:
 
 #+begin_src shell :tangle ~/.env_stuff
 export MINICOM='-m -c on'
