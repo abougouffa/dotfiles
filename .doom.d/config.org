@@ -1304,10 +1304,10 @@ set aliases for the terminal-forced variants.
 alias et="e -t"
 # Aliases to run emacs+magit
 alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
-alias magitt="magit -t"
+alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
 # Aliases to run emacs+mu4e
 alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
-alias emut="e -t"
+alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
 #+end_src
 
 ** TODO tmux
@@ -2327,10 +2327,10 @@ configuration as follow:
 
 #+begin_src emacs-lisp :eval no :tangle no
 (set-email-account! "Work"
-                    '((mu4e-sent-folder             . "/account-directory/Sent")
-                      (mu4e-drafts-folder           . "/account-directory/Drafts")
-                      (mu4e-trash-folder            . "/account-directory/Trash")
-                      (mu4e-refile-folder           . "/account-directory/Archive")
+                    '((mu4e-sent-folder             . "/work-dir/Sent")
+                      (mu4e-drafts-folder           . "/work-dir/Drafts")
+                      (mu4e-trash-folder            . "/work-dir/Trash")
+                      (mu4e-refile-folder           . "/work-dir/Archive")
                       (mu4e-compose-signature       . "-- SIGNATURE")
                       (smtpmail-smtp-user           . "username@server.com")
                       (smtpmail-stream-type         . ssl)
@@ -2340,10 +2340,16 @@ configuration as follow:
                      t)
 
 (set-email-account! "Gmail"
-                    '(...))
+                    '((mu4e-sent-folder             . "/gmail-dir/Sent")
+                      (mu4e-drafts-folder           . "/gmail-dir/Drafts")
+                      (mu4e-trash-folder            . "/gmail-dir/Trash")
+                      (mu4e-refile-folder           . "/gmail-dir/Archive")
+                      (mu4e-compose-signature       . "-- SIGNATURE")
+                      (smtpmail-smtp-user           . "username@gmail.com")
+                      ...))
 
 ; Tell Doom's mu4e module to override some commands to fix issues on Gmail accounts
-(setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-directory")))
+(setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
 ** COMMENT Notmuch
