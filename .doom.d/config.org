@@ -1300,11 +1300,13 @@ Now, to set an alias to use =e= with =magit=, and then for maximum laziness we c
 set aliases for the terminal-forced variants.
 
 #+begin_src shell :tangle ~/.env_stuff
-# Alias to run emacs in terminal mode
+# Alias to run emacs client in terminal mode
 alias et="e -t"
+
 # Aliases to run emacs+magit
 alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
 alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
+
 # Aliases to run emacs+mu4e
 alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
 alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
@@ -1721,6 +1723,23 @@ Every so often, you want everyone else to know that you’re typing, or just to 
   :commands selectic-mode)
 #+end_src
 
+*** COMMENT Grammarly
+
+#+begin_src emacs-lisp
+(package! grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/grammarly"))
+
+(package! flycheck-grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/flycheck-grammarly"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-grammarly
+  :config (load! "lisp/private/+grammarly-account.el"))
+#+end_src
+
 ** Programming :programming:
 *** TODO Repo :repo:
 
@@ -1899,26 +1918,6 @@ inside the src_elisp{(after! ... )} block ¯\_(ツ)_/¯.
         centaur-tabs-modified-marker "⭘"
         centaur-tabs-close-button "×"
         centaur-tabs-gray-out-icons 'buffer))
-#+end_src
-
-** Company :company:
-It's nice to have completions almost all the time, in my opinion. Keystrokes
-are just waiting to be saved!
-
-#+begin_src emacs-lisp
-(after! company
-  (setq company-idle-delay 0.5
-        company-minimum-prefix-length 2)
-  (setq company-show-numbers t)
-  (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
-#+end_src
-
-Now, the improvements from ~precedent~ are mostly from remembering history, so
-let's improve that memory.
-
-#+begin_src emacs-lisp
-(setq-default history-length 1000)
-(setq-default prescient-history-length 1000)
 #+end_src
 
 ** Better PDFs in Modeline :modeline:pdf:
@@ -2353,7 +2352,7 @@ configuration as follow:
 #+end_src
 
 ** COMMENT Notmuch
-Use =mbsync= as sync backend.
+Use =mbsync= as sync back-end.
 
 #+begin_src emacs-lisp
 (setq +notmuch-sync-backend 'mbsync)
