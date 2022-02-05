@@ -269,7 +269,7 @@ ophints                      ; highlight the region an operation acts on
 (popup +all                  ; tame sudden yet inevitable temporary windows
        +defaults)
 ;;tabs                       ; a tab bar for Emacs
-treemacs                     ; a project drawer, like neotree but cooler
+(treemacs +lsp)              ; a project drawer, like neotree but cooler
 ;;unicode                    ; extended unicode support for various languages
 vc-gutter                    ; vcs diff in the fringe
 ;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
@@ -720,6 +720,13 @@ Make =which-key= popup faster.
 #+begin_src emacs-lisp :tangle yes
 (setq which-key-idle-delay 0.5) ;; Default is 1.0
 ;; (setq which-key-idle-secondary-delay 0.2) ;; Default is nil
+#+end_src
+
+*** Fringe
+Increase the left fringe width, to enable breakpoints to be rendered correctly.
+
+#+begin_src emacs-lisp
+(setq left-fringe-width 20)
 #+end_src
 
 ** Editor :edit:
@@ -2463,7 +2470,7 @@ Eglot uses =project.el= to detect the project root. If you want to use =projecti
 **** COMMENT For Python
 
 #+begin_src emacs-lisp
-(after! (:and python-mode tramp)
+(after! tramp
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   (require 'lsp-mode)
   (require 'lsp-pyright)
@@ -2498,17 +2505,17 @@ Eglot uses =project.el= to detect the project root. If you want to use =projecti
   :major-modes '(c-mode c++-mode objc-mode cuda-mode)
   :remote? t
   :server-id 'ccls-remote))
-  ;;  :multi-root t
-  ;;  :priority 3
-  ;;  :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
-  ;;                                               (lsp-configuration-section "ccls")))
-  ;; :initialized-fn (lambda (workspace)
-  ;;                   (with-lsp-workspace workspace
-  ;;                     (lsp--set-configuration
-  ;;                      (ht-merge (lsp-configuration-section "c++")
-  ;;                                (lsp-configuration-section "ccls")))))
-  ;; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
-  ;;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
+; :multi-root t
+; :priority 3
+; :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
+;                                              (lsp-configuration-section "ccls")))
+; :initialized-fn (lambda (workspace)
+;                   (with-lsp-workspace workspace
+;                     (lsp--set-configuration
+;                      (ht-merge (lsp-configuration-section "c++")
+;                                (lsp-configuration-section "ccls")))))
+; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
+;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
 
 
 (require 'tramp)
@@ -2518,22 +2525,22 @@ Eglot uses =project.el= to detect the project root. If you want to use =projecti
 **** For C/C++ with =clangd=
 
 #+begin_src emacs-lisp
-(after! (:and (:or c-mode c++-mode) tramp)
- (require 'lsp-mode)
- (setq lsp-enable-snippet nil)
- ;; (setq lsp-log-io t)
+(after! tramp
+  (require 'lsp-mode)
+  (setq lsp-enable-snippet nil)
+  ;; (setq lsp-log-io t)
 
- ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
- (setq lsp-enable-symbol-highlighting nil)
+  ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
+  (setq lsp-enable-symbol-highlighting nil)
 
- (lsp-register-client
-  (make-lsp-client
-   :new-connection (lsp-tramp-connection (lambda ()
-                                           (cons "clangd-12" ; executable name on remote machine 'ccls'
-                                                 lsp-clients-clangd-args)))
-   :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-   :remote? t
-   :server-id 'clangd-remote)))
+  (lsp-register-client
+    (make-lsp-client
+      :new-connection (lsp-tramp-connection (lambda ()
+                                              (cons "clangd-12" ; executable name on remote machine 'ccls'
+                                                    lsp-clients-clangd-args)))
+      :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+      :remote? t
+      :server-id 'clangd-remote)))
 #+end_src
 
 ** DAP :dap:debug:ide:
@@ -2542,21 +2549,19 @@ Eglot uses =project.el= to detect the project root. If you want to use =projecti
 (after! dap-mode
   (require 'dap-cpptools)
 
-  ;; Reduce the intrusive UI components to locals and tooltip (see ).
-  (setq dap-auto-configure-features '(locals tooltip))
-
-  ;; Hide the annoying server output
-  (setq dap-auto-show-output nil)
+  ;; More minimal UI
+  (setq dap-auto-configure-features '(locals tooltip)
+        lsp-enable-dap-auto-configure t
+        dap-auto-show-output nil) ;; Hide the annoying server output
 
   ;; Automatically trigger dap-hydra when a program hits a breakpoint.
   (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
 
-  ;; Automatically delete session and close dap-hydra when DAP is ended.
+  ;; Automatically delete session and close dap-hydra when DAP is terminated.
   (add-hook 'dap-terminated-hook
     (lambda (arg)
       (progn (call-interactively #'dap-delete-session)
-             (dap-hydra/nil)
-             (message "DAP terminated, deleted current session.")))))
+             (dap-hydra/nil)))))
 #+end_src
 
 ** Plain text :text:
