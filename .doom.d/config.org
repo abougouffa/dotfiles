@@ -168,6 +168,7 @@ src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
 inherits this headers, so they will not be tangled unless overwriting in the
 block's header.
 
+*** File skeleton :init:
 This first section defines the template for the sub-sections, it uses the =no-web=
 syntax to include subsections specified as src_org{<<sub-section-name>>}.
 
@@ -268,7 +269,7 @@ ophints                      ; highlight the region an operation acts on
 (popup +all                  ; tame sudden yet inevitable temporary windows
        +defaults)
 ;;tabs                       ; a tab bar for Emacs
-(treemacs +lsp)              ; a project drawer, like neotree but cooler
+treemacs                     ; a project drawer, like neotree but cooler
 ;;unicode                    ; extended unicode support for various languages
 vc-gutter                    ; vcs diff in the fringe
 ;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
@@ -292,11 +293,11 @@ file-templates               ; auto-snippets for empty files
 fold                         ; (nigh) universal code folding
 format                       ; automated prettiness
 ;;god                        ; run Emacs commands without modifier keys
-lispy                        ; vim for lisp, for people who don't like vim
+;;lispy                      ; vim for lisp, for people who don't like vim
 multiple-cursors             ; editing in many places at once
 (objed +manual)              ; text object editing for the innocent
 parinfer                     ; turn lisp into python, sort of
-rotate-text                  ; cycle region at point between text candidates
+;;rotate-text                ; cycle region at point between text candidates
 snippets                     ; my elves. They type, so I don't have to
 word-wrap                    ; soft wrapping with language-aware indent
 #+end_src
@@ -393,9 +394,9 @@ plantuml               ; diagrams for confusing people more
 emacs-lisp             ; drown in parentheses
 common-lisp            ; if you've seen one lisp, you've seen them all
 markdown               ; writing docs for people to ignore
-rst                    ; ReST in peace
+;;rst                  ; ReST in peace
 data                   ; config/data formats
-qt                     ; the 'cutest' gui framework ever
+;;qt                   ; the 'cutest' gui framework ever
 (cc +lsp)              ; C/C++/Obj-C madness
 (json +lsp)            ; At least it ain't XML
 (julia +lsp)           ; a better, faster MATLAB
@@ -407,14 +408,11 @@ qt                     ; the 'cutest' gui framework ever
 (sh +lsp)              ; she sells {ba,z,fi}sh shells on the C xor
 (python +lsp           ; beautiful is better than ugly
         +pyright
-        +cython
-        +pyenv)
+        +pyenv
+        +conda)
 (org +dragndrop        ; organize your plain life in plain text
      +gnuplot
      +jupyter
-     ;+noter
-     ;+hugo
-     ;+journal
      +pandoc
      +present
      +pomodoro
@@ -518,7 +516,7 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 32)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 16)
       doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
@@ -528,10 +526,13 @@ Some good fonts:
 Set Doom's theme, some good choices:
 - =doom-palenight=
 - =doom-one=
+- =doom-vibrant=
 - =doom-dark+= (VS Code like)
 - =doom-tomorrow-night=
 - =doom-xcode=
 - =doom-material=
+- =doom-ayu-mirage=
+- =doom-monokai-pro=
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-one) ; Load theme
@@ -570,7 +571,7 @@ Show battery level unless battery is not present or battery information is unkno
 #+end_src
 
 *** Splash Screen :splash:
-**** Fancy Splash
+**** COMMENT Fancy Splash
 Works fine, but not centered correctly.
 
 #+begin_src emacs-lisp :tangle yes
@@ -667,7 +668,7 @@ Works fine, but not centered correctly.
 (add-hook 'doom-load-theme-hook #'set-appropriate-splash)
 #+end_src
 
-**** COMMENT Custom Splash Image :image:banner:
+**** Custom Splash Image :image:banner:
 Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
 
 #+begin_src emacs-lisp
@@ -888,7 +889,7 @@ javascript:location.href =
     + encodeURIComponent(window.getSelection())
 #+end_src
 
-** GIT :git:
+** Git :git:
 *** Git diffs :diff:
 Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
 
@@ -1179,7 +1180,7 @@ GenericName=Text Editor
 Comment=A flexible platform for end-user applications
 MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
 Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
-Icon=/home/abdelhak/.doom.d/assets/doom-emacs-cute.svg
+Icon=emacs
 Type=Application
 Terminal=false
 Categories=TextEditor;Utility;
@@ -1496,6 +1497,23 @@ then
 fi
 #+end_src
 
+** Zotero trick
+Zotero does not support dark mode for the moment, when using a system-wide dark
+theme (atleast on KDE), Zotero UI gets messed up, to fix this, we can force
+Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
+
+#+begin_src conf :tangle ~/.local/share/applications/zotero.desktop :mkdirp yes
+[Desktop Entry]
+Type=Application
+Name=Zotero
+GenericName=A free, easy-to-use tool to help you collect, organize, cite, and share your research sources.
+Icon=zotero
+Exec=GTK_THEME=Default /usr/bin/zotero --url %u
+Categories=Office
+Terminal=false
+MimeType=x-scheme-handler/zotero
+#+end_src
+
 * Emacs Daemon
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
@@ -1747,7 +1765,23 @@ Every so often, you want everyone else to know that you’re typing, or just to 
 (package! repo) ;; TODO: configure me!
 #+end_src
 
-*** TODO LSP :lsp:
+*** Devdocs :devdocs:
+
+#+begin_src emacs-lisp
+(package! devdocs
+  :recipe (:host github
+           :repo "astoff/devdocs.el"
+           :files ("*.el")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! devdocs
+  :commands (devdocs-lookup devdocs-install)
+  :config
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+#+end_src
+
+*** COMMENT LSP :lsp:
 
 #+begin_src emacs-lisp
 (package! lsp-sonarlint)
@@ -1774,8 +1808,7 @@ Every so often, you want everyone else to know that you’re typing, or just to 
 For editing systemd unit files
 
 #+begin_src emacs-lisp
-(package! systemd
-  :pin "b6ae63a236605b1c5e1069f7d3afe06ae32a7bae")
+(package! systemd)
 #+end_src
 
 *** Bitbake (Yocto) :bitbake:yocto:
@@ -2117,10 +2150,10 @@ add package src directories to projectile. This isn't desirable in my opinion.
 
 #+begin_src emacs-lisp
 ;; Run `M-x projectile-project-search-path' to reload paths form this variable
-(setq projectile-project-search-path '("~/PhD/workspace"
-                                       "~/PhD/workspace-no"
-                                       "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-                                       "~/Projects/foss_projects"))
+;; (setq projectile-project-search-path '("~/PhD/workspace"
+;;                                        "~/PhD/workspace-no"
+;;                                        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
+;;                                        "~/Projects/foss_projects"))
 
 (setq projectile-ignored-projects '("~/"
                                     "/tmp"
@@ -2288,13 +2321,12 @@ Configuring =mu4e= email accounts, note that you need to have a proper
 You will need to:
 - Install =mu= and =mbsync-git=
 - Setup a proper configuration file for your accounts at =~/config/mu4e/mbsyncrc=
-- Setup the associated password file =mbsyncpass-account1= in the same directory
-  for each account
-- Encrypt the password file using =gpg -c mbsyncpass-account1=
 - Run =mu init --maildir=~/Maildir --my-address=user@host.bla=
 - Run =mbsync -c ~/.config/mu4e/mbsyncrc -a=
-- For sending mails from =mu4e=, add =authinfo= files for each account, file contains
-  a line in this format =machine mail.example.org port 587 login myuser password mypasswd=
+- For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
+  this format =machine mail.example.org port 587 login myuser password mypasswd=
+- Encrypt the =~/.authinfo= file using GPG =gpg -c ~/.authinfo= and delete the
+  original unencrypted file.
 
 #+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/local/share/emacs/site-lisp/mu4e") "yes" "no")
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
@@ -2379,8 +2411,43 @@ Add ROS specific file formats:
 (setq auto-mode-alist (cons '("\\.rviz$" . conf-unix-mode) auto-mode-alist))
 #+end_src
 
-** LSP :lsp:
-*** COMMENT Tell LSP to use =clangd= in C/C++ :clangd:c:cpp:
+** LSP :lsp:ide:
+*** Enable some useful UI stuff
+LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables a set of
+UI components to provide a less intrusive UI, however I like to enable some of
+the less intrusive, more useful UI stuff.
+
+#+begin_src emacs-lisp
+(after! lsp-mode
+  (setq lsp-lens-enable nil) ; not working properly with ccls!
+  (setq lsp-ui-sideline-enable t)
+  (setq lsp-ui-sideline-show-code-actions t)
+  (setq lsp-ui-sideline-show-diagnostics t)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (when lsp-headerline-breadcrumb-enable
+     (setq lsp-headerline-breadcrumb-segments '(symbols)))
+
+  ;; Tune LSP performances (https://emacs-lsp.github.io/lsp-mode/page/performance)
+  (setq lsp-log-io nil))
+#+end_src
+
+*** Eglot
+Eglot uses =project.el= to detect the project root. If you want to use =projectile=:
+
+#+begin_src emacs-lisp
+(after! eglot
+  (defun projectile-project-find-function (dir)
+    (let* ((root (projectile-project-root dir)))
+      (and root (cons 'transient root))))
+
+  (with-eval-after-load 'project
+    (add-to-list 'project-find-functions 'projectile-project-find-function))
+
+  ;; Use clangd with some options
+  (set-eglot-client! 'cc-mode '("clangd" "-j=3" "--clang-tidy")))
+#+end_src
+
+*** COMMENT Use =clangd= for C/C++ :clangd:c:cpp:
 
 #+begin_src emacs-lisp
 (setq lsp-clients-clangd-args '("-j=3"
@@ -2396,35 +2463,24 @@ Add ROS specific file formats:
 **** COMMENT For Python
 
 #+begin_src emacs-lisp
-(require 'lsp-mode)
-(require 'lsp-pyright)
-;;(setq lsp-enable-snippet nil)
-;;(setq lsp-log-io t)
-(lsp-register-client
- (make-lsp-client
-  :new-connection (lsp-tramp-connection (lambda ()
+(after! (:and python-mode tramp)
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (require 'lsp-mode)
+  (require 'lsp-pyright)
+  (setq lsp-enable-snippet nil)
+  ;; (setq lsp-log-io t)
+
+  ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
+  (setq lsp-enable-symbol-highlighting nil)
+
+  (lsp-register-client
+    (make-lsp-client
+     :new-connection (lsp-tramp-connection (lambda ()
                                           (cons "pyright-langserver"
                                                 lsp-pyright-langserver-command-args)))
-  :major-modes '(python-mode)
-  :remote? t
-  :server-id 'pyright-remote
-  ;;  :multi-root t
-  ;;  :priority 3
-  ;;  :initialization-options (lambda () (ht-merge (lsp-configuration-section "pyright")
-  ;;                                               (lsp-configuration-section "python")))
-  ;; :initialized-fn (lambda (workspace)
-  ;;                   (with-lsp-workspace workspace
-  ;;                     (lsp--set-configuration
-  ;;                      (ht-merge (lsp-configuration-section "pyright")
-  ;;                                (lsp-configuration-section "python")))))
-  ;; :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-  ;;                                ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-  ;;                                ("pyright/endProgress" 'lsp-pyright--end-progress-callback))
-
-  ))
-
-(require 'tramp)
-(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+     :major-modes '(python-mode)
+     :remote? t
+     :server-id 'pyright-remote)))
 #+end_src
 
 **** COMMENT For C/C++ with =ccls=
@@ -2433,7 +2489,7 @@ Add ROS specific file formats:
 (require 'lsp-mode)
 (require 'ccls)
 (setq lsp-enable-snippet nil)
-(setq lsp-log-io t)
+;; (setq lsp-log-io t)
 (lsp-register-client
  (make-lsp-client
   :new-connection (lsp-tramp-connection (lambda ()
@@ -2441,7 +2497,7 @@ Add ROS specific file formats:
                                                 ccls-args)))
   :major-modes '(c-mode c++-mode objc-mode cuda-mode)
   :remote? t
-  :server-id 'ccls-remote
+  :server-id 'ccls-remote))
   ;;  :multi-root t
   ;;  :priority 3
   ;;  :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
@@ -2453,7 +2509,7 @@ Add ROS specific file formats:
   ;;                                (lsp-configuration-section "ccls")))))
   ;; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
   ;;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
-  ))
+
 
 (require 'tramp)
 (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
@@ -2462,13 +2518,12 @@ Add ROS specific file formats:
 **** For C/C++ with =clangd=
 
 #+begin_src emacs-lisp
-(after! tramp
+(after! (:and (:or c-mode c++-mode) tramp)
  (require 'lsp-mode)
  (setq lsp-enable-snippet nil)
- (setq lsp-log-io t)
+ ;; (setq lsp-log-io t)
 
- ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported"
- ;; error
+ ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
  (setq lsp-enable-symbol-highlighting nil)
 
  (lsp-register-client
@@ -2479,6 +2534,29 @@ Add ROS specific file formats:
    :major-modes '(c-mode c++-mode objc-mode cuda-mode)
    :remote? t
    :server-id 'clangd-remote)))
+#+end_src
+
+** DAP :dap:debug:ide:
+
+#+begin_src emacs-lisp
+(after! dap-mode
+  (require 'dap-cpptools)
+
+  ;; Reduce the intrusive UI components to locals and tooltip (see ).
+  (setq dap-auto-configure-features '(locals tooltip))
+
+  ;; Hide the annoying server output
+  (setq dap-auto-show-output nil)
+
+  ;; Automatically trigger dap-hydra when a program hits a breakpoint.
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+
+  ;; Automatically delete session and close dap-hydra when DAP is ended.
+  (add-hook 'dap-terminated-hook
+    (lambda (arg)
+      (progn (call-interactively #'dap-delete-session)
+             (dap-hydra/nil)
+             (message "DAP terminated, deleted current session.")))))
 #+end_src
 
 ** Plain text :text:
@@ -2612,40 +2690,6 @@ I turn off spell checking by default to make Org files open quickly.
 (add-hook 'org-mode-hook 'turn-off-flyspell)
 ;;(add-hook 'org-mode-hook 'turn-on-flyspell)
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
-#+end_src
-
-***** COMMENT LSP support in ~src~ blocks :lsp:
-Now, by default, LSPs don't really function at all in ~src~ blocks.
-
-#+begin_src emacs-lisp
-(cl-defmacro lsp-org-babel-enable (lang)
-  "Support LANG in org source code block."
-  (setq centaur-lsp 'lsp-mode)
-  (cl-check-type lang stringp)
-  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
-         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
-    `(progn
-       (defun ,intern-pre (info)
-         (let ((file-name (->> info caddr (alist-get :file))))
-           (unless file-name
-             (setq file-name (make-temp-file "babel-lsp-")))
-           (setq buffer-file-name file-name)
-           (lsp-deferred)))
-       (put ',intern-pre 'function-documentation
-            (format "Enable lsp-mode in the buffer of org source block (%s)."
-                    (upcase ,lang)))
-       (if (fboundp ',edit-pre)
-           (advice-add ',edit-pre :after ',intern-pre)
-         (progn
-           (defun ,edit-pre (info)
-             (,intern-pre info))
-           (put ',edit-pre 'function-documentation
-                (format "Prepare local buffer environment for org source block (%s)."
-                        (upcase ,lang))))))))
-(defvar org-babel-lang-list
-  '("go" "python" "ipython" "bash" "sh"))
-(dolist (lang org-babel-lang-list)
-  (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 
 ***** COMMENT View exported file :export:
@@ -3349,7 +3393,7 @@ Activate ~+org-pretty-mode~.
 (add-hook 'org-mode-hook #'+org-pretty-mode)
 #+end_src
 
-***** COMMENT Headings
+***** Headings
 Let's make the title and the headings a bit bigger:
 
 #+begin_src emacs-lisp
