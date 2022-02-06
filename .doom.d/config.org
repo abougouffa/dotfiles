@@ -722,13 +722,6 @@ Make =which-key= popup faster.
 ;; (setq which-key-idle-secondary-delay 0.2) ;; Default is nil
 #+end_src
 
-*** Fringe
-Increase the left fringe width, to enable breakpoints to be rendered correctly.
-
-#+begin_src emacs-lisp
-(setq left-fringe-width 20)
-#+end_src
-
 ** Editor :edit:
 *** Scratch buffer :scratch:
 Tell the scratch buffer to start in =emacs-lisp-mode=.
@@ -2355,9 +2348,9 @@ My Email accounts are configured in a private file in
         user-full-name "Abdelhak Bougouffa" ;; Already set at the beginning
         mu4e-compose-signature "Abdelhak Bougouffa\n- PhD. Candidate | R&D Engineer"
         message-send-mail-function 'smtpmail-send-it
-        mu4e-sent-messages-behavior 'sent)) ;; Save sent messages
+        mu4e-sent-messages-behavior 'sent) ;; Save sent messages
 
-(load! "lisp/private/+mu4e-accounts.el")
+  (load! "lisp/private/+mu4e-accounts.el"))
 #+end_src
 
 The =lisp/private/+mu4e-accounts.el= file includes Doom's mu4e multi-account
@@ -2425,17 +2418,24 @@ UI components to provide a less intrusive UI, however I like to enable some of
 the less intrusive, more useful UI stuff.
 
 #+begin_src emacs-lisp
-(after! lsp-mode
-  (setq lsp-lens-enable nil) ; not working properly with ccls!
-  (setq lsp-ui-sideline-enable t)
-  (setq lsp-ui-sideline-show-code-actions t)
-  (setq lsp-ui-sideline-show-diagnostics t)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (when lsp-headerline-breadcrumb-enable
-     (setq lsp-headerline-breadcrumb-segments '(symbols)))
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil
+        lsp-log-io nil
+        lsp-lens-enable nil ; not working properly with ccls!
+        lsp-diagnostics-provider :auto
+        lsp-enable-symbol-highlighting t
+        lsp-headerline-breadcrumb-enable nil
+        lsp-headerline-breadcrumb-segments '(symbols)))
+#+end_src
 
-  ;; Tune LSP performances (https://emacs-lsp.github.io/lsp-mode/page/performance)
-  (setq lsp-log-io nil))
+*** Fringe
+Increase the left fringe width, to enable breakpoints to be rendered correctly.
+
+#+begin_src emacs-lisp
+(add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(12 . 12))))
 #+end_src
 
 *** Eglot
