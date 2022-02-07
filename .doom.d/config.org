@@ -117,9 +117,10 @@ Take new window space from all other windows (not just current).
 #+end_src
 
 *** Frame :frame:
-**** COMMENT Maximizing :maximize:
+**** Maximizing :maximize:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, replaced with params passed to emacsclient
 ;; start the initial frame maximized
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
@@ -134,12 +135,22 @@ command line when calling =emacsclient=, by adding this:
 --frame-parameters="'(fullscreen . maximized)"
 #+end_src
 
-**** COMMENT Focus
+**** Focus created frame
+The problem is, every time I launch an Emacs frame (from KDE), The Emacs starts
+with no focus, I need each time to =Alt-TAB= to get Emacs under focus, and then
+start typing. I tried changing this behavior from Emacs by hooking =raise-frame=
+at startup, but it didn't work.
+
 Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working on my Emacs version.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, not working
 (add-hook 'server-switch-hook #'raise-frame)
 #+end_src
+
+After some investigations, I found that this issue is probably KDE specific, the
+issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
+stealing prevention* to /None/ in the KDE Settings.
 
 **** COMMENT Margins
 
@@ -147,9 +158,11 @@ Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working 
 (set-frame-parameter nil 'internal-border-width 15)
 #+end_src
 
-** COMMENT Debug
+** Debug
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, toggle to enable doom debugging, I do enable it to see
+;;       which packages are loaded automatically to optimize launch time of my config.
 ;; The `use-package-verbose' takes the value of `doom-debug-p'.
 (setq doom-debug-p t)
 #+end_src
@@ -1574,7 +1587,8 @@ This file shouldn't be byte compiled.
 #+begin_src emacs-lisp
 ;; lisp/wttrin/wttrin.el is taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
-(package! wttrin :recipe (:local-repo "lisp/wttrin"))
+(package! wttrin
+  :recipe (:local-repo "lisp/wttrin"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1590,8 +1604,8 @@ This file shouldn't be byte compiled.
            :repo "dengste/org-caldav"))
 #+end_src
 
-** Themes and UI
-*** SVG Tag Mode
+** Themes and UI :ui:theme:
+*** SVG Tag Mode :svg:
 
 #+begin_src emacs-lisp
 (package! svg-tag-mode)
@@ -1602,7 +1616,7 @@ This file shouldn't be byte compiled.
   :commands svg-tag-mode)
 #+end_src
 
-*** COMMENT N Λ N O Packages
+*** COMMENT N Λ N O Packages :nano:
 
 #+begin_src emacs-lisp
 (package! nano-theme
@@ -1641,7 +1655,7 @@ This file shouldn't be byte compiled.
 ;;   :config (nano-setup))
 #+end_src
 
-*** Bespoke themes
+*** Bespoke themes :bespoke:
 
 #+begin_src emacs-lisp
 (package! bespoke-themes
@@ -1653,14 +1667,19 @@ This file shouldn't be byte compiled.
            :repo "mclear-tools/bespoke-modeline"))
 #+end_src
 
-*** Focus
+*** Focus :focus:
 Dim the font color of text in surrounding paragraphs, focus only on the current line.
 
 #+begin_src emacs-lisp
 (package! focus)
 #+end_src
 
-*** COMMENT Posframe
+#+begin_src emacs-lisp :tangle yes
+(use-package! focus
+  :commands focus-mode)
+#+end_src
+
+*** COMMENT Posframe :posframe:
 
 #+begin_src emacs-lisp
 (package! vertico-posframe)
@@ -1697,7 +1716,8 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
 Then for reading them, the only currently viable options seems to be [[https://depp.brause.cc/nov.el/][nov.el]].
 
 #+begin_src emacs-lisp
-(package! nov :pin "b3c7cc28e95fe25ce7b443e5f49e2e45360944a3")
+(package! nov
+  :pin "b3c7cc28e95fe25ce7b443e5f49e2e45360944a3")
 #+end_src
 
 Together these should give me a rather good experience reading ebooks.
@@ -1712,6 +1732,12 @@ Together these should give me a rather good experience reading ebooks.
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; BUG: Not tangled, it seems to be too slow, + an issue with dvipng
+(use-package! org-fragtog
+  :hook (org-mode . org-fragtog-mode))
 #+end_src
 
 *** Info colors
@@ -1741,16 +1767,18 @@ Every so often, you want everyone else to know that you’re typing, or just to 
   :commands selectic-mode)
 #+end_src
 
-*** COMMENT Grammarly
+*** Grammarly
 
 #+begin_src emacs-lisp
 (package! grammarly
   :recipe (:host github
-           :repo "emacs-grammarly/grammarly"))
+           :repo "emacs-grammarly/grammarly")
+  :disable t) ;; TODO: It messes my org files up, need to investigate
 
 (package! flycheck-grammarly
   :recipe (:host github
-           :repo "emacs-grammarly/flycheck-grammarly"))
+           :repo "emacs-grammarly/flycheck-grammarly")
+  :disable t) ;; TODO: It messes my org files up, need to investigate
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1759,10 +1787,23 @@ Every so often, you want everyone else to know that you’re typing, or just to 
 #+end_src
 
 ** Programming :programming:
-*** TODO Repo :repo:
+*** Repo :repo:
+Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not =pacman -S repo= on Arch-based
+distros, or directly with:
+
+#+begin_src shell :tangle no
+REPO_PATH="$HOME/.local/bin/repo"
+curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
+chmod a+x ${REPO_PATH}
+#+end_src
 
 #+begin_src emacs-lisp
-(package! repo) ;; TODO: configure me!
+(package! repo)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! repo
+  :commands repo-status)
 #+end_src
 
 *** Devdocs :devdocs:
@@ -1837,7 +1878,7 @@ with it.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! websocket
-  :after org-roam)
+  :after org-roam-ui)
 
 (use-package! org-roam-ui
   :commands org-roam-ui-open
@@ -1854,7 +1895,6 @@ For mathematical convenience, WIP
 (package! aas
   :recipe (:host github
            :repo "ymarco/auto-activating-snippets"))
-;;  :pin "3076cefea0f6ae9d7757f13c27b5602e007b58ec")
 #+end_src
 
 And some basic config
@@ -2697,40 +2737,6 @@ I turn off spell checking by default to make Org files open quickly.
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
 
-***** COMMENT View exported file :export:
-='localeader v= has no pre-existing binding, so I may as well use it with the same
-functionality as in LaTeX. Let's try viewing possible output files with this.
-
-#+begin_src emacs-lisp
-(map! :map org-mode-map
-      :localleader
-      :desc "View exported file" "v" #'org-view-output-file)
-
-(defun org-view-output-file (&optional org-file-path)
-  "Visit buffer open on the first output file (if any) found, using `org-view-output-file-extensions'"
-  (interactive)
-  (let* ((org-file-path (or org-file-path (buffer-file-name) ""))
-         (dir (file-name-directory org-file-path))
-         (basename (file-name-base org-file-path))
-         (output-file nil))
-    (dolist (ext org-view-output-file-extensions)
-      (unless output-file
-        (when (file-exists-p
-               (concat dir basename "." ext))
-          (setq output-file (concat dir basename "." ext)))))
-    (if output-file
-        (if (member (file-name-extension output-file) org-view-external-file-extensions)
-            (browse-url-xdg-open output-file)
-          (pop-to-buffer (or (find-buffer-visiting output-file)
-                             (find-file-noselect output-file))))
-      (message "No exported file found"))))
-
-(defvar org-view-output-file-extensions '("pdf" "md" "rst" "txt" "tex" "html")
-  "Search for output files with these extensions, in order, viewing the first that matches")
-(defvar org-view-external-file-extensions '("html")
-  "File formats that should be opened externally.")
-#+end_src
-
 **** TODOs :todo:
 
 #+begin_src emacs-lisp
@@ -2834,6 +2840,14 @@ Configure =org-super-agenda=
 #+end_src
 
 **** Google calendar (=org-gcal=) :calendar:google:
+I store my =org-gcal= config privately, it contains something like this:
+
+#+begin_src emacs-lisp :tangle no
+(after! org-gcal
+  (setq org-gcal-client-id "<SOME_ID>.apps.googleusercontent.com"
+        org-gcal-client-secret "<SOME_SECRET>"
+        org-gcal-fetch-file-alist '(("<username>@gmail.com" . "~/Dropbox/Org/gcal-agenda.org"))))
+#+end_src
 
 #+begin_src emacs-lisp
 (load! "lisp/private/+org-gcal.el")
@@ -3716,15 +3730,6 @@ passed, and so we can override the background as discussed above.
 (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
 #+end_src
 
-***** COMMENT More eager rendering
-What's better than syntax-highlighted LaTeX is /rendered/ LaTeX though, and we can
-have this be performed automatically with =org-fragtog=.
-
-#+begin_src emacs-lisp
-(use-package! org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-#+end_src
-
 ***** Prettier rendering
 It's nice to customize the look of LaTeX fragments so they fit better in the
 text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}\).
@@ -3759,7 +3764,7 @@ functionality from =bmc-maths=, so we'll load that too.
 ")
 #+end_src
 
-Since we can, instead of making the background colour match the =default= face,
+Since we can, instead of making the background color match the =default= face,
 let's make it transparent.
 
 #+begin_src emacs-lisp
