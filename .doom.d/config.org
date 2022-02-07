@@ -1527,7 +1527,48 @@ Terminal=false
 MimeType=x-scheme-handler/zotero
 #+end_src
 
-* Emacs Daemon
+** Rust format :rust:format:
+For Rust code base, the file =$HOME/.rustfmt.toml= contains the global format
+settings, I like to set it to:
+
+#+begin_src conf-toml :tangle ~/.rustfmt.toml
+# Rust edition 2018
+edition = "2018"
+
+# Use Unix style newlines, with 2 spaces tabulation.
+newline_style = "Unix"
+tab_spaces = 2
+hard_tabs = false
+
+# Make one line functions in a single line
+fn_single_line = true
+
+# Format strings
+format_strings = true
+
+# Increase the max line width
+max_width = 120
+
+# Merge nested imports
+merge_imports = true
+
+# Enum and Struct alignement
+enum_discrim_align_threshold = 20
+struct_field_align_threshold = 20
+
+# Reorder impl items: type > const > macros > methods.
+reorder_impl_items = true
+
+# Comments and documentation formating
+wrap_comments = true
+normalize_comments = true
+normalize_doc_attributes = true
+format_code_in_doc_comments = true
+report_fixme = "Always"
+todo = "Always"
+#+end_src
+
+* Emacs Daemon :daemon:
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
 with it, so I may as well eat the load time at startup. We also want to keep
