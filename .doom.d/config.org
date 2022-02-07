@@ -1568,6 +1568,35 @@ report_fixme = "Always"
 todo = "Always"
 #+end_src
 
+** GDB init
+GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
+this file, this is a WIP, but wont evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
+the =.gdbinit= simple]]. For the moment, it does just enable pretty printing,
+and defines =c= and =n= commands to wrap =continue= and =next= with a post =refresh=, this
+is just to avoid the annoying TUI when the program outputs to the stdout.
+
+#+begin_src gdb-script :tangle ~/.gdbinit
+# GDB init file
+# Abdelhak Bougouffa (c) 2022
+
+# Save history
+set history save on
+
+# Set pretty print
+set print pretty on
+
+# This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
+define c
+  continue
+  refresh
+end
+
+define n
+  next
+  refresh
+end
+#+end_src
+
 * Emacs Daemon :daemon:
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
