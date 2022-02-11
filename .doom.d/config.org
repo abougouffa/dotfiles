@@ -93,6 +93,22 @@ Take new window space from all other windows (not just current).
 (setq-default window-combination-resize t)
 #+end_src
 
+**** Split
+Split horizontally to right, vertically below the current window.
+
+#+begin_src emacs-lisp
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+#+end_src
+
+Show list of buffers when splitting.
+
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (consult-buffer))
+#+end_src
+
 *** Undo and auto-save :save:undo:
 
 #+begin_src emacs-lisp
