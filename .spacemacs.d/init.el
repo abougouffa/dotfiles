@@ -41,10 +41,16 @@ This function should only modify configuration layer settings."
      auto-completion
      better-defaults
      emacs-lisp
+     semantic
+     c-c++
+     debug
+     dap
+     lsp
      git
      ;; helm
-     (ivy :variables ivy-enable-advanced-buffer-information t)
-     lsp
+     ;; (ivy :variables ivy-enable-advanced-buffer-information t)
+     (compleseus :variables
+                 compleseus-engine 'vertico)
      markdown
      multiple-cursors
      org
@@ -234,7 +240,7 @@ It should only modify the values of Spacemacs settings."
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    ;dotspacemacs-mode-line-theme '(spacemacs :separator bar :separator-scale 1.5)
-   dotspacemacs-mode-line-theme '(all-the-icons :separator none :separator-scale 1.5)
+   dotspacemacs-mode-line-theme '(doom :separator none :separator-scale 1.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -244,7 +250,7 @@ It should only modify the values of Spacemacs settings."
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
    dotspacemacs-default-font '("Calling Code"
-                               :size 12.0
+                               :size 14.0
                                :weight normal
                                :width normal)
 
@@ -559,8 +565,8 @@ before packages are loaded."
   (setq! org-ref-default-bibliography '("~/Dropbox/Org/zotero-library.bib")
          org-ref-pdf-directory "~/Zotero/storage/"
          org-ref-bibliography-notes "~/Dropbox/Org/ref/notes.org"
-         reftex-default-bibliography org-ref-default-bibliography)
-  )
+         reftex-default-bibliography org-ref-default-bibliography))
+  
 
 
 ;; Do not write anything past this comment. This is where Emacs will
