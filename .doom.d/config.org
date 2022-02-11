@@ -2777,6 +2777,24 @@ it work with =projectile=:
              (dap-hydra/nil)))))
 #+end_src
 
+*** Doom store
+Doom Emacs stores session information persistently using the core =store=
+mechanism. However, relaunching a new session doesn't overwrite the last stored
+session, to do so, I define a helper function to clear data stored in the
+="+debugger"= location. (see src_elisp{+debugger--get-last-config} function.)
+
+#+begin_src emacs-lisp
+(defun +debugger/clear-last-session ()
+  "Clear the last stored session"
+  (interactive)
+  (doom-store-clear "+debugger"))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :tools debugger +lsp)
+       :prefix-map ("d" . "debugger")
+       :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
+#+end_src
+
 ** Cppcheck :flycheck:cppcheck:
 
 #+begin_src emacs-lisp
