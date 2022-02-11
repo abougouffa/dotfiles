@@ -2667,6 +2667,18 @@ it work with =projectile=:
 (after! lsp-clangd (set-lsp-priority! 'clangd 2))
 #+end_src
 
+*** =ccls= :ccls:c:cpp:
+
+#+begin_src emacs-lisp
+(after! ccls
+  (setq ccls-initialization-options
+        '(:index (:comments 2
+                  :trackDependency 1
+                  :threads 4)
+          :completion (:detailedLabel t)))
+  (set-lsp-priority! 'ccls 2)) ; optional as ccls is the default in Doom
+#+end_src
+
 *** Enable =lsp= over =tramp= :tramp:
 **** COMMENT For Python
 
