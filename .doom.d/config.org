@@ -4123,3 +4123,13 @@ value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
 
+***** Export PDFs with syntax highlighting
+
+#+begin_src emacs-lisp :tangle yes
+(require 'ox-latex)
+
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+
+(setq org-latex-listings 'minted
+      org-src-fontify-natively t)
+#+end_src
