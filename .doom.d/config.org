@@ -1780,6 +1780,24 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :hook (vertico-mode . vertico-posframe-mode))
 #+end_src
 
+*** Window title
+I’d like to have just the buffer name, then if applicable the project folder
+
+#+begin_src emacs-lisp :tangle yes
+(setq frame-title-format
+      '(""
+        (:eval
+         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+             (replace-regexp-in-string
+              ".*/[0-9]*-?" "☰ "
+              (subst-char-in-string ?_ ?  buffer-file-name))
+           "%b"))
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p) " ◉ %s" "  ●  %s") project-name))))))
+#+end_src
+
 ** Features :features:
 *** ESS :ess:
 View data frames better with
@@ -2003,7 +2021,7 @@ And some basic config
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package franca-idl
+(use-package! franca-idl
   :commands franca-idl-mode)
 #+end_src
 
