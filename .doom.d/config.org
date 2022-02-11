@@ -283,7 +283,7 @@ doom                         ; what makes DOOM look the way it does
 doom-dashboard               ; a nifty splash screen for Emacs
 ;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
 (emoji +ascii
-;;       +unicode
+;;     +unicode
        +github)
 hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
 ;;fill-column                ; a `fill-column' indicator
@@ -373,9 +373,9 @@ grammar                ; tasing grammar mistake every you make
 I enable some useful tools which facilitate my work flow, I like to enable
 Docker support, [[https://editorconfig.org][EditorConfig]] is a good feature to have. I like to enable
 =lsp-mode= and =dap-mode= for coding and debugging by enabling the =lsp= and =debugger=
-modules with =+lsp= support. =pdf= adds support for =pdf-tools=, which are great for
-viewing PDF files inside Emacs, I also enable some extra tools, like =magit=,
-=lookup=, =tmux=... etc.
+modules with =+lsp= support (further customization for =lsp= and =dap= below). =pdf=
+adds support through =pdf-tools=, which are great for viewing PDF files inside
+Emacs, I also enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
 
 #+name: doom-tools
 #+begin_src emacs-lisp
@@ -413,9 +413,9 @@ I enable =tty= for better support of terminal editing.
 *** Language support (=:lang=)
 Most of the projects I'm working on are mainly written in C/C++, Python, Rust
 and some Lisp stuff, I edit also a lot of configuration and data files in
-several formats (=csv=, =yaml=, =xml=, =json=...). I use Org-mode to manage all my
-papers and notes, so I need to enable as many features as I need, I do enable
-=plantuml= also to quickly plot UML models withing Org documents.
+several formats (=csv=, =yaml=, =xml=, =json=, =shell= scripts...). I use Org-mode to
+manage all my papers and notes, so I need to enable as many features as I need,
+I do enable =plantuml= also to quickly plot UML models withing Org documents.
 
 #+name: doom-lang
 #+begin_src emacs-lisp
@@ -547,7 +547,7 @@ Some good fonts:
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 16)
       doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ; inherits the :size from doom-font
-      doom-unicode-font (font-spec :family "JuliaMono")
+      doom-unicode-font (font-spec :family "Iosevka Fixed")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
 
@@ -571,17 +571,19 @@ Set Doom's theme, some good choices:
 **** Clock
 Display time and set the format to 24h.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 (setq display-time-string-forms
       '((propertize (concat 24-hours ":" minutes))))
 
 (display-time-mode 1) ; Enable time in the mode-line
 #+end_src
 
-**** COMMENT Battery
+**** Battery
 Show battery level unless battery is not present or battery information is unknown.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 ;; This code causes 'doom doctor' to fail. TODO: Whats wrong with this function?
 (defun ab/display-battery ()
   (let ((batt-status (battery)))
@@ -592,9 +594,10 @@ Show battery level unless battery is not present or battery information is unkno
 (ab/display-battery)
 #+end_src
 
-*** COMMENT Set transparency :transparent:
+*** Set transparency :transparent:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 (set-frame-parameter (selected-frame) 'alpha '(98 100))
 (add-to-list 'default-frame-alist '(alpha 98 100))
 #+end_src
@@ -747,8 +750,8 @@ Add an ASCII banner, used in terminal mode.
 Make =which-key= popup faster.
 
 #+begin_src emacs-lisp :tangle yes
-(setq which-key-idle-delay 0.5) ;; Default is 1.0
-;; (setq which-key-idle-secondary-delay 0.2) ;; Default is nil
+(setq which-key-idle-delay 0.5 ;; Default is 1.0
+      which-key-idle-secondary-delay 0.05) ;; Default is nil
 #+end_src
 
 ** Editor :edit:
@@ -1001,7 +1004,7 @@ Then adding a regex for it to =~/.config/git/config=
 
 [diff "odt"]
   textconv = odt2txt
-  # textconv = pandoc --standalone --from=odt --to=plain
+# textconv = pandoc --standalone --from=odt --to=plain
   binary = true
   cachetextconv = true
 
@@ -1056,7 +1059,7 @@ Then adding a regex for it to =~/.config/git/config=
   cachetextconv = true
 
 [diff "tika"]
-  textconv = tika --config=/home/abdelhak/.local/share/tika/tika-conf.xml --text
+  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
   binary = true
   cachetextconv = true
 
@@ -1526,7 +1529,7 @@ then
 fi
 #+end_src
 
-** Zotero trick
+** Zotero UI trick
 Zotero does not support dark mode for the moment, when using a system-wide dark
 theme (atleast on KDE), Zotero UI gets messed up, to fix this, we can force
 Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
@@ -2565,7 +2568,8 @@ Increase the left fringe width, to enable breakpoints to be rendered correctly.
 #+end_src
 
 *** Eglot
-Eglot uses =project.el= to detect the project root. If you want to use =projectile=:
+Eglot uses =project.el= to detect the project root. This is a workaround to make
+it work with =projectile=:
 
 #+begin_src emacs-lisp
 (after! eglot
@@ -2577,12 +2581,13 @@ Eglot uses =project.el= to detect the project root. If you want to use =projecti
     (add-to-list 'project-find-functions 'projectile-project-find-function))
 
   ;; Use clangd with some options
-  (set-eglot-client! 'cc-mode '("clangd" "-j=3" "--clang-tidy")))
+  (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
 #+end_src
 
-*** COMMENT Use =clangd= for C/C++ :clangd:c:cpp:
+*** =clangd= :clangd:c:cpp:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, using the default ccls
 (setq lsp-clients-clangd-args '("-j=3"
                                 "--background-index"
                                 "--clang-tidy"
