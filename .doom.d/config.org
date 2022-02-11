@@ -5,6 +5,7 @@
 #+property: header-args:elisp :exports code
 #+property: header-args:shell :tangle "setup.sh"
 #+property: header-args :tangle no :results silent :eval no-export
+#+setupfile: assets/template.org
 #+startup: fold
 
 * Intro :intro:

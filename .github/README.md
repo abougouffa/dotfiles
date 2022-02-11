@@ -6,15 +6,16 @@ Contains my configuration files for Zsh, Emacs, Vim, and other Linux related stu
 
 If you need to reuse some of these configs, you will need to modify some directories and add some user specific information (usernames, passwords...)
 
-The main file is [`.doom.d/config.org`](../.doom.d/config.org), it contains the
+The main file is [`.doom.d/config.org`](../.doom.d/config.org), (available also
+as a [PDF file](../.doom.d/config.pdf), it contains the
 literal configuration for [Doom Emacs](https://github.com/hlissner/doom-emacs),
-and I use it to generate some other user configuration files (define aliases, 
+and I use it to generate some other user configuration files (define aliases,
 environment variables, user tools, Git config...).
 
 ## Emacs stuff
 
 - You will need to install [Chemacs2](https://github.com/plexus/chemacs2) to
-  `.emacs.d`: 
+  `.emacs.d`:
 
 ```shell
 [ -f ~/.emacs ] && mv ~/.emacs ~/.emacs.bak

@@ -1,0 +1,16 @@
+#+latex_class: article
+#+latex_class_options: [9pt]
+#+latex_header: \usepackage[paper=a4paper, left=2cm, right=2cm, top=3cm, bottom=3cm]{geometry}
+#+latex_header: \usepackage{babel}
+#+LATEX_HEADER: \usepackage{fancyhdr}
+#+LATEX_HEADER: \pagestyle{fancyplain}
+#+LATEX_HEADER: \emergencystretch 5em%
+#+latex_header: \usepackage{caption}
+#+latex_header: \usepackage{float}
+#+latex_header: \usepackage{subcaption}
+#+latex_header: \usepackage{tikz}
+#+latex_header: \usepackage[numbers,square,sort&compress]{natbib}
+#+latex_header: \def\bibfont{\footnotesize}
+#+latex_header: \setlength{\bibsep}{0pt plus 0.5ex}
+#+LATEX_HEADER: \rfoot{\small{Abdelhak Bougouffa~\textcopyright~2022}}
+#+latex: \newpage
