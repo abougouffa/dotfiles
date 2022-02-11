@@ -34,10 +34,6 @@
     # expand_tab = false
 
 
-[[custom_plugins]]
-    repo = "kristijanhusak/orgmode.nvim"
-    merged = false
-
 # SpaceVim default layer contains no plugins, but It provides some better default config for SpaceVim.
 [[layers]]
   name = "default"
@@ -60,13 +56,13 @@
   name = "lsp"
   filetypes = [
     "rust",
-    "python",
     "c",
     "cpp"
   ]
 
 [[layers]]
   name = "lang#c"
+  enable_clang_syntax_highlight = true
   [layer.clang_std]
     c = "c11"
     cpp = "c++1z"
