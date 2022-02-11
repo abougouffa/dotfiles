@@ -9,9 +9,9 @@
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
-my machine but I didn't discover the *real* Emacs until 2020, in the beginning, I
+my machine, but I didn't discover the *real* Emacs until 2020, in the beginning, I
 started my Vanilla Emacs configuration from scratch, but after a while, it
-become a mess. As a new Emacs user, I didn't understand the in the beginning how
+becomes a mess. As a new Emacs user, I didn't understand the in the beginning how
 to optimize my configuration and how to do things correctly. I discovered then
 [[github:syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and just
 after, I found the awesome [[https://github.com/hlissner/doom-emacs][Doom Emacs]], and since, I didn't quit my Emacs screen!
@@ -194,11 +194,11 @@ file contains all the enabled Doom modules with the appropriate flags.
 
 This section defines the default source blocks arguments
 src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
-inherits this headers, so they will not be tangled unless overwriting in the
+inherits these headers, so they will not be tangled unless overwriting in the
 block's header.
 
 *** File skeleton :init:
-This first section defines the template for the sub-sections, it uses the =no-web=
+This first section defines the template for the subsections, it uses the =no-web=
 syntax to include subsections specified as src_org{<<sub-section-name>>}.
 
 #+name: init.el
@@ -585,7 +585,7 @@ Show battery level unless battery is not present or battery information is unkno
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
-;; This code causes 'doom doctor' to fail. TODO: Whats wrong with this function?
+;; This code causes 'doom doctor' to fail. TODO: What's wrong with this function?
 (defun ab/display-battery ()
   (let ((batt-status (battery)))
     (unless (or (string-match-p "unknown"    batt-status)
@@ -712,7 +712,7 @@ Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-e
 #+end_src
 
 **** Clean Screen :clean:
-Lets disable the dashboard commands, for a particularly /clean/ look disable the
+Let's disable the dashboard commands, for a particularly /clean/ look disable the
 modeline and ~hl-line-mode~, then also hide the cursor.
 
 #+begin_src emacs-lisp
@@ -839,7 +839,7 @@ straightforward, I'll just redefine it to a simpler, async, function.
 * System configuration :linux:system:
 ** Mime types :mime:
 *** Org Mode files :org:
-Org mode isn't recognized as it's own mime type by default, but that can easily
+Org mode isn't recognized as its own mime type by default, but that can easily
 be changed with the following file. For system-wide changes try
 ~/usr/share/mime/packages/org.xml~.
 
@@ -888,8 +888,7 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 
 *** Configuring Chrome/Brave
 As specified in the [[https://www.orgroam.com/manual.html#Org_002droam-Protocol][official documentation]], we would like to invoke the
-=org-protocol://= without confirmation. To do this, we need to add this system
-wide configuration.
+=org-protocol://= without confirmation. To do this, we need to add this system-wide configuration.
 
 #+begin_comment
 It seems that this setting is not persistent, each time I reboot my machine,
@@ -1080,7 +1079,7 @@ extracts metadata and text from over a thousand different file types. We will be
 using the Tika App in command-line mode to show some meaningful diff information
 for some binary files.
 
-First, lets add a custom script to run =tika-app=:
+First, let's add a custom script to run =tika-app=:
 
 #+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
 #!/bin/sh
@@ -1115,7 +1114,7 @@ update_apache_tika () {
     curl -s ${TIKA_BASE_URL} | # Get the page
     pandoc -f html -t plain | # Convert HTML page to plain text.
     awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
-    sort -rV | # Sort versions, newest first
+    sort -rV | # Sort versions, the newest first
     head -n 1 # Get the first (newest) version
   )
 
@@ -1139,7 +1138,7 @@ update_apache_tika () {
       curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
     fi
   else
-    echo "Apache Tika App is up to date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
+    echo "Apache Tika App is up-to-date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
   fi
 
   # Check the existance of the symbolic link
@@ -1386,7 +1385,7 @@ source from my =~/.zshrc= file.
 
 I like to define MacOS-like commands (=pbcopy= and =pbpaste=) to copy and paste in
 terminal (from =stdin=, to =stdout=). The =pbcopy= and =pbpaste= are defined using
-either =xclip= or =xsel=, you would need install these tools, otherwise we wouldn't
+either =xclip= or =xsel=, you would need to install these tools, otherwise we wouldn't
 define the aliases.
 
 #+begin_src shell :tangle ~/.env_stuff
@@ -1405,7 +1404,7 @@ fi
 #+end_src
 
 And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
-with root permissions, this needs =xhost=.
+with root permissions, this requires =xhost=.
 
 #+begin_src shell :tangle ~/.env_stuff
 # To run GUI apps from terminal with root permissions
@@ -1590,7 +1589,7 @@ todo = "Always"
 
 ** GDB init
 GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
-this file, this is a WIP, but wont evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
+this file, this is a WIP, but won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
 the =.gdbinit= simple]]. For the moment, it does just enable pretty printing,
 and defines =c= and =n= commands to wrap =continue= and =next= with a post =refresh=, this
 is just to avoid the annoying TUI when the program outputs to the stdout.
@@ -1821,7 +1820,7 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
 #+end_src
 
 *** Ebook reading :ebook:
-Then for reading them, the only currently viable options seems to be [[https://depp.brause.cc/nov.el/][nov.el]].
+Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
 
 #+begin_src emacs-lisp
 (package! nov
@@ -2310,7 +2309,7 @@ Looking at documentation via =SPC h f= and =SPC h v= and looking at the source c
 add package src directories to projectile. This isn't desirable in my opinion.
 
 #+begin_src emacs-lisp
-;; Run `M-x projectile-project-search-path' to reload paths form this variable
+;; Run `M-x projectile-project-search-path' to reload paths from this variable
 ;; (setq projectile-project-search-path '("~/PhD/workspace"
 ;;                                        "~/PhD/workspace-no"
 ;;                                        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
@@ -2481,7 +2480,7 @@ Configuring =mu4e= email accounts, note that you need to have a proper
 
 You will need to:
 - Install =mu= and =mbsync-git=
-- Setup a proper configuration file for your accounts at =~/config/mu4e/mbsyncrc=
+- Set up a proper configuration file for your accounts at =~/config/mu4e/mbsyncrc=
 - Run =mu init --maildir=~/Maildir --my-address=user@host.bla=
 - Run =mbsync -c ~/.config/mu4e/mbsyncrc -a=
 - For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
@@ -2553,7 +2552,7 @@ My Email accounts are configured in a private file in
 #+end_src
 
 The =lisp/private/+mu4e-accounts.el= file includes Doom's mu4e multi-account
-configuration as follow:
+configuration as follows:
 
 #+begin_src emacs-lisp :eval no :tangle no
 (set-email-account! "Work"
@@ -2611,10 +2610,9 @@ Add ROS specific file formats:
 #+end_src
 
 ** LSP :lsp:ide:
-*** Enable some useful UI stuff
+*** Enable some useful UI stuff :diagnostics:ui:
 LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables a set of
-UI components to provide a less intrusive UI, however I like to enable some of
-the less intrusive, more useful UI stuff.
+UI components to provide a less intrusive UI, however I like to enable some less intrusive, more useful UI stuff.
 
 #+begin_src emacs-lisp
 (after! lsp-ui
@@ -2630,19 +2628,20 @@ the less intrusive, more useful UI stuff.
         lsp-headerline-breadcrumb-segments '(symbols)))
 #+end_src
 
-*** Fringe
+*** Fringe :fringe:
 Increase the left fringe width, to enable breakpoints to be rendered correctly.
 
 #+begin_src emacs-lisp
 (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(12 . 12))))
 #+end_src
 
-*** Eglot
+*** Eglot :eglot:
 Eglot uses =project.el= to detect the project root. This is a workaround to make
 it work with =projectile=:
 
 #+begin_src emacs-lisp
 (after! eglot
+  ;; A hack to make it works with projectile (from https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367)
   (defun projectile-project-find-function (dir)
     (let* ((root (projectile-project-root dir)))
       (and root (cons 'transient root))))
@@ -2654,20 +2653,21 @@ it work with =projectile=:
   (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
 #+end_src
 
-*** =clangd= :clangd:c:cpp:
+*** LSP mode with =clangd= :clangd:c:cpp:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled, using the default ccls
-(setq lsp-clients-clangd-args '("-j=3"
-                                "--background-index"
-                                "--clang-tidy"
-                                "--completion-style=detailed"
-                                "--header-insertion=never"
-                                "--header-insertion-decorators=0"))
-(after! lsp-clangd (set-lsp-priority! 'clangd 2))
+(after! lsp-clangd
+  (setq lsp-clients-clangd-args '("-j=3"
+                                  "--background-index"
+                                  "--clang-tidy"
+                                  "--completion-style=detailed"
+                                  "--header-insertion=never"
+                                  "--header-insertion-decorators=0"))
+  (set-lsp-priority! 'clangd 2))
 #+end_src
 
-*** =ccls= :ccls:c:cpp:
+*** LSP mode with =ccls= :ccls:c:cpp:
 
 #+begin_src emacs-lisp
 (after! ccls
@@ -2680,18 +2680,18 @@ it work with =projectile=:
 #+end_src
 
 *** Enable =lsp= over =tramp= :tramp:
-**** COMMENT For Python
+**** For Python :python:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: WIP: Not tangled
 (after! tramp
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   (require 'lsp-mode)
   (require 'lsp-pyright)
-  (setq lsp-enable-snippet nil)
-  ;; (setq lsp-log-io t)
 
-  ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
-  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        ; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
+        lsp-enable-symbol-highlighting nil)
 
   (lsp-register-client
     (make-lsp-client
@@ -2701,50 +2701,54 @@ it work with =projectile=:
      :major-modes '(python-mode)
      :remote? t
      :server-id 'pyright-remote)))
+
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 #+end_src
 
-**** COMMENT For C/C++ with =ccls=
+**** For C/C++ with =ccls= :ccls:
 
-#+begin_src emacs-lisp
-(require 'lsp-mode)
-(require 'ccls)
-(setq lsp-enable-snippet nil)
-;; (setq lsp-log-io t)
-(lsp-register-client
- (make-lsp-client
-  :new-connection (lsp-tramp-connection (lambda ()
-                                          (cons ccls-executable ; executable name on remote machine 'ccls'
-                                                ccls-args)))
-  :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-  :remote? t
-  :server-id 'ccls-remote))
-; :multi-root t
-; :priority 3
-; :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
-;                                              (lsp-configuration-section "ccls")))
-; :initialized-fn (lambda (workspace)
-;                   (with-lsp-workspace workspace
-;                     (lsp--set-configuration
-;                      (ht-merge (lsp-configuration-section "c++")
-;                                (lsp-configuration-section "ccls")))))
-; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
-;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
+#+begin_src emacs-lisp :tangle no
+;; NOTE: WIP: Not tangled
+(after! tramp
+  (require 'lsp-mode)
+  (require 'ccls)
 
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        lsp-enable-symbol-highlighting t)
 
-(require 'tramp)
-(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection (lambda ()
+                                            (cons ccls-executable ; executable name on remote machine 'ccls'
+                                                  ccls-args)))
+    :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+    :remote? t
+    :server-id 'ccls-remote))
+  ;; :multi-root t
+  ;; :priority 3
+  ;; :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
+  ;;                                              (lsp-configuration-section "ccls")))
+  ;; :initialized-fn (lambda (workspace)
+  ;;                   (with-lsp-workspace workspace
+  ;;                     (lsp--set-configuration
+  ;;                      (ht-merge (lsp-configuration-section "c++")
+  ;;                                (lsp-configuration-section "ccls")))))
+  ;; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
+  ;;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
+
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 #+end_src
 
-**** For C/C++ with =clangd=
+**** For C/C++ with =clangd= :clangd:
 
 #+begin_src emacs-lisp
 (after! tramp
   (require 'lsp-mode)
-  (setq lsp-enable-snippet nil)
-  ;; (setq lsp-log-io t)
-
-  ;; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
-  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        ; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
+        lsp-enable-symbol-highlighting nil)
 
   (lsp-register-client
     (make-lsp-client
@@ -2828,7 +2832,7 @@ on that.
 :END:
 *** Intro
 Because this section is fairly expensive to initialize, we'll wrap
-it in an src_elisp{(after! ...)} block.
+it in a src_elisp{(after! ...)} block.
 
 #+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
 (after! org
@@ -2842,7 +2846,7 @@ it in an src_elisp{(after! ...)} block.
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/"              ; let's put files here
       org-use-property-inheritance t              ; it's convenient to have properties inherited
-      org-log-done 'time                          ; having the time a item is done sounds convenient
+      org-log-done 'time                          ; having the time an item is done sounds convenient
       org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
 ;;    org-export-in-background t                  ; run export processes in external emacs process
 ;;    org-export-async-debug t
@@ -2866,7 +2870,7 @@ default.
 #+end_src
 
 By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
-However this messes with tables in Org-mode, and other plaintext files (e.g.
+However, this messes with tables in Org-mode, and other plaintext files (e.g.
 markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
 specific modes as desired.
 
@@ -3066,7 +3070,7 @@ Set capture files
       +org-capture-projects-file (concat org-directory "projects.org"))
 #+end_src
 
-Let's setup some org-capture templates, and make them visually nice to access.
+Lets set up some org-capture templates, and make them visually nice to access.
 
 #+begin_src emacs-lisp :noweb no-export
 (use-package! doct
@@ -3325,7 +3329,7 @@ is selected, only the bare key is returned."
                     (insert (format "%s   %s\n" (propertize key 'face '(bold all-the-icons-red)) description))
                     (push key allowed-keys)))
                 ;; Display UI and let user select an entry or
-                ;; a sub-level prefix.
+                ;; a sublevel prefix.
                 (goto-char (point-min))
                 (unless (pos-visible-in-window-p (point-max))
                   (org-fit-window-to-buffer))
@@ -3380,7 +3384,7 @@ to initialize), let's not load roam.
 #+end_src
 
 ***** Modeline file name :modeline:
-All those numbers! It's messy. Let's adjust this in a similar way that I have in
+All those numbers! It's messy. Let's adjust this similarly that I have in
 the window title
 
 #+begin_src emacs-lisp
@@ -3606,7 +3610,7 @@ Example of usage:
 
 *** Visuals
 Here I try to do two things: improve the styling of the various documents, via
-font changes etc, and also propagate colours from the current theme.
+font changes etc., and also propagate colours from the current theme.
 
 **** Font Display
 ***** Org Pretty Mode
@@ -3669,7 +3673,7 @@ sacrificing visual amenities with the =org-appear= package.
 #+end_src
 
 **** COMMENT Font trick
-Org files can be rather nice to look at, particularly with some of the
+Org files can be rather nice to look at, particularly with some
 customization here. This comes at a cost however, expensive font-lock.
 Feeling like you're typing through molasses in large files is no fun, but there
 is a way I can defer font-locking when typing to make the experience more
@@ -3687,7 +3691,7 @@ responsive.
 
 Apparently this causes issues with some people, but I haven't noticed anything
 problematic beyond the expected slight delay in some fontification, so until I
-do I'll use the above.
+do, I'll use the above.
 
 **** Fontifying inline src blocks
 Org does lovely things with =#+begin_src= blocks, like using font-lock for
@@ -3935,9 +3939,9 @@ passed, and so we can override the background as discussed above.
 #+end_src
 
 ***** Prettier rendering
-It's nice to customize the look of LaTeX fragments so they fit better in the
+It's nice to customize the look of LaTeX fragments, so they fit better in the
 text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}\).
-Let's start by adding a sans font. I'd also like to use some of the
+Let's start by adding a sans font. I'd also like to use some
 functionality from =bmc-maths=, so we'll load that too.
 
 #+begin_src emacs-lisp
@@ -3977,7 +3981,7 @@ let's make it transparent.
 #+end_src
 
 **** Org Plot
-We can use some of the variables in =org-plot= to use the current doom theme
+We can use some variables in =org-plot= to use the current doom theme
 colors.
 
 #+begin_src emacs-lisp
