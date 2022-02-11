@@ -2232,105 +2232,77 @@ This makes the result of evals with =gr= and =gR= just slightly prettier.
 (setq eros-eval-result-prefix "⟹ ")
 #+end_src
 
-** Ispell :spell:
-*** COMMENT Set the default =ispell= dictionary :ispell:dict:
-Set =ispell='s dictionary to American English by default.
-
-#+begin_src emacs-lisp
-(setq ispell-dictionary "american")
-;;(setq ispell-personal-dictionary (expand-file-name ".ispell_personal_dict" doom-private-dir))
-#+end_src
-
-*** COMMENT Use =hunspell= to correct mistakes :hunspell:
-Having =flyspell= and =hunspell= enabled in =init.el=, first install these packages:
+** Checkers (spell & grammar) :spell:grammar:
+*** Set the default =ispell= dictionary :ispell:dict:
+With =:checkers spell +hunspell=, =hunspell= needs to be installed:
 
 #+begin_example shell
 sudo pacman -S hunspell hunspell-en_US hunspell-en_GB hunspell-fr
 #+end_example
 
-Then configure dictionaries:
+Set =ispell='s dictionary to English and French by default.
+
 #+begin_src emacs-lisp
-(add-to-list 'ispell-local-dictionary-alist '("francais"
-                                              "[[:alpha:]]"
-                                              "[^[:alpha:]]"
-                                              "[']"
-                                              t
-                                              ("-d" "fr_FR"); Dictionary file name
-                                              nil
-                                              utf-8))
+(after! ispell
+  (setq ispell-program-name "hunspell"      ; Use hunspell to correct mistakes
+        ispell-dictionary   "en_US,fr_FR")  ; Default dictionary to use
 
-(add-to-list 'ispell-local-dictionary-alist '("english"
-                                              "[[:alpha:]]"
-                                              "[^[:alpha:]]"
-                                              "[']"
-                                              t
-                                              ("-d" "en_US")
-                                              nil
-                                              utf-8))
+  ;; ispell-set-spellchecker-params has to be called
+  ;; before ispell-hunspell-add-multi-dic will work
+  (ispell-set-spellchecker-params)
+  (ispell-hunspell-add-multi-dic "en_US,fr_FR")
 
-(setq ispell-program-name "hunspell"   ; Use hunspell to correct mistakes
-      ispell-dictionary   "english")  ; Default dictionary to use
+  ;; Define the personal dictionary path, and use it only when it exists
+  (setq ispell-personal-dictionary (expand-file-name ".ispell_personal_dict" doom-private-dir))
+  (unless (file-exists-p ispell-personal-dictionary)
+    (write-region "" nil ispell-personal-dictionary nil 0)))
 #+end_src
 
-*** COMMENT Shortcuts to change dictionary :dict:
+*** Lazy flycheck :flycheck:
+
+#+begin_src emacs-lisp
+(after! flyspell
+  (setq flyspell-lazy-idle-seconds 3
+        flyspell-lazy-window-idle-seconds 10))
+#+end_src
+
+*** Shortcuts to change dictionary :dict:
 #+begin_src emacs-lisp
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
-  (cond ((eq lang 1)
-         (setq flyspell-default-dictionary "american")
-         (setq ispell-dictionary "english")
-         (message "Dictionary changed to 'american'"))
-        ((eq lang 2)
-         (setq flyspell-default-dictionary "francais")
-         (setq ispell-dictionary "francais")
+  (cond ((eq lang :en)
+         (setq flyspell-default-dictionary "en_US"
+               ispell-dictionary "en_US")
+         (message "Dictionary changed to 'english'"))
+        ((eq lang :fr)
+         (setq flyspell-default-dictionary "fr_FR"
+               ispell-dictionary "fr_FR")
          (message "Dictionary changed to 'francais'"))
         (t (message "No changes have been made.")))
   (flyspell-mode -1)
-  (flyspell-mode)
-  (spell-fu-mode -1)
-  (spell-fu-mode))
+  (flyspell-mode))
 
-(map! :leader
-      :desc "custom" "l")
-
-(map! :leader
-      :desc "dictionary" "l d")
-
-(map! :leader
-      :desc "American" "l d a" #'(lambda () (interactive) (ab-conf/spelldict 1)))
-
-(map! :leader
-      :desc "Français" "l d f" #'(lambda () (interactive) (ab-conf/spelldict 2)))
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :checkers spell)
+       :prefix-map ("y" . "dictionary")
+       :desc "English (en_US)"    "e" #'(lambda () (interactive) (ab-conf/spelldict :en))
+       :desc "Français (fr_FR)"   "f" #'(lambda () (interactive) (ab-conf/spelldict :fr))))
 #+end_src
 
-*** COMMENT Shortcuts to check grammar :langtool:
+*** Shortcuts to check grammar :langtool:
+
 #+begin_src emacs-lisp
-(map! :leader
-      :desc "langtool" "l l")
-
-(map! :leader
-      :desc "Check" "l l l" #'langtool-check)
-
-(map! :leader
-      :desc "Correct buffer" "l l b" #'langtool-correct-buffer)
-
-(map! :leader
-      :desc "Stop server" "l l s" #'langtool-server-stop)
-
-(map! :leader
-      :desc "Done checking" "l l d" #'langtool-check-done)
-
-(map! :leader
-      :desc "Show msg at point" "l l m" #'langtool-show-message-at-point)
-
-(map! :leader
-      :desc "Next error" "l l n" #'langtool-goto-next-error)
-
-(map! :leader
-      :desc "Previous error" "l l p" #'langtool-goto-previous-error)
-
-(map! :leader
-      :desc "Switch default language" "l l L" #'langtool-switch-default-language)
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :checkers grammar)
+       :prefix-map ("l" . "langtool")
+       :desc "Check"                    "l" #'langtool-check
+       :desc "Correct buffer"           "b" #'langtool-correct-buffer
+       :desc "Stop server"              "s" #'langtool-server-stop
+       :desc "Done checking"            "d" #'langtool-check-done
+       :desc "Show msg at point"        "m" #'langtool-show-message-at-point
+       :desc "Next error"               "n" #'langtool-goto-next-error
+       :desc "Previous error"           "p" #'langtool-goto-previous-error
+       :desc "Switch default language"  "L" #'langtool-switch-default-language))
 #+end_src
 
 ** Projectile :projectile:
