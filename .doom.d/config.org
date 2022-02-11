@@ -2503,14 +2503,52 @@ My Email accounts are configured in a private file in
 
   ;; Common parameters
   (setq smtpmail-auth-credentials "~/.authinfo.gpg"
-        mu4e-update-interval (* 3 60) ;; Every 3 min
-        mu4e-get-mail-command "mbsync -a"
         mu4e-maildir "~/Maildir"
-        user-full-name "Abdelhak Bougouffa" ;; Already set at the beginning
-        mu4e-compose-signature "Abdelhak Bougouffa\n- PhD. Candidate | R&D Engineer"
-        message-send-mail-function 'smtpmail-send-it
-        mu4e-sent-messages-behavior 'sent) ;; Save sent messages
+        mu4e-update-interval (* 3 60) ;; Every 3 min
+        ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
+        mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
+        mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
+        ;; message-send-mail-function 'smtpmail-send-it ;; Set by default
+        mu4e-sent-messages-behavior 'sent ;; Save sent messages
+        mu4e-context-policy 'pick-first ;; Start with the first context
+        mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
 
+  (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
+                              (:account-stripe . 2)
+                              (:from-or-to . 25)
+                              (:folder . 10)
+                              (:recipnum . 2)
+                              (:subject . 80)
+                              (:human-date . 8))
+        +mu4e-min-header-frame-width 142
+        mu4e-headers-date-format "%d/%m/%y"
+        mu4e-headers-time-format "⧖ %H:%M"
+        mu4e-headers-results-limit 1000
+        mu4e-index-cleanup t)
+
+  (defvar +mu4e-header--folder-colors nil)
+  (appendq! mu4e-header-info-custom
+            '((:folder .
+               (:name "Folder" :shortname "Folder" :help "Lowest level folder" :function
+                (lambda (msg)
+                  (+mu4e-colorize-str
+                   (replace-regexp-in-string "\\`.*/" "" (mu4e-message-field msg :maildir))
+                   '+mu4e-header--folder-colors))))))
+
+  ;; Add shortcut to view yesterday's messages
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Yesterday's messages" :query "date:2d..1d" :key ?y) t)
+
+  ;; Use a nicer icon in alerts
+  (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
+
+  ;; Org-Msg stuff
+  ;; org-msg-signature is set for each account separately
+  (map! :map org-msg-edit-mode-map
+        :after org-msg
+        :n "G" #'org-msg-goto-body)
+
+  ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
 #+end_src
 
