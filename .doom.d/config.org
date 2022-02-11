@@ -365,7 +365,8 @@ default, and I enable it when I need to.
 #+name: doom-checkers
 #+begin_src emacs-lisp
 (syntax +childframe)   ; tasing you for every semicolon you forget
-(spell +aspell)        ; tasing you for misspelling mispelling
+(spell +flyspell       ; tasing you for misspelling mispelling
+       +hunspell)
 grammar                ; tasing grammar mistake every you make
 #+end_src
 
@@ -2004,6 +2005,22 @@ And some basic config
 #+begin_src emacs-lisp :tangle yes
 (use-package franca-idl
   :commands franca-idl-mode)
+#+end_src
+
+*** Flycheck + projectile
+
+#+begin_src emacs-lisp
+(package! flycheck-projectile
+  :recipe (:host github
+           :repo "nbfalcon/flycheck-projectile"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-projectile
+  :commands flycheck-projectile-list-errors
+;  :config
+;  (set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom :size 0.4 :select t)
+)
 #+end_src
 
 *** Graphviz :graphviz:
