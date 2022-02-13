@@ -185,8 +185,7 @@ stealing prevention* to /None/ in the KDE Settings.
 (setq doom-debug-p t)
 #+end_src
 
-* Doom Configuration :doom:
-** Modules (=init.el=) :module:
+* Modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
 :END:
@@ -199,7 +198,7 @@ src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
 inherits these headers, so they will not be tangled unless overwriting in the
 block's header.
 
-*** File skeleton :init:
+** File skeleton :init:
 This first section defines the template for the subsections, it uses the =no-web=
 syntax to include subsections specified as src_org{<<sub-section-name>>}.
 
@@ -248,7 +247,7 @@ syntax to include subsections specified as src_org{<<sub-section-name>>}.
 )
 #+end_src
 
-*** Config (=:config=)
+** Config (=:config=)
 Enable =literate= configuration (like this file!), and some defaults.
 
 #+name: doom-config
@@ -258,7 +257,7 @@ literate
          +smartparens)
 #+end_src
 
-*** Completion (=:completion=)
+** Completion (=:completion=)
 I'm lazy, I like Emacs to complete my writings.
 
 #+name: doom-completion
@@ -273,7 +272,7 @@ I'm lazy, I like Emacs to complete my writings.
 ;;ido                        ; the other *other* search engine...
 #+end_src
 
-*** User interface (=:ui=)
+** User interface (=:ui=)
 Enables some user interface features for better user experience, the beautiful
 =modeline=, the =treemacs= project tree, better version control integration with
 =vc-gutter=... and other useful stuff.
@@ -309,7 +308,7 @@ workspaces                   ; tab emulation, persistence & separate workspaces
 zen                          ; distraction-free coding or writing
 #+end_src
 
-*** Editor (=:editor=)
+** Editor (=:editor=)
 Some editing modules, the most important feature is EVIL to enable Vim style
 editing in Emacs. I like also to edit with multiple cursors, enable =yasnippet=
 support, wrap long lines, auto format support (however, I don't enable =+onsave=
@@ -327,13 +326,13 @@ format                       ; automated prettiness
 ;;lispy                      ; vim for lisp, for people who don't like vim
 multiple-cursors             ; editing in many places at once
 (objed +manual)              ; text object editing for the innocent
-parinfer                     ; turn lisp into python, sort of
+;;parinfer                   ; turn lisp into python, sort of
 ;;rotate-text                ; cycle region at point between text candidates
 snippets                     ; my elves. They type, so I don't have to
 word-wrap                    ; soft wrapping with language-aware indent
 #+end_src
 
-*** Emacs' builtin (=:emacs=)
+** Emacs' builtin (=:emacs=)
 Beautify Emacs builtin packages.
 
 #+name: doom-emacs
@@ -346,7 +345,7 @@ electric                     ; smarter, keyword-based electric-indent
 vc                           ; version-control and Emacs, sitting in a tree
 #+end_src
 
-*** Terminals (=:term=)
+** Terminals (=:term=)
 Run commands in terminal from Emacs. I use mainly =vterm= on my local machine,
 however, I like to have =eshell=, =shell= and =term= installed to use them for remote
 file editing (via Tramp).
@@ -359,7 +358,7 @@ shell                        ; simple shell REPL for Emacs
 term                         ; basic terminal emulator for Emacs
 #+end_src
 
-*** Checkers (=:checkers=)
+** Checkers (=:checkers=)
 I like to check my documents for errors while I'm typing, however, sometimes it
 makes Emacs runs slowly, specially on big files, so I will disable checking by
 default, and I enable it when I need to.
@@ -372,7 +371,7 @@ default, and I enable it when I need to.
 grammar                ; tasing grammar mistake every you make
 #+end_src
 
-*** Tools (=:tools=)
+** Tools (=:tools=)
 I enable some useful tools which facilitate my work flow, I like to enable
 Docker support, [[https://editorconfig.org][EditorConfig]] is a good feature to have. I like to enable
 =lsp-mode= and =dap-mode= for coding and debugging by enabling the =lsp= and =debugger=
@@ -405,7 +404,7 @@ tmux                   ; an API for interacting with tmux
 upload                 ; map local to remote projects via ssh/ftp
 #+end_src
 
-*** Operating system (=:os=)
+** Operating system (=:os=)
 I enable =tty= for better support of terminal editing.
 
 #+name: doom-os
@@ -413,7 +412,7 @@ I enable =tty= for better support of terminal editing.
 (tty +osc)             ; Configures Emacs for use in the terminal
 #+end_src
 
-*** Language support (=:lang=)
+** Language support (=:lang=)
 Most of the projects I'm working on are mainly written in C/C++, Python, Rust
 and some Lisp stuff, I edit also a lot of configuration and data files in
 several formats (=csv=, =yaml=, =xml=, =json=, =shell= scripts...). I use Org-mode to
@@ -495,7 +494,7 @@ data                   ; config/data formats
 ;;web                  ; the tubes
 #+end_src
 
-*** Email (=:email=)
+** Email (=:email=)
 I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= support and
 =+gmail= adds better management of Gmail accounts.
 
@@ -508,7 +507,7 @@ I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= su
 ;; (wanderlust +gmail)
 #+end_src
 
-*** Apps (=:app=)
+** Apps (=:app=)
 Emacs contains a ton of applications, some of them are supported by Doom, I like
 to use Emacs manage my calendar, chat on IRC, and receive news. I do use EMMS
 sometimes to play music without leaving Emacs, and I like to enable support for
@@ -524,6 +523,7 @@ everywhere
 ;;twitter              ; twitter client https://twitter.com/vnought
 #+end_src
 
+* Doom Configuration :doom:config:
 ** User Interface :ui:
 *** Font Face :font:
 Doom exposes five (optional) variables for controlling fonts in Doom. Here are
@@ -706,10 +706,10 @@ Works fine, but not centered correctly.
 Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-emacs/issues/2204#issuecomment-626654221][this GitHub thread]]
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
+;; (setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-light.svg" doom-private-dir))
 ;; (setq fancy-splash-image (expand-file-name "assets/blackhole-lines-small.svg" doom-private-dir))
 ;; (setq fancy-splash-image (expand-file-name "assets/gnu-emacs-logo-flat-white.svg" doom-private-dir))
-;; (setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
 #+end_src
 
 **** Clean Screen :clean:
@@ -837,948 +837,7 @@ straightforward, I'll just redefine it to a simpler, async, function.
              +literate-config-file))))
 #+end_src
 
-* System configuration :linux:system:
-** Mime types :mime:
-*** Org Mode files :org:
-Org mode isn't recognized as its own mime type by default, but that can easily
-be changed with the following file. For system-wide changes try
-~/usr/share/mime/packages/org.xml~.
-
-#+begin_src xml :tangle ~/.local/share/mime/packages/org.xml :mkdirp yes :comments no
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-  <mime-type type="text/org">
-    <comment>Emacs Org-mode File</comment>
-    <glob pattern="*.org"/>
-    <alias type="text/org"/>
-  </mime-type>
-</mime-info>
-#+end_src
-
-What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=.
-One simply needs to refresh their mime database
-
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
-update-mime-database ~/.local/share/mime
-#+end_src
-
-Then set Emacs as the default editor:
-
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "setup.sh")
-xdg-mime default emacs-client.desktop text/org
-#+end_src
-
-*** Registering ~org-protocol://~ :org:
-The recommended method of registering a protocol is by registering a desktop
-application, which seems reasonable.
-
-#+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
-[Desktop Entry]
-Name=Emacs Org-Protocol
-Exec=emacsclient %u
-Icon=/home/abdelhak/.doom.d/assets/org-mode.svg
-Type=Application
-Terminal=false
-MimeType=x-scheme-handler/org-protocol
-#+end_src
-
-To associate =org-protocol://= links with the desktop file:
-
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "setup.sh")
-xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
-#+end_src
-
-*** Configuring Chrome/Brave
-As specified in the [[https://www.orgroam.com/manual.html#Org_002droam-Protocol][official documentation]], we would like to invoke the
-=org-protocol://= without confirmation. To do this, we need to add this system-wide configuration.
-
-#+begin_comment
-It seems that this setting is not persistent, each time I reboot my machine,
-this file gets deleted.
-#+end_comment
-
-#+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "setup.sh")
-echo "Setting Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration."
-
-sudo mkdir -p /etc/opt/chrome/policies/managed/
-
-sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json >/dev/null <<'EOF'
-{
-  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
-}
-EOF
-
-sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
-#+end_src
-
-Then add a bookmarklet in your browser with this code:
-
-#+begin_src javascript
-javascript:location.href =
-    'org-protocol://roam-ref?template=r&ref='
-    + encodeURIComponent(location.href)
-    + '&title='
-    + encodeURIComponent(document.title)
-    + '&body='
-    + encodeURIComponent(window.getSelection())
-#+end_src
-
-** Git :git:
-*** Git diffs :diff:
-Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
-
-#+begin_src fundamental :tangle ~/.config/git/attributes :mkdirp yes
-,*.tex                                       diff=tex
-,*.bib                                       diff=bibtex
-,*.{c,h,c++,h++,cc,hh,cpp,hpp}               diff=cpp
-,*.m                                         diff=matlab
-,*.py                                        diff=python
-,*.rb                                        diff=ruby
-,*.php                                       diff=php
-,*.pl                                        diff=perl
-,*.{html,xhtml}                              diff=html
-,*.f                                         diff=fortran
-,*.{el,lisp,scm}                             diff=lisp
-,*.r                                         diff=rstats
-,*.texi*                                     diff=texinfo
-,*.org                                       diff=org
-,*.rs                                        diff=rust
-
-,*.odt                                       diff=odt
-,*.odp                                       diff=libreoffice
-,*.ods                                       diff=libreoffice
-,*.doc                                       diff=doc
-,*.xls                                       diff=xls
-,*.ppt                                       diff=ppt
-,*.docx                                      diff=docx
-,*.xlsx                                      diff=xlsx
-,*.pptx                                      diff=pptx
-,*.rtf                                       diff=rtf
-
-,*.{png,jpg,jpeg,gif}                        diff=exif
-
-,*.pdf                                       diff=pdf
-,*.djvu                                      diff=djvu
-,*.epub                                      diff=pandoc
-,*.chm                                       diff=tika
-,*.mhtml?                                    diff=tika
-
-,*.{class,jar}                               diff=tika
-,*.{rar,7z,zip,apk}                          diff=tika
-#+end_src
-
-Then adding a regex for it to =~/.config/git/config=
-
-#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
-# ===== TEXT FORMATS =====
-[diff "org"]
-  xfuncname = "^(\\*+ +.*)$"
-
-[diff "lisp"]
-  xfuncname = "^(\\(.*)$"
-
-[diff "rstats"]
-  xfuncname = "^([a-zA-z.]+ <- function.*)$"
-
-[diff "texinfo"]
-# from http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
-  xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
-
-[diff "orgmode"]
-  xfuncname = "^(\\*+.*)$"
-
-[diff "rust"]
-  xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
-
-# ===== BINARY FORMATS =====
-[diff "pdf"]
-  binary = true
-# textconv = pdfinfo
-# textconv = sh -c 'pdftotext "$@" -' # sudo apt install pdftotext
-  textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
-  cachetextconv = true
-
-[diff "djvu"]
-  binary = true
-# textconv = pdfinfo
-  textconv = djvutxt # yay -S djvulibre
-  cachetextconv = true
-
-[diff "odt"]
-  textconv = odt2txt
-# textconv = pandoc --standalone --from=odt --to=plain
-  binary = true
-  cachetextconv = true
-
-[diff "doc"]
-# textconv = wvText
-  textconv = catdoc # yay -S catdoc
-  binary = true
-  cachetextconv = true
-
-[diff "xls"]
-# textconv = in2csv
-# textconv = xlscat -a UTF-8
-# textconv = soffice --headless --convert-to csv
-  textconv = xls2csv # yay -S catdoc
-  binary = true
-  cachetextconv = true
-
-[diff "ppt"]
-  textconv = catppt # yay -S catdoc
-  binary = true
-  cachetextconv = true
-
-[diff "docx"]
-  textconv = pandoc --standalone --from=docx --to=plain
-# textconv = sh -c 'docx2txt.pl "$0" -'
-  binary = true
-  cachetextconv = true
-
-[diff "xlsx"]
-  textconv = xlsx2csv # pip install xlsx2csv
-# textconv = in2csv
-# textconv = soffice --headless --convert-to csv
-  binary = true
-  cachetextconv = true
-
-[diff "pptx"]
-# pip install --user pptx2md (currently not wotking with Python 3.10)
-# textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
-# Alternative hack, convert PPTX to PPT, then use the catppt tool
-  textconv = sh -c 'soffice --headless --convert-to ppt --outdir /tmp "$0" && TMP_FILENAME=$(basename -- "$0") && catppt "/tmp/${TMP_FILENAME%.*}.ppt"'
-  binary = true
-  cachetextconv = true
-
-[diff "rtf"]
-  textconv = unrtf --text # yay -S unrtf
-  binary = true
-  cachetextconv = true
-
-[diff "epub"]
-  textconv = pandoc --standalone --from=epub --to=plain
-  binary = true
-  cachetextconv = true
-
-[diff "tika"]
-  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
-  binary = true
-  cachetextconv = true
-
-[diff "libreoffice"]
-  textconv = soffice --cat
-  binary = true
-  cachetextconv = true
-
-[diff "exif"]
-  binary = true
-  textconv = exiftool # sudo apt install perl-image-exiftool
-#+end_src
-
-*** Apache Tika App wrapper
-*Apache Tika* is a content detection and analysis framework. It detects and
-extracts metadata and text from over a thousand different file types. We will be
-using the Tika App in command-line mode to show some meaningful diff information
-for some binary files.
-
-First, let's add a custom script to run =tika-app=:
-
-#+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
-#!/bin/sh
-APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
-
-if [ -f ${APACHE_TIKA_JAR} ]
-then
-  exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
-else
-  echo "JAR file not found at ${APACHE_TIKA_JAR}"
-fi
-#+end_src
-
-Add =tika='s installation instructions to the =setup.sh= file.
-
-#+begin_src shell
-update_apache_tika () {
-  TIKA_JAR_PATH=$HOME/.local/share/tika
-
-  if [ ! -d ${TIKA_JAR_PATH} ]
-  then
-    mkdir -p ${TIKA_JAR_PATH}
-  fi
-
-  TIKA_BASE_URL=https://archive.apache.org/dist/tika/
-  TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
-
-  echo -n "Checking for new Apache Tika App version... "
-
-  # Get the lastest version
-  TIKA_VERSION=$(
-    curl -s ${TIKA_BASE_URL} | # Get the page
-    pandoc -f html -t plain | # Convert HTML page to plain text.
-    awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
-    sort -rV | # Sort versions, the newest first
-    head -n 1 # Get the first (newest) version
-  )
-
-  if [ -z ${TIKA_VERSION} ]
-  then
-    echo "Failed, check your internet connection."
-    exit 1
-  fi
-
-  echo "Lastest version is ${TIKA_VERSION}"
-
-  TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
-  TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
-
-  if [ ! -f ${TIKA_JAR} ]
-  then
-    echo "New version available!"
-    read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
-    if [[ $INSTALL_CONFIRM == "Y" ]]
-    then
-      curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
-    fi
-  else
-    echo "Apache Tika App is up-to-date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
-  fi
-
-  # Check the existance of the symbolic link
-  if [ -L ${TIKA_JAR_LINK} ]
-  then
-    unlink ${TIKA_JAR_LINK}
-  fi
-
-  # Create a symbolic link to the installed version
-  ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
-}
-
-update_apache_tika;
-#+end_src
-
-When it detects that Tesseract is installed, Tika App will try to extract text
-from some file types. For some reason, it tries to use Tesseract with some
-compressed files like ~*.bz2~, ~*.apk~... etc. I would like to disable this feature
-by exporting an XML config file which will be used when launching the Tika App
-(using ~--config=<tika-config.xml>~).
-
-#+begin_src xml :tangle ~/.local/share/tika/tika-conf.xml :mkdirp yes
-<?xml version="1.0" encoding="UTF-8"?>
-<properties>
-  <parsers>
-    <parser class="org.apache.tika.parser.DefaultParser">
-      <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
-    </parser>
-  </parsers>
-</properties>
-#+end_src
-
-** Emacs' Systemd Daemon :systemd:
-Let's define a Systemd service to launch Emacs server automatically.
-
-#+name: emacs daemon
-#+begin_src systemd :tangle ~/.config/systemd/user/emacs.service :mkdirp yes
-[Unit]
-Description=Emacs server daemon
-Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
-
-[Service]
-Type=forking
-ExecStart=sh -c 'emacs --daemon && emacsclient -c --eval "(delete-frame)"'
-ExecStop=/usr/bin/emacsclient --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
-Restart=on-failure
-
-[Install]
-WantedBy=default.target
-#+end_src
-
-Which is then enabled by:
-
-#+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled emacs.service")) "no" "setup.sh")
-systemctl --user enable emacs.service
-#+end_src
-
-For some reason if a frame isn't opened early in the initialization process, the
-daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
-part of the =ExecStart= value.
-
-** Emacs Client :emacsclient:
-*** Desktop Integration :desktop:
-It can now be nice to use this as a 'default app' for opening files. If we add
-an appropriate desktop entry, and enable it in the desktop environment.
-
-#+begin_src conf :tangle ~/.local/share/applications/emacs-client.desktop :mkdirp yes
-[Desktop Entry]
-Name=DOOM Emacs client
-GenericName=Text Editor
-Comment=A flexible platform for end-user applications
-MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
-Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
-Icon=emacs
-Type=Application
-Terminal=false
-Categories=TextEditor;Utility;
-StartupWMClass=Emacs
-Keywords=Text;Editor;
-X-KDE-StartupNotify=false
-#+end_src
-
-*** Command-line Wrapper :wrapper:cli:
-A wrapper around =emacsclient=:
-+ Accepting =stdin= by putting it in a temporary file and immediately opening it.
-+ Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
-  sessions, among other things).
-+ With a whiff of 24-bit color support, sets ~TERM~ variable to a =terminfo= that
-  (probably) announces 24-bit color support.
-+ Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
-  and instead take a flag to suppress this behavior (~-w~).
-
-I would use =sh=, but using arrays for argument manipulation is just too
-convenient, so I'll raise the requirement to =bash=. Since arrays are the only
-'extra' compared to =sh=, other shells like =ksh= etc. should work too.
-
-#+name: e
-#+begin_src shell :tangle ~/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
-#!/usr/bin/env bash
-force_tty=false
-force_wait=false
-stdin_mode=""
-
-args=()
-
-usage () {
-  echo -e "Usage: e [-t] [-m MODE] [OPTIONS] FILE [-]
-
-Emacs client convenience wrapper.
-
-Options:
--h, --help            Show this message
--t, -nw, --tty        Force terminal mode
--w, --wait            Don't supply --no-wait to graphical emacsclient
--                     Take stdin (when last argument)
--m MODE, --mode MODE  Mode to open stdin with
--mm, --maximized      Start Emacs client in maximized window
-
-Run emacsclient --help to see help for the emacsclient."
-}
-
-while :
-do
-  case "$1" in
-    -t | -nw | --tty)
-      force_tty=true
-      shift ;;
-    -w | --wait)
-      force_wait=true
-      shift ;;
-    -m | --mode)
-      stdin_mode=" ($2-mode)"
-      shift 2 ;;
-    -mm | --maximized)
-        args+=("--frame-parameters='(fullscreen . maximized)")
-        shift ;;
-    -h | --help)
-      usage
-      exit 0 ;;
-    --*=*)
-      set -- "$@" "${1%%=*}" "${1#*=}"
-      shift ;;
-    ,*)
-      [ "$#" = 0 ] && break
-      args+=("$1")
-      shift ;;
-  esac
-done
-
-if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]
-then
-  unset 'args[-1]'
-  TMP="$(mktemp /tmp/emacsstdin-XXX)"
-  cat > "$TMP"
-  args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
-fi
-
-if [ -z "$DISPLAY" ] || $force_tty
-then
-  # detect terminals with sneaky 24-bit support
-  if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
-    && [ "$(tput colors 2>/dev/null)" -lt 257 ]
-  then
-    if echo "$TERM" | grep -q "^\w\+-[0-9]"
-    then
-      termstub="${TERM%%-*}"
-    else
-      termstub="${TERM#*-}"
-    fi
-
-    if infocmp "$termstub-direct" >/dev/null 2>&1
-    then
-      TERM="$termstub-direct"
-    else
-      TERM="xterm-direct"
-    fi # should be fairly safe
-  fi
-
-  emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
-else
-  if ! $force_wait
-  then
-    args+=(--no-wait)
-  fi
-
-  emacsclient -create-frame --alternate-editor="" "${args[@]}"
-fi
-#+end_src
-
-**** Useful aliases
-Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
-set aliases for the terminal-forced variants.
-
-#+begin_src shell :tangle ~/.env_stuff
-# Alias to run emacs client in terminal mode
-alias et="e -t"
-
-# Aliases to run emacs+magit
-alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
-alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
-
-# Aliases to run emacs+mu4e
-alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
-alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
-#+end_src
-
-** TODO tmux
-Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
-[[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
-
-** AppImage
-Install/update the =appimageupdatetool.AppImage= tool:
-
-#+begin_src shell
-update_appimageupdatetool () {
-  TOOL_NAME=appimageupdatetool
-  MACHINE_ARCH=$(uname -m)
-  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
-  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
-
-  if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ] && $APPIMAGE_UPDATE_TOOL_PATH -j ${APPIMAGE_UPDATE_TOOL_PATH} 2&>/dev/null
-  then
-    echo "${TOOL_NAME} already up to date"
-  else
-    if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ]
-    then
-      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-      mv ${APPIMAGE_UPDATE_TOOL_PATH} "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    else
-      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-    fi
-    [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] && rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    wget -O ${APPIMAGE_UPDATE_TOOL_PATH} ${APPIMAGE_UPDATE_TOOL_URL} && echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
-    chmod a+x ${APPIMAGE_UPDATE_TOOL_PATH}
-  fi
-}
-
-update_appimageupdatetool;
-#+end_src
-
-** Custom environment
-I would like to customize my Linux environment in a separate file, which I
-source from my =~/.zshrc= file.
-
-I like to define MacOS-like commands (=pbcopy= and =pbpaste=) to copy and paste in
-terminal (from =stdin=, to =stdout=). The =pbcopy= and =pbpaste= are defined using
-either =xclip= or =xsel=, you would need to install these tools, otherwise we wouldn't
-define the aliases.
-
-#+begin_src shell :tangle ~/.env_stuff
-# Define aliases to 'pbcopy' and 'pbpaste'
-if command -v xclip &> /dev/null
-then
-  # Define aliases using xclip
-  alias pbcopy='xclip -selection clipboard'
-  alias pbpaste='xclip -selection clipboard -o'
-elif command -v xsel &> /dev/null
-then
-  # Define aliases using xsel
-  alias pbcopy='xsel --clipboard --input'
-  alias pbpaste='xsel --clipboard --output'
-fi
-#+end_src
-
-And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
-with root permissions, this requires =xhost=.
-
-#+begin_src shell :tangle ~/.env_stuff
-# To run GUI apps from terminal with root permissions
-if command -v xhost &> /dev/null
-then
-  alias gsuon='xhost si:localuser:root'
-  alias gsuoff='xhost -si:localuser:root'
-fi
-#+end_src
-
-Define a =netpaste= command to paste to [[https://ptpb.pw][https://ptpb.pw]].
-
-#+begin_src shell :tangle ~/.env_stuff
-# To copy the output of a command to ptpb.pw
-alias netpaste='curl -F c=@- https://ptpb.pw'
-#+end_src
-
-Use NeoVIM instead of VIM to provide =vi= and =vim= commands.
-
-#+begin_src shell :tangle ~/.env_stuff
-# NeoVim
-if command -v nvim &> /dev/null
-then
-  alias vim="nvim"
-  alias vi="nvim"
-fi
-#+end_src
-
-Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
-
-#+begin_src shell :tangle ~/.env_stuff
-if [ -d $HOME/sources-and-libs/esp-idf/ ]
-then
-  alias esp-prepare-env='source $HOME/sources-and-libs/esp-idf/export.sh'
-  alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/sources-and-libs/esp-idf && git pull --all && echo "Updated successfully"'
-else
-  echo "esp-idf repo not found. You can clone the esp-idf repo using 'git clone https://github.com/espressif/esp-idf.git'"
-fi
-#+end_src
-
-For the moment, I'm not using a particular tool to manage my dotfiles, instead,
-I use a bare Git repository to manage files, when the workspace is set to the
-home directory. To be able to add/commit files to the dotfiles repository, I
-define an alias to =git= which takes the bare repository as =--git-dir=, and my home
-directory as =--work-tree=.
-
-#+begin_src shell :tangle ~/.env_stuff
-alias dotfiles='git --git-dir=$HOME/Projects/dotfiles.git --work-tree=$HOME'
-#+end_src
-
-Define an alias to get weather information for my city:
-
-#+begin_src shell :tangle ~/.env_stuff
-export WTTRIN_CITY=Orsay
-
-alias wttrin='curl wttr.in/$WTTRIN_CITY'
-alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
-#+end_src
-
-Enable Meta key and colors in =minicom=:
-
-#+begin_src shell :tangle ~/.env_stuff
-export MINICOM='-m -c on'
-#+end_src
-
-Define Rust sources path, and add packages installed from =cargo= to the =PATH=.
-
-#+begin_src shell :tangle ~/.env_stuff
-export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
-export PATH=$PATH:$HOME/.cargo/bin
-#+end_src
-
-I'm using the AUR package =clang-format-static-bin=, which provide multiple
-versions of Clang-format, I use it with some work projects requiring a specific
-version of Clang-format.
-
-#+begin_src shell :tangle ~/.env_stuff
-export PATH=/opt/clang-format-static:$PATH
-#+end_src
-
-Add my manually installed libraries to CMake and =PATH=.
-
-#+begin_src shell :tangle ~/.env_stuff
-export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
-export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
-#+end_src
-
-Set NPM installation path to local:
-
-#+begin_src shell :tangle ~/.env_stuff
-NPM_PACKAGES="${HOME}/.npm-packages"
-
-# Export NPM bin path
-export PATH="$PATH:$NPM_PACKAGES/bin"
-
-# Preserve MANPATH if you already defined it somewhere in your config.
-# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
-export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
-#+end_src
-
-Some useful stuff (=fzf=, =opam=, Doom Emacs...)
-
-#+begin_src shell :tangle ~/.env_stuff
-# FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# opam configuration
-[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
-
-# Add ~/.emacs-doom.d/bin to path (for DOOM Emacs stuff)
-export PATH=$PATH:$HOME/.emacs-doom/bin
-#+end_src
-
-I like to use =tmux= by default, even on my local sessions, I like to start a =tmux=
-in a =default= session on the first time I launch a terminal, and then, attach any
-other terminal to this default session:
-
-#+begin_src shell :tangle ~/.env_stuff
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]
-then
-    tmux attach -t default || tmux new -s default
-fi
-#+end_src
-
-** Zotero UI trick
-Zotero does not support dark mode for the moment, when using a system-wide dark
-theme (atleast on KDE), Zotero UI gets messed up, to fix this, we can force
-Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
-
-#+begin_src conf :tangle ~/.local/share/applications/zotero.desktop :mkdirp yes
-[Desktop Entry]
-Type=Application
-Name=Zotero
-GenericName=A free, easy-to-use tool to help you collect, organize, cite, and share your research sources.
-Icon=zotero
-Exec=GTK_THEME=Default /usr/bin/zotero --url %u
-Categories=Office
-Terminal=false
-MimeType=x-scheme-handler/zotero
-#+end_src
-
-** Rust format :rust:format:
-For Rust code base, the file =$HOME/.rustfmt.toml= contains the global format
-settings, I like to set it to:
-
-#+begin_src conf-toml :tangle ~/.rustfmt.toml
-# Rust edition 2018
-edition = "2018"
-
-# Use Unix style newlines, with 2 spaces tabulation.
-newline_style = "Unix"
-tab_spaces = 2
-hard_tabs = false
-
-# Make one line functions in a single line
-fn_single_line = true
-
-# Format strings
-format_strings = true
-
-# Increase the max line width
-max_width = 120
-
-# Merge nested imports
-merge_imports = true
-
-# Enum and Struct alignement
-enum_discrim_align_threshold = 20
-struct_field_align_threshold = 20
-
-# Reorder impl items: type > const > macros > methods.
-reorder_impl_items = true
-
-# Comments and documentation formating
-wrap_comments = true
-normalize_comments = true
-normalize_doc_attributes = true
-format_code_in_doc_comments = true
-report_fixme = "Always"
-todo = "Always"
-#+end_src
-
-** GDB
-*** Early init
-I like to disable the initial message (containing copyright info and other
-stuff), the right way to do this is either by starting =gdb= with =-q= option, or
-(since GDB v11 I think), by setting src_gdb-script{set startup-quietly} in
-=~/.gdbearlyinit=.
-
-#+begin_src gdb-script :tangle ~/.gdbearlyinit
-# GDB early init file
-# Abdelhak Bougouffa (c) 2022
-
-# Disable showing the initial message
-set startup-quietly
-#+end_src
-
-*** Init
-GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
-this file, this is a WIP, but won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
-the =.gdbinit= simple]]. For the moment, it does just enable pretty printing,
-and defines =c= and =n= commands to wrap =continue= and =next= with a post =refresh=, this
-is just to avoid the annoying TUI when the program outputs to the stdout.
-
-#+begin_src gdb-script :tangle ~/.gdbinit :noweb no-export
-# GDB init file
-# Abdelhak Bougouffa (c) 2022
-
-# Save history
-set history save on
-
-# Set pretty print
-set print pretty on
-
-# This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
-define cc
-  continue
-  refresh
-end
-
-define nn
-  next
-  refresh
-end
-
-guile
-<<guile-check-for-script>>
-end
-#+end_src
-
-**** WIP: Guile Scheme per program/project script
-I often debug programs with a lot of arguments, I like to be able to set the
-arguments and the binary file to be launched in a per project script (currently
-using Guile Scheme). This bit of code checks if the =gdb.scm= file exists in
-the working directory, and if so, loads it.
-
-A more flexible way is to provide a per program config files (to debug a program
-named =fft=, I like to create a script named =fft.scm= which gets loaded after the
-file). The following is a WIP, for the moment, I need to call my custom command
-=dbg-guile= when GDB done loading symbols from the file, otherwise, the used
-=(current-progspace)= returns an object with no filename. I need a mechanism to
-hook the =(dbg-find-and-load)= to GDB's load file functionality.
-
-#+name: guile-check-for-script
-#+begin_src scheme :tangle no
-(use-modules (gdb))
-
-(define (dbg-check-and-load filename)
-  (if (file-exists? filename)
-    (begin (display (string-append "Found a Guile Scheme script, loading file " filename "\n"))
-           (load filename)
-           #t)
-    #f))
-
-(define (dbg-find-and-load)
-  ;; Get the program name from the current progspace
-  ;; For a program named "prog", the priorities goes like this:
-  ;; 1. a script with the same program name (prog.scm) exists in the current directory
-  ;; 2. a script with the same program name (prog.scm) exists in the program directory
-  ;; 3. a script with the name (gdb.scm) exists in the current directory
-  (let ((dbg-prg-filename (progspace-filename (current-progspace))))
-    (if dbg-prg-filename
-      (or (dbg-check-and-load (string-append (basename dbg-prg-filename) ".scm"))
-          (dbg-check-and-load (string-append dbg-prg-filename ".scm")))
-      (dbg-check-and-load "gdb.scm"))))
-
-;; Run by default
-(dbg-find-and-load)
-
-;; Define a command to load binary specific config
-(register-command! (make-command "dbg-guile" #:invoke (lambda (self arg from-tty) (dbg-find-and-load))))
-#+end_src
-
-In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something like this:
-
-#+begin_src scheme :tangle no
-;; Load program executable
-(execute "file ./build/bin/my_program")
-
-;; Load program arguments
-(execute (string-join '("set args "
-                        "arg1"
-                        "--param=arg2")))
-#+end_src
-
-** Latex
-Set =texmf= path, to be used to install https://github.com/tecosaur/BMC
-
-#+begin_src shell :tangle ~/.env_stuff
-export TEXMFHOME=$HOME/.texmf
-#+end_src
-
-Clone and install the BMC repo, check for updates from time to time.
-
-#+begin_src shell
-check_and_install_bmc () {
-  [ ! -d $TEXMFHOME ] && mkdir -p $TEXMFHOME
-
- cd $TEXMFHOME
-
-  RUN_TEXHASH=true
-  BMC_DIR="${TEXMFHOME}/BMC"
-
-  if [ -d $BMC_DIR ]
-  then
-    echo "BMC already installed in $BMC_DIR, checking for updates..."
-    cd $BMC_DIR
-
-    if git pull origin master | grep -iq "up to date"
-    then
-      echo "BMC is up-to-date!"
-      RUN_TEXHASH=false
-    else
-      echo "BMC updated successfully!"
-    fi
-  else
-    echo "BMC not installed!, installing to $BMC_DIR"
-    git clone https://github.com/tecosaur/BMC.git $BMC_DIR
-  fi
-
-  if $RUN_TEXHASH
-  then
-    texhash
-  fi
-}
-
-check_and_install_bmc
-#+end_src
-
-* Emacs Daemon :daemon:
-** Initialization :init:
-When the daemon is running, I almost always want to do a few particular things
-with it, so I may as well eat the load time at startup. We also want to keep
-=mu4e= running.
-
-Lastly, while I'm not sure quite why it happens, but after a bit it seems that
-new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
-I prefer the dashboard, so let's ensure that's always switched to in new frames.
-
-#+name: daemon initialization
-#+begin_src emacs-lisp
-(defun greedy-on-daemon-startup ()
-  (require 'org)
-  (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (setq +mu4e-lock-greedy t)
-    (setq +mu4e-lock-relaxed t)
-    (mu4e~start))
-  (when (require 'elfeed nil t)
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
-
-(when (daemonp)
-  (add-hook  'emacs-startup-hook #'greedy-on-daemon-startup)
-  (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
-  (add-hook! 'server-after-make-frame-hook
-    (unless (string-match-p "\\*draft" (buffer-name))
-      (switch-to-buffer +doom-dashboard-name))))
-#+end_src
-
-** Tweaks :tweak:
-*** Save recent files :recentf:
-When editing files with Emacs client, the files does not get stored by =recentf=,
-making Emacs forgets about recently opened files. A quick fix is to hook the
-src_elisp{recentf-save-list} command to the src_elisp{delete-frame-functions}
-and src_elisp{delete-terminal-functions} which gets executed each time a
-frame/terminal is deleted.
-
-#+begin_src emacs-lisp
-(when (daemonp)
-  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
-#+end_src
-
-* Packages (=packages.el=) :package:
+* Additional Packages (=packages.el=) :package:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle "packages.el" :comments no
 :END:
@@ -2211,6 +1270,49 @@ Not working ATM, it searches in
 (autoload 'imath-mode "imath" "Interactive Math mode" t)
 #+end_src
 
+* Emacs Daemon :daemon:
+** Initialization :init:
+When the daemon is running, I almost always want to do a few particular things
+with it, so I may as well eat the load time at startup. We also want to keep
+=mu4e= running.
+
+Lastly, while I'm not sure quite why it happens, but after a bit it seems that
+new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
+I prefer the dashboard, so let's ensure that's always switched to in new frames.
+
+#+name: daemon initialization
+#+begin_src emacs-lisp
+(defun greedy-on-daemon-startup ()
+  (require 'org)
+  (when (require 'mu4e nil t)
+    (setq mu4e-confirm-quit t)
+    (setq +mu4e-lock-greedy t)
+    (setq +mu4e-lock-relaxed t)
+    (mu4e~start))
+  (when (require 'elfeed nil t)
+    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+
+(when (daemonp)
+  (add-hook  'emacs-startup-hook #'greedy-on-daemon-startup)
+  (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
+  (add-hook! 'server-after-make-frame-hook
+    (unless (string-match-p "\\*draft" (buffer-name))
+      (switch-to-buffer +doom-dashboard-name))))
+#+end_src
+
+** Tweaks :tweak:
+*** Save recent files :recentf:
+When editing files with Emacs client, the files does not get stored by =recentf=,
+making Emacs forgets about recently opened files. A quick fix is to hook the
+src_elisp{recentf-save-list} command to the src_elisp{delete-frame-functions}
+and src_elisp{delete-terminal-functions} which gets executed each time a
+frame/terminal is deleted.
+
+#+begin_src emacs-lisp
+(when (daemonp)
+  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
+#+end_src
+
 * Package configuration :config:
 ** All the icons :icon:
 Set some custom icons for some file extensions, basically for =.m= files.
@@ -2221,7 +1323,7 @@ Set some custom icons for some file extensions, basically for =.m= files.
           (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
 #+end_src
 
-** COMMENT Centaur tabs :tab:
+** Centaur tabs :tab:
 A 'active-bar' is nice, so let's have one of those. If we have it ~under~ needs us to
 turn on ~x-underline-at-decent~ though. For some reason this didn't seem to work
 inside the src_elisp{(after! ... )} block ¯\_(ツ)_/¯.
@@ -2698,13 +1800,6 @@ configuration as follows:
 
 ; Tell Doom's mu4e module to override some commands to fix issues on Gmail accounts
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
-#+end_src
-
-** COMMENT Notmuch
-Use =mbsync= as sync back-end.
-
-#+begin_src emacs-lisp
-(setq +notmuch-sync-backend 'mbsync)
 #+end_src
 
 * Programming :prog:
@@ -4264,9 +3359,908 @@ it should still work.
       org-src-fontify-natively t)
 #+end_src
 
+* System configuration :linux:system:
+** Mime types :mime:
+*** Org Mode files :org:
+Org mode isn't recognized as its own mime type by default, but that can easily
+be changed with the following file. For system-wide changes try
+~/usr/share/mime/packages/org.xml~.
 
-# Local Variables:
-# geiser-default-implementation: 'guile
-# geiser-scheme-implementation: 'guile
-# geiser-active-implementations: '(guile)
-# End:
+#+begin_src xml :tangle ~/.local/share/mime/packages/org.xml :mkdirp yes :comments no
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/org">
+    <comment>Emacs Org-mode File</comment>
+    <glob pattern="*.org"/>
+    <alias type="text/org"/>
+  </mime-type>
+</mime-info>
+#+end_src
+
+What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=.
+One simply needs to refresh their mime database
+
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
+update-mime-database ~/.local/share/mime
+#+end_src
+
+Then set Emacs as the default editor:
+
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "setup.sh")
+xdg-mime default emacs-client.desktop text/org
+#+end_src
+
+*** Registering ~org-protocol://~ :org:
+The recommended method of registering a protocol is by registering a desktop
+application, which seems reasonable.
+
+#+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
+[Desktop Entry]
+Name=Emacs Org-Protocol
+Exec=emacsclient %u
+Icon=/home/abdelhak/.doom.d/assets/org-mode.svg
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/org-protocol
+#+end_src
+
+To associate =org-protocol://= links with the desktop file:
+
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "setup.sh")
+xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+#+end_src
+
+*** Configuring Chrome/Brave
+As specified in the [[https://www.orgroam.com/manual.html#Org_002droam-Protocol][official documentation]], we would like to invoke the
+=org-protocol://= without confirmation. To do this, we need to add this system-wide configuration.
+
+#+begin_comment
+It seems that this setting is not persistent, each time I reboot my machine,
+this file gets deleted.
+#+end_comment
+
+#+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "setup.sh")
+echo "Setting Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration."
+
+sudo mkdir -p /etc/opt/chrome/policies/managed/
+
+sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json >/dev/null <<'EOF'
+{
+  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
+}
+EOF
+
+sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+#+end_src
+
+Then add a bookmarklet in your browser with this code:
+
+#+begin_src javascript
+javascript:location.href =
+    'org-protocol://roam-ref?template=r&ref='
+    + encodeURIComponent(location.href)
+    + '&title='
+    + encodeURIComponent(document.title)
+    + '&body='
+    + encodeURIComponent(window.getSelection())
+#+end_src
+
+** Git :git:
+*** Git diffs :diff:
+Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
+
+#+begin_src fundamental :tangle ~/.config/git/attributes :mkdirp yes
+,*.tex                                       diff=tex
+,*.bib                                       diff=bibtex
+,*.{c,h,c++,h++,cc,hh,cpp,hpp}               diff=cpp
+,*.m                                         diff=matlab
+,*.py                                        diff=python
+,*.rb                                        diff=ruby
+,*.php                                       diff=php
+,*.pl                                        diff=perl
+,*.{html,xhtml}                              diff=html
+,*.f                                         diff=fortran
+,*.{el,lisp,scm}                             diff=lisp
+,*.r                                         diff=rstats
+,*.texi*                                     diff=texinfo
+,*.org                                       diff=org
+,*.rs                                        diff=rust
+
+,*.odt                                       diff=odt
+,*.odp                                       diff=libreoffice
+,*.ods                                       diff=libreoffice
+,*.doc                                       diff=doc
+,*.xls                                       diff=xls
+,*.ppt                                       diff=ppt
+,*.docx                                      diff=docx
+,*.xlsx                                      diff=xlsx
+,*.pptx                                      diff=pptx
+,*.rtf                                       diff=rtf
+
+,*.{png,jpg,jpeg,gif}                        diff=exif
+
+,*.pdf                                       diff=pdf
+,*.djvu                                      diff=djvu
+,*.epub                                      diff=pandoc
+,*.chm                                       diff=tika
+,*.mhtml?                                    diff=tika
+
+,*.{class,jar}                               diff=tika
+,*.{rar,7z,zip,apk}                          diff=tika
+#+end_src
+
+Then adding a regex for it to =~/.config/git/config=
+
+#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
+# ===== TEXT FORMATS =====
+[diff "org"]
+  xfuncname = "^(\\*+ +.*)$"
+
+[diff "lisp"]
+  xfuncname = "^(\\(.*)$"
+
+[diff "rstats"]
+  xfuncname = "^([a-zA-z.]+ <- function.*)$"
+
+[diff "texinfo"]
+# from http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
+  xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
+
+[diff "orgmode"]
+  xfuncname = "^(\\*+.*)$"
+
+[diff "rust"]
+  xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
+
+# ===== BINARY FORMATS =====
+[diff "pdf"]
+  binary = true
+# textconv = pdfinfo
+# textconv = sh -c 'pdftotext "$@" -' # sudo apt install pdftotext
+  textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
+  cachetextconv = true
+
+[diff "djvu"]
+  binary = true
+# textconv = pdfinfo
+  textconv = djvutxt # yay -S djvulibre
+  cachetextconv = true
+
+[diff "odt"]
+  textconv = odt2txt
+# textconv = pandoc --standalone --from=odt --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "doc"]
+# textconv = wvText
+  textconv = catdoc # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "xls"]
+# textconv = in2csv
+# textconv = xlscat -a UTF-8
+# textconv = soffice --headless --convert-to csv
+  textconv = xls2csv # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "ppt"]
+  textconv = catppt # yay -S catdoc
+  binary = true
+  cachetextconv = true
+
+[diff "docx"]
+  textconv = pandoc --standalone --from=docx --to=plain
+# textconv = sh -c 'docx2txt.pl "$0" -'
+  binary = true
+  cachetextconv = true
+
+[diff "xlsx"]
+  textconv = xlsx2csv # pip install xlsx2csv
+# textconv = in2csv
+# textconv = soffice --headless --convert-to csv
+  binary = true
+  cachetextconv = true
+
+[diff "pptx"]
+# pip install --user pptx2md (currently not wotking with Python 3.10)
+# textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
+# Alternative hack, convert PPTX to PPT, then use the catppt tool
+  textconv = sh -c 'soffice --headless --convert-to ppt --outdir /tmp "$0" && TMP_FILENAME=$(basename -- "$0") && catppt "/tmp/${TMP_FILENAME%.*}.ppt"'
+  binary = true
+  cachetextconv = true
+
+[diff "rtf"]
+  textconv = unrtf --text # yay -S unrtf
+  binary = true
+  cachetextconv = true
+
+[diff "epub"]
+  textconv = pandoc --standalone --from=epub --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "tika"]
+  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
+  binary = true
+  cachetextconv = true
+
+[diff "libreoffice"]
+  textconv = soffice --cat
+  binary = true
+  cachetextconv = true
+
+[diff "exif"]
+  binary = true
+  textconv = exiftool # sudo apt install perl-image-exiftool
+#+end_src
+
+*** Apache Tika App wrapper
+*Apache Tika* is a content detection and analysis framework. It detects and
+extracts metadata and text from over a thousand different file types. We will be
+using the Tika App in command-line mode to show some meaningful diff information
+for some binary files.
+
+First, let's add a custom script to run =tika-app=:
+
+#+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
+#!/bin/sh
+APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
+
+if [ -f ${APACHE_TIKA_JAR} ]
+then
+  exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
+else
+  echo "JAR file not found at ${APACHE_TIKA_JAR}"
+fi
+#+end_src
+
+Add =tika='s installation instructions to the =setup.sh= file.
+
+#+begin_src shell
+update_apache_tika () {
+  TIKA_JAR_PATH=$HOME/.local/share/tika
+
+  if [ ! -d ${TIKA_JAR_PATH} ]
+  then
+    mkdir -p ${TIKA_JAR_PATH}
+  fi
+
+  TIKA_BASE_URL=https://archive.apache.org/dist/tika/
+  TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
+
+  echo -n "Checking for new Apache Tika App version... "
+
+  # Get the lastest version
+  TIKA_VERSION=$(
+    curl -s ${TIKA_BASE_URL} | # Get the page
+    pandoc -f html -t plain | # Convert HTML page to plain text.
+    awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
+    sort -rV | # Sort versions, the newest first
+    head -n 1 # Get the first (newest) version
+  )
+
+  if [ -z ${TIKA_VERSION} ]
+  then
+    echo "Failed, check your internet connection."
+    exit 1
+  fi
+
+  echo "Lastest version is ${TIKA_VERSION}"
+
+  TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
+  TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
+
+  if [ ! -f ${TIKA_JAR} ]
+  then
+    echo "New version available!"
+    read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
+    if [[ $INSTALL_CONFIRM == "Y" ]]
+    then
+      curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
+    fi
+  else
+    echo "Apache Tika App is up-to-date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
+  fi
+
+  # Check the existance of the symbolic link
+  if [ -L ${TIKA_JAR_LINK} ]
+  then
+    unlink ${TIKA_JAR_LINK}
+  fi
+
+  # Create a symbolic link to the installed version
+  ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
+}
+
+update_apache_tika;
+#+end_src
+
+When it detects that Tesseract is installed, Tika App will try to extract text
+from some file types. For some reason, it tries to use Tesseract with some
+compressed files like ~*.bz2~, ~*.apk~... etc. I would like to disable this feature
+by exporting an XML config file which will be used when launching the Tika App
+(using ~--config=<tika-config.xml>~).
+
+#+begin_src xml :tangle ~/.local/share/tika/tika-conf.xml :mkdirp yes
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+  <parsers>
+    <parser class="org.apache.tika.parser.DefaultParser">
+      <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
+    </parser>
+  </parsers>
+</properties>
+#+end_src
+
+** Emacs' Systemd Daemon :systemd:
+Let's define a Systemd service to launch Emacs server automatically.
+
+#+name: emacs daemon
+#+begin_src systemd :tangle ~/.config/systemd/user/emacs.service :mkdirp yes
+[Unit]
+Description=Emacs server daemon
+Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
+
+[Service]
+Type=forking
+ExecStart=sh -c 'emacs --daemon && emacsclient -c --eval "(delete-frame)"'
+ExecStop=/usr/bin/emacsclient --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+#+end_src
+
+Which is then enabled by:
+
+#+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled emacs.service")) "no" "setup.sh")
+systemctl --user enable emacs.service
+#+end_src
+
+For some reason if a frame isn't opened early in the initialization process, the
+daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
+part of the =ExecStart= value.
+
+** Emacs Client :emacsclient:
+*** Desktop Integration :desktop:
+It can now be nice to use this as a 'default app' for opening files. If we add
+an appropriate desktop entry, and enable it in the desktop environment.
+
+#+begin_src conf :tangle ~/.local/share/applications/emacs-client.desktop :mkdirp yes
+[Desktop Entry]
+Name=DOOM Emacs client
+GenericName=Text Editor
+Comment=A flexible platform for end-user applications
+MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
+Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
+Icon=emacs
+Type=Application
+Terminal=false
+Categories=TextEditor;Utility;
+StartupWMClass=Emacs
+Keywords=Text;Editor;
+X-KDE-StartupNotify=false
+#+end_src
+
+*** Command-line Wrapper :wrapper:cli:
+A wrapper around =emacsclient=:
++ Accepting =stdin= by putting it in a temporary file and immediately opening it.
++ Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
+  sessions, among other things).
++ With a whiff of 24-bit color support, sets ~TERM~ variable to a =terminfo= that
+  (probably) announces 24-bit color support.
++ Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
+  and instead take a flag to suppress this behavior (~-w~).
+
+I would use =sh=, but using arrays for argument manipulation is just too
+convenient, so I'll raise the requirement to =bash=. Since arrays are the only
+'extra' compared to =sh=, other shells like =ksh= etc. should work too.
+
+#+name: e
+#+begin_src shell :tangle ~/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+force_tty=false
+force_wait=false
+stdin_mode=""
+
+args=()
+
+usage () {
+  echo -e "Usage: e [-t] [-m MODE] [OPTIONS] FILE [-]
+
+Emacs client convenience wrapper.
+
+Options:
+-h, --help            Show this message
+-t, -nw, --tty        Force terminal mode
+-w, --wait            Don't supply --no-wait to graphical emacsclient
+-                     Take stdin (when last argument)
+-m MODE, --mode MODE  Mode to open stdin with
+-mm, --maximized      Start Emacs client in maximized window
+
+Run emacsclient --help to see help for the emacsclient."
+}
+
+while :
+do
+  case "$1" in
+    -t | -nw | --tty)
+      force_tty=true
+      shift ;;
+    -w | --wait)
+      force_wait=true
+      shift ;;
+    -m | --mode)
+      stdin_mode=" ($2-mode)"
+      shift 2 ;;
+    -mm | --maximized)
+        args+=("--frame-parameters='(fullscreen . maximized)")
+        shift ;;
+    -h | --help)
+      usage
+      exit 0 ;;
+    --*=*)
+      set -- "$@" "${1%%=*}" "${1#*=}"
+      shift ;;
+    ,*)
+      [ "$#" = 0 ] && break
+      args+=("$1")
+      shift ;;
+  esac
+done
+
+if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]
+then
+  unset 'args[-1]'
+  TMP="$(mktemp /tmp/emacsstdin-XXX)"
+  cat > "$TMP"
+  args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
+fi
+
+if [ -z "$DISPLAY" ] || $force_tty
+then
+  # detect terminals with sneaky 24-bit support
+  if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
+    && [ "$(tput colors 2>/dev/null)" -lt 257 ]
+  then
+    if echo "$TERM" | grep -q "^\w\+-[0-9]"
+    then
+      termstub="${TERM%%-*}"
+    else
+      termstub="${TERM#*-}"
+    fi
+
+    if infocmp "$termstub-direct" >/dev/null 2>&1
+    then
+      TERM="$termstub-direct"
+    else
+      TERM="xterm-direct"
+    fi # should be fairly safe
+  fi
+
+  emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
+else
+  if ! $force_wait
+  then
+    args+=(--no-wait)
+  fi
+
+  emacsclient -create-frame --alternate-editor="" "${args[@]}"
+fi
+#+end_src
+
+**** Useful aliases
+Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
+set aliases for the terminal-forced variants.
+
+#+begin_src shell :tangle ~/.env_stuff
+# Alias to run emacs client in terminal mode
+alias et="e -t"
+
+# Aliases to run emacs+magit
+alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
+alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
+
+# Aliases to run emacs+mu4e
+alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
+alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
+#+end_src
+
+** TODO tmux :tmux:
+Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
+[[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
+
+** AppImage :appimage:
+Install/update the =appimageupdatetool.AppImage= tool:
+
+#+begin_src shell
+update_appimageupdatetool () {
+  TOOL_NAME=appimageupdatetool
+  MACHINE_ARCH=$(uname -m)
+  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
+  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
+
+  if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ] && $APPIMAGE_UPDATE_TOOL_PATH -j ${APPIMAGE_UPDATE_TOOL_PATH} 2&>/dev/null
+  then
+    echo "${TOOL_NAME} already up to date"
+  else
+    if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ]
+    then
+      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+      mv ${APPIMAGE_UPDATE_TOOL_PATH} "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    else
+      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+    fi
+    wget -O ${APPIMAGE_UPDATE_TOOL_PATH} ${APPIMAGE_UPDATE_TOOL_URL} &&
+        echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
+        [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
+        rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    chmod a+x ${APPIMAGE_UPDATE_TOOL_PATH}
+  fi
+}
+
+update_appimageupdatetool;
+#+end_src
+
+** Custom environment
+I would like to customize my Linux environment in a separate file, which I
+source from my =~/.zshrc= file.
+
+I like to define MacOS-like commands (=pbcopy= and =pbpaste=) to copy and paste in
+terminal (from =stdin=, to =stdout=). The =pbcopy= and =pbpaste= are defined using
+either =xclip= or =xsel=, you would need to install these tools, otherwise we wouldn't
+define the aliases.
+
+#+begin_src shell :tangle ~/.env_stuff
+# Define aliases to 'pbcopy' and 'pbpaste'
+if command -v xclip &> /dev/null
+then
+  # Define aliases using xclip
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+elif command -v xsel &> /dev/null
+then
+  # Define aliases using xsel
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output'
+fi
+#+end_src
+
+And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
+with root permissions, this requires =xhost=.
+
+#+begin_src shell :tangle ~/.env_stuff
+# To run GUI apps from terminal with root permissions
+if command -v xhost &> /dev/null
+then
+  alias gsuon='xhost si:localuser:root'
+  alias gsuoff='xhost -si:localuser:root'
+fi
+#+end_src
+
+Define a =netpaste= command to paste to [[https://ptpb.pw][https://ptpb.pw]].
+
+#+begin_src shell :tangle ~/.env_stuff
+# To copy the output of a command to ptpb.pw
+alias netpaste='curl -F c=@- https://ptpb.pw'
+#+end_src
+
+Use NeoVIM instead of VIM to provide =vi= and =vim= commands.
+
+#+begin_src shell :tangle ~/.env_stuff
+# NeoVim
+if command -v nvim &> /dev/null
+then
+  alias vim="nvim"
+  alias vi="nvim"
+fi
+#+end_src
+
+Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
+
+#+begin_src shell :tangle ~/.env_stuff
+if [ -d $HOME/sources-and-libs/esp-idf/ ]
+then
+  alias esp-prepare-env='source $HOME/sources-and-libs/esp-idf/export.sh'
+  alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/sources-and-libs/esp-idf && git pull --all && echo "Updated successfully"'
+else
+  echo "esp-idf repo not found. You can clone the esp-idf repo using 'git clone https://github.com/espressif/esp-idf.git'"
+fi
+#+end_src
+
+For the moment, I'm not using a particular tool to manage my dotfiles, instead,
+I use a bare Git repository to manage files, when the workspace is set to the
+home directory. To be able to add/commit files to the dotfiles repository, I
+define an alias to =git= which takes the bare repository as =--git-dir=, and my home
+directory as =--work-tree=.
+
+#+begin_src shell :tangle ~/.env_stuff
+alias dotfiles='git --git-dir=$HOME/Projects/dotfiles.git --work-tree=$HOME'
+#+end_src
+
+Define an alias to get weather information for my city:
+
+#+begin_src shell :tangle ~/.env_stuff
+export WTTRIN_CITY=Orsay
+
+alias wttrin='curl wttr.in/$WTTRIN_CITY'
+alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
+#+end_src
+
+Enable Meta key and colors in =minicom=:
+
+#+begin_src shell :tangle ~/.env_stuff
+export MINICOM='-m -c on'
+#+end_src
+
+Define Rust sources path, and add packages installed from =cargo= to the =PATH=.
+
+#+begin_src shell :tangle ~/.env_stuff
+export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
+export PATH=$PATH:$HOME/.cargo/bin
+#+end_src
+
+I'm using the AUR package =clang-format-static-bin=, which provide multiple
+versions of Clang-format, I use it with some work projects requiring a specific
+version of Clang-format.
+
+#+begin_src shell :tangle ~/.env_stuff
+export PATH=/opt/clang-format-static:$PATH
+#+end_src
+
+Add my manually installed libraries to CMake and =PATH=.
+
+#+begin_src shell :tangle ~/.env_stuff
+export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
+export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
+#+end_src
+
+Set NPM installation path to local:
+
+#+begin_src shell :tangle ~/.env_stuff
+NPM_PACKAGES="${HOME}/.npm-packages"
+
+# Export NPM bin path
+export PATH="$PATH:$NPM_PACKAGES/bin"
+
+# Preserve MANPATH if you already defined it somewhere in your config.
+# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
+export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
+#+end_src
+
+Some useful stuff (=fzf=, =opam=, Doom Emacs...)
+
+#+begin_src shell :tangle ~/.env_stuff
+# FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# opam configuration
+[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+# Add ~/.emacs-doom.d/bin to path (for DOOM Emacs stuff)
+export PATH=$PATH:$HOME/.emacs-doom/bin
+#+end_src
+
+I like to use =tmux= by default, even on my local sessions, I like to start a =tmux=
+in a =default= session on the first time I launch a terminal, and then, attach any
+other terminal to this default session:
+
+#+begin_src shell :tangle ~/.env_stuff
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]
+then
+    tmux attach -t default || tmux new -s default
+fi
+#+end_src
+
+** Zotero UI trick :zotero:
+Zotero does not support dark mode (ATM), when using a system-wide dark
+theme (at least on KDE), Zotero UI gets messed up, to fix this, we can force
+Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
+
+#+begin_src conf :tangle ~/.local/share/applications/zotero.desktop :mkdirp yes
+[Desktop Entry]
+Type=Application
+Name=Zotero
+GenericName=A free, easy-to-use tool to help you collect, organize, cite, and share your research sources.
+Icon=zotero
+Exec=GTK_THEME=Default /usr/bin/zotero --url %u
+Categories=Office
+Terminal=false
+MimeType=x-scheme-handler/zotero
+#+end_src
+
+** Rust format :rust:format:
+For Rust code base, the file =$HOME/.rustfmt.toml= contains the global format
+settings, I like to set it to:
+
+#+begin_src conf-toml :tangle ~/.rustfmt.toml
+# Rust edition 2018
+edition = "2018"
+
+# Use Unix style newlines, with 2 spaces tabulation.
+newline_style = "Unix"
+tab_spaces = 2
+hard_tabs = false
+
+# Make one line functions in a single line
+fn_single_line = true
+
+# Format strings
+format_strings = true
+
+# Increase the max line width
+max_width = 120
+
+# Merge nested imports
+merge_imports = true
+
+# Enum and Struct alignement
+enum_discrim_align_threshold = 20
+struct_field_align_threshold = 20
+
+# Reorder impl items: type > const > macros > methods.
+reorder_impl_items = true
+
+# Comments and documentation formating
+wrap_comments = true
+normalize_comments = true
+normalize_doc_attributes = true
+format_code_in_doc_comments = true
+report_fixme = "Always"
+todo = "Always"
+#+end_src
+
+** GDB
+*** Early init
+I like to disable the initial message (containing copyright info and other
+stuff), the right way to do this is either by starting =gdb= with =-q= option, or
+(since GDB v11 I think), by setting src_gdb-script{set startup-quietly} in
+=~/.gdbearlyinit=.
+
+#+begin_src gdb-script :tangle ~/.gdbearlyinit
+# GDB early init file
+# Abdelhak Bougouffa (c) 2022
+
+# Disable showing the initial message
+set startup-quietly
+#+end_src
+
+*** Init
+GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
+this file, this is a WIP, but won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
+the =.gdbinit= simple]]. For the moment, it does just enable pretty printing,
+and defines =c= and =n= commands to wrap =continue= and =next= with a post =refresh=, this
+is just to avoid the annoying TUI when the program outputs to the stdout.
+
+#+begin_src gdb-script :tangle ~/.gdbinit :noweb no-export
+# GDB init file
+# Abdelhak Bougouffa (c) 2022
+
+# Save history
+set history save on
+
+# Set pretty print
+set print pretty on
+
+# This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
+define cc
+  continue
+  refresh
+end
+
+define nn
+  next
+  refresh
+end
+
+guile
+<<guile-check-for-script>>
+end
+#+end_src
+
+**** WIP: Guile Scheme per program/project script
+I often debug programs with a lot of arguments, I like to be able to set the
+arguments and the binary file to be launched in a per project script (currently
+using Guile Scheme). This bit of code checks if the =gdb.scm= file exists in
+the working directory, and if so, loads it.
+
+A more flexible way is to provide a per program config files (to debug a program
+named =fft=, I like to create a script named =fft.scm= which gets loaded after the
+file). The following is a WIP, for the moment, I need to call my custom command
+=dbg-guile= when GDB done loading symbols from the file, otherwise, the used
+=(current-progspace)= returns an object with no filename. I need a mechanism to
+hook the =(dbg-find-and-load)= to GDB's load file functionality.
+
+#+begin_src emacs-lisp
+;; Set the Scheme implementation to Guile to avoid annoying
+;; message when working with babel
+;; (setq geiser-scheme-implementation 'guile)
+#+end_src
+
+#+name: guile-check-for-script
+#+begin_src scheme :tangle no :output no :exports code
+(use-modules (gdb))
+
+(define (dbg-check-and-load filename)
+  (if (file-exists? filename)
+    (begin (display (string-append "Found a Guile Scheme script, loading file " filename "\n"))
+           (load filename)
+           #t)
+    #f))
+
+(define (dbg-find-and-load)
+  ;; Get the program name from the current progspace
+  ;; For a program named "prog", the priorities goes like this:
+  ;; 1. a script with the same program name (prog.scm) exists in the current directory
+  ;; 2. a script with the same program name (prog.scm) exists in the program directory
+  ;; 3. a script with the name (gdb.scm) exists in the current directory
+  (let ((dbg-prg-filename (progspace-filename (current-progspace))))
+    (if dbg-prg-filename
+      (or (dbg-check-and-load (string-append (basename dbg-prg-filename) ".scm"))
+          (dbg-check-and-load (string-append dbg-prg-filename ".scm")))
+      (dbg-check-and-load "gdb.scm"))))
+
+;; Run by default
+(dbg-find-and-load)
+
+;; Define a command to load binary specific config
+(register-command! (make-command "dbg-guile" #:invoke (lambda (self arg from-tty) (dbg-find-and-load))))
+#+end_src
+
+In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something like this:
+
+#+begin_src scheme :tangle no :output no :exports code
+;; Load program executable
+(execute "file ./build/bin/my_program")
+
+;; Load program arguments
+(execute (string-join '("set args "
+                        "arg1"
+                        "--param=arg2")))
+#+end_src
+
+** Latex
+Set =texmf= path, to be used to install https://github.com/tecosaur/BMC
+
+#+begin_src shell :tangle ~/.env_stuff
+export TEXMFHOME=$HOME/.texmf
+#+end_src
+
+Clone and install the BMC repo, check for updates from time to time.
+
+#+begin_src shell
+check_and_install_bmc () {
+  [ ! -d $TEXMFHOME ] && mkdir -p $TEXMFHOME
+
+ cd $TEXMFHOME
+
+  RUN_TEXHASH=true
+  BMC_DIR="${TEXMFHOME}/BMC"
+
+  if [ -d $BMC_DIR ]
+  then
+    echo "BMC already installed in $BMC_DIR, checking for updates..."
+    cd $BMC_DIR
+
+    if git pull origin master | grep -iq "up to date"
+    then
+      echo "BMC is up-to-date!"
+      RUN_TEXHASH=false
+    else
+      echo "BMC updated successfully!"
+    fi
+  else
+    echo "BMC not installed!, installing to $BMC_DIR"
+    git clone https://github.com/tecosaur/BMC.git $BMC_DIR
+  fi
+
+  if $RUN_TEXHASH
+  then
+    texhash
+  fi
+}
+
+check_and_install_bmc
+#+end_src
