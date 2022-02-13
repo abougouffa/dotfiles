@@ -1,6 +1,8 @@
 #+title: Doom Emacs Configuration
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
+#+email: abougouffa@fedoraproject.org
+#+options: title:t author:t email:t toc:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
 #+property: header-args:shell :tangle "setup.sh"
