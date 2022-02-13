@@ -8,6 +8,7 @@
 #+setupfile: assets/template.org
 #+startup: fold
 
+
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
 my machine, but I didn't discover the *real* Emacs until 2020, in the beginning, I
@@ -284,7 +285,7 @@ doom                         ; what makes DOOM look the way it does
 doom-dashboard               ; a nifty splash screen for Emacs
 ;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
 (emoji +ascii
-;;     +unicode
+       +unicode
        +github)
 hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
 ;;fill-column                ; a `fill-column' indicator
@@ -452,9 +453,8 @@ data                   ; config/data formats
 (racket +lsp           ; a DSL for DSLs
         +xp)
 (scheme +mit           ; a fully conniving family of lisps
-        +racket
         +guile
-        +gambit
+        +racket
         +chez)
 ;;agda                 ; types of types of types of types...
 ;;(clojure +lsp)       ; java with a lisp
@@ -1606,12 +1606,12 @@ set history save on
 set print pretty on
 
 # This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
-define c
+define cc
   continue
   refresh
 end
 
-define n
+define nn
   next
   refresh
 end
@@ -2604,10 +2604,10 @@ need to have a template assigned.
 Add ROS specific file formats:
 
 #+begin_src emacs-lisp
-(setq auto-mode-alist (cons '("\\.launch$" . xml-mode) auto-mode-alist))
-(setq auto-mode-alist (cons '("\\.urdf$" . xml-mode) auto-mode-alist))
-(setq auto-mode-alist (cons '("\\.xacro$" . xml-mode) auto-mode-alist))
-(setq auto-mode-alist (cons '("\\.rviz$" . conf-unix-mode) auto-mode-alist))
+(add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro$"  . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 #+end_src
 
 ** LSP :lsp:ide:
@@ -2630,7 +2630,7 @@ UI components to provide a less intrusive UI, however I like to enable some less
 #+end_src
 
 *** Fringe :fringe:
-Increase the left fringe width, to enable breakpoints to be rendered correctly.
+Increase the left fringe width, to enable rendering breakpoints correctly.
 
 #+begin_src emacs-lisp
 (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(12 . 12))))
@@ -2659,12 +2659,13 @@ it work with =projectile=:
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled, using the default ccls
 (after! lsp-clangd
-  (setq lsp-clients-clangd-args '("-j=3"
-                                  "--background-index"
-                                  "--clang-tidy"
-                                  "--completion-style=detailed"
-                                  "--header-insertion=never"
-                                  "--header-insertion-decorators=0"))
+  (setq lsp-clients-clangd-args
+        '("-j=3"
+          "--background-index"
+          "--clang-tidy"
+          "--completion-style=detailed"
+          "--header-insertion=never"
+          "--header-insertion-decorators=0"))
   (set-lsp-priority! 'clangd 2))
 #+end_src
 
@@ -2799,6 +2800,10 @@ session, to do so, I define a helper function to clear data stored in the
        :prefix-map ("d" . "debugger")
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 #+end_src
+
+** TODO Realgud :realgud:
+Debugging C/C++ with DAP mode is Ok, however, Realgud which interfaces directly
+with GDB gives a richer and more flexible experience.
 
 ** Cppcheck :flycheck:cppcheck:
 
@@ -3945,7 +3950,7 @@ text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamm
 Let's start by adding a sans font. I'd also like to use some
 functionality from =bmc-maths=, so we'll load that too.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (setq org-format-latex-header "\\documentclass{article}
 \\usepackage[usenames]{xcolor}
 
@@ -3968,7 +3973,7 @@ functionality from =bmc-maths=, so we'll load that too.
 \\setlength{\\topmargin}{1.5cm}
 \\addtolength{\\topmargin}{-2.54cm}
 % my custom stuff
-\\usepackage[nofont,plaindd]{bmc-maths}
+% \\usepackage[nofont,plaindd]{bmc-maths}
 \\usepackage{arev}
 ")
 #+end_src
@@ -3979,6 +3984,12 @@ let's make it transparent.
 #+begin_src emacs-lisp
 (setq org-format-latex-options
       (plist-put org-format-latex-options :background "Transparent"))
+
+(setq org-format-latex-options
+      (plist-put org-format-latex-options :scale 0.5))
+
+;; Can be dvipng, dvisvgm, imagemagick
+(setq org-preview-latex-default-process 'dvipng)
 #+end_src
 
 **** Org Plot
