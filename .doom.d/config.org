@@ -1588,14 +1588,29 @@ report_fixme = "Always"
 todo = "Always"
 #+end_src
 
-** GDB init
+** GDB
+*** Early init
+I like to disable the initial message (containing copyright info and other
+stuff), the right way to do this is either by starting =gdb= with =-q= option, or
+(since GDB v11 I think), by setting src_gdb-script{set startup-quietly} in
+=~/.gdbearlyinit=.
+
+#+begin_src gdb-script :tangle ~/.gdbearlyinit
+# GDB early init file
+# Abdelhak Bougouffa (c) 2022
+
+# Disable showing the initial message
+set startup-quietly
+#+end_src
+
+*** Init
 GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
 this file, this is a WIP, but won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
 the =.gdbinit= simple]]. For the moment, it does just enable pretty printing,
 and defines =c= and =n= commands to wrap =continue= and =next= with a post =refresh=, this
 is just to avoid the annoying TUI when the program outputs to the stdout.
 
-#+begin_src gdb-script :tangle ~/.gdbinit
+#+begin_src gdb-script :tangle ~/.gdbinit :noweb no-export
 # GDB init file
 # Abdelhak Bougouffa (c) 2022
 
@@ -1615,6 +1630,65 @@ define nn
   next
   refresh
 end
+
+guile
+<<guile-check-for-script>>
+end
+#+end_src
+
+**** WIP: Guile Scheme per program/project script
+I often debug programs with a lot of arguments, I like to be able to set the
+arguments and the binary file to be launched in a per project script (currently
+using Guile Scheme). This bit of code checks if the =gdb.scm= file exists in
+the working directory, and if so, loads it.
+
+A more flexible way is to provide a per program config files (to debug a program
+named =fft=, I like to create a script named =fft.scm= which gets loaded after the
+file). The following is a WIP, for the moment, I need to call my custom command
+=dbg-guile= when GDB done loading symbols from the file, otherwise, the used
+=(current-progspace)= returns an object with no filename. I need a mechanism to
+hook the =(dbg-find-and-load)= to GDB's load file functionality.
+
+#+name: guile-check-for-script
+#+begin_src scheme :tangle no
+(use-modules (gdb))
+
+(define (dbg-check-and-load filename)
+  (if (file-exists? filename)
+    (begin (display (string-append "Found a Guile Scheme script, loading file " filename "\n"))
+           (load filename)
+           #t)
+    #f))
+
+(define (dbg-find-and-load)
+  ;; Get the program name from the current progspace
+  ;; For a program named "prog", the priorities goes like this:
+  ;; 1. a script with the same program name (prog.scm) exists in the current directory
+  ;; 2. a script with the same program name (prog.scm) exists in the program directory
+  ;; 3. a script with the name (gdb.scm) exists in the current directory
+  (let ((dbg-prg-filename (progspace-filename (current-progspace))))
+    (if dbg-prg-filename
+      (or (dbg-check-and-load (string-append (basename dbg-prg-filename) ".scm"))
+          (dbg-check-and-load (string-append dbg-prg-filename ".scm")))
+      (dbg-check-and-load "gdb.scm"))))
+
+;; Run by default
+(dbg-find-and-load)
+
+;; Define a command to load binary specific config
+(register-command! (make-command "dbg-guile" #:invoke (lambda (self arg from-tty) (dbg-find-and-load))))
+#+end_src
+
+In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something like this:
+
+#+begin_src scheme :tangle no
+;; Load program executable
+(execute "file ./build/bin/my_program")
+
+;; Load program arguments
+(execute (string-join '("set args "
+                        "arg1"
+                        "--param=arg2")))
 #+end_src
 
 * Emacs Daemon :daemon:
@@ -4145,3 +4219,10 @@ it should still work.
 (setq org-latex-listings 'minted
       org-src-fontify-natively t)
 #+end_src
+
+
+# Local Variables:
+# geiser-default-implementation: 'guile
+# geiser-scheme-implementation: 'guile
+# geiser-active-implementations: '(guile)
+# End:
