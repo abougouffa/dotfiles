@@ -1691,6 +1691,50 @@ In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something lik
                         "--param=arg2")))
 #+end_src
 
+** Latex
+Set =texmf= path, to be used to install https://github.com/tecosaur/BMC
+
+#+begin_src shell :tangle ~/.env_stuff
+export TEXMFHOME=$HOME/.texmf
+#+end_src
+
+Clone and install the BMC repo, check for updates from time to time.
+
+#+begin_src shell
+check_and_install_bmc () {
+  [ ! -d $TEXMFHOME ] && mkdir -p $TEXMFHOME
+
+ cd $TEXMFHOME
+
+  RUN_TEXHASH=true
+  BMC_DIR="${TEXMFHOME}/BMC"
+
+  if [ -d $BMC_DIR ]
+  then
+    echo "BMC already installed in $BMC_DIR, checking for updates..."
+    cd $BMC_DIR
+
+    if git pull origin master | grep -iq "up to date"
+    then
+      echo "BMC is up-to-date!"
+      RUN_TEXHASH=false
+    else
+      echo "BMC updated successfully!"
+    fi
+  else
+    echo "BMC not installed!, installing to $BMC_DIR"
+    git clone https://github.com/tecosaur/BMC.git $BMC_DIR
+  fi
+
+  if $RUN_TEXHASH
+  then
+    texhash
+  fi
+}
+
+check_and_install_bmc
+#+end_src
+
 * Emacs Daemon :daemon:
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
