@@ -43,7 +43,7 @@ for more info).
 Add the shebang and the description to the =setup.sh= file, which will be used to
 set system settings and install some missing dependencies.
 
-#+begin_src shell :exports none :comments no :tangle-mode (identity #o755)
+#+begin_src shell :comments no :tangle-mode (identity #o755)
 #!/bin/bash
 
 # This is an automatically generated setup file, it installes some missing
@@ -55,7 +55,7 @@ set system settings and install some missing dependencies.
 Add the shebang to the =~/.env_stuff= file used to define some aliases and helpers.
 This needs to be sourced in the shell session (source it in =~/.zshrc=).
 
-#+begin_src shell :exports none :comments no :tangle ~/.env_stuff
+#+begin_src shell :comments no :tangle ~/.env_stuff
 #!/bin/zsh
 
 # This is an automatically generated file, it should be sourced from `~/.zshrc',
@@ -156,7 +156,7 @@ command line when calling =emacsclient=, by adding this:
 #+end_src
 
 **** Focus created frame
-The problem is, every time I launch an Emacs frame (from KDE), The Emacs starts
+The problem is, every time I launch an Emacs frame (from KDE), Emacs starts
 with no focus, I need each time to =Alt-TAB= to get Emacs under focus, and then
 start typing. I tried changing this behavior from Emacs by hooking =raise-frame=
 at startup, but it didn't work.
@@ -172,9 +172,10 @@ After some investigations, I found that this issue is probably KDE specific, the
 issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
 stealing prevention* to /None/ in the KDE Settings.
 
-**** COMMENT Margins
+**** Margins
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 (set-frame-parameter nil 'internal-border-width 15)
 #+end_src
 
@@ -202,7 +203,7 @@ block's header.
 
 ** File skeleton :init:
 This first section defines the template for the subsections, it uses the =no-web=
-syntax to include subsections specified as src_org{<<sub-section-name>>}.
+syntax to include subsections specified as ~<<sub-section-name>>~.
 
 #+name: init.el
 #+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
@@ -313,10 +314,7 @@ zen                          ; distraction-free coding or writing
 ** Editor (=:editor=)
 Some editing modules, the most important feature is EVIL to enable Vim style
 editing in Emacs. I like also to edit with multiple cursors, enable =yasnippet=
-support, wrap long lines, auto format support (however, I don't enable =+onsave=
-flag even if I like to, I'm experiencing an annoying behavior when I use it with
-projects that defines =.editorconfig= rules, the formatter do not respect that,
-nor the =clang-format= rules, I need to fix this).
+support, wrap long lines, auto format support.
 
 #+name: doom-editor
 #+begin_src emacs-lisp
@@ -328,7 +326,7 @@ format                       ; automated prettiness
 ;;lispy                      ; vim for lisp, for people who don't like vim
 multiple-cursors             ; editing in many places at once
 (objed +manual)              ; text object editing for the innocent
-;;parinfer                   ; turn lisp into python, sort of
+parinfer                     ; turn lisp into python, sort of
 ;;rotate-text                ; cycle region at point between text candidates
 snippets                     ; my elves. They type, so I don't have to
 word-wrap                    ; soft wrapping with language-aware indent
@@ -361,9 +359,8 @@ term                         ; basic terminal emulator for Emacs
 #+end_src
 
 ** Checkers (=:checkers=)
-I like to check my documents for errors while I'm typing, however, sometimes it
-makes Emacs runs slowly, specially on big files, so I will disable checking by
-default, and I enable it when I need to.
+I like to check my documents for errors while I'm typing. The =grammar= module
+enables [[https://languagetool.org/][LanguageTool]] support.
 
 #+name: doom-checkers
 #+begin_src emacs-lisp
@@ -519,7 +516,7 @@ sometimes to play music without leaving Emacs, and I like to enable support for
 #+begin_src emacs-lisp
 calendar
 irc                    ; how neckbeards socialize
-;;emms
+emms
 everywhere
 (rss +org)             ; emacs as an RSS reader
 ;;twitter              ; twitter client https://twitter.com/vnought
@@ -716,7 +713,7 @@ Change the logo to a fancy black hole, form [[https://github.com/hlissner/doom-e
 
 **** Clean Screen :clean:
 Let's disable the dashboard commands, for a particularly /clean/ look disable the
-modeline and ~hl-line-mode~, then also hide the cursor.
+mode-line and ~hl-line-mode~, then also hide the cursor.
 
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
@@ -756,6 +753,24 @@ Make =which-key= popup faster.
 #+begin_src emacs-lisp :tangle yes
 (setq which-key-idle-delay 0.5 ;; Default is 1.0
       which-key-idle-secondary-delay 0.05) ;; Default is nil
+#+end_src
+
+*** Window title
+I’d like to have just the buffer name, then if applicable the project folder
+
+#+begin_src emacs-lisp :tangle yes
+(setq frame-title-format
+      '(""
+        (:eval
+         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+             (replace-regexp-in-string
+              ".*/[0-9]*-?" "☰ "
+              (subst-char-in-string ?_ ?  buffer-file-name))
+           "%b"))
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p) " ◉ %s" "  ●  %s") project-name))))))
 #+end_src
 
 ** Editor :edit:
@@ -959,24 +974,6 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :hook (vertico-mode . vertico-posframe-mode))
 #+end_src
 
-*** Window title
-I’d like to have just the buffer name, then if applicable the project folder
-
-#+begin_src emacs-lisp :tangle yes
-(setq frame-title-format
-      '(""
-        (:eval
-         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-             (replace-regexp-in-string
-              ".*/[0-9]*-?" "☰ "
-              (subst-char-in-string ?_ ?  buffer-file-name))
-           "%b"))
-        (:eval
-         (let ((project-name (projectile-project-name)))
-           (unless (string= "-" project-name)
-             (format (if (buffer-modified-p) " ◉ %s" "  ●  %s") project-name))))))
-#+end_src
-
 ** Features :features:
 *** ESS :ess:
 View data frames better with
@@ -1021,8 +1018,8 @@ Together these should give me a rather good experience reading ebooks.
            :repo "nashamri/academic-phrases"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
-;; BUG: Not tangled, it seems to be too slow, + an issue with dvipng
+#+begin_src emacs-lisp :tangle yes
+;; BUG: it seems to be too slow
 (use-package! org-fragtog
   :hook (org-mode . org-fragtog-mode))
 #+end_src
@@ -1039,19 +1036,6 @@ Better colors for manual pages.
   :commands (info-colors-fontify-node))
 
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
-#+end_src
-
-*** Selectric mode
-Selectric
-Every so often, you want everyone else to know that you’re typing, or just to amuse oneself. Introducing: typewriter sounds!
-
-#+begin_src emacs-lisp
-(package! selectric-mode)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! selectic-mode
-  :commands selectic-mode)
 #+end_src
 
 *** Grammarly
@@ -1110,7 +1094,13 @@ chmod a+x ${REPO_PATH}
 #+end_src
 
 *** Emacs GDB :gdb:
-Use =emacs-gdb= instead of builtin =gdb-mi=.
+DAP mode is great, however, it is not mature for C/C++ debugging, it does not
+support some basic features like /Run until cursor/, /Show disassembled code/...
+etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+
+The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
+to it's C module), and it defines some easy to use UI, with Visual Studio like
+keybindings.
 
 #+begin_src emacs-lisp
 (package! gdb-mi
@@ -1125,11 +1115,12 @@ Use =emacs-gdb= instead of builtin =gdb-mi=.
   (fmakunbound 'gdb)
   (fmakunbound 'gdb-enable-debug)
   :config
-  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; Customize this
+  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
         gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
 #+end_src
 
 *** Magit Delta :magit:delta:
+Integrate =git-delta= with =magit=.
 
 #+begin_src emacs-lisp
 (package! magit-delta)
@@ -1142,16 +1133,18 @@ Use =emacs-gdb= instead of builtin =gdb-mi=.
 #+end_src
 
 *** Systemd :systemd:
-For editing systemd unit files
+For editing systemd unit files.
 
 #+begin_src emacs-lisp
 (package! systemd)
 #+end_src
 
 *** Bitbake (Yocto) :bitbake:yocto:
+This package is not maintained, but still a good for my Yocto projects. I don't
+really use the =bitbake= commands from Emacs, so this package can be easily
+replaced with [[https://bitbucket.org/olanilsson/bitbake-modes][~bitbake-modes~]].
 
 #+begin_src emacs-lisp
-;; See https://bitbucket.org/olanilsson/bitbake-modes also
 (package! bitbake)
 #+end_src
 
@@ -1185,15 +1178,12 @@ with it.
 #+end_src
 
 *** LaTeX :latex:
-For mathematical convenience, WIP
 
 #+begin_src emacs-lisp
 (package! aas
   :recipe (:host github
            :repo "ymarco/auto-activating-snippets"))
 #+end_src
-
-And some basic config
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! aas
@@ -1214,6 +1204,7 @@ And some basic config
 #+end_src
 
 *** Flycheck + projectile
+WIP: Not working atm!
 
 #+begin_src emacs-lisp
 (package! flycheck-projectile
@@ -1223,10 +1214,7 @@ And some basic config
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! flycheck-projectile
-  :commands flycheck-projectile-list-errors
-;  :config
-;  (set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom :size 0.4 :select t)
-)
+  :commands flycheck-projectile-list-errors)
 #+end_src
 
 *** Graphviz :graphviz:
@@ -1264,13 +1252,12 @@ the workaround is no more needed. To fix this, I set the
 #+begin_src emacs-lisp :tangle yes
 (use-package! maxima
   :init
-  (require 'org) ;; to use `org-format-latex-options'
   (add-hook 'maxima-mode-hook #'maxima-hook-function)
   (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-  (setq maxima-font-lock-keywords-directory
+  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
         (expand-file-name "~/.emacs-doom/.local/straight/build-28.0.91/maxima/keywords"))
   (setq maxima-display-maxima-buffer nil)
-  ;; (require 'org)
+  ;; (require 'org) ;; to set `org-format-latex-options'
   ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
   :commands (maxima-mode maxima)
   :config
@@ -1666,7 +1653,7 @@ I store my NetExtender VPN parameters in a GPG encrypted file. The credentials f
 contains a line of private parameters to pass to =netExtender=, like this:
 
 #+begin_src shell :tangle no
-echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" > gpg -c > netExtender-params.gpg
+echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" | gpg -c > netExtender-params.gpg
 #+end_src
 
 Then I like to have a simple script which decrypt the credentials and launch a
@@ -1683,7 +1670,8 @@ fi
 
 MY_LOGIN_PARAMS_FILE="$HOME/.ssh/netExtender-params.gpg"
 
-echo "Y\n" | netExtender --auto-reconnect $(gpg -q --for-your-eyes-only --no-tty -d ${MY_LOGIN_PARAMS_FILE})
+echo "Y\n" | netExtender --auto-reconnect \
+  $(gpg -q --for-your-eyes-only --no-tty -d ${MY_LOGIN_PARAMS_FILE})
 #+end_src
 
 *** Launch NetExtender session from Emacs
@@ -1867,12 +1855,12 @@ Increase the left fringe width, to enable rendering breakpoints correctly.
 #+end_src
 
 *** Eglot :eglot:
-Eglot uses =project.el= to detect the project root. This is a workaround to make
+Eglot uses =project.el= to detect the project root. This is [[https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367][a workaround]] to make
 it work with =projectile=:
 
 #+begin_src emacs-lisp
 (after! eglot
-  ;; A hack to make it works with projectile (from https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367)
+  ;; A hack to make it works with projectile
   (defun projectile-project-find-function (dir)
     (let* ((root (projectile-project-root dir)))
       (and root (cons 'transient root))))
@@ -1993,6 +1981,10 @@ it work with =projectile=:
 #+end_src
 
 ** DAP :dap:debug:ide:
+I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
+=dap-mode=. I like also to have a mode minimal UI. I like to trigger =dap-hydra=
+when the program hits a breakpoint, and automatically delete the session and
+close Hydra when DAP is terminated.
 
 #+begin_src emacs-lisp
 (after! dap-mode
@@ -2032,11 +2024,14 @@ session, to do so, I define a helper function to clear data stored in the
 #+end_src
 
 ** TODO Realgud :realgud:
-Debugging C/C++ with DAP mode is Ok, however, Realgud which interfaces directly
-with GDB gives a richer and more flexible experience.
+Doom's =:tools debugger= module installs =realgud= by default. The package needs to
+be customized as I didn't found it useful over the builtin GUD! Maybe I didn't
+get the point of this package, but it seems like it is less mature. I think the
+builtin stuff + =emacs-gdb= gives a good experience for C/C++ programming.
 
-** GDB
-Stolen from https://stackoverflow.com/a/41326527/3058915.
+** GDB :gdb:
+Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
+the builtin =gdb-many-windows= layout.
 
 #+begin_src emacs-lisp
 (setq gdb-many-windows nil)
@@ -2109,6 +2104,7 @@ Stolen from https://stackoverflow.com/a/41326527/3058915.
 #+end_src
 
 ** Cppcheck :flycheck:cppcheck:
+Check for everything!
 
 #+begin_src emacs-lisp
 (after! flycheck
@@ -2139,6 +2135,7 @@ on that.
 :CUSTOM_ID: org
 :header-args:emacs-lisp: :tangle no :noweb-ref org-conf
 :END:
+
 *** Intro
 Because this section is fairly expensive to initialize, we'll wrap
 it in a src_elisp{(after! ...)} block.
@@ -2450,23 +2447,19 @@ Lets set up some org-capture templates, and make them visually nice to access.
                    :children (("Webpage" :keys "w"
                                :icon ("globe" :set "faicon" :color "green")
                                :desc "%(org-cliplink-capture) "
-                               :i-type "read:web"
-                               )
+                               :i-type "read:web")
                               ("Article" :keys "a"
                                :icon ("file-text" :set "octicon" :color "yellow")
                                :desc ""
-                               :i-type "read:reaserch"
-                               )
+                               :i-type "read:reaserch")
                               ("Information" :keys "i"
                                :icon ("info-circle" :set "faicon" :color "blue")
                                :desc ""
-                               :i-type "read:info"
-                               )
+                               :i-type "read:info")
                               ("Idea" :keys "I"
                                :icon ("bubble_chart" :set "material" :color "silver")
                                :desc ""
-                               :i-type "idea"
-                               )))
+                               :i-type "idea")))
                   ("Tasks" :keys "k"
                    :icon ("inbox" :set "octicon" :color "yellow")
                    :file +org-capture-todo-file
@@ -2510,8 +2503,7 @@ Lets set up some org-capture templates, and make them visually nice to access.
                                :icon ("list" :set "faicon" :color "blue")
                                :time-or-todo "%U"
                                :heading "Unreleased"
-                               :file +org-capture-project-changelog-file))
-                   )
+                               :file +org-capture-project-changelog-file)))
                   ("\tCentralised project templates"
                    :keys "o"
                    :type entry
@@ -2534,8 +2526,7 @@ Lets set up some org-capture templates, and make them visually nice to access.
                                :keys "c"
                                :time-or-todo "%U"
                                :heading "Unreleased"
-                               :file +org-capture-central-project-changelog-file))
-                   )))))
+                               :file +org-capture-central-project-changelog-file)))))))
 
   (set-org-capture-templates)
   (unless (display-graphic-p)
@@ -3419,11 +3410,6 @@ simply superior combination.
 ;; `org-latex-compilers' contains a list of possible values ("pdflatex" "xelatex" "lualatex")
 ;; for the `%latex' argument.
 (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
-;;(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
-;(setq org-latex-pdf-process
-;      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 #+end_src
 
 While ~org-latex-pdf-process~ does support a function, and we could use that
@@ -3440,7 +3426,7 @@ it should still work.
 
 ***** Export PDFs with syntax highlighting
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (require 'ox-latex)
 
 (add-to-list 'org-latex-packages-alist '("" "minted"))
@@ -3578,7 +3564,8 @@ Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://p
 ,*.{rar,7z,zip,apk}                          diff=tika
 #+end_src
 
-Then adding a regex for it to =~/.config/git/config=
+Then adding some regular expressions for it to =~/.config/git/config=, with some
+tools to view diffs on binary files.
 
 #+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
 # ===== TEXT FORMATS =====
@@ -3686,7 +3673,7 @@ Then adding a regex for it to =~/.config/git/config=
   textconv = exiftool # sudo apt install perl-image-exiftool
 #+end_src
 
-*** Apache Tika App wrapper
+*** Apache Tika App wrapper :tika:
 *Apache Tika* is a content detection and analysis framework. It detects and
 extracts metadata and text from over a thousand different file types. We will be
 using the Tika App in command-line mode to show some meaningful diff information
@@ -4149,7 +4136,7 @@ Zotero does not support dark mode (ATM), when using a system-wide dark
 theme (at least on KDE), Zotero UI gets messed up, to fix this, we can force
 Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
 
-#+begin_src conf :tangle ~/.local/share/applications/zotero.desktop :mkdirp yes
+#+begin_src conf :tangle ~/.local/share/applications/zotero.desktop :mkdirp yes :exports code
 [Desktop Entry]
 Type=Application
 Name=Zotero
@@ -4209,7 +4196,7 @@ stuff), the right way to do this is either by starting =gdb= with =-q= option, o
 (since GDB v11 I think), by setting src_gdb-script{set startup-quietly} in
 =~/.gdbearlyinit=.
 
-#+begin_src gdb-script :tangle ~/.gdbearlyinit
+#+begin_src gdb-script :tangle ~/.gdbearlyinit :exports code
 # GDB early init file
 # Abdelhak Bougouffa (c) 2022
 
@@ -4262,12 +4249,6 @@ file). The following is a WIP, for the moment, I need to call my custom command
 =dbg-guile= when GDB done loading symbols from the file, otherwise, the used
 =(current-progspace)= returns an object with no filename. I need a mechanism to
 hook the =(dbg-find-and-load)= to GDB's load file functionality.
-
-#+begin_src emacs-lisp
-;; Set the Scheme implementation to Guile to avoid annoying
-;; message when working with babel
-;; (setq geiser-scheme-implementation 'guile)
-#+end_src
 
 #+name: guile-check-for-script
 #+begin_src scheme :tangle no :output no :exports code
