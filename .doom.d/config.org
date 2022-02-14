@@ -2257,6 +2257,21 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
       :n "g <right>" #'org-down-element)
 #+end_src
 
+Babel is really annoying when it comes to working with Scheme (via Geiser), it
+keeps asking about which Scheme implementation to use, I tried to set this in
+file local variables and dir-locals but it didn't work. This should work now!
+
+#+begin_src emacs-lisp :tangle yes
+(after! geiser
+  (setq geiser-default-implementation 'guile))
+
+;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
+(defun my-org-confirm-babel-evaluate (lang body)
+  (not (string= lang "scheme"))) ; don't ask for ditaa
+
+(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+#+end_src
+
 **** Extra functionality :extra:
 ***** List bullet sequence :bullet:
 I think it makes sense to have list bullets change with depth
