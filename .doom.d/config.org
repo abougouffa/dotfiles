@@ -1271,8 +1271,69 @@ the workaround is no more needed. To fix this, I set the
 (autoload 'imath-mode "imath" "Interactive Math mode" t)
 #+end_src
 
-*** TODO ROS :graphviz:
-Check [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for the =rosemacs= integration.
+*** ROS :ros:
+**** ROS Emacs utils
+This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
+need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
+container or on a remote robot. ATM, I need just to configure =rosemacs= to use
+Emacs to develop ROS packages using C++/Python, I'm not interested now for
+ROS Common Lisp development.
+
+#+begin_src emacs-lisp
+(package! rosemacs
+  :recipe (:host github
+           :repo "code-iai/ros_emacs_utils"
+           :files ("rosemacs/*"))
+  :disable t) ;; No clear way to make it work on a remote machine
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! rosemacs
+  :config
+  (require 'rosemacs-config)
+  :commands (ros-core ros-topic-info))
+#+end_src
+
+**** =ros.el=
+I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
+facilitate working with ROS machines, supports ROS1 and ROS2, with local
+workspaces or remote ones (over Trump!),
+
+#+begin_src emacs-lisp
+;; `ros.el' depends on `with-shell-interpreter' among other packages
+;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
+(package! with-shell-interpreter)
+(package! ros
+  :recipe (:host github
+           :repo "DerBeutlin/ros.el"))
+#+end_src
+
+Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
+to install some tools on the ROS machine, and build the workspace for the first
+time using =colcon build=, the repo contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]] and
+[[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! ros
+  :init (map! :leader
+              :prefix ("l" . "custom")
+              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :commands (hydra-ros-main/body ros-set-workspace)
+  :config
+  (setq ros-workspaces
+        (list (ros-dump-workspace
+               :tramp-prefix (format "/docker:hacko@%s:" "916e561b4287")
+               :workspace "~/phd_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:swd_sk@%s:" "192.168.0.148")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:swd_sk@%s:" "192.168.0.148")
+               :workspace "~/ros2_ws"
+               :extends '("/opt/ros/foxy/")))))
+#+end_src
 
 * Emacs Daemon :daemon:
 ** Initialization :init:
