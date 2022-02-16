@@ -74,7 +74,7 @@ This needs to be sourced in the shell session (source it in =~/.zshrc=).
 
 ** Secrets :gpg:pass:secret:
 Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil=
-instead of the default 2h.
+instead of the default 2 hours.
 
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo.gpg")
@@ -97,7 +97,7 @@ Take new window space from all other windows (not just current).
 (setq-default window-combination-resize t)
 #+end_src
 
-**** Split
+**** Split defaults
 Split horizontally to right, vertically below the current window.
 
 #+begin_src emacs-lisp
@@ -155,7 +155,7 @@ command line when calling =emacsclient=, by adding this:
 --frame-parameters="'(fullscreen . maximized)"
 #+end_src
 
-**** Focus created frame
+**** Focus created frame :focus:
 The problem is, every time I launch an Emacs frame (from KDE), Emacs starts
 with no focus, I need each time to =Alt-TAB= to get Emacs under focus, and then
 start typing. I tried changing this behavior from Emacs by hooking =raise-frame=
@@ -172,7 +172,7 @@ After some investigations, I found that this issue is probably KDE specific, the
 issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
 stealing prevention* to /None/ in the KDE Settings.
 
-**** Margins
+**** Margins :margins:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
@@ -327,8 +327,8 @@ multiple-cursors             ; editing in many places at once
 parinfer                     ; turn lisp into python, sort of
 snippets                     ; my elves. They type, so I don't have to
 word-wrap                    ; soft wrapping with language-aware indent
+lispy                        ; vim for lisp, for people who don't like vim
 ;;god                        ; run Emacs commands without modifier keys
-;;lispy                      ; vim for lisp, for people who don't like vim
 ;;rotate-text                ; cycle region at point between text candidates
 #+end_src
 
@@ -380,11 +380,10 @@ Emacs, I also enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
 
 #+name: doom-tools
 #+begin_src emacs-lisp
-;;ansible
 direnv
 editorconfig           ; let someone else argue about tabs vs spaces
 ein                    ; tame Jupyter notebooks with emacs
-biblio
+biblio                 ; Writes a PhD for you (citation needed)
 gist                   ; interacting with github gists
 make                   ; run make tasks from Emacs
 pdf                    ; pdf enhancements
@@ -397,6 +396,7 @@ upload                 ; map local to remote projects via ssh/ftp
 (lookup +docsets)      ; navigate your code and its documentation
 (lsp +peek)            ; LPS
 (magit +forge)         ; a git porcelain for Emacs
+;;ansible
 ;;pass                 ; password manager for nerds
 ;;prodigy              ; FIXME managing external services & code builders
 ;;taskrunner           ; taskrunner for all your projects
@@ -517,7 +517,7 @@ sometimes to play music without leaving Emacs, and I like to enable support for
 calendar
 irc                    ; how neckbeards socialize
 emms
-everywhere
+everywhere             ; *leave* Emacs!? You must be joking
 (rss +org)             ; emacs as an RSS reader
 ;;twitter              ; twitter client https://twitter.com/vnought
 #+end_src
@@ -572,12 +572,12 @@ Set Doom's theme, some good choices:
 **** Clock
 Display time and set the format to 24h.
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
-(setq display-time-string-forms
-      '((propertize (concat 24-hours ":" minutes))))
+#+begin_src emacs-lisp
+(after! doom-modeline
+  (setq display-time-string-forms
+        '((propertize (concat 24-hours ":" minutes))))
 
-(display-time-mode 1) ; Enable time in the mode-line
+  (display-time-mode 1)) ; Enable time in the mode-line
 #+end_src
 
 **** Battery
@@ -586,13 +586,14 @@ Show battery level unless battery is not present or battery information is unkno
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
 ;; This code causes 'doom doctor' to fail. TODO: What's wrong with this function?
-(defun ab/display-battery ()
-  (let ((batt-status (battery)))
-    (unless (or (string-match-p "unknown"    batt-status)
-                (string-match-p "^Power N/A" batt-status))
-      (display-battery-mode 1)))) ; it's nice to know how much power you have
+(after! doom-modeline
+  (defun ab/display-battery ()
+    (let ((batt-status (battery)))
+      (unless (or (string-match-p "unknown"    batt-status)
+                  (string-match-p "^Power N/A" batt-status))
+        (display-battery-mode 1)))) ; it's nice to know how much power you have
 
-(ab/display-battery)
+  (ab/display-battery))
 #+end_src
 
 *** Set transparency :transparent:
@@ -963,6 +964,18 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :commands focus-mode)
 #+end_src
 
+*** COMMENT N Λ N O :nano:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp
+(package! nano-doom
+  :recipe (:host github :repo "skyler544/doom-nano-testing"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(require 'load-nano)
+#+end_src
+
 *** COMMENT Posframe :posframe:
 
 #+begin_src emacs-lisp
@@ -1024,6 +1037,28 @@ Together these should give me a rather good experience reading ebooks.
   :hook (org-mode . org-fragtog-mode))
 #+end_src
 
+*** Org Roam :roam:
+Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
+with it.
+
+#+begin_src emacs-lisp
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! websocket
+  :after org-roam-ui)
+
+(use-package! org-roam-ui
+  :commands org-roam-ui-open
+  :config (setq org-roam-ui-sync-theme t
+                org-roam-ui-follow t
+                org-roam-ui-update-on-save t
+                org-roam-ui-open-on-start t))
+#+end_src
+
 *** Info colors
 Better colors for manual pages.
 
@@ -1057,7 +1092,7 @@ Better colors for manual pages.
   :config (load! "lisp/private/+grammarly-account.el"))
 #+end_src
 
-*** Zotxt
+*** Zotxt :zotero:
 
 #+begin_src emacs-lisp
 (package! zotxt)
@@ -1113,14 +1148,16 @@ The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (than
 to it's C module), and it defines some easy to use UI, with Visual Studio like
 keybindings.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 (package! gdb-mi
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile")))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 (use-package! gdb-mi
   :init
   (fmakunbound 'gdb)
@@ -1162,30 +1199,6 @@ replaced with [[https://bitbucket.org/olanilsson/bitbake-modes][~bitbake-modes~]
 #+begin_src emacs-lisp :tangle yes
 (use-package bitbake
   :commands (bitbake-mode bitbake-clean bitbake-fetch))
-#+end_src
-
-*** Org Roam :roam:
-Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
-with it.
-
-#+begin_src emacs-lisp
-(package! websocket)
-(package! org-roam-ui
-  :recipe (:host github
-           :repo "org-roam/org-roam-ui"
-           :files ("*.el" "out")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! websocket
-  :after org-roam-ui)
-
-(use-package! org-roam-ui
-  :commands org-roam-ui-open
-  :config (setq org-roam-ui-sync-theme t
-                org-roam-ui-follow t
-                org-roam-ui-update-on-save t
-                org-roam-ui-open-on-start t))
 #+end_src
 
 *** LaTeX :latex:
@@ -1558,8 +1571,8 @@ Set =ispell='s dictionary to English and French by default.
 
 #+begin_src emacs-lisp
 (after! flyspell
-  (setq flyspell-lazy-idle-seconds 3
-        flyspell-lazy-window-idle-seconds 10))
+  (setq flyspell-lazy-idle-seconds 2
+        flyspell-lazy-window-idle-seconds 5))
 #+end_src
 
 *** Shortcuts to change dictionary :dict:
@@ -1732,7 +1745,8 @@ I store my NetExtender VPN parameters in a GPG encrypted file. The credentials f
 contains a line of private parameters to pass to =netExtender=, like this:
 
 #+begin_src shell :tangle no
-echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" | gpg -c > netExtender-params.gpg
+echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" \
+  | gpg -c > netExtender-params.gpg
 #+end_src
 
 Then I like to have a simple script which decrypt the credentials and launch a
@@ -1865,7 +1879,7 @@ configuration as follows:
                       (mu4e-drafts-folder           . "/work-dir/Drafts")
                       (mu4e-trash-folder            . "/work-dir/Trash")
                       (mu4e-refile-folder           . "/work-dir/Archive")
-                      (mu4e-compose-signature       . "-- SIGNATURE")
+                      (org-msg-signature            . "-- SIGNATURE")
                       (smtpmail-smtp-user           . "username@server.com")
                       (smtpmail-stream-type         . ssl)
                       (smtpmail-default-smtp-server . "smtps.server.com")
@@ -1878,7 +1892,7 @@ configuration as follows:
                       (mu4e-drafts-folder           . "/gmail-dir/Drafts")
                       (mu4e-trash-folder            . "/gmail-dir/Trash")
                       (mu4e-refile-folder           . "/gmail-dir/Archive")
-                      (mu4e-compose-signature       . "-- SIGNATURE")
+                      (org-msg-signature            . "-- SIGNATURE")
                       (smtpmail-smtp-user           . "username@gmail.com")
                       ...))
 
