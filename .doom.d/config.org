@@ -1716,6 +1716,13 @@ Set RSS news feeds
 (setq elfeed-feeds
       '("https://this-week-in-rust.org/rss.xml"
         "https://www.omgubuntu.co.uk/feed"
+        "https://itsfoss.com/feed"
+        "https://linuxhandbook.com/feed"
+        "https://spectrum.ieee.org/rss/robotics/fulltext"
+        "https://spectrum.ieee.org/rss/aerospace/fulltext"
+        "https://spectrum.ieee.org/rss/computing/fulltext"
+        "https://spectrum.ieee.org/rss/blog/automaton/fulltext"
+        "https://developers.redhat.com/blog/feed"
         "https://lwn.net/headlines/rss"))
 #+end_src
 
