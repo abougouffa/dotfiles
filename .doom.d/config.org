@@ -2183,6 +2183,29 @@ the builtin =gdb-many-windows= layout.
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 #+end_src
 
+*** TODO Mozilla =rr=
+Add a shortcut to subsitite ="gdb"= command with ="rr"=, see
+http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html.
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, WIP
+(require 's)
+
+(defun rr-replay-cmd (prg mode)
+  (let ((cmd (cond
+              ((and (equal mode :gud) (boundp 'gud-gud-gdb-command-name)) gud-gud-gdb-command-name)
+              ((and (equal mode :gdb-mi) (boundp 'gdb-executable-name)) gdb-executable-name)
+              (t ""))))
+    (s-replace "gdb" "rr replay" cmd)))
+
+(defun rr-record-cmd (prg)
+  (concat "rr record " prg))
+
+;; Tests
+(rr-record-cmd "my_prog")
+(rr-replay-cmd "my_prog" :gud)
+#+end_src
+
 ** Cppcheck :flycheck:cppcheck:
 Check for everything!
 
