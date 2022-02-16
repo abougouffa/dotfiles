@@ -4462,3 +4462,14 @@ check_and_install_bmc () {
 
 check_and_install_bmc
 #+end_src
+
+** KDE Plasma :kde:
+On KDE, there is a good support for HiDPI displays, however, an annoying thing
+is the small icons in some contexts (for example, a right click on desktop).
+[[https://www.reddit.com/r/kde/comments/o8bb4s/comment/h33z7bp/?utm_source=share&utm_medium=web2x&context=3][This can be fixed]] by setting ~PLASMA_USE_QT_SCALING=1~. KDE sources the files
+with =.sh= extension found on =~/.config/plasma-workspace/env=, so lets create
+our's.
+
+#+begin_src shell :tangle ~/.config/plasma-workspace/env/fix_scaling.sh :mkdirp yes
+export PLASMA_USE_QT_SCALING=1
+#+end_src
