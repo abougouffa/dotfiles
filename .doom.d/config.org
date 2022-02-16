@@ -1057,6 +1057,17 @@ Better colors for manual pages.
   :config (load! "lisp/private/+grammarly-account.el"))
 #+end_src
 
+*** Zotxt
+
+#+begin_src emacs-lisp
+(package! zotxt)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! zotxt
+  :commands org-zotxt-mode)
+#+end_src
+
 ** Programming :programming:
 *** Repo :repo:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not =pacman -S repo= on Arch-based
