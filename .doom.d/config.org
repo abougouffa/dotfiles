@@ -285,30 +285,30 @@ Enables some user interface features for better user experience, the beautiful
 deft                         ; notational velocity for Emacs
 doom                         ; what makes DOOM look the way it does
 doom-dashboard               ; a nifty splash screen for Emacs
-;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
+hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
+hydra                        ; quick documentation for related commands
+modeline                     ; snazzy, Atom-inspired modeline, plus API
+nav-flash                    ; blink the current line after jumping
+ophints                      ; highlight the region an operation acts on
+vc-gutter                    ; vcs diff in the fringe
+workspaces                   ; tab emulation, persistence & separate workspaces
+zen                          ; distraction-free coding or writing
+(window-select +numbers)     ; visually switch windows
+(ligatures +extra)           ; ligatures and symbols to make your code pretty again
+(treemacs +lsp)              ; a project drawer, like neotree but cooler
+(popup +all                  ; tame sudden yet inevitable temporary windows
+       +defaults)
 (emoji +ascii
        +unicode
        +github)
-hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
+;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
 ;;fill-column                ; a `fill-column' indicator
-hydra                        ; quick documentation for related commands
 ;;indent-guides              ; highlighted indent columns, notoriously slow
-(ligatures +extra)           ; ligatures and symbols to make your code pretty again
 ;;minimap                    ; show a map of the code on the side
-modeline                     ; snazzy, Atom-inspired modeline, plus API
-nav-flash                    ; blink the current line after jumping
 ;;neotree                    ; a project drawer, like NERDTree for vim
-ophints                      ; highlight the region an operation acts on
-(popup +all                  ; tame sudden yet inevitable temporary windows
-       +defaults)
 ;;tabs                       ; a tab bar for Emacs
-(treemacs +lsp)              ; a project drawer, like neotree but cooler
 ;;unicode                    ; extended unicode support for various languages
-vc-gutter                    ; vcs diff in the fringe
 ;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
-(window-select +numbers)     ; visually switch windows
-workspaces                   ; tab emulation, persistence & separate workspaces
-zen                          ; distraction-free coding or writing
 #+end_src
 
 ** Editor (=:editor=)
@@ -319,17 +319,17 @@ support, wrap long lines, auto format support.
 #+name: doom-editor
 #+begin_src emacs-lisp
 (evil +everywhere)           ; come to the dark side, we have cookies
+(objed +manual)              ; text object editing for the innocent
 file-templates               ; auto-snippets for empty files
 fold                         ; (nigh) universal code folding
 format                       ; automated prettiness
-;;god                        ; run Emacs commands without modifier keys
-;;lispy                      ; vim for lisp, for people who don't like vim
 multiple-cursors             ; editing in many places at once
-(objed +manual)              ; text object editing for the innocent
 parinfer                     ; turn lisp into python, sort of
-;;rotate-text                ; cycle region at point between text candidates
 snippets                     ; my elves. They type, so I don't have to
 word-wrap                    ; soft wrapping with language-aware indent
+;;god                        ; run Emacs commands without modifier keys
+;;lispy                      ; vim for lisp, for people who don't like vim
+;;rotate-text                ; cycle region at point between text candidates
 #+end_src
 
 ** Emacs' builtin (=:emacs=)
@@ -339,9 +339,9 @@ Beautify Emacs builtin packages.
 #+begin_src emacs-lisp
 (dired +icons                ; making dired pretty [functional]
        +ranger)
-electric                     ; smarter, keyword-based electric-indent
 (ibuffer +icons)             ; interactive buffer management
 (undo +tree)                 ; persistent, smarter undo for your inevitable mistakes
+electric                     ; smarter, keyword-based electric-indent
 vc                           ; version-control and Emacs, sitting in a tree
 #+end_src
 
@@ -381,26 +381,26 @@ Emacs, I also enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
 #+name: doom-tools
 #+begin_src emacs-lisp
 ;;ansible
-(debugger +lsp)        ; FIXME stepping through code, to help you add bugs
 direnv
-(docker +lsp)
 editorconfig           ; let someone else argue about tabs vs spaces
 ein                    ; tame Jupyter notebooks with emacs
-(eval +overlay)        ; run code, run (also, repls)
 biblio
 gist                   ; interacting with github gists
+make                   ; run make tasks from Emacs
+pdf                    ; pdf enhancements
+rgb                    ; creating color strings
+tmux                   ; an API for interacting with tmux
+upload                 ; map local to remote projects via ssh/ftp
+(debugger +lsp)        ; FIXME stepping through code, to help you add bugs
+(docker +lsp)
+(eval +overlay)        ; run code, run (also, repls)
 (lookup +docsets)      ; navigate your code and its documentation
 (lsp +peek)            ; LPS
 (magit +forge)         ; a git porcelain for Emacs
-make                   ; run make tasks from Emacs
 ;;pass                 ; password manager for nerds
-pdf                    ; pdf enhancements
 ;;prodigy              ; FIXME managing external services & code builders
-rgb                    ; creating color strings
 ;;taskrunner           ; taskrunner for all your projects
 ;;terraform            ; infrastructure as code
-tmux                   ; an API for interacting with tmux
-upload                 ; map local to remote projects via ssh/ftp
 #+end_src
 
 ** Operating system (=:os=)
@@ -424,14 +424,12 @@ plantuml               ; diagrams for confusing people more
 emacs-lisp             ; drown in parentheses
 common-lisp            ; if you've seen one lisp, you've seen them all
 markdown               ; writing docs for people to ignore
-;;rst                  ; ReST in peace
 data                   ; config/data formats
-;;qt                   ; the 'cutest' gui framework ever
+qt                     ; the 'cutest' gui framework ever
 (cc +lsp)              ; C/C++/Obj-C madness
 (json +lsp)            ; At least it ain't XML
 (julia +lsp)           ; a better, faster MATLAB
 (latex +lsp)           ; writing papers in Emacs has never been so fun
-;;(lua +lsp)           ; one-based indices? one-based indices
 (rust +lsp)            ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
 (ess +lsp)             ; emacs speaks statistics
 (yaml +lsp)            ; JSON, but readable
@@ -454,6 +452,8 @@ data                   ; config/data formats
         +guile
         +racket
         +chez)
+;;rst                  ; ReST in peace
+;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
 ;;(clojure +lsp)       ; java with a lisp
 ;;coq                  ; proofs-as-programs
@@ -548,7 +548,7 @@ Some good fonts:
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 16)
       doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ; inherits the :size from doom-font
-      doom-unicode-font (font-spec :family "Iosevka Fixed")
+      doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
 
@@ -755,7 +755,7 @@ Make =which-key= popup faster.
       which-key-idle-secondary-delay 0.05) ;; Default is nil
 #+end_src
 
-*** Window title
+*** Window title :title:
 I’d like to have just the buffer name, then if applicable the project folder
 
 #+begin_src emacs-lisp :tangle yes
@@ -869,7 +869,7 @@ This file shouldn't be byte compiled.
 *** Weather :wttrin:
 
 #+begin_src emacs-lisp
-;; lisp/wttrin/wttrin.el is taken from:
+;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
   :recipe (:local-repo "lisp/wttrin"))
@@ -2091,6 +2091,7 @@ get the point of this package, but it seems like it is less mature. I think the
 builtin stuff + =emacs-gdb= gives a good experience for C/C++ programming.
 
 ** GDB :gdb:
+*** Custom layout for =gdb-many-windows=
 Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
 the builtin =gdb-many-windows= layout.
 
@@ -4390,7 +4391,7 @@ Clone and install the BMC repo, check for updates from time to time.
 check_and_install_bmc () {
   [ ! -d $TEXMFHOME ] && mkdir -p $TEXMFHOME
 
- cd $TEXMFHOME
+  cd $TEXMFHOME
 
   RUN_TEXHASH=true
   BMC_DIR="${TEXMFHOME}/BMC"
