@@ -2287,27 +2287,48 @@ the builtin =gdb-many-windows= layout.
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 #+end_src
 
+*** History
+
+#+begin_src emacs-lisp
+(after! gdb-mi
+  (defvar ab/gdb-history-file "~/.gdb_history")
+  (defun ab/gud-gdb-mode-hook-setup ()
+    "GDB setup."
+
+    ;; Suposes "~/.gdbinit" contains:
+    ;; set history save on
+    ;; set history filename ~/.gdb_history
+    ;; set history remove-duplicates 2048
+    (when (and (ring-empty-p comint-input-ring)
+               (file-exists-p ab/gdb-history-file))
+      (setq comint-input-ring-file-name ab/gdb-history-file)
+      (comint-read-input-ring t)))
+
+  (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
+#+end_src
+
 *** TODO Mozilla =rr=
-Add a shortcut to subsitite ="gdb"= command with ="rr"=, see
-http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html.
+Add a shortcut to substitute ="gdb"= command with ="rr"=.
+Some useful hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled, WIP
-(require 's)
+(after! gud
+  (require 's)
 
-(defun rr-replay-cmd (prg mode)
-  (let ((cmd (cond
-              ((and (equal mode :gud) (boundp 'gud-gud-gdb-command-name)) gud-gud-gdb-command-name)
-              ((and (equal mode :gdb-mi) (boundp 'gdb-executable-name)) gdb-executable-name)
-              (t ""))))
-    (s-replace "gdb" "rr replay" cmd)))
+  (defun rr-replay-cmd (prg mode)
+    (let ((cmd (cond ((and (equal mode :gud) (boundp 'gud-gud-gdb-command-name)) gud-gud-gdb-command-name)
+                     ((and (equal mode :emacs-gdb) (boundp 'gdb-executable-name)) gdb-executable-name)
+                     ((and (equal mode :gdb-mi) (boundp 'gud-gdb-command-name)) gud-gdb-command-name)
+                     (t ""))))
+      (s-replace "gdb" "rr replay" cmd)))
 
-(defun rr-record-cmd (prg)
-  (concat "rr record " prg))
+  (defun rr-record-cmd (prg)
+    (concat "rr record " prg))
 
-;; Tests
-(rr-record-cmd "my_prog")
-(rr-replay-cmd "my_prog" :gud)
+  ;; Tests
+  (rr-record-cmd "my_prog")
+  (rr-replay-cmd "my_prog" :gdb-mi))
 #+end_src
 
 ** Cppcheck :flycheck:cppcheck:
@@ -4448,6 +4469,8 @@ is just to avoid the annoying TUI when the program outputs to the stdout.
 
 # Save history
 set history save on
+set history filename ~/.gdb_history
+set history remove-duplicates 2048
 
 # Set pretty print
 set print pretty on
