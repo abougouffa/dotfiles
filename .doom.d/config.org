@@ -1882,6 +1882,13 @@ My Email accounts are configured in a private file in
         :after org-msg
         :n "G" #'org-msg-goto-body)
 
+  ;; I like to always BCC myself
+  (defun ab/bcc-me ()
+    "Add my email to BCC."
+    (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
+
+  (add-hook 'mu4e-compose-mode-hook 'ab/bcc-me)
+
   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
 #+end_src
