@@ -1103,6 +1103,22 @@ Better colors for manual pages.
   :commands org-zotxt-mode)
 #+end_src
 
+*** CRDT :crdt:
+Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
+Replicated Data Type]]/.
+
+#+begin_src emacs-lisp
+(package! crdt)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! crdt
+  :commands (crdt-share-buffer
+             crdt-connect
+             crdt-visualize-author-mode
+             crdt-org-sync-overlay-mode))
+#+end_src
+
 ** Programming :programming:
 *** Repo :repo:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not =pacman -S repo= on Arch-based
