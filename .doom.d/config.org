@@ -1164,16 +1164,14 @@ The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (than
 to it's C module), and it defines some easy to use UI, with Visual Studio like
 keybindings.
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
+#+begin_src emacs-lisp
 (package! gdb-mi
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile")))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
+#+begin_src emacs-lisp :tangle yes
 (use-package! gdb-mi
   :init
   (fmakunbound 'gdb)
