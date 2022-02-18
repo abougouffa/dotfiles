@@ -547,7 +547,7 @@ Some good fonts:
 
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 16)
-      doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Roboto") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
@@ -940,6 +940,18 @@ This file shouldn't be byte compiled.
 ;;   :config (nano-setup))
 #+end_src
 
+*** COMMENT N Λ N O :nano:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp
+(package! nano-doom
+  :recipe (:host github :repo "skyler544/doom-nano-testing"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(require 'load-nano)
+#+end_src
+
 *** Bespoke themes :bespoke:
 
 #+begin_src emacs-lisp
@@ -962,18 +974,6 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 #+begin_src emacs-lisp :tangle yes
 (use-package! focus
   :commands focus-mode)
-#+end_src
-
-*** COMMENT N Λ N O :nano:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
-
-#+begin_src emacs-lisp
-(package! nano-doom
-  :recipe (:host github :repo "skyler544/doom-nano-testing"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(require 'load-nano)
 #+end_src
 
 *** COMMENT Posframe :posframe:
@@ -1304,9 +1304,11 @@ the workaround is no more needed. To fix this, I set the
   :mode ("\\.mac\\'" . maxima-mode)
   :interpreter ("maxima" . maxima-mode))
 
-(autoload 'imaxima "imaxima" "Frontend of Maxima CAS" t)
-(autoload 'imath "imath" "Interactive Math mode" t)
-(autoload 'imath-mode "imath" "Interactive Math mode" t)
+(use-package! imaxima
+  :commands (imaxima))
+
+(use-package! imath
+  :commands (imath-mode imath))
 #+end_src
 
 *** ROS :ros:
@@ -2142,6 +2144,7 @@ For C/C++, DAP mode is missing so much features.
 In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it stops
 and disconnect while debugging, making it a double pain. 
 
+*** Additional commands
 Using a pure GDB makes things more flexible, I also use =rr= (by substituting =gdb=
 by =rr replay= when starting the session), which gives me the possibility to do
 reverse debugging.
