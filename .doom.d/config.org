@@ -2244,7 +2244,7 @@ arguments, which means I have to type my arguments manually after calling
 
 For DAP mode, there is support for either =dap-debug-edit-template=, or
 =launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
-this. So I define a parameter list named =ab/realgud-launch-plist=, which supports
+this. So I define a parameter list named =ab/realgud:launch-plist=, which supports
 =:program= and =:args=. The first is a string of the program path, and the second is
 a list of string arguments to pass to the program.
 
@@ -2252,7 +2252,7 @@ a list of string arguments to pass to the program.
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
 ;; '(:program "..." :args ("args1" "arg2"...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
-(defvar ab/realgud:gdb-launch-plist nil)
+(defvar ab/realgud:launch-plist nil)
 #+end_src
 
 This variable is set in a per-project basis thanks to =.dir-locals.el=, some thing
@@ -2260,7 +2260,7 @@ like this:
 
 #+begin_src lisp-data :tangle no
 ;; Example entry in .dir-locals.el
-((nil . ((ab/realgud:gdb-launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
+((nil . ((ab/realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
                                           :args ("--in_file=${workspaceFolder}/some/file.csv"
                                                  "--out_file=/tmp/some_randome_file"
                                                  "-a"
@@ -2281,22 +2281,53 @@ The special variable =${workspaceFolder}= will be replaced by the project's root
     (s-replace "${workspaceFolder}" (or (projectile-project-root) ".") debugger--args)))
 
 (defun +debugger/realgud:gdb-launch ()
-  "Launch RealGUD with parameters from `ab/realgud:gdb-launch-plist'"
+  "Launch RealGUD with parameters from `ab/realgud:launch-plist'"
   (interactive)
   (require 'realgud)
-  (if ab/realgud:gdb-launch-plist
+  (if ab/realgud:launch-plist
       (realgud:gdb
        (concat realgud:gdb-command-name
                " --args "
-               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:gdb-launch-plist)))
+               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
     (progn
-      (message "Variable `ab/realgud:gdb-launch-plist' is `nil'")
+      (message "Variable `ab/realgud:launch-plist' is `nil'")
       (realgud:gdb))))
 
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :tools debugger)
        :prefix-map ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
+#+end_src
+
+*** Record and replay =rr=
+Add shortcuts to run =rr= from Emacs, the =rr record= takes the program name and
+arguments from my local =ab/realgud:gdb-launch-plist=, when =rr replay= respects the
+arguments configured in RealGUD's GDB command name.
+Some useful hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
+
+#+begin_src emacs-lisp
+(after! realgud
+  (require 's)
+
+  (defun +debugger/rr-replay ()
+    "Launch `rr replay'"
+    (interactive)
+    (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
+
+  (defun +debugger/rr-record ()
+    "Launch `rr record' with parameters from `ab/realgud:launch-plist'"
+    (interactive)
+    (let ((debugger--args (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+      (unless (make-process :name "*rr record*"
+                            :buffer "*rr record*"
+                            :command (append '("rr" "record") (s-split " " debugger--args)))
+        (message "Cannot make process 'rr record'"))))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger)
+         :prefix-map ("d" . "debugger")
+         :desc "rr record"  "r" #'+debugger/rr-record
+         :desc "rr replay"  "R" #'+debugger/rr-replay)))
 #+end_src
 
 ** GDB :gdb:
@@ -2392,30 +2423,6 @@ the builtin =gdb-many-windows= layout.
       (comint-read-input-ring t)))
 
   (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
-#+end_src
-
-*** TODO Mozilla =rr=
-Add a shortcut to substitute ="gdb"= command with ="rr"=.
-Some useful hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, WIP
-(after! gud
-  (require 's)
-
-  (defun rr-replay-cmd (prg mode)
-    (let ((cmd (cond ((and (equal mode :gud) (boundp 'gud-gud-gdb-command-name)) gud-gud-gdb-command-name)
-                     ((and (equal mode :emacs-gdb) (boundp 'gdb-executable-name)) gdb-executable-name)
-                     ((and (equal mode :gdb-mi) (boundp 'gud-gdb-command-name)) gud-gdb-command-name)
-                     (t ""))))
-      (s-replace "gdb" "rr replay" cmd)))
-
-  (defun rr-record-cmd (prg)
-    (concat "rr record " prg))
-
-  ;; Tests
-  (rr-record-cmd "my_prog")
-  (rr-replay-cmd "my_prog" :gdb-mi))
 #+end_src
 
 ** Cppcheck :flycheck:cppcheck:
