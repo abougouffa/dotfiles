@@ -2226,10 +2226,78 @@ reverse debugging.
     ("q" nil "quit" :color blue) ;; :exit
     ("Qq" realgud:cmd-quit :color blue)) ;; :exit
 
-  (defun realgud-hydra ()
+  (defun +debugger/realgud:gdb-hydra ()
     "Run `realgud-hydra'."
     (interactive)
-    (realgud-hydra/body)))
+    (realgud-hydra/body))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger)
+         :prefix-map ("d" . "debugger")
+         :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
+#+end_src
+
+*** RealGUD =.dir-locals.el= support (Only for GDB) :locals:
+I do a lot of development on C/C++ apps which gets data from command line
+arguments, which means I have to type my arguments manually after calling
+=realgud:gdb=, which is very annoying.
+
+For DAP mode, there is support for either =dap-debug-edit-template=, or
+=launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
+this. So I define a parameter list named =ab/realgud-launch-plist=, which supports
+=:program= and =:args=. The first is a string of the program path, and the second is
+a list of string arguments to pass to the program.
+
+#+begin_src emacs-lisp
+;; A variable which to be used in .dir-locals.el, formatted as a property list;
+;; '(:program "..." :args ("args1" "arg2"...))
+;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
+(defvar ab/realgud:gdb-launch-plist nil)
+#+end_src
+
+This variable is set in a per-project basis thanks to =.dir-locals.el=, some thing
+like this:
+
+#+begin_src lisp-data :tangle no
+;; Example entry in .dir-locals.el
+((nil . ((ab/realgud:gdb-launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
+                                          :args ("--in_file=${workspaceFolder}/some/file.csv"
+                                                 "--out_file=/tmp/some_randome_file"
+                                                 "-a"
+                                                 "-b"))))))
+#+end_src
+
+The special variable =${workspaceFolder}= will be replaced by the project's root
+(from =projectile-project-root=).
+
+#+begin_src emacs-lisp
+(cl-defun ab/realgud:gdb-get-launch-cmd (&key program args)
+  (require 'realgud)
+  (let ((gdb-cmdline realgud:gdb-command-name))
+    (when program
+      (setq gdb-cmdline (s-join " " (list gdb-cmdline "--args" program)))
+      (when args
+        (setq gdb-cmdline (s-join " " (list gdb-cmdline (s-join " " args))))))
+    ;; Replace special variables
+    (message (format "gdb-cmdline: %s" gdb-cmdline))
+    (s-replace "${workspaceFolder}" (or (projectile-project-root) ".") gdb-cmdline)))
+
+(defun +debugger/realgud:gdb-launch ()
+  "Launch RealGUD with parameters from `ab/realgud:gdb-launch-plist'"
+  (interactive)
+  (if ab/realgud:gdb-launch-plist
+    (progn
+      (realgud:gdb (apply 'ab/realgud:gdb-get-launch-cmd ab/realgud:gdb-launch-plist))
+      (message (format "`ab/realgud:gdb-launch': Calling `realgud:gdb' with args: `%s'"
+                       (apply 'ab/realgud:gdb-get-launch-cmd ab/realgud:gdb-launch-plist))))
+    (progn
+      (message "Variable `ab/realgud:gdb-launch-plist' is `nil'")
+      (realgud:gdb))))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :tools debugger)
+       :prefix-map ("d" . "debugger")
+       :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
 #+end_src
 
 ** GDB :gdb:
