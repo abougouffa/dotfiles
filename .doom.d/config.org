@@ -1181,6 +1181,18 @@ keybindings.
         gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
 #+end_src
 
+*** Disaster :disaster:disassemble:
+
+#+begin_src emacs-lisp
+(package! disaster)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; TODO: Configure to take into account "compile_commands.json"
+(use-package! disaster
+  :commands (disaster))
+#+end_src
+
 *** Magit Delta :magit:delta:
 Integrate =git-delta= with =magit=.
 
