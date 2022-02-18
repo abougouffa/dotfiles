@@ -2271,25 +2271,24 @@ The special variable =${workspaceFolder}= will be replaced by the project's root
 (from =projectile-project-root=).
 
 #+begin_src emacs-lisp
-(cl-defun ab/realgud:gdb-get-launch-cmd (&key program args)
-  (require 'realgud)
-  (let ((gdb-cmdline realgud:gdb-command-name))
+(cl-defun ab/realgud:get-launch-debugger-args (&key program args)
+  (let ((debugger--args ""))
     (when program
-      (setq gdb-cmdline (s-join " " (list gdb-cmdline "--args" program)))
+      (setq debugger--args program)
       (when args
-        (setq gdb-cmdline (s-join " " (list gdb-cmdline (s-join " " args))))))
+        (setq debugger--args (concat debugger--args " " (s-join " " args)))))
     ;; Replace special variables
-    (message (format "gdb-cmdline: %s" gdb-cmdline))
-    (s-replace "${workspaceFolder}" (or (projectile-project-root) ".") gdb-cmdline)))
+    (s-replace "${workspaceFolder}" (or (projectile-project-root) ".") debugger--args)))
 
 (defun +debugger/realgud:gdb-launch ()
   "Launch RealGUD with parameters from `ab/realgud:gdb-launch-plist'"
   (interactive)
+  (require 'realgud)
   (if ab/realgud:gdb-launch-plist
-    (progn
-      (realgud:gdb (apply 'ab/realgud:gdb-get-launch-cmd ab/realgud:gdb-launch-plist))
-      (message (format "`ab/realgud:gdb-launch': Calling `realgud:gdb' with args: `%s'"
-                       (apply 'ab/realgud:gdb-get-launch-cmd ab/realgud:gdb-launch-plist))))
+      (realgud:gdb
+       (concat realgud:gdb-command-name
+               " --args "
+               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:gdb-launch-plist)))
     (progn
       (message "Variable `ab/realgud:gdb-launch-plist' is `nil'")
       (realgud:gdb))))
