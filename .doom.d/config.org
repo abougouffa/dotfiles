@@ -898,7 +898,26 @@ This file shouldn't be byte compiled.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! svg-tag-mode
-  :commands svg-tag-mode)
+  :commands svg-tag-mode
+  :config
+  (setq svg-tag-tags
+      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+         ((lambda (tag) (svg-tag-make tag
+                                 :beg 1
+                                 :font-family "Roboto Mono"
+                                 :font-size 6
+                                 :height 0.6
+                                 :padding 0
+                                 :margin 0))))
+        ("\\(:[A-Za-z0-9]+:\\)$" .
+         ((lambda (tag) (svg-tag-make tag
+                                 :beg 1
+                                 :end -1
+                                 :font-family "Roboto Mono"
+                                 :font-size 6
+                                 :height 0.6
+                                 :padding 0
+                                 :margin 0)))))))
 #+end_src
 
 *** COMMENT N Λ N O Packages :nano:
