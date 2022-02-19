@@ -28,7 +28,7 @@ Now I decided to rewrite a cleaner version of my configuration which will be
 more Doom friendly, and for that, I found an excellent example in /[[https://github.com/tecosaur][tecosaur]]/'s
 [[https://github.com/tecosaur/emacs-config.git][emacs-config]], so my current configuration is heavily inspired by /tecosaur/'s.
 
-** This file
+** This file :header:
 This is my literate configuration file, I use it to generate Doom's config files
 (=$DOOMDIR/init.el=, =$DOOMDIR/packages.el= and =$DOOMDIR/config.el=), as well as some
 other shell scripts, app installers, app launchers... etc.
@@ -1577,12 +1577,12 @@ With =:checkers spell +hunspell=, =hunspell= needs to be installed:
 sudo pacman -S hunspell hunspell-en_US hunspell-en_GB hunspell-fr
 #+end_example
 
-Set =ispell='s dictionary to English and French by default.
+Set =ispell='s dictionary to English and French by default. So I can
+"mélanger les langues sans avoir de problèmes!".
 
 #+begin_src emacs-lisp
 (after! ispell
-  (setq ispell-program-name "hunspell"      ; Use hunspell to correct mistakes
-        ispell-dictionary   "en_US,fr_FR")  ; Default dictionary to use
+  (setq ispell-dictionary "en_US,fr_FR")
 
   ;; ispell-set-spellchecker-params has to be called
   ;; before ispell-hunspell-add-multi-dic will work
@@ -1590,7 +1590,8 @@ Set =ispell='s dictionary to English and French by default.
   (ispell-hunspell-add-multi-dic "en_US,fr_FR")
 
   ;; Define the personal dictionary path, and use it only when it exists
-  (setq ispell-personal-dictionary (expand-file-name ".ispell_personal_dict" doom-private-dir))
+  (setq ispell-personal-dictionary
+    (expand-file-name ".ispell_personal_dict" doom-private-dir))
   (unless (file-exists-p ispell-personal-dictionary)
     (write-region "" nil ispell-personal-dictionary nil 0)))
 #+end_src
@@ -1648,10 +1649,10 @@ add package src directories to projectile. This isn't desirable in my opinion.
 
 #+begin_src emacs-lisp
 ;; Run `M-x projectile-project-search-path' to reload paths from this variable
-;; (setq projectile-project-search-path '("~/PhD/workspace"
-;;                                        "~/PhD/workspace-no"
-;;                                        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-;;                                        "~/Projects/foss_projects"))
+(setq projectile-project-search-path '("~/PhD/workspace"
+                                       "~/PhD/workspace-no"
+                                       "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
+                                       "~/Projects/foss_projects"))
 
 (setq projectile-ignored-projects '("~/"
                                     "/tmp"
@@ -2151,7 +2152,7 @@ session, to do so, I define a helper function to clear data stored in the
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 #+end_src
 
-** The Grand "Cathedral" Debugger :realgud:
+** The Grand "Cathedral" Debugger :realgud:debug:
 For C/C++, DAP mode is missing so much features.
 In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it stops
 and disconnect while debugging, making it a double pain. 
@@ -2250,7 +2251,7 @@ a list of string arguments to pass to the program.
 
 #+begin_src emacs-lisp
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
-;; '(:program "..." :args ("args1" "arg2"...))
+;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 (defvar ab/realgud:launch-plist nil)
 #+end_src
