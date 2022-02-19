@@ -546,7 +546,7 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 16)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 33)
       doom-variable-pitch-font (font-spec :family "Roboto") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
@@ -1994,7 +1994,7 @@ UI components to provide a less intrusive UI, however I like to enable some less
 Increase the left fringe width, to enable rendering breakpoints correctly.
 
 #+begin_src emacs-lisp
-(add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(12 . 12))))
+(add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(32 . 32))))
 #+end_src
 
 *** Eglot :eglot:
