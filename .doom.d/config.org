@@ -1454,6 +1454,20 @@ inside the src_elisp{(after! ... )} block ¯\_(ツ)_/¯.
         centaur-tabs-gray-out-icons 'buffer))
 #+end_src
 
+** EVIL multi cursors =evil-mc=
+Doom Emacs define a set of =evil-mc-*= commands under =gz=, I like the default
+bindings, but I miss =evil-mc-skip-and-goto-next-match= and
+=evil-mc-skip-and-goto-prev-match=.
+
+#+begin_src emacs-lisp
+(map! (:when (featurep! :editor multiple-cursors)
+       :prefix "gz"
+       :nv "s" #'evil-mc-skip-and-goto-next-match
+       :nv "S" #'evil-mc-skip-and-goto-prev-match
+       :nv "c" #'evil-mc-skip-and-goto-next-cursor
+       :nv "C" #'evil-mc-skip-and-goto-prev-cursor))
+#+end_src
+
 ** Better PDFs in Modeline :modeline:pdf:
 First up I'm going to want a segment for just the buffer file name, and a PDF
 icon. Then we'll redefine two functions used to generate the modeline.
