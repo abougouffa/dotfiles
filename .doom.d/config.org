@@ -1832,43 +1832,44 @@ You will need to:
   original unencrypted file.
 
 I use a =mbsyncrc= file for multi-accounts, with some hacks for Gmail accounts (to
-rename the =[Gmail]/...= folders). Here an example:
+rename the =[Gmail]/...= folders). Here is an explained configuration example.
 
 #+begin_src conf-space :tangle no
 # mbsync config file
 
-# To avoid the "Warning: lost track of X pushed message" error
-# https://www.reddit.com/r/emacs/comments/myxgrs/mu4e_mbsync_warning_lost_track_of_x_pushed/
-CopyArrivalDate yes
+# GLOBAL OPTIONS
+BufferLimit 50mb             # Global option:   Default buffer size is 10M, too small for modern machines.
+Sync All                     # Channels global: Sync everything "Pull Push New ReNew Delete Flags" (default option)
+Create Both                  # Channels global: Automatically create missing mailboxes on both sides
+Expunge Both                 # Channels global: Delete messages marked for deletion on both sides
+CopyArrivalDate yes          # Channels global: Propagate arrival time with the messages
 
-# ACCOUNT INFORMATION
-IMAPAccount personal
-
-# Address to connect to
-Host mail.host.ccc
-User user@host.ccc
-SSLType IMAPS
-SSLVersions TLSv1.2 TLSv1.1
-
+# SECTION (IMAP4 Accounts)
+IMAPAccount work             # IMAP Account name
+Host mail.host.ccc           # The host to connect to
+User user@host.ccc           # Login user name
+SSLVersions TLSv1.2 TLSv1.1  # Supported SSL versions
 # Extract password from encrypted ~/.authinfo.gpg
 # File format: "machine <SERVER> login <LOGIN> port <PORT> password <PASSWORD>"
 # This uses sed to extract <PASSWORD> from line matching the account's <SERVER>
 PassCmd "echo $(gpg --no-tty -qd ~/.authinfo.gpg 2> /dev/null | sed -n 's,^machine smtp\\.host\\.ccc .*password \\(..*\\)$,\\1,p')"
-AuthMechs LOGIN
-SSLType IMAPS
+AuthMechs *                  # Authentication mechanisms
+SSLType IMAPS                # Protocol (STARTTLS/IMAPS)
 CertificateFile /etc/ssl/certs/ca-certificates.crt
+# END OF SECTION
+# IMPORTANT NOTE: you need to keep the blank line after each section
 
-# Remote storage (use the IMAP account specified above)
-IMAPStore personal-remote
-Account personal
+# SECTION (IMAP Stores)
+IMAPStore work-remote        # Remote storage name
+Account work                 # Associated account
+# END OF SECTION
 
-# Local storage (create directories with mkdir -p ~/Maildir/<ACCOUNT-NAME>)
-MaildirStore personal-local
-Path ~/Maildir/personal/
-Inbox ~/Maildir/personal/Inbox
-
-# Download all sub-folders
-SubFolders Verbatim
+# SECTION (Maildir Stores)
+MaildirStore work-local      # Local storage (create directories with mkdir -p ~/Maildir/<ACCOUNT-NAME>)
+Path ~/Maildir/work/         # The local store path
+Inbox ~/Maildir/work/Inbox   # Location of the INBOX
+SubFolders Verbatim          # Download all sub-folders
+# END OF SECTION
 
 # Connections specify links between remote and local folders
 # they are specified using patterns, which match remote mail
@@ -1877,17 +1878,17 @@ SubFolders Verbatim
 # - "*" to match everything
 # - "!DIR" to exclude "DIR"
 # - "DIR" to match DIR
-Channel personal
-Far :personal-remote:
-Near :personal-local:
+#
+# SECTION (Channels)
+Channel work                 # Channel name
+Far :work-remote:            # Connect remote store
+Near :work-local:            # to the local one
 Patterns "INBOX" "Drafts" "Sent" "Archives/*" "Spam" "Trash"
-Create Both
-Expunge Both
-SyncState *
+SyncState *                  # Save state in near side mailbox file ".mbsyncstate"
+# END OF SECTION
 
 # ================================================================================
 
-# Gmail
 IMAPAccount gmail
 Host imap.gmail.com
 User user@gmail.com
@@ -1903,61 +1904,51 @@ MaildirStore gmail-local
 Path ~/Maildir/gmail/
 Inbox ~/Maildir/gmail/Inbox
 
+# For Gmail, I like to make multiple channels, one for each remote directory
+# this is a trick to rename remote "[Gmail]/mailbox" to "mailbox"
 Channel gmail-inbox
 Far :gmail-remote:
 Near :gmail-local:
 Patterns "INBOX"
-Create Both
-Expunge Both
 SyncState *
 
 Channel gmail-trash
 Far :gmail-remote:"[Gmail]/Trash"
 Near :gmail-local:"Trash"
-Create Both
-Expunge Both
 SyncState *
 
 Channel gmail-drafts
 Far :gmail-remote:"[Gmail]/Drafts"
 Near :gmail-local:"Drafts"
-Create Both
-Expunge Both
 SyncState *
 
 Channel gmail-sent
 Far :gmail-remote:"[Gmail]/Sent Mail"
 Near :gmail-local:"Sent Mail"
-Create Both
-Expunge Both
 SyncState *
 
 Channel gmail-all
 Far :gmail-remote:"[Gmail]/All Mail"
 Near :gmail-local:"All Mail"
-Create Both
-Expunge Both
 SyncState *
 
 Channel gmail-starred
 Far :gmail-remote:"[Gmail]/Starred"
 Near :gmail-local:"Starred"
-Create Both
-Expunge Both
 SyncState *
 
 Channel gmail-spam
 Far :gmail-remote:"[Gmail]/Spam"
 Near :gmail-local:"Spam"
-Create Both
-Expunge Both
 SyncState *
 
-# Groups put together channels, so that we can invoke
-# mbsync on a group to sync all channels
+# GROUPS PUT TOGETHER CHANNELS, SO THAT WE CAN INVOKE
+# MBSYNC ON A GROUP TO SYNC ALL CHANNELS
 #
-# For instance: "mbsync gmail" gets mail from
-# "gmail-inbox", "gmail-sent", "gmail-trash"...
+# FOR INSTANCE: "mbsync gmail" GETS MAIL FROM
+# "gmail-inbox", "gmail-sent", and "gmail-trash"
+#
+# SECTION (Groups)
 Group gmail
 Channel gmail-inbox
 Channel gmail-sent
@@ -1966,6 +1957,7 @@ Channel gmail-drafts
 Channel gmail-all
 Channel gmail-starred
 Channel gmail-spam
+# END OF SECTION
 #+end_src
 
 #+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/local/share/emacs/site-lisp/mu4e") "yes" "no")
