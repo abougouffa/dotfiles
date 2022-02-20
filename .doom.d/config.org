@@ -627,18 +627,23 @@ Show battery level unless battery is not present or battery information is unkno
 **** Custom Splash Image :image:banner:
 Change the logo to an image, a set of beautiful images can be found in =assets=.
 
-| File                                 | Preview                                |
-|--------------------------------------+----------------------------------------|
-| =emacs-e-big.svg=                      | [[./assets/emacs-e-big.svg]]               |
-|--------------------------------------+----------------------------------------|
-| =gnu-emacs-logo-flat-white.svg=        | [[./assets/gnu-emacs-logo-flat-white.svg]] |
-|--------------------------------------+----------------------------------------|
-| =assets/gnu-emacs-logo-flat-light.svg= | [[./assets/gnu-emacs-logo-flat-light.svg]] |
-|--------------------------------------+----------------------------------------|
-| =assets/blackhole-lines-small.svg=     | [[./assets/blackhole-lines-small.svg]]     |
+| File                 | Preview                       |
+|----------------------+-------------------------------|
+| =emacs-e.svg=          | [[./assets/emacs-e.svg]]          |
+|----------------------+-------------------------------|
+| =gnu-emacs-white.svg=  | [[./assets/gnu-emacs-white.svg]]  |
+|----------------------+-------------------------------|
+| =gnu-emacs-flat.svg=   | [[./assets/gnu-emacs-light.svg]]  |
+|----------------------+-------------------------------|
+| =blackhole-lines.svg=  | [[./assets/blackhole-lines.svg]]  |
+|----------------------+-------------------------------|
+| =doom-emacs-white.svg= | [[./assets/doom-emacs-white.svg]] |
+|----------------------+-------------------------------|
+| =doom-emacs-dark.svg=  | [[./assets/doom-emacs-dark.svg]]  |
+|----------------------+-------------------------------|
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/emacs-e-big.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
 #+end_src
 
 **** Clean Screen :clean:
