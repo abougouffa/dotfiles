@@ -1888,14 +1888,151 @@ Configuring =mu4e= email accounts, note that you need to have a proper
 =mbsyncrc= file in the right directory.
 
 You will need to:
-- Install =mu= and =mbsync-git=
-- Set up a proper configuration file for your accounts at =~/.config/mu4e/mbsyncrc=
+- Install =mu= and =isync= (=sudo pacman -S mu isync=)
+- Set up a proper configuration file for your accounts at =~/.mbsyncrc=
 - Run =mu init --maildir=~/Maildir --my-address=user@host1 --my-address=user@host2=
-- Run =mbsync -c ~/.config/mu4e/mbsyncrc -a=
+- Run =mbsync -c ~/.mbsyncrc -a=
 - For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
   this format =machine MAIL.EXAMPLE.ORG port 587 login MY_USER password MY_PASSWORD=
 - Encrypt the =~/.authinfo= file using GPG =gpg -c ~/.authinfo= and delete the
   original unencrypted file.
+
+I use a =mbsyncrc= file for multi-accounts, with some hacks for Gmail accounts (to
+rename the =[Gmail]/...= folders). Here an example:
+
+#+begin_src conf-space :tangle no
+# mbsync config file
+
+# To avoid the "Warning: lost track of X pushed message" error
+# https://www.reddit.com/r/emacs/comments/myxgrs/mu4e_mbsync_warning_lost_track_of_x_pushed/
+CopyArrivalDate yes
+
+# ACCOUNT INFORMATION
+IMAPAccount personal
+
+# Address to connect to
+Host mail.host.ccc
+User user@host.ccc
+SSLType IMAPS
+SSLVersions TLSv1.2 TLSv1.1
+
+# Extract password from encrypted ~/.authinfo.gpg
+# File format: "machine <SERVER> login <LOGIN> port <PORT> password <PASSWORD>"
+# This uses sed to extract <PASSWORD> from line matching the account's <SERVER>
+PassCmd "echo $(gpg --no-tty -qd ~/.authinfo.gpg 2> /dev/null | sed -n 's,^machine smtp\\.host\\.ccc .*password \\(..*\\)$,\\1,p')"
+AuthMechs LOGIN
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+# Remote storage (use the IMAP account specified above)
+IMAPStore personal-remote
+Account personal
+
+# Local storage (create directories with mkdir -p ~/Maildir/<ACCOUNT-NAME>)
+MaildirStore personal-local
+Path ~/Maildir/personal/
+Inbox ~/Maildir/personal/Inbox
+
+# Download all sub-folders
+SubFolders Verbatim
+
+# Connections specify links between remote and local folders
+# they are specified using patterns, which match remote mail
+# folders. Some commonly used patters include:
+#
+# - "*" to match everything
+# - "!DIR" to exclude "DIR"
+# - "DIR" to match DIR
+Channel personal
+Far :personal-remote:
+Near :personal-local:
+Patterns "INBOX" "Drafts" "Sent" "Archives/*" "Spam" "Trash"
+Create Both
+Expunge Both
+SyncState *
+
+# ================================================================================
+
+# Gmail
+IMAPAccount gmail
+Host imap.gmail.com
+User user@gmail.com
+PassCmd "echo $(gpg --no-tty -qd ~/.authinfo.gpg 2> /dev/null | sed -n 's,^machine smtp\\.googlemail\\.com .*password \\(..*\\)$,\\1,p')"
+AuthMechs LOGIN
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+Path ~/Maildir/gmail/
+Inbox ~/Maildir/gmail/Inbox
+
+Channel gmail-inbox
+Far :gmail-remote:
+Near :gmail-local:
+Patterns "INBOX"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-trash
+Far :gmail-remote:"[Gmail]/Trash"
+Near :gmail-local:"Trash"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-drafts
+Far :gmail-remote:"[Gmail]/Drafts"
+Near :gmail-local:"Drafts"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-sent
+Far :gmail-remote:"[Gmail]/Sent Mail"
+Near :gmail-local:"Sent Mail"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-all
+Far :gmail-remote:"[Gmail]/All Mail"
+Near :gmail-local:"All Mail"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-starred
+Far :gmail-remote:"[Gmail]/Starred"
+Near :gmail-local:"Starred"
+Create Both
+Expunge Both
+SyncState *
+
+Channel gmail-spam
+Far :gmail-remote:"[Gmail]/Spam"
+Near :gmail-local:"Spam"
+Create Both
+Expunge Both
+SyncState *
+
+# Groups put together channels, so that we can invoke
+# mbsync on a group to sync all channels
+#
+# For instance: "mbsync gmail" gets mail from
+# "gmail-inbox", "gmail-sent", "gmail-trash"...
+Group gmail
+Channel gmail-inbox
+Channel gmail-sent
+Channel gmail-trash
+Channel gmail-drafts
+Channel gmail-all
+Channel gmail-starred
+Channel gmail-spam
+#+end_src
 
 #+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/local/share/emacs/site-lisp/mu4e") "yes" "no")
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
