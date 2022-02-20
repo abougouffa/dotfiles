@@ -366,8 +366,7 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 #+name: doom-checkers
 #+begin_src emacs-lisp
 (syntax +childframe)   ; tasing you for every semicolon you forget
-(spell +flyspell       ; tasing you for misspelling mispelling
-       +hunspell)
+spell
 grammar                ; tasing grammar mistake every you make
 #+end_src
 
@@ -1604,18 +1603,45 @@ This makes the result of evals with =gr= and =gR= just slightly prettier.
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
-*** Set the default =ispell= dictionary :ispell:dict:
-With =:checkers spell +hunspell=, =hunspell= needs to be installed:
+*** Install backend
+For =flyspell= + =hunspell=
 
 #+begin_example shell
 sudo pacman -S hunspell hunspell-en_US hunspell-en_GB hunspell-fr
 #+end_example
 
-Set =ispell='s dictionary to English and French by default. So I can
-"mélanger les langues sans avoir de problèmes!".
+For =spell-fu=
+
+#+begin_example shell
+sudo pacman -S aspell aspell-en aspell-fr
+#+end_example
+
+*** Spell Fu
+Now, =spell-fu= supports multiple languages! Lets add English, French and Arabic.
+So I can "mélanger les langues sans avoir de problèmes!".
+
+#+begin_src emacs-lisp :tangle "packages.el"
+(unpin! spell-fu) ;; To use the new multi-language feature!
+#+end_src
 
 #+begin_src emacs-lisp
-(after! ispell
+(after! spell-fu
+  (add-hook 'spell-fu-mode-hook
+   (lambda ()
+     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "en"))
+     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "fr"))
+     (spell-fu-dictionary-add
+      (spell-fu-get-personal-dictionary
+       "en" (expand-file-name ".aspell.en.pws" doom-private-dir)))
+     (spell-fu-dictionary-add
+      (spell-fu-get-personal-dictionary
+       "fr" (expand-file-name ".aspell.fr.pws" doom-private-dir))))))
+#+end_src
+
+*** COMMENT Flyspell
+
+#+begin_src emacs-lisp
+(after! (ispell flyspell)
   (setq ispell-dictionary "en_US,fr_FR")
 
   ;; ispell-set-spellchecker-params has to be called
@@ -1630,7 +1656,7 @@ Set =ispell='s dictionary to English and French by default. So I can
     (write-region "" nil ispell-personal-dictionary nil 0)))
 #+end_src
 
-*** Lazy flycheck :flycheck:
+**** Lazy flyspell :flyspell:
 
 #+begin_src emacs-lisp
 (after! flyspell
@@ -1638,7 +1664,7 @@ Set =ispell='s dictionary to English and French by default. So I can
         flyspell-lazy-window-idle-seconds 5))
 #+end_src
 
-*** Shortcuts to change dictionary :dict:
+*** COMMENT Shortcuts to change dictionary :dict:
 #+begin_src emacs-lisp
 (defun ab-conf/spelldict (lang)
   "Switch between language dictionaries."
