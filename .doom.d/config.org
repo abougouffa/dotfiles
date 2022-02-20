@@ -547,7 +547,7 @@ Some good fonts:
 
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 33)
-      doom-variable-pitch-font (font-spec :family "Roboto") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Inter") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
@@ -1487,7 +1487,7 @@ bindings, but I miss =evil-mc-skip-and-goto-next-match= and
        :nv "C" #'evil-mc-skip-and-goto-prev-cursor))
 #+end_src
 
-** Better PDFs in Modeline :modeline:pdf:
+** Better PDFs in mode line :modeline:pdf:
 First up I'm going to want a segment for just the buffer file name, and a PDF
 icon. Then we'll redefine two functions used to generate the modeline.
 
@@ -1740,7 +1740,8 @@ Nested snippets are good, enable that.
 #+end_src
 
 ** Ligatures :ligatures:
-Disable extra ligatures in some programming modes:
+Extra ligatures are good, however, I'd like to see my keywords! Lets disable
+them in C/C++, Rust and Python modes.
 
 #+begin_src emacs-lisp
 (setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
@@ -1888,11 +1889,11 @@ Configuring =mu4e= email accounts, note that you need to have a proper
 
 You will need to:
 - Install =mu= and =mbsync-git=
-- Set up a proper configuration file for your accounts at =~/config/mu4e/mbsyncrc=
-- Run =mu init --maildir=~/Maildir --my-address=user@host.bla=
+- Set up a proper configuration file for your accounts at =~/.config/mu4e/mbsyncrc=
+- Run =mu init --maildir=~/Maildir --my-address=user@host1 --my-address=user@host2=
 - Run =mbsync -c ~/.config/mu4e/mbsyncrc -a=
 - For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
-  this format =machine mail.example.org port 587 login myuser password mypasswd=
+  this format =machine MAIL.EXAMPLE.ORG port 587 login MY_USER password MY_PASSWORD=
 - Encrypt the =~/.authinfo= file using GPG =gpg -c ~/.authinfo= and delete the
   original unencrypted file.
 
@@ -1900,8 +1901,8 @@ You will need to:
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 #+end_src
 
-My Email accounts are configured in a private file in
-=lisp/private/+mu4e-accounts.el=, which will be loaded after the common part:
+I configure my email accounts in a private file in
+=lisp/private/+mu4e-accounts.el=, which will be loaded after this common part:
 
 #+begin_src emacs-lisp
 (after! mu4e
@@ -2020,7 +2021,8 @@ Add ROS specific file formats:
 ** LSP :lsp:ide:
 *** Enable some useful UI stuff :diagnostics:ui:
 LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables a set of
-UI components to provide a less intrusive UI, however I like to enable some less intrusive, more useful UI stuff.
+UI components to provide a less intrusive UI, however I like to enable some less
+intrusive, more useful UI stuff.
 
 #+begin_src emacs-lisp
 (after! lsp-ui
@@ -2099,19 +2101,21 @@ it work with =projectile=:
 
   (setq lsp-enable-snippet nil
         lsp-log-io nil
-        ; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
+        ;; To bypass the "lsp--document-highlight fails if
+        ;; textDocument/documentHighlight is not supported" error
         lsp-enable-symbol-highlighting nil)
 
   (lsp-register-client
-    (make-lsp-client
-     :new-connection (lsp-tramp-connection (lambda ()
-                                          (cons "pyright-langserver"
-                                                lsp-pyright-langserver-command-args)))
-     :major-modes '(python-mode)
-     :remote? t
-     :server-id 'pyright-remote)))
+   (make-lsp-client
+    :new-connection
+    (lsp-tramp-connection
+     (lambda () (cons "pyright-langserver"
+                 lsp-pyright-langserver-command-args)))
+    :major-modes '(python-mode)
+    :remote? t
+    :server-id 'pyright-remote))
 
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 #+end_src
 
 **** For C/C++ with =ccls= :ccls:
@@ -2128,23 +2132,14 @@ it work with =projectile=:
 
   (lsp-register-client
    (make-lsp-client
-    :new-connection (lsp-tramp-connection (lambda ()
-                                            (cons ccls-executable ; executable name on remote machine 'ccls'
-                                                  ccls-args)))
+    :new-connection
+    (lsp-tramp-connection
+     (lambda ()
+       (cons ccls-executable ; executable name on remote machine 'ccls'
+             ccls-args)))
     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
     :remote? t
     :server-id 'ccls-remote))
-  ;; :multi-root t
-  ;; :priority 3
-  ;; :initialization-options (lambda () (ht-merge (lsp-configuration-section "c++")
-  ;;                                              (lsp-configuration-section "ccls")))
-  ;; :initialized-fn (lambda (workspace)
-  ;;                   (with-lsp-workspace workspace
-  ;;                     (lsp--set-configuration
-  ;;                      (ht-merge (lsp-configuration-section "c++")
-  ;;                                (lsp-configuration-section "ccls")))))
-  ;; :notification-handlers (lsp-ht ("$ccls/publishSkippedRanges" 'cls--publish-skipped-ranges)
-  ;;                                ("$ccls/publishSemanticHighlight" 'cls--publish-semantic-highlight))
 
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 #+end_src
@@ -2154,25 +2149,29 @@ it work with =projectile=:
 #+begin_src emacs-lisp
 (after! tramp
   (require 'lsp-mode)
+
   (setq lsp-enable-snippet nil
         lsp-log-io nil
-        ; To bypass the "lsp--document-highlight fails if textDocument/documentHighlight is not supported" error
+        ;; To bypass the "lsp--document-highlight fails if
+        ;; textDocument/documentHighlight is not supported" error
         lsp-enable-symbol-highlighting nil)
 
   (lsp-register-client
     (make-lsp-client
-      :new-connection (lsp-tramp-connection (lambda ()
-                                              (cons "clangd-12" ; executable name on remote machine 'ccls'
-                                                    lsp-clients-clangd-args)))
-      :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-      :remote? t
-      :server-id 'clangd-remote)))
+     :new-connection
+     (lsp-tramp-connection
+      (lambda ()
+        (cons "clangd-12" ; executable name on remote machine 'ccls'
+              lsp-clients-clangd-args)))
+     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+     :remote? t
+     :server-id 'clangd-remote)))
 #+end_src
 
 ** DAP :dap:debug:ide:
 I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
 =dap-mode=. I like also to have a mode minimal UI. I like to trigger =dap-hydra=
-when the program hits a breakpoint, and automatically delete the session and
+when the program hits a break point, and automatically delete the session and
 close Hydra when DAP is terminated.
 
 #+begin_src emacs-lisp
@@ -2261,12 +2260,12 @@ reverse debugging.
  Eval      | _ee_: at-point  | _er_: region  | _eE_: eval    |
            |  _!_: shell     | _Qk_: kill    | _Qq_: quit    | _Sg_: gdb       | _Ss_: start
 "
-    ("n" realgud:cmd-next)
-    ("i" realgud:cmd-step)
-    ("o" realgud:cmd-finish)
-    ("c" realgud:cmd-continue)
-    ("R" realgud:cmd-restart)
-    ("u" realgud:cmd-until-here)
+    ("n"  realgud:cmd-next)
+    ("i"  realgud:cmd-step)
+    ("o"  realgud:cmd-finish)
+    ("c"  realgud:cmd-continue)
+    ("R"  realgud:cmd-restart)
+    ("u"  realgud:cmd-until-here)
     ("rn" ab/realgud:cmd-reverse-next)
     ("ri" ab/realgud:cmd-reverse-step)
     ("ro" ab/realgud:cmd-reverse-finish)
@@ -2282,9 +2281,9 @@ reverse debugging.
     ("eE" realgud:cmd-eval)
     ("!"  realgud:cmd-shell)
     ("Qk" realgud:cmd-kill)
-    ("Sg"  realgud:gdb)
-    ("Ss"  ab/realgud:cmd-start)
-    ("q" nil "quit" :color blue) ;; :exit
+    ("Sg" realgud:gdb)
+    ("Ss" ab/realgud:cmd-start)
+    ("q"  nil "quit" :color blue) ;; :exit
     ("Qq" realgud:cmd-quit :color blue)) ;; :exit
 
   (defun +debugger/realgud:gdb-hydra ()
@@ -2322,10 +2321,9 @@ like this:
 #+begin_src lisp-data :tangle no
 ;; Example entry in .dir-locals.el
 ((nil . ((ab/realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
-                                          :args ("--in_file=${workspaceFolder}/some/file.csv"
-                                                 "--out_file=/tmp/some_randome_file"
-                                                 "-a"
-                                                 "-b"))))))
+                                      :args ("--in_file=${workspaceFolder}/some/file.csv"
+                                             "--out_file=/tmp/some_randome_file"
+                                             "-a"))))))
 #+end_src
 
 The special variable =${workspaceFolder}= will be replaced by the project's root
