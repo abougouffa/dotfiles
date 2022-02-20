@@ -189,6 +189,25 @@ stealing prevention* to /None/ in the KDE Settings.
 (setq doom-debug-p t)
 #+end_src
 
+** Chemacs2
+Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
+however, I like to try other configs to get inspired!
+
+#+begin_src emacs-lisp :tangle "~/.emacs-profiles.el"
+(("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
+                 (server-name . "doom")
+                 (env . (("DOOMDIR" . "~/.doom.d")))))
+ ("scimax"    . ((user-emacs-directory . "~/.config/emcas.scimax")))
+ ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")))
+ ("spacemacs" . ((user-emacs-directory . "~/.config/emacs.spacemacs"))))
+#+end_src
+
+Make =doom= the default profile.
+
+#+begin_src text :tangle "~/.emacs-profile"
+doom
+#+end_src
+
 * Modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
@@ -4668,8 +4687,8 @@ Some useful stuff (=fzf=, =opam=, Doom Emacs...)
 # opam configuration
 [[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
-# Add ~/.emacs-doom.d/bin to path (for DOOM Emacs stuff)
-export PATH=$PATH:$HOME/.emacs-doom/bin
+# Add ~/.config/emacs.doom/bin to path (for DOOM Emacs stuff)
+export PATH=$PATH:$HOME/.config/emacs.doom/bin
 #+end_src
 
 I like to use =tmux= by default, even on my local sessions, I like to start a =tmux=
