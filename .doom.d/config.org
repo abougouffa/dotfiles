@@ -2312,6 +2312,7 @@ a list of string arguments to pass to the program.
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
+;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
 (defvar ab/realgud:launch-plist nil)
 #+end_src
 
@@ -2326,8 +2327,9 @@ like this:
                                              "-a"))))))
 #+end_src
 
-The special variable =${workspaceFolder}= will be replaced by the project's root
-(from =projectile-project-root=).
+The special variables =${workspaceFolder}= and =${workspaceFolderBasename}= are
+defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]], the actual values are filled from
+=projectile-project-root=.
 
 #+begin_src emacs-lisp
 (cl-defun ab/realgud:get-launch-debugger-args (&key program args)
@@ -2337,7 +2339,15 @@ The special variable =${workspaceFolder}= will be replaced by the project's root
       (when args
         (setq debugger--args (concat debugger--args " " (s-join " " args)))))
     ;; Replace special variables
-    (s-replace "${workspaceFolder}" (or (projectile-project-root) ".") debugger--args)))
+    (let* ((ws--root (expand-file-name (or (projectile-project-root) ".")))
+           (ws--basename (file-name-nondirectory
+                          (if (s-ends-with-p "/" ws--root)
+                              (substring ws--root 0 -1)
+                            ws--root))))
+      (s-replace-all
+       (list (cons "${workspaceFolder}" ws--root)
+             (cons "${workspaceFolderBasename}" ws--basename))
+       debugger--args))))
 
 (defun +debugger/realgud:gdb-launch ()
   "Launch RealGUD with parameters from `ab/realgud:launch-plist'"
