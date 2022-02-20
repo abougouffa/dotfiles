@@ -195,7 +195,7 @@ however, I like to try other configs to get inspired!
 
 #+begin_src emacs-lisp :tangle "~/.emacs-profiles.el"
 (("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
-                 (server-name . "doom")
+;                (server-name . "doom") ;; Causes server to not start correctly
                  (env . (("DOOMDIR" . "~/.doom.d")))))
  ("scimax"    . ((user-emacs-directory . "~/.config/emcas.scimax")))
  ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")))
