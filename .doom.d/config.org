@@ -1,3 +1,4 @@
+# -*- geiser-scheme-implementation: 'guile; -*-
 #+title: Doom Emacs Configuration
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
@@ -2556,7 +2557,7 @@ Babel is really annoying when it comes to working with Scheme (via Geiser), it
 keeps asking about which Scheme implementation to use, I tried to set this in
 file local variables and dir-locals but it didn't work. This should work now!
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (after! geiser
   (setq geiser-default-implementation 'guile))
 
