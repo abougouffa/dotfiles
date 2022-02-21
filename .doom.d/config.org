@@ -1258,7 +1258,7 @@ the workaround is no more needed. To fix this, I set the
   (add-hook 'maxima-mode-hook #'maxima-hook-function)
   (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
   (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
-        (expand-file-name "~/.emacs-doom/.local/straight/build-28.0.91/maxima/keywords"))
+        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
   (setq maxima-display-maxima-buffer nil)
   ;; (require 'org) ;; to set `org-format-latex-options'
   ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
