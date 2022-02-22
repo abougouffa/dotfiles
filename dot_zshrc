@@ -106,5 +106,5 @@ alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 
 # Include my personal customizations
-source ~/.env_stuff
+[ -f ~/.env_stuff ] && source ~/.env_stuff
 
