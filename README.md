@@ -1,13 +1,13 @@
 # My Dotfiles
 
-![Doom Emacs Logo, CC-BY](doom-emacs-dark.svg)
+![Doom Emacs Logo, CC-BY](dot_doom.d/assets/doom-emacs-dark.svg)
 
 Contains my configuration files for Zsh, Emacs, Vim, and other Linux related stuff.
 
 If you need to reuse some of these configs, you will need to modify some directories and add some user specific information (usernames, passwords...)
 
-The main file is [`.doom.d/config.org`](../.doom.d/config.org), (available also
-as a [PDF file](../.doom.d/config.pdf), it contains the
+The main file is [`.doom.d/config.org`](dot_doom.d/config.org), (available also
+as a [PDF file](dot_doom.d/config.pdf), it contains the
 literal configuration for [Doom Emacs](https://github.com/hlissner/doom-emacs),
 and I use it to generate some other user configuration files (define aliases,
 environment variables, user tools, Git config...).
