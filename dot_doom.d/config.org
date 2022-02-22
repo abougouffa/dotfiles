@@ -313,6 +313,8 @@ ophints                      ; highlight the region an operation acts on
 vc-gutter                    ; vcs diff in the fringe
 workspaces                   ; tab emulation, persistence & separate workspaces
 zen                          ; distraction-free coding or writing
+vi-tilde-fringe              ; fringe tildes to mark beyond EOB
+tabs                         ; a tab bar for Emacs
 (window-select +numbers)     ; visually switch windows
 (ligatures +extra)           ; ligatures and symbols to make your code pretty again
 (treemacs +lsp)              ; a project drawer, like neotree but cooler
@@ -326,9 +328,7 @@ zen                          ; distraction-free coding or writing
 ;;indent-guides              ; highlighted indent columns, notoriously slow
 ;;minimap                    ; show a map of the code on the side
 ;;neotree                    ; a project drawer, like NERDTree for vim
-;;tabs                       ; a tab bar for Emacs
 ;;unicode                    ; extended unicode support for various languages
-;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
 #+end_src
 
 ** Editor (=:editor=)
@@ -565,7 +565,7 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 33)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 18)
       doom-variable-pitch-font (font-spec :family "Inter") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
@@ -1257,6 +1257,7 @@ the workaround is no more needed. To fix this, I set the
   :init
   (add-hook 'maxima-mode-hook #'maxima-hook-function)
   (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+  (require 'straight)
   (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
         (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
   (setq maxima-display-maxima-buffer nil)
@@ -1776,7 +1777,7 @@ echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" \
 Then I like to have a simple script which decrypt the credentials and launch a
 session via the =netExtender= command.
 
-#+begin_src shell :tangle ~/.local/bin/netextender :tangle-mode (identity #o755)
+#+begin_src shell :tangle ~/.local/bin/netextender :mkdirp yes :tangle-mode (identity #o755)
 #!/bin/bash
 
 if ! command -v netExtender &> /dev/null
@@ -3951,7 +3952,7 @@ application, which seems reasonable.
 [Desktop Entry]
 Name=Emacs Org-Protocol
 Exec=emacsclient %u
-Icon=/home/abdelhak/.doom.d/assets/org-mode.svg
+Icon=/home/hacko/.doom.d/assets/org-mode.svg
 Type=Application
 Terminal=false
 MimeType=x-scheme-handler/org-protocol
@@ -4516,12 +4517,13 @@ fi
 Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
 
 #+begin_src shell :tangle ~/.env_stuff
-if [ -d $HOME/sources-and-libs/esp-idf/ ]
+if [ -d $HOME/Softwares/src/esp-idf/ ]
 then
-  alias esp-prepare-env='source $HOME/sources-and-libs/esp-idf/export.sh'
-  alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/sources-and-libs/esp-idf && git pull --all && echo "Updated successfully"'
+  alias esp-prepare-env='source $HOME/Softwares/src/esp-idf/export.sh'
+  alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/src/esp-idf && git pull --all && echo "Updated successfully"'
 else
-  echo "esp-idf repo not found. You can clone the esp-idf repo using 'git clone https://github.com/espressif/esp-idf.git'"
+  alias esp-prepare-env='echo "esp-idf repo not found. You can clone the esp-idf repo using git clone https://github.com/espressif/esp-idf.git"'
+  alias esp-update=esp-prepare-env
 fi
 #+end_src
 
@@ -4568,8 +4570,8 @@ export PATH=/opt/clang-format-static:$PATH
 Add my manually installed libraries to CMake and =PATH=.
 
 #+begin_src shell :tangle ~/.env_stuff
-export CMAKE_PREFIX_PATH=$HOME/sources-and-libs/build_installs
-export PATH=$PATH:$HOME/.cargo/bin:$HOME/sources-and-libs/build_installs/bin
+export CMAKE_PREFIX_PATH=$HOME/Softwares/src/install
+export PATH=$PATH:$HOME/.cargo/bin:$HOME/Softwares/src/install/bin
 #+end_src
 
 Set NPM installation path to local:
@@ -4609,7 +4611,7 @@ then
 fi
 #+end_src
 
-** Zotero UI trick :zotero:
+** System dark theme trick :zotero:
 Zotero does not support dark mode (ATM), when using a system-wide dark
 theme (at least on KDE), Zotero UI gets messed up, to fix this, we can force
 Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
@@ -4624,6 +4626,38 @@ Exec=GTK_THEME=Default /usr/bin/zotero --url %u
 Categories=Office
 Terminal=false
 MimeType=x-scheme-handler/zotero
+#+end_src
+
+Same thing for Scilab
+
+#+begin_src conf :tangle ~/.local/share/applications/scilab.desktop :mkdirp yes :exports code
+[Desktop Entry]
+Comment=Scientific software package for numerical computations
+Exec=GTK_THEME=Default scilab -f %f
+GenericName=Scientific Software Package
+Icon=scilab
+Name=Scilab
+StartupNotify=false
+Terminal=false
+Type=Application
+Categories=Science;Math;
+Keywords=Science;Math;Numerical;Simulation
+MimeType=application/x-scilab-sci;application/x-scilab-sce;application/x-scilab-tst;application/x-scilab-dem;application/x-scilab-sod;application/x-scilab-xcos;application/x-scilab-zcos;application/x-scilab-bin;application/x-scilab-cosf;application/x-scilab-cos;
+#+end_src
+
+#+begin_src conf :tangle ~/.local/share/applications/xcos.desktop :mkdirp yes :exports code
+[Desktop Entry]
+Comment=Hybrid simulator
+Exec=GTK_THEME=Default xcos
+GenericName=Scientific Software Package
+Icon=xcos
+Name=Xcos
+StartupNotify=false
+Terminal=false
+Type=Application
+Categories=Science;Physics;
+Keywords=Science;Physics;Simulation
+MimeType=application/x-scilab-xcos;application/x-scilab-zcos;application/x-scilab-cosf;application/x-scilab-cos;
 #+end_src
 
 ** Rust format :rust:format:
