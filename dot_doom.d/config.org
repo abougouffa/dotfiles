@@ -4597,6 +4597,25 @@ alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
 alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
 #+end_src
 
+And this to be used as a default =$EDITOR=
+
+#+begin_src shell :tangle ~/.local/bin/ee :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+e -t "$@"
+#+end_src
+
+And =$VISUAL=
+
+#+begin_src shell :tangle ~/.local/bin/ve :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+e -w "$@"
+#+end_src
+
+#+begin_src shell :tangle ~/.env_stuff
+export EDITOR=$HOME/.local/bin/ee
+# export VISUAL=$HOME/.local/bin/ve
+#+end_src
+
 ** TODO tmux :tmux:
 Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
 [[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
