@@ -1772,7 +1772,7 @@ Use =nov= to read EPUB e-books.
   (add-hook 'nov-mode-hook #'+nov-mode-setup))
 #+end_src
 
-** Newsfeed =elfeed= :rss:news:
+** News feed =elfeed= :rss:news:
 Set RSS news feeds
 
 #+begin_src emacs-lisp
@@ -4135,17 +4135,20 @@ this file gets deleted.
 #+end_comment
 
 #+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "setup.sh")
-echo "Setting Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration."
+read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
 
-sudo mkdir -p /etc/opt/chrome/policies/managed/
+if [[ $INSTALL_CONFIRM == "Y" ]]
+then
+  sudo mkdir -p /etc/opt/chrome/policies/managed/
 
-sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json >/dev/null <<'EOF'
-{
+  sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json > /dev/null <<'EOF'
+  {
   "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
-}
+  }
 EOF
 
-sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+  sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+fi
 #+end_src
 
 Then add a bookmarklet in your browser with this code:
@@ -4768,8 +4771,12 @@ other terminal to this default session:
 #+begin_src shell :tangle ~/.env_stuff
 if command -v tmux &> /dev/null && [ -z "$TMUX" ]
 then
-    tmux attach -t default || tmux new -s default
+  tmux attach -t default || tmux new -s default
 fi
+#+end_src
+
+#+begin_src shell :tangle ~/.env_stuff
+export DS_DIR=~/PhD/datasets-no/experiment_images/
 #+end_src
 
 ** System dark theme trick :zotero:
@@ -4996,5 +5003,5 @@ with =.sh= extension found on =~/.config/plasma-workspace/env=, so lets create
 our's.
 
 #+begin_src shell :tangle ~/.config/plasma-workspace/env/fix_scaling.sh :mkdirp yes
-export PLASMA_USE_QT_SCALING=1
+# export PLASMA_USE_QT_SCALING=1
 #+end_src
