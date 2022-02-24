@@ -1583,10 +1583,6 @@ sudo pacman -S aspell aspell-en aspell-fr
 Now, =spell-fu= supports multiple languages! Lets add English, French and Arabic.
 So I can "mélanger les langues sans avoir de problèmes!".
 
-#+begin_src emacs-lisp :tangle "packages.el"
-(unpin! spell-fu) ;; To use the new multi-language feature!
-#+end_src
-
 #+begin_src emacs-lisp
 (after! spell-fu
   (add-hook 'spell-fu-mode-hook
