@@ -2097,6 +2097,15 @@ need to have a template assigned.
 (set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
 #+end_src
 
+** GNU Octave :octave:
+Files with =.m= extension gets recognized automatically as Objective C files. Lets
+change this to be recognized as Octave/Matlab files.
+
+#+begin_src emacs-lisp
+(autoload 'octave-mode "octave-mode" "Loding octave-mode" t)
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
+#+end_src
+
 ** ROS :ros:
 Add ROS specific file formats:
 
