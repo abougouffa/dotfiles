@@ -991,18 +991,45 @@ Together these should give me a rather good experience reading ebooks.
 
 #+begin_src emacs-lisp
 (package! doct)
-(package! org-ref)
 (package! org-super-agenda)
 (package! org-fragtog)
+(package! org-ref)
+
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+
+;; (package! org-ref-cite-core
+;;   :recipe (:host github
+;;            :repo "jkitchin/org-ref-cite"
+;;            :files ("org-ref-cite-core.el")))
+
+;; (package! org-ref-cite
+;;   :recipe (:host github
+;;            :repo "jkitchin/org-ref-cite"
+;;            :files (:defaults "readme.org")))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-;; BUG: it seems to be too slow
 (use-package! org-fragtog
   :hook (org-mode . org-fragtog-mode))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(use-package! org-ref-cite
+  :after org-cite
+  :config
+  ;; I like green links
+  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
+  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
+  (setq org-cite-global-bibliography bibtex-completion-bibliography
+        org-cite-csl-styles-dir "~/Zotero/styles"
+        org-cite-insert-processor 'org-ref-cite
+        org-cite-follow-processor 'org-ref-cite
+        org-cite-activate-processor 'org-ref-cite
+        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
+                                        (latex org-ref-cite)
+                                        (t basic)))
 #+end_src
 
 *** Org Roam :roam:
@@ -2712,28 +2739,60 @@ a good idea in my case at least.
              (pdf (or
                    (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
                                  (split-string (reftex-get-bib-field "file" entry) ";")))
-                   (funcall org-ref-get-pdf-filename-function key))))
+                   (funcall 'org-ref-get-pdf-filename key))))
         (if (file-exists-p pdf)
             (org-open-file pdf)
           (ding)))))
+
   (defadvice! org-ref-open-pdf-at-point-a ()
     "Open the pdf for bibtex key under point if it exists."
     :override #'org-ref-open-pdf-at-point
     (interactive)
     (let* ((results (org-ref-get-bibtex-key-and-file))
            (key (car results))
-           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+           (pdf-file (funcall 'org-ref-get-pdf-filename key)))
       (with-current-buffer (find-file-noselect (cdr results))
         (save-excursion
           (bibtex-search-entry (car results))
           (org-ref-open-bibtex-pdf))))))
 #+end_src
 
+****** =org-cite=
+
+#+begin_src emacs-lisp
+(after! oc
+  (defun org-ref-to-org-cite ()
+    "Attempt to convert org-ref citations to org-cite syntax."
+    (interactive)
+    (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
+                               ("nocite" . "/n")
+                               ("citep" . "") ("citep*" . "//f")
+                               ("parencite" . "") ("Parencite" . "//c")
+                               ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
+                               ("citeyear" . "/na/b")
+                               ("Citep" . "//c") ("Citealp" . "//bc")
+                               ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
+                               ("autocite" . "") ("Autocite" . "//c")
+                               ("notecite" . "/l/b") ("Notecite" . "/l/bc")
+                               ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
+           (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
+                            ":" (group (+ (not (any "\n     ,.)]}")))))))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward cite-regexp nil t)
+          (message (format "[cite%s:@%s]"
+                                 (cdr (assoc (match-string 1) cite-conversions))
+                                 (match-string 2)))
+          (replace-match (format "[cite%s:@%s]"
+                                 (cdr (assoc (match-string 1) cite-conversions))
+                                 (match-string 2))))))))
+#+end_src
+
 ***** Spellcheck :spell:
 I turn off spell checking by default to make Org files open quickly.
 
 #+begin_src emacs-lisp
-(add-hook 'org-mode-hook 'turn-off-flyspell)
+;;(add-hook 'org-mode-hook 'turn-off-flyspell)
 ;;(add-hook 'org-mode-hook 'turn-on-flyspell)
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
@@ -3859,6 +3918,32 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
+*** Bibliography
+
+#+begin_src emacs-lisp
+(setq org-cite-csl-styles-dir "~/Zotero/styles")
+#+end_src
+
+#+begin_src emacs-lisp
+(setq! bibtex-completion-bibliography '("~/Zotero/library.bib"))
+#+end_src
+
+#+begin_src emacs-lisp
+(setq! citar-bibliography '("~/Zotero/library.bib"))
+#+end_src
+
+You may also set the respective note and library path variables as well for
+enhanced functionality:
+
+#+begin_src emacs-lisp
+;; (setq! bibtex-completion-library-path '("~/Zotero/storage")
+;;        bibtex-completion-notes-path "/path/to/your/notes/")
+#+end_src
+
+#+begin_src emacs-lisp
+;; (setq! citar-library-paths '("/path/to/library/files/")
+;;        citar-notes-paths '("/path/to/your/notes/"))
+#+end_src
 
 *** Exporting
 **** General settings
@@ -3908,6 +3993,15 @@ simply superior combination.
 (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 #+end_src
 
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled; old school
+(setq org-latex-pdf-process
+      '("pdflatex -interaction nonstopmode -output-directory %o %f"
+        "bibtex %b"
+        "pdflatex -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -interaction nonstopmode -output-directory %o %f"))
+#+end_src
+
 While ~org-latex-pdf-process~ does support a function, and we could use that
 instead, this would no longer use the log buffer --- it's a bit blind, you give
 it the file name and expect it to do its thing.
@@ -3920,7 +4014,7 @@ value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
 
-***** Export PDFs with syntax highlighting
+***** COMMENT Export PDFs with syntax highlighting
 
 #+begin_src emacs-lisp
 (require 'ox-latex)
@@ -3929,6 +4023,74 @@ it should still work.
 
 (setq org-latex-listings 'minted
       org-src-fontify-natively t)
+#+end_src
+
+***** Class templates
+
+#+begin_src emacs-lisp :noweb no-export
+(after! ox-latex
+  (add-to-list 'org-latex-classes
+               '("scr-article"
+                 "\\documentclass{scrartcl}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("blank"
+                 "[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("bmc-article"
+                 "\\documentclass[article,code,maths]{bmc}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("bmc"
+                 "\\documentclass[code,maths]{bmc}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+
+(setq org-latex-default-class "scr-article"
+      org-latex-tables-booktabs t
+      org-latex-hyperref-template "
+<<latex-fancy-hyperref>>
+"
+      org-latex-reference-command "\\cref{%s}")
+#+end_src
+
+The =hyperref= setup needs to be handled separately however.
+#+name: latex-fancy-hyperref
+#+begin_src LaTeX
+\\colorlet{greenyblue}{blue!70!green}
+\\colorlet{blueygreen}{blue!40!green}
+\\providecolor{link}{named}{greenyblue}
+\\providecolor{cite}{named}{blueygreen}
+\\hypersetup{
+  pdfauthor={%a},
+  pdftitle={%t},
+  pdfkeywords={%k},
+  pdfsubject={%d},
+  pdfcreator={%c},
+  pdflang={%L},
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=,
+  urlcolor=link,
+  citecolor=cite\n}
+\\urlstyle{same}
 #+end_src
 
 * System configuration :linux:system:
@@ -4823,48 +4985,25 @@ In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something lik
                         "--param=arg2")))
 #+end_src
 
-** Latex
-Set =texmf= path, to be used to install https://github.com/tecosaur/BMC
+** Packages
+I like to use the BMC class, however, I do not like to manually install stuff in
+system directories, so I made an Arch Linux AUR package [[https://aur.archlinux.org/packages/bmc-git][=bmc-git=]] for it.
 
-#+begin_src shell :tangle ~/.env_stuff
-export TEXMFHOME=$HOME/.texmf
-#+end_src
-
-Clone and install the BMC repo, check for updates from time to time.
+I do use the =metropolis= theme for Beamer presentations, so I'm maintaining a
+package of it in the AUR too.
 
 #+begin_src shell
-check_and_install_bmc () {
-  [ ! -d $TEXMFHOME ] && mkdir -p $TEXMFHOME
-
-  cd $TEXMFHOME
-
-  RUN_TEXHASH=true
-  BMC_DIR="${TEXMFHOME}/BMC"
-
-  if [ -d $BMC_DIR ]
+check_and_install_pkg () {
+  PKG_NAME="$1"
+  if ! pacman -Qiq ${PKG_NAME} &> /dev/null
   then
-    echo "BMC already installed in $BMC_DIR, checking for updates..."
-    cd $BMC_DIR
-
-    if git pull origin master | grep -iq "up to date"
-    then
-      echo "BMC is up-to-date!"
-      RUN_TEXHASH=false
-    else
-      echo "BMC updated successfully!"
-    fi
-  else
-    echo "BMC not installed!, installing to $BMC_DIR"
-    git clone https://github.com/tecosaur/BMC.git $BMC_DIR
-  fi
-
-  if $RUN_TEXHASH
-  then
-    texhash
+    echo "Package ${PKG_NAME} is missing, installing it using yay"
+    yay -S ${PKG_NAME}
   fi
 }
 
-check_and_install_bmc
+check_and_install_pkg bmc-git
+check_and_install_pkg beamer-theme-metropolis
 #+end_src
 
 ** KDE Plasma :kde:
