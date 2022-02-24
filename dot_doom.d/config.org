@@ -313,8 +313,6 @@ ophints                      ; highlight the region an operation acts on
 vc-gutter                    ; vcs diff in the fringe
 workspaces                   ; tab emulation, persistence & separate workspaces
 zen                          ; distraction-free coding or writing
-vi-tilde-fringe              ; fringe tildes to mark beyond EOB
-tabs                         ; a tab bar for Emacs
 (window-select +numbers)     ; visually switch windows
 (ligatures +extra)           ; ligatures and symbols to make your code pretty again
 (treemacs +lsp)              ; a project drawer, like neotree but cooler
@@ -329,6 +327,8 @@ tabs                         ; a tab bar for Emacs
 ;;minimap                    ; show a map of the code on the side
 ;;neotree                    ; a project drawer, like NERDTree for vim
 ;;unicode                    ; extended unicode support for various languages
+;;tabs                       ; a tab bar for Emacs
+;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
 #+end_src
 
 ** Editor (=:editor=)
@@ -402,7 +402,7 @@ Emacs, I also enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
 direnv
 editorconfig           ; let someone else argue about tabs vs spaces
 ein                    ; tame Jupyter notebooks with emacs
-biblio                 ; Writes a PhD for you (citation needed)
+;;biblio                 ; Writes a PhD for you (citation needed)
 gist                   ; interacting with github gists
 make                   ; run make tasks from Emacs
 pdf                    ; pdf enhancements
@@ -461,6 +461,7 @@ qt                     ; the 'cutest' gui framework ever
      +gnuplot
      +jupyter
      +pandoc
+     +noter
      +present
      +pomodoro
      +roam2
@@ -584,7 +585,7 @@ Set Doom's theme, some good choices:
 - =doom-monokai-pro=
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-one) ; Load theme
+(setq doom-theme 'doom-vibrant) ; Load theme
 #+end_src
 
 *** Mode line :modeline:
@@ -602,8 +603,7 @@ Display time and set the format to 24h.
 **** Battery
 Show battery level unless battery is not present or battery information is unknown.
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
+#+begin_src emacs-lisp
 ;; This code causes 'doom doctor' to fail. TODO: What's wrong with this function?
 (after! doom-modeline
   (defun ab/display-battery ()
@@ -966,8 +966,7 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
 Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
 
 #+begin_src emacs-lisp
-(package! nov
-  :pin "b3c7cc28e95fe25ce7b443e5f49e2e45360944a3")
+(package! nov)
 #+end_src
 
 Together these should give me a rather good experience reading ebooks.
@@ -1484,7 +1483,7 @@ table
 #+begin_src emacs-lisp
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -1651,6 +1650,7 @@ So I can "mélanger les langues sans avoir de problèmes!".
 
 (setq projectile-ignored-projects '("~/"
                                     "/tmp"
+                                    "~/.cache"
                                     "~/.emacs.d/.local/straight/repos/"))
 
 (defun projectile-ignored-project-function (filepath)
@@ -2106,7 +2106,7 @@ intrusive, more useful UI stuff.
 Increase the left fringe width, to enable rendering breakpoints correctly.
 
 #+begin_src emacs-lisp
-(add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(32 . 32))))
+(add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15))))
 #+end_src
 
 *** Eglot :eglot:
@@ -2674,7 +2674,8 @@ I think it makes sense to have list bullets change with depth
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
-***** Citation (=org-ref=) :ref:
+***** Citations :ref:
+****** =org-ref=
 Occasionally I want to cite something, and =org-ref= is /the/ package for that.
 
 Unfortunately, it ignores the ~file = {...}~ =.bib= keys though. Let's fix that.
@@ -3723,7 +3724,7 @@ text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamm
 Let's start by adding a sans font. I'd also like to use some
 functionality from =bmc-maths=, so we'll load that too.
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (setq org-format-latex-header "\\documentclass{article}
 \\usepackage[usenames]{xcolor}
 
@@ -3759,7 +3760,7 @@ let's make it transparent.
       (plist-put org-format-latex-options :background "Transparent"))
 
 (setq org-format-latex-options
-      (plist-put org-format-latex-options :scale 0.5))
+      (plist-put org-format-latex-options :scale 2.0))
 
 ;; Can be dvipng, dvisvgm, imagemagick
 (setq org-preview-latex-default-process 'dvipng)
