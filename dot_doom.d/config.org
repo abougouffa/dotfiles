@@ -823,6 +823,22 @@ This file shouldn't be byte compiled.
            :repo "dengste/org-caldav"))
 #+end_src
 
+*** =xkcd=
+
+#+begin_src emacs-lisp
+(package! xkcd
+  :recipe (:host github
+           :repo "vibhavp/emacs-xkcd"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! xkcd
+  :commands (xkcd-get xkcd)
+  :config
+  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
+        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
+#+end_src
+
 ** Themes and UI :ui:theme:
 *** SVG Tag Mode :svg:
 
