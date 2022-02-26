@@ -1045,7 +1045,20 @@ Hook =org-fragtog-mode= to =org-mode=.
                                         (t basic)))
 #+end_src
 
-*** Org Roam :roam:
+**** COMMENT Org modern
+
+#+begin_src emacs-lisp
+(package! org-modern
+  :recipe (:host github
+           :repo "minad/org-modern"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode))
+#+end_src
+
+**** Org Roam :roam:
 Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
 with it.
 
