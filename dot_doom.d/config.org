@@ -402,7 +402,7 @@ Emacs, I also enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
 direnv
 editorconfig           ; let someone else argue about tabs vs spaces
 ein                    ; tame Jupyter notebooks with emacs
-;;biblio                 ; Writes a PhD for you (citation needed)
+;;biblio               ; Writes a PhD for you (citation needed)
 gist                   ; interacting with github gists
 make                   ; run make tasks from Emacs
 pdf                    ; pdf enhancements
@@ -585,7 +585,7 @@ Set Doom's theme, some good choices:
 - =doom-monokai-pro=
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-vibrant) ; Load theme
+(setq doom-theme 'doom-one) ; Load theme
 #+end_src
 
 *** Mode line :modeline:
@@ -999,16 +999,14 @@ Together these should give me a rather good experience reading ebooks.
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
 
-;; (package! org-ref-cite-core
-;;   :recipe (:host github
-;;            :repo "jkitchin/org-ref-cite"
-;;            :files ("org-ref-cite-core.el")))
-
-;; (package! org-ref-cite
-;;   :recipe (:host github
-;;            :repo "jkitchin/org-ref-cite"
-;;            :files (:defaults "readme.org")))
+(package! org-ref-cite
+  :recipe (:host github
+           :repo "jkitchin/org-ref-cite"
+           :files (:defaults "readme.org"))
+  :disable t) ;; BUG: Not working correctly!
 #+end_src
+
+Hook =org-fragtog-mode= to =org-mode=.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! org-fragtog
@@ -1117,7 +1115,7 @@ Replicated Data Type]]/.
 ** Programming :programming:
 *** Repo :repo:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not =pacman -S repo= on Arch-based
-distros, or directly with:
+distributions, or directly with:
 
 #+begin_src shell :tangle no
 REPO_PATH="$HOME/.local/bin/repo"
@@ -2639,14 +2637,14 @@ it in a src_elisp{(after! ...)} block.
 **** Tweaking defaults
 
 #+begin_src emacs-lisp
-(setq org-directory "~/Dropbox/Org/"              ; let's put files here
-      org-use-property-inheritance t              ; it's convenient to have properties inherited
-      org-log-done 'time                          ; having the time an item is done sounds convenient
-      org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
-;;    org-export-in-background t                  ; run export processes in external emacs process
+(setq org-directory "~/Dropbox/Org/"        ; let's put files here
+      org-use-property-inheritance t        ; it's convenient to have properties inherited
+      org-log-done 'time                    ; having the time an item is done sounds convenient
+      org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
+;;    org-export-in-background t            ; run export processes in external emacs process
 ;;    org-export-async-debug t
-      org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
-      org-export-with-sub-superscripts '{})       ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+      org-catch-invisible-edits 'smart      ; try not to accidently do weird stuff in invisible regions
+      org-export-with-sub-superscripts '{}) ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
 #+end_src
 
 I also like the src_elisp{:comments} header-argument, so let's make that a
@@ -2690,6 +2688,9 @@ keeps asking about which Scheme implementation to use, I tried to set this in
 file local variables and dir-locals but it didn't work. This should work now!
 
 #+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, I managed to fix the problem by specifying
+;; the implementation in file var prop line
+;; ===> # -*- geiser-scheme-implementation: 'guile; -*-
 (after! geiser
   (setq geiser-default-implementation 'guile))
 
@@ -2710,11 +2711,6 @@ I think it makes sense to have list bullets change with depth
 
 ***** Citations :ref:
 ****** =org-ref=
-Occasionally I want to cite something, and =org-ref= is /the/ package for that.
-
-Unfortunately, it ignores the ~file = {...}~ =.bib= keys though. Let's fix that.
-I separate files on =;=, which may just be a Zotero/BetterBibLaTeX thing, but it's
-a good idea in my case at least.
 
 #+begin_src emacs-lisp
 (use-package! org-ref
@@ -2796,12 +2792,13 @@ I turn off spell checking by default to make Org files open quickly.
         (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
         (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
-;; (defun log-todo-next-creation-date (&rest ignore)
-;;  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-;;  (when (and (string= (org-get-todo-state) "NEXT")
-;;             (not (org-entry-get nil "ACTIVATED")))
-;;    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+(defun log-todo-next-creation-date (&rest ignore)
+  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+  (when (and (string= (org-get-todo-state) "NEXT")
+             (not (org-entry-get nil "ACTIVATED")))
+    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+
+(add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
 **** Super agenda :agenda:
@@ -2897,7 +2894,7 @@ I store my =org-gcal= config privately, it contains something like this:
 (after! org-gcal
   (setq org-gcal-client-id "<SOME_ID>.apps.googleusercontent.com"
         org-gcal-client-secret "<SOME_SECRET>"
-        org-gcal-fetch-file-alist '(("<username>@gmail.com" . "~/Dropbox/Org/gcal-agenda.org"))))
+        org-gcal-fetch-file-alist '(("<USERNAME>@gmail.com" . "~/Dropbox/Org/gcal-agenda.org"))))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3220,7 +3217,7 @@ to initialize), let's not load roam.
 (package! org-roam :disable t)
 #+end_src
 
-***** Modeline file name :modeline:
+***** Mode line file name :modeline:
 All those numbers! It's messy. Let's adjust this similarly that I have in
 the window title
 
@@ -3239,24 +3236,24 @@ the window title
 
 #+begin_src emacs-lisp
 (after! org-roam
-   (setq org-roam-capture-ref-templates
-         '(("r" "ref" plain "%?"
-            :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
-            :unnarrowed t))))
+  (setq org-roam-capture-ref-templates
+        '(("r" "ref" plain "%?"
+           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
+           :unnarrowed t))))
 #+end_src
 
 **** Snippet Helpers
-I often want to set =src-block= headers, and it's a pain to
+I often want to set =src-block= headers, and it's a pain to:
 + type them out
 + remember what the accepted values are
 + oh, and specifying the same language again and again
 
-We can solve this in three steps
+We can solve this in three steps:
 + having one-letter snippets, conditioned on ~(point)~ being within a src header
 + creating a nice prompt showing accepted values and the current default
 + pre-filling the =src-block= language with the last language used
 
-For header args, the keys I'll use are
+For header args, the keys I'll use are:
 + =r= for =:results=
 + =e= for =:exports=
 + =v= for =:eval=
@@ -3405,7 +3402,7 @@ cause issues. Let's make their failure less eventful.
 *** Custom links
 **** Subfig
 This defines a new link type =subfig= to enable exporting sub-figures to LaTeX,
-taken form [[https://orgmode.org/list/87mty1an66.fsf@posteo.net/][Export subfigures to LaTeX (and HTML)]].
+taken form [[https://orgmode.org/list/87mty1an66.fsf@posteo.net/]["Export subfigures to LaTeX (and HTML)"]].
 
 #+begin_src emacs-lisp
 (org-link-set-parameters
@@ -4457,9 +4454,9 @@ part of the =ExecStart= value.
 It can now be nice to use this as a 'default app' for opening files. If we add
 an appropriate desktop entry, and enable it in the desktop environment.
 
-#+begin_src conf :tangle ~/.local/share/applications/emacs-client.desktop :mkdirp yes
+#+begin_src conf :tangle ~/.local/share/applications/emacsclient.desktop :mkdirp yes
 [Desktop Entry]
-Name=DOOM Emacs client
+Name=Emacs (Client)
 GenericName=Text Editor
 Comment=A flexible platform for end-user applications
 MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
