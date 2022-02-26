@@ -1199,6 +1199,31 @@ Integrate =git-delta= with =magit=.
   :hook (magit-mode . magit-delta-mode))
 #+end_src
 
+*** Blamer :git:blame:
+
+#+begin_src emacs-lisp
+(package! blamer
+  :recipe (:host github
+           :repo "artawower/blamer.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! blamer
+  :bind (("s-i" . blamer-show-commit-info))
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 60)
+  (blamer-prettify-time-p t)
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                   :background nil
+                   :height 120
+                   :italic t)))
+  :config
+  (global-blamer-mode 1))
+#+end_src
+
 *** Systemd :systemd:
 For editing systemd unit files.
 
