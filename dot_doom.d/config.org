@@ -1243,10 +1243,14 @@ Integrate =git-delta= with =magit=.
   (blamer-idle-time 0.3)
   (blamer-min-offset 60)
   (blamer-prettify-time-p t)
+  (blamer-entire-formatter "    %s")
+  (blamer-author-formatter " %s ")
+  (blamer-datetime-formatter "[%s], ")
+  (blamer-commit-formatter "“%s”")
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
                    :background nil
-                   :height 120
+                   :height 125
                    :italic t)))
   :config
   (global-blamer-mode 1))
