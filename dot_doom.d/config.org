@@ -956,6 +956,21 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :hook (vertico-mode . vertico-posframe-mode))
 #+end_src
 
+*** Goggles
+
+#+begin_src emacs-lisp
+(package! goggles
+  :recipe (:host github
+           :repo "minad/goggles"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! goggles
+  :hook ((prog-mode text-mode) . goggles-mode)
+  :config
+  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
+#+end_src
+
 ** Features :features:
 *** ESS :ess:
 View data frames better with
