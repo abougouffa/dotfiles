@@ -4736,7 +4736,7 @@ update_appimageupdatetool () {
     else
       echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
     fi
-    wget -O ${APPIMAGE_UPDATE_TOOL_PATH} ${APPIMAGE_UPDATE_TOOL_URL} &&
+    wget -O ${APPIMAGE_UPDATE_TOOL_PATH} ${APPIMAGE_UPDATE_TOOL_URL} 2&>/dev/null &&
         echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
         [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
         rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
