@@ -1236,12 +1236,19 @@ really use the =bitbake= commands from Emacs, so this package can be easily
 replaced with [[https://bitbucket.org/olanilsson/bitbake-modes][~bitbake-modes~]].
 
 #+begin_src emacs-lisp
-(package! bitbake)
+(package! bitbake-modes
+  :recipe (:host bitbucket
+           :repo "olanilsson/bitbake-modes"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package bitbake
-  :commands (bitbake-mode bitbake-clean bitbake-fetch))
+(use-package bitbake-modes
+  :commands (bitbake-mode
+             conf-bitbake-mode
+             bb-scc-mode wks-mode
+             bitbake-task-log-mode
+             bb-sh-mode
+             mmm-mode))
 #+end_src
 
 *** LaTeX :latex:
