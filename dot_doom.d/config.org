@@ -133,6 +133,10 @@ Show list of buffers when splitting.
 ;; Enable relative line numbers
 (setq display-line-numbers-type 'relative)
 
+;; Enable native smooth scrolling on Emacs 29+
+(when EMACS29+
+  pixel-scroll-precision-mode 1)
+
 ;; Iterate through CamelCase words
 (global-subword-mode 1)
 #+end_src
