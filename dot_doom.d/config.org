@@ -912,7 +912,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :commands focus-mode)
 #+end_src
 
-*** Posframe :posframe:
+*** COMMENT Posframe :posframe:
 
 #+begin_src emacs-lisp
 (package! vertico-posframe)
