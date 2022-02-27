@@ -270,7 +270,7 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
 )
 #+end_src
 
-** Config (=:config=)
+** General (=:config=)
 Enable =literate= configuration (like this file!), and some defaults.
 
 #+name: doom-config
@@ -385,7 +385,7 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 #+name: doom-checkers
 #+begin_src emacs-lisp
 (syntax +childframe)   ; tasing you for every semicolon you forget
-spell
+(spell +aspell)
 grammar                ; tasing grammar mistake every you make
 #+end_src
 
@@ -521,9 +521,9 @@ I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= su
 #+begin_src emacs-lisp
 (mu4e +org
       +gmail)
-;; (notmuch +org
-;;          +afew)
-;; (wanderlust +gmail)
+;;(notmuch +org
+;;         +afew)
+;;(wanderlust +gmail)
 #+end_src
 
 ** Apps (=:app=)
@@ -870,54 +870,17 @@ This file shouldn't be byte compiled.
                                  :margin 0)))))))
 #+end_src
 
-*** COMMENT N Λ N O Packages :nano:
-
-#+begin_src emacs-lisp
-(package! nano-theme
-  :recipe (:host github
-           :repo "rougier/nano-theme"))
-
-(package! nano-modeline
-  :recipe (:host github
-           :repo "rougier/nano-modeline"))
-
-(package! nano-agenda
-  :recipe (:host github
-           :repo "rougier/nano-agenda"))
-
-(package! nano-bell
-  :recipe (:host github
-           :repo "rougier/nano-bell"))
-
-(package! nano-sidebar
-  :recipe (:host github
-           :repo "rougier/nano-sidebar"))
-
-(package! mu4e-dashboard
-  :recipe (:host github
-           :repo "rougier/mu4e-dashboard"))
-
-(package! mu4e-thread-folding
-  :recipe (:host github
-           :repo "rougier/mu4e-thread-folding"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! nano-theme
-  :ensure nil
-  :defer t
-  :config (nano-setup))
-#+end_src
-
-*** COMMENT N Λ N O :nano:
+*** N Λ N O :nano:
 Dim the font color of text in surrounding paragraphs, focus only on the current line.
 
 #+begin_src emacs-lisp
 (package! nano-doom
+  :disable t
   :recipe (:host github :repo "skyler544/doom-nano-testing"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Note tangled
 (require 'load-nano)
 #+end_src
 
@@ -993,7 +956,7 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
 #+end_src
 
-*** Ebook reading :ebook:
+*** e-Book reading :ebook:
 Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
 
 #+begin_src emacs-lisp
@@ -1614,14 +1577,14 @@ Email and IRC.
 #+end_src
 
 ** Eros-eval :eval:
-This makes the result of evals with =gr= and =gR= just slightly prettier.
+This makes the result of evals slightly prettier.
 
 #+begin_src emacs-lisp
 (setq eros-eval-result-prefix "⟹ ")
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
-*** Install backend :backend:
+*** Install back-end :backend:
 For =flyspell= + =hunspell=
 
 #+begin_example shell
@@ -2903,11 +2866,11 @@ I turn off spell checking by default to make Org files open quickly.
 Set files for =org-agenda=
 
 #+begin_src emacs-lisp
-(setq org-agenda-files '("~/Dropbox/Org/inbox.org"
-                         "~/Dropbox/Org/agenda.org"
-                         "~/Dropbox/Org/gcal-agenda.org"
-                         "~/Dropbox/Org/notes.org"
-                         "~/Dropbox/Org/projects.org"))
+(setq org-agenda-files (list (expand-file-name "inbox.org" org-directory)
+                             (expand-file-name "agenda.org" org-directory)
+                             (expand-file-name "gcal-agenda.org" org-directory)
+                             (expand-file-name "notes.org" org-directory)
+                             (expand-file-name "projects.org" org-directory)))
 #+end_src
 
 Configure =org-super-agenda=
@@ -2986,7 +2949,7 @@ Configure =org-super-agenda=
 #+end_src
 
 **** Google calendar (=org-gcal=) :calendar:google:
-I store my =org-gcal= config privately, it contains something like this:
+I store my =org-gcal= configuration privately, it contains something like this:
 
 #+begin_src emacs-lisp :tangle no
 (after! org-gcal
@@ -3003,9 +2966,9 @@ I store my =org-gcal= config privately, it contains something like this:
 Set capture files
 
 #+begin_src emacs-lisp
-(setq +org-capture-emails-file (concat org-directory "inbox.org")
-      +org-capture-todo-file (concat org-directory "inbox.org")
-      +org-capture-projects-file (concat org-directory "projects.org"))
+(setq +org-capture-emails-file (expand-file-name "inbox.org" org-directory)
+      +org-capture-todo-file (expand-file-name "inbox.org" org-directory)
+      +org-capture-projects-file (expand-file-name "projects.org" org-directory))
 #+end_src
 
 Lets set up some org-capture templates, and make them visually nice to access.
@@ -3301,10 +3264,9 @@ no modeline.
 ***** Basic settings
 
 #+begin_src emacs-lisp :noweb-ref none :tangle yes
-(setq org-roam-directory "~/Dropbox/Org/slip-box")
-(setq org-roam-db-location "~/Dropbox/Org/slip-box/org-roam.db")
-(setq org-roam-index-file "~/Dropbox/Org/slip-box/index.org")
-(setq org-roam-directory "~/Dropbox/Org/slip-box/")
+(setq org-roam-directory (expand-file-name "slip-box" org-directory))
+(setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory)
+      org-roam-index-file (expand-file-name "index.org" org-roam-directory))
 #+end_src
 
 That said, if the directory doesn't exist we likely don't want to be using roam.
@@ -3605,11 +3567,10 @@ sacrificing visual amenities with the =org-appear= package.
 #+end_src
 
 **** COMMENT Font trick
-Org files can be rather nice to look at, particularly with some
-customization here. This comes at a cost however, expensive font-lock.
-Feeling like you're typing through molasses in large files is no fun, but there
-is a way I can defer font-locking when typing to make the experience more
-responsive.
+Org files can be rather nice to look at, particularly with some customization
+here. This comes at a cost however, expensive font-lock. Feeling like you're
+typing through molasses in large files is no fun, but there is a way I can defer
+font-locking when typing to make the experience more responsive.
 
 #+begin_src emacs-lisp
 (defun locally-defer-font-lock ()
