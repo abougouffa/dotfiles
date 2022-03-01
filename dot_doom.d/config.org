@@ -180,15 +180,6 @@ stealing prevention* to /None/ in the KDE Settings.
 (set-frame-parameter nil 'internal-border-width 15)
 #+end_src
 
-** Debug
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, toggle to enable doom debugging, I do enable it to see
-;;       which packages are loaded automatically to optimize launch time of my config.
-;; The `use-package-verbose' takes the value of `doom-debug-p'.
-(setq doom-debug-p t)
-#+end_src
-
 ** Chemacs2
 Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
 however, I like to try other configs to get inspired!
@@ -643,10 +634,10 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 |----------------------+-------------------------------|
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 #+end_src
 
-**** Clean Screen :clean:
+**** COMMENT Clean Screen :clean:
 Let's disable the dashboard commands, for a particularly /clean/ look disable the
 mode-line and ~hl-line-mode~, then also hide the cursor.
 
@@ -981,7 +972,7 @@ Then for reading them, the only currently viable options seem to be [[https://de
 (package! nov)
 #+end_src
 
-Together these should give me a rather good experience reading ebooks.
+Together these should give me a rather good experience reading e-books.
 
 *** Org related :org:
 
@@ -1753,7 +1744,7 @@ them in C/C++, Rust and Python modes.
 ** Icons in Company
 For some reason, the default icon setting is not working, lets set them.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (after! company-box
   (setq company-box-icons-alist 'company-box-icons-all-the-icons
         company-box-icons-all-the-icons
@@ -4543,8 +4534,8 @@ an appropriate desktop entry, and enable it in the desktop environment.
 Name=Emacs (Client)
 GenericName=Text Editor
 Comment=A flexible platform for end-user applications
-MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
-Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="" --no-wait %F
+MimeType=text/english;text/plain;text/org;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
+Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="/usr/bin/emacs" --no-wait %F
 Icon=emacs
 Type=Application
 Terminal=false
@@ -4650,14 +4641,14 @@ then
     fi # should be fairly safe
   fi
 
-  emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
+  emacsclient --tty -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
 else
   if ! $force_wait
   then
     args+=(--no-wait)
   fi
 
-  emacsclient -create-frame --alternate-editor="" "${args[@]}"
+  emacsclient -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
 fi
 #+end_src
 
@@ -4666,9 +4657,6 @@ Now, to set an alias to use =e= with =magit=, and then for maximum laziness we c
 set aliases for the terminal-forced variants.
 
 #+begin_src shell :tangle ~/.env_stuff
-# Alias to run emacs client in terminal mode
-alias et="e -t"
-
 # Aliases to run emacs+magit
 alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
 alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
@@ -4678,23 +4666,23 @@ alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
 alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
 #+end_src
 
-And this to be used as a default =$EDITOR=
+And this to launch Emacs in terminal mode =et=, I use this as a default =$EDITOR=
 
-#+begin_src shell :tangle ~/.local/bin/ee :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle ~/.local/bin/et :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/usr/bin/env bash
 e -t "$@"
 #+end_src
 
-And =$VISUAL=
+And =ev= for use with =$VISUAL=:
 
-#+begin_src shell :tangle ~/.local/bin/ve :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle ~/.local/bin/ev :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/usr/bin/env bash
 e -w "$@"
 #+end_src
 
 #+begin_src shell :tangle ~/.env_stuff
-export EDITOR=$HOME/.local/bin/ee
-# export VISUAL=$HOME/.local/bin/ve
+export EDITOR=$HOME/.local/bin/et
+# export VISUAL=$HOME/.local/bin/ev
 #+end_src
 
 ** TODO tmux :tmux:
