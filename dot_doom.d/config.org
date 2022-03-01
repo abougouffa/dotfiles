@@ -133,10 +133,6 @@ Show list of buffers when splitting.
 ;; Enable relative line numbers
 (setq display-line-numbers-type 'relative)
 
-;; Enable native smooth scrolling on Emacs 29+
-(when EMACS29+
-  pixel-scroll-precision-mode 1)
-
 ;; Iterate through CamelCase words
 (global-subword-mode 1)
 #+end_src
@@ -940,6 +936,20 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :hook ((prog-mode text-mode) . goggles-mode)
   :config
   (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
+#+end_src
+
+*** Smooth scrolling
+
+#+begin_src emacs-lisp
+(when (<= emacs-major-version 28)
+  (package! good-scroll))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(if (> emacs-major-version 28)
+    (pixel-scroll-precision-mode 1)
+  (use-package! good-scroll
+    :config (good-scroll-mode 1)))
 #+end_src
 
 ** Features :features:
