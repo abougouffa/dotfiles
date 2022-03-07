@@ -1621,16 +1621,20 @@ So I can "mélanger les langues sans avoir de problèmes!".
 
 #+begin_src emacs-lisp
 (after! spell-fu
+  (defun spell-fu-register-dictionary (lang)
+    "Add `LANG` to spell-fu multi-dict, with a personal dictionary."
+    ;; Add the dictionary
+    (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary lang))
+    (let ((personal-dict-file (expand-file-name (format "aspell.%s.pws" lang) doom-private-dir)))
+      ;; Create an empty personal dictionary if it doesn't exists
+      (unless (file-exists-p personal-dict-file) (write-region "" nil personal-dict-file))
+      ;; Add the personal dictionary
+      (spell-fu-dictionary-add (spell-fu-get-personal-dictionary (format "%s-personal" lang) personal-dict-file))))
+
   (add-hook 'spell-fu-mode-hook
-   (lambda ()
-     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "en"))
-     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "fr"))
-     (spell-fu-dictionary-add
-      (spell-fu-get-personal-dictionary
-       "en" (expand-file-name ".aspell.en.pws" doom-private-dir)))
-     (spell-fu-dictionary-add
-      (spell-fu-get-personal-dictionary
-       "fr" (expand-file-name ".aspell.fr.pws" doom-private-dir))))))
+            (lambda ()
+              (spell-fu-register-dictionary "en")
+              (spell-fu-register-dictionary "fr"))))
 #+end_src
 
 *** Flyspell :flyspell:
