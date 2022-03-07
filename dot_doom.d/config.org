@@ -4908,6 +4908,108 @@ report_fixme = "Always"
 todo = "Always"
 #+end_src
 
+** Ecryptfs
+*** Unlock and mount script
+
+#+begin_src shell :tangle "~/.ecryptfs/ecryptfs-mount-private-gui" :mkdirp yes :tangle-mode (identity #o755)
+#!/bin/sh -e
+# This script mounts a user's confidential private folder
+#
+# Original by Michael Halcrow, IBM
+# Extracted to a stand-alone script by Dustin Kirkland <kirkland@ubuntu.com>
+# Modified by: Abdelhak Bougouffa <abougouffa@fedoraproject.org>
+#
+# This script:
+#  * interactively prompts for a user's wrapping passphrase (defaults to their
+#    login passphrase)
+#  * checks it for validity
+#  * unwraps a users mount passphrase with their supplied wrapping passphrase
+#  * inserts the mount passphrase into the keyring
+#  * and mounts a user's encrypted private folder
+
+PRIVATE_DIR="Private"
+PW_ATTEMPTS=3
+MESSAGE=`gettext "Enter your login passphrase:"`
+
+if [ -f $HOME/.ecryptfs/wrapping-independent ]
+then
+  # use a wrapping passphrase different from the login passphrase
+  MESSAGE=`gettext "Enter your wrapping passphrase:"`
+fi
+
+WRAPPED_PASSPHRASE_FILE="$HOME/.ecryptfs/wrapped-passphrase"
+MOUNT_PASSPHRASE_SIG_FILE="$HOME/.ecryptfs/$PRIVATE_DIR.sig"
+
+# First, silently try to perform the mount, which would succeed if the appropriate
+# key is available in the keyring
+if /sbin/mount.ecryptfs_private >/dev/null 2>&1
+then
+  exit 0
+fi
+
+# Otherwise, interactively prompt for the user's password
+if [ -f "$WRAPPED_PASSPHRASE_FILE" -a -f "$MOUNT_PASSPHRASE_SIG_FILE" ]
+then
+  tries=0
+
+  while [ $tries -lt $PW_ATTEMPTS ]
+  do
+    LOGINPASS=`zenity --password --title "eCryptFS: $MESSAGE"`
+    if [ $(wc -l < "$MOUNT_PASSPHRASE_SIG_FILE") = "1" ]
+    then
+      # No filename encryption; only insert fek
+      if printf "%s\0" "$LOGINPASS" | ecryptfs-unwrap-passphrase "$WRAPPED_PASSPHRASE_FILE" - | ecryptfs-add-passphrase -
+      then
+        break
+      else
+        zenity --error --title "eCryptfs" --text "Error: Your passphrase is incorrect"
+        tries=$(($tries + 1))
+        continue
+      fi
+    else
+      if printf "%s\0" "$LOGINPASS" | ecryptfs-insert-wrapped-passphrase-into-keyring "$WRAPPED_PASSPHRASE_FILE" -
+      then
+        break
+      else
+        zenity --error --title "eCryptfs" --text "Error: Your passphrase is incorrect"
+        tries=$(($tries + 1))
+        continue
+      fi
+    fi
+  done
+
+  if [ $tries -ge $PW_ATTEMPTS ]
+  then
+    zenity --error --title "eCryptfs" --text "Too many incorrect password attempts, exiting"
+    exit 1
+  fi
+
+  /sbin/mount.ecryptfs_private
+else
+  zenity --error --title "eCryptfs" --text "Encrypted private directory is not setup properly"
+  exit 1
+fi
+
+if grep -qs "$HOME/.Private $PWD ecryptfs " /proc/mounts 2>/dev/null; then
+  zenity --info --title "eCryptfs" --text "Your private directory has been mounted."
+fi
+
+dolphin "$HOME/Private"
+exit 0
+#+end_src
+
+*** Desktop integration
+
+#+begin_src conf-unix :tangle "~/.local/share/applications/ecryptfs-mount-private-gui.desktop" :mkdirp yes :tangle-mode (identity #o755)
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=eCryptfs Unlock Private Directory
+Icon=unlock
+Exec=/home/hacko/.ecryptfs/ecryptfs-mount-private-gui
+Terminal=False
+#+end_src
+
 ** GDB
 *** Early init
 I like to disable the initial message (containing copyright info and other
