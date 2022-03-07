@@ -186,10 +186,10 @@ however, I like to try other configs to get inspired!
 
 #+begin_src emacs-lisp :tangle "~/.emacs-profiles.el"
 (("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
-;                (server-name . "doom") ;; Causes server to not start correctly
                  (env . (("DOOMDIR" . "~/.doom.d")))))
+ ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")
+                 (env . (("RATIONAL_EMACS_HOME" . "~/.config/emacs.rational")))))
  ("scimax"    . ((user-emacs-directory . "~/.config/emcas.scimax")))
- ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")))
  ("spacemacs" . ((user-emacs-directory . "~/.config/emacs.spacemacs"))))
 #+end_src
 
@@ -276,8 +276,8 @@ I'm lazy, I like Emacs to complete my writings.
 
 #+name: doom-completion
 #+begin_src emacs-lisp
-(company +childframe)        ; the ultimate code completion backend
 (vertico +icons)             ; the search engine of the future
+company                      ; the ultimate code completion backend
 ;;(ivy +childframe           ; a search engine for love and life
 ;;     +fuzzy
 ;;     +icons
@@ -558,7 +558,7 @@ Some good fonts:
 
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 18)
-      doom-variable-pitch-font (font-spec :family "Inter") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Lato") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
 #+end_src
@@ -915,6 +915,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 #+end_src
 
 *** Goggles
+Visual feedback after kill/yank actions.
 
 #+begin_src emacs-lisp
 (package! goggles
@@ -1200,6 +1201,7 @@ Integrate =git-delta= with =magit=.
 #+end_src
 
 *** Blamer :git:blame:
+Display Git information (author, date, message...) for current line
 
 #+begin_src emacs-lisp
 (package! blamer
@@ -1659,6 +1661,7 @@ So I can "mélanger les langues sans avoir de problèmes!".
 #+end_src
 
 *** Shortcuts to change dictionary :dict:
+
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled, using spell-fu with multiple dictionaries
 (defun ab-conf/spelldict (lang)
@@ -1688,14 +1691,14 @@ So I can "mélanger les langues sans avoir de problèmes!".
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :checkers grammar)
        :prefix-map ("l" . "langtool")
-       :desc "Check"                    "l" #'langtool-check
-       :desc "Correct buffer"           "b" #'langtool-correct-buffer
-       :desc "Stop server"              "s" #'langtool-server-stop
-       :desc "Done checking"            "d" #'langtool-check-done
-       :desc "Show msg at point"        "m" #'langtool-show-message-at-point
-       :desc "Next error"               "n" #'langtool-goto-next-error
-       :desc "Previous error"           "p" #'langtool-goto-previous-error
-       :desc "Switch default language"  "L" #'langtool-switch-default-language))
+       :desc "Check"                   "l" #'langtool-check
+       :desc "Correct buffer"          "b" #'langtool-correct-buffer
+       :desc "Stop server"             "s" #'langtool-server-stop
+       :desc "Done checking"           "d" #'langtool-check-done
+       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
+       :desc "Next error"              "n" #'langtool-goto-next-error
+       :desc "Previous error"          "p" #'langtool-goto-previous-error
+       :desc "Switch default language" "L" #'langtool-switch-default-language))
 #+end_src
 
 ** Projectile :projectile:
@@ -1739,47 +1742,6 @@ them in C/C++, Rust and Python modes.
 
 #+begin_src emacs-lisp
 (setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
-#+end_src
-
-** Icons in Company
-For some reason, the default icon setting is not working, lets set them.
-
-#+begin_src emacs-lisp
-(after! company-box
-  (setq company-box-icons-alist 'company-box-icons-all-the-icons
-        company-box-icons-all-the-icons
-        (let ((all-the-icons-scale-factor 0.8))
-          `((Unknown       . ,(all-the-icons-material "find_in_page"             :face 'all-the-icons-purple))
-            (Text          . ,(all-the-icons-material "text_fields"              :face 'all-the-icons-green))
-            (Method        . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Function      . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Constructor   . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Field         . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Variable      . ,(all-the-icons-material "adjust"                   :face 'all-the-icons-blue))
-            (Class         . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
-            (Interface     . ,(all-the-icons-material "settings_input_component" :face 'all-the-icons-red))
-            (Module        . ,(all-the-icons-material "view_module"              :face 'all-the-icons-red))
-            (Property      . ,(all-the-icons-material "settings"                 :face 'all-the-icons-red))
-            (Unit          . ,(all-the-icons-material "straighten"               :face 'all-the-icons-red))
-            (Value         . ,(all-the-icons-material "filter_1"                 :face 'all-the-icons-red))
-            (Enum          . ,(all-the-icons-material "plus_one"                 :face 'all-the-icons-red))
-            (Keyword       . ,(all-the-icons-material "filter_center_focus"      :face 'all-the-icons-red))
-            (Snippet       . ,(all-the-icons-material "short_text"               :face 'all-the-icons-red))
-            (Color         . ,(all-the-icons-material "color_lens"               :face 'all-the-icons-red))
-            (File          . ,(all-the-icons-material "insert_drive_file"        :face 'all-the-icons-red))
-            (Reference     . ,(all-the-icons-material "collections_bookmark"     :face 'all-the-icons-red))
-            (Folder        . ,(all-the-icons-material "folder"                   :face 'all-the-icons-red))
-            (EnumMember    . ,(all-the-icons-material "people"                   :face 'all-the-icons-red))
-            (Constant      . ,(all-the-icons-material "pause_circle_filled"      :face 'all-the-icons-red))
-            (Struct        . ,(all-the-icons-material "streetview"               :face 'all-the-icons-red))
-            (Event         . ,(all-the-icons-material "event"                    :face 'all-the-icons-red))
-            (Operator      . ,(all-the-icons-material "control_point"            :face 'all-the-icons-red))
-            (TypeParameter . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
-            (Template      . ,(all-the-icons-material "short_text"               :face 'all-the-icons-green))
-            (ElispFunction . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (ElispVariable . ,(all-the-icons-material "check_circle"             :face 'all-the-icons-blue))
-            (ElispFeature  . ,(all-the-icons-material "stars"                    :face 'all-the-icons-orange))
-            (ElispFace     . ,(all-the-icons-material "format_paint"             :face 'all-the-icons-pink))))))
 #+end_src
 
 * Applications :apps:
@@ -2126,6 +2088,9 @@ I configure my email accounts in a private file in
     (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
 
   (add-hook 'mu4e-compose-mode-hook 'ab/bcc-me)
+
+  ;; Load
+  (load! "lisp/private/+mu4e-smart-refiling.el")
 
   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
@@ -3027,8 +2992,7 @@ Lets set up some org-capture templates, and make them visually nice to access.
                    :headline "Inbox"
                    :type entry
                    :template ("* TODO %?"
-                              "%i %a")
-                   )
+                              "%i %a"))
                   ("Personal note" :keys "n"
                    :icon ("sticky-note-o" :set "faicon" :color "green")
                    :file +org-capture-todo-file
@@ -3089,9 +3053,7 @@ Lets set up some org-capture templates, and make them visually nice to access.
                                )
                               ("Scheduled Task" :keys "s"
                                :icon ("calendar" :set "octicon" :color "orange")
-                               :extra "\nSCHEDULED: %^{Start time:}t"
-                               )
-                              ))
+                               :extra "\nSCHEDULED: %^{Start time:}t")))
                   ("Project" :keys "p"
                    :icon ("repo" :set "octicon" :color "silver")
                    :prepend t
@@ -3280,9 +3242,8 @@ no modeline.
 ***** Basic settings
 
 #+begin_src emacs-lisp :noweb-ref none :tangle yes
-(setq org-roam-directory (expand-file-name "slip-box" org-directory))
-(setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory)
-      org-roam-index-file (expand-file-name "index.org" org-roam-directory))
+(setq org-roam-directory "~/Dropbox/Org/slip-box")
+(setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
 #+end_src
 
 That said, if the directory doesn't exist we likely don't want to be using roam.
@@ -3471,7 +3432,7 @@ cause issues. Let's make their failure less eventful.
 (defadvice! shut-up-org-problematic-hooks (orig-fn &rest args)
   :around #'org-fancy-priorities-mode
   :around #'org-superstar-mode
-  :around #'dap-mode-hook
+; :around #'dap-mode-hook
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
@@ -3523,13 +3484,6 @@ Here I try to do two things: improve the styling of the various documents, via
 font changes etc., and also propagate colours from the current theme.
 
 **** Font Display
-***** Org Pretty Mode
-Activate ~+org-pretty-mode~.
-
-#+begin_src emacs-lisp :
-(add-hook 'org-mode-hook #'+org-pretty-mode)
-#+end_src
-
 ***** Headings
 Let's make the title and the headings a bit bigger:
 
@@ -3557,6 +3511,13 @@ It seems reasonable to have deadlines in the error face when they're passed.
         (1.0 . org-warning)
         (0.5 . org-upcoming-deadline)
         (0.0 . org-upcoming-distant-deadline)))
+#+end_src
+
+***** Org Pretty Mode
+Activate ~+org-pretty-mode~.
+
+#+begin_src emacs-lisp :
+(add-hook 'org-mode-hook #'+org-pretty-mode)
 #+end_src
 
 ***** Font styling
@@ -3859,35 +3820,29 @@ passed, and so we can override the background as discussed above.
 ***** Prettier rendering
 It's nice to customize the look of LaTeX fragments, so they fit better in the
 text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}\).
-Let's start by adding a sans font. I'd also like to use some
-functionality from =bmc-maths=, so we'll load that too.
 
 #+begin_src emacs-lisp
-(setq org-format-latex-header "\\documentclass{article}
-\\usepackage[usenames]{xcolor}
+;; (setq org-format-latex-header "\\documentclass{article}
+;; \\usepackage[usenames]{xcolor}
+;; \\usepackage[T1]{fontenc}
+;; \\usepackage{booktabs}
 
-\\usepackage[T1]{fontenc}
+;; \\pagestyle{empty} % do not remove
 
-\\usepackage{booktabs}
-
-\\pagestyle{empty}             % do not remove
-% The settings below are copied from fullpage.sty
-\\setlength{\\textwidth}{\\paperwidth}
-\\addtolength{\\textwidth}{-3cm}
-\\setlength{\\oddsidemargin}{1.5cm}
-\\addtolength{\\oddsidemargin}{-2.54cm}
-\\setlength{\\evensidemargin}{\\oddsidemargin}
-\\setlength{\\textheight}{\\paperheight}
-\\addtolength{\\textheight}{-\\headheight}
-\\addtolength{\\textheight}{-\\headsep}
-\\addtolength{\\textheight}{-\\footskip}
-\\addtolength{\\textheight}{-3cm}
-\\setlength{\\topmargin}{1.5cm}
-\\addtolength{\\topmargin}{-2.54cm}
-% my custom stuff
-% \\usepackage[nofont,plaindd]{bmc-maths}
-\\usepackage{arev}
-")
+;; \\setlength{\\textwidth}{\\paperwidth}
+;; \\addtolength{\\textwidth}{-3cm}
+;; \\setlength{\\oddsidemargin}{1.5cm}
+;; \\addtolength{\\oddsidemargin}{-2.54cm}
+;; \\setlength{\\evensidemargin}{\\oddsidemargin}
+;; \\setlength{\\textheight}{\\paperheight}
+;; \\addtolength{\\textheight}{-\\headheight}
+;; \\addtolength{\\textheight}{-\\headsep}
+;; \\addtolength{\\textheight}{-\\footskip}
+;; \\addtolength{\\textheight}{-3cm}
+;; \\setlength{\\topmargin}{1.5cm}
+;; \\addtolength{\\topmargin}{-2.54cm}
+;; \\usepackage{arev}
+;; ")
 #+end_src
 
 Since we can, instead of making the background color match the =default= face,
@@ -3898,10 +3853,10 @@ let's make it transparent.
       (plist-put org-format-latex-options :background "Transparent"))
 
 (setq org-format-latex-options
-      (plist-put org-format-latex-options :scale 2.0))
+      (plist-put org-format-latex-options :scale 1.4))
 
 ;; Can be dvipng, dvisvgm, imagemagick
-(setq org-preview-latex-default-process 'dvipng)
+(setq org-preview-latex-default-process 'dvisvgm)
 #+end_src
 
 **** Org Plot
@@ -4124,36 +4079,19 @@ it should still work.
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("IEEEtran"
+                 "\\documentclass{IEEEtran}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
-(setq org-latex-default-class "scr-article"
-      org-latex-tables-booktabs t
-      org-latex-hyperref-template "
-<<latex-fancy-hyperref>>
-"
-      org-latex-reference-command "\\cref{%s}")
-#+end_src
-
-The =hyperref= setup needs to be handled separately however.
-#+name: latex-fancy-hyperref
-#+begin_src LaTeX
-\\colorlet{greenyblue}{blue!70!green}
-\\colorlet{blueygreen}{blue!40!green}
-\\providecolor{link}{named}{greenyblue}
-\\providecolor{cite}{named}{blueygreen}
-\\hypersetup{
-  pdfauthor={%a},
-  pdftitle={%t},
-  pdfkeywords={%k},
-  pdfsubject={%d},
-  pdfcreator={%c},
-  pdflang={%L},
-  breaklinks=true,
-  colorlinks=true,
-  linkcolor=,
-  urlcolor=link,
-  citecolor=cite\n}
-\\urlstyle{same}
+(setq org-latex-default-class "article")
+      ;; org-latex-tables-booktabs t
+      ;; org-latex-reference-command "\\cref{%s}")
 #+end_src
 
 * System configuration :linux:system:
