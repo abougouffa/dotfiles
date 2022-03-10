@@ -80,7 +80,10 @@ instead of the default 2 hours.
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo.gpg")
       auth-source-cache-expiry nil ; defaut is 2h (7200)
-      password-cache-expiry nil)
+      password-cache-expiry nil
+      password-cache t
+      auth-source-do-cache t
+      epa-file-cache-passphrase-for-symmetric-encryption t)
 #+end_src
 
 ** Better defaults :default:
@@ -1410,11 +1413,11 @@ time using =colcon build=, the repo contains example Docker files for [[https://
                :workspace "~/ros_ws"
                :extends '("/opt/ros/noetic/"))
               (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "192.168.0.148")
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
                :workspace "~/ros_ws"
                :extends '("/opt/ros/noetic/"))
               (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "192.168.0.148")
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
                :workspace "~/ros2_ws"
                :extends '("/opt/ros/foxy/")))))
 #+end_src
@@ -5113,6 +5116,15 @@ In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something lik
 (execute (string-join '("set args "
                         "arg1"
                         "--param=arg2")))
+#+end_src
+
+** GnuPG
+I add this to my =~/.gnupg/gpg-agent.conf=, to set the time-to-live to one day.
+
+#+begin_src conf-unix :tangle no
+# Do not ask me about entered passwords for 24h (during the same session)
+default-cache-ttl 86400
+max-cache-ttl 86400
 #+end_src
 
 ** Packages
