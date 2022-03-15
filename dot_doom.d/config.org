@@ -403,11 +403,11 @@ pdf                    ; pdf enhancements
 rgb                    ; creating color strings
 tmux                   ; an API for interacting with tmux
 upload                 ; map local to remote projects via ssh/ftp
+(lsp +peek)            ; LPS
 (debugger +lsp)        ; FIXME stepping through code, to help you add bugs
 (docker +lsp)
 (eval +overlay)        ; run code, run (also, repls)
 (lookup +docsets)      ; navigate your code and its documentation
-(lsp +peek)            ; LPS
 (magit +forge)         ; a git porcelain for Emacs
 ;;ansible
 ;;pass                 ; password manager for nerds
@@ -2187,7 +2187,8 @@ intrusive, more useful UI stuff.
 Increase the left fringe width, to enable rendering breakpoints correctly.
 
 #+begin_src emacs-lisp
-(add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15))))
+(after! lsp-mode
+  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
 #+end_src
 
 *** Eglot :eglot:
@@ -2210,11 +2211,10 @@ it work with =projectile=:
 
 *** LSP mode with =clangd= :clangd:c:cpp:
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, using the default ccls
+#+begin_src emacs-lisp
 (after! lsp-clangd
   (setq lsp-clients-clangd-args
-        '("-j=3"
+        '("-j=4"
           "--background-index"
           "--clang-tidy"
           "--completion-style=detailed"
@@ -2225,7 +2225,8 @@ it work with =projectile=:
 
 *** LSP mode with =ccls= :ccls:c:cpp:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, using the default ccls
 (after! ccls
   (setq ccls-initialization-options
         '(:index (:comments 2
@@ -2238,8 +2239,7 @@ it work with =projectile=:
 *** Enable =lsp= over =tramp= :tramp:
 **** For Python :python:
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: WIP: Not tangled
+#+begin_src emacs-lisp
 (after! tramp
   (require 'lsp-mode)
   (require 'lsp-pyright)
@@ -2252,15 +2252,10 @@ it work with =projectile=:
 
   (lsp-register-client
    (make-lsp-client
-    :new-connection
-    (lsp-tramp-connection
-     (lambda () (cons "pyright-langserver"
-                 lsp-pyright-langserver-command-args)))
+    :new-connection (lsp-tramp-connection "pyls")
     :major-modes '(python-mode)
     :remote? t
-    :server-id 'pyright-remote))
-
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+    :server-id 'pyls-remote)))
 #+end_src
 
 **** For C/C++ with =ccls= :ccls:
