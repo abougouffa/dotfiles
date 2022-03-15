@@ -1274,6 +1274,26 @@ replaced with [[https://bitbucket.org/olanilsson/bitbake-modes][~bitbake-modes~]
   :commands aas-mode)
 #+end_src
 
+*** =project-cmake=
+A good new package to facilitate using CMake projects with Emacs, it glues
+together =project=, =eglot=, =cmake= and =clangd=.
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, to be used with Eglot
+(package! project-cmake
+  :recipe (:host github
+           :repo "juanjosegarciaripoll/project-cmake"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, to be used with Eglot
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
+#+end_src
+
 *** Franca IDL
 
 #+begin_src emacs-lisp
