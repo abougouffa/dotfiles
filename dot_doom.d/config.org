@@ -549,9 +549,13 @@ font string. You generally only need these two:
 
 Some good fonts:
 - =Iosevka Fixed= (THE FONT)
+- Nerd fonts
+  - =FantasqueSansMono Nerd Font Mono=
+  - =mononoki Nerd Font Mono=
+  - =CaskaydiaCove Nerd Font Mono=
 - =Cascadia Code=
+- =Fantasque Sans Mono=
 - =JuliaMono= (good Unicode support)
-- =mononoki Nerd Font Mono= (good Unicode support)
 - =IBM Plex Mono=
 - =JetBrains Mono=
 - =Roboto Mono=
@@ -560,10 +564,10 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 18)
-      doom-variable-pitch-font (font-spec :family "Lato") ; inherits the :size from doom-font
+(setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
+      doom-variable-pitch-font (font-spec :family "Helvetica World") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
+      doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
 #+end_src
 
 *** Theme :theme:
@@ -640,7 +644,7 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 #+end_src
 
-**** COMMENT Clean Screen :clean:
+**** Clean Screen :clean:
 Let's disable the dashboard commands, for a particularly /clean/ look disable the
 mode-line and ~hl-line-mode~, then also hide the cursor.
 
@@ -902,10 +906,11 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :commands focus-mode)
 #+end_src
 
-*** COMMENT Posframe :posframe:
+*** Posframe :posframe:
 
 #+begin_src emacs-lisp
-(package! vertico-posframe)
+(package! vertico-posframe
+  :disable t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1005,6 +1010,7 @@ Hook =org-fragtog-mode= to =org-mode=.
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
 (use-package! org-ref-cite
   :after org-cite
   :config
@@ -1089,7 +1095,32 @@ Better colors for manual pages.
   :config (load! "lisp/private/+grammarly-account.el"))
 #+end_src
 
-*** Zotxt :zotero:
+*** Grammalecte
+
+#+begin_src emacs-lisp
+(package! flycheck-grammalecte
+  :recipe (:host github
+           :repo "milouse/flycheck-grammalecte")
+  :disable t) ; FIXME Not working correctly
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-grammalecte
+  :config (flycheck-grammalecte-setup))
+
+;; (use-package flycheck-grammalecte
+;;              :hook (fountain-mode . flycheck-mode)
+;;              :init
+;;              (setq flycheck-grammalecte-report-apos nil
+;;                    flycheck-grammalecte-report-esp nil
+;;                    flycheck-grammalecte-report-nbsp nil)
+;;              :config
+;;              (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode)
+;;              (grammalecte-download-grammalecte)
+;;              (flycheck-grammalecte-setup))
+#+end_src
+
+*** Zotero Zotxt :zotero:
 
 #+begin_src emacs-lisp
 (package! zotxt)
@@ -1191,10 +1222,12 @@ keybindings.
 #+end_src
 
 *** Magit Delta :magit:delta:
-Integrate =git-delta= with =magit=.
+Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
+specially with big change chunks.
 
 #+begin_src emacs-lisp
-(package! magit-delta)
+(package! magit-delta
+  :disable t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1230,7 +1263,8 @@ Display Git information (author, date, message...) for current line
                    :height 125
                    :italic t)))
   :config
-  (global-blamer-mode 1))
+  (global-blamer-mode 1)
+  (add-hook! 'writeroom-mode-hook (blamer-mode -1))) ;; Disable in zen (writeroom) mode
 #+end_src
 
 *** Systemd :systemd:
@@ -3756,6 +3790,7 @@ commands.
             :created                 "⏱"
             :include                 "⇩"
             :setupfile               "⇩"
+            :export_file_name        "⇧"
             :properties              "⚙"
             :end                     "᛫"
             :priority_a              ,(propertize "⚑" 'face 'all-the-icons-red)
@@ -3805,6 +3840,7 @@ commands.
   :created                 "#+created:"
   :include                 "#+include:"
   :setupfile               "#+setupfile:"
+  :export_file_name        "#+export_file_name:"
   :results                 "#+RESULTS:"
   :property                ":PROPERTIES:"
   :end                     ":END:"
