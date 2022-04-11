@@ -1608,7 +1608,7 @@ table
 #+begin_src emacs-lisp
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -3763,6 +3763,7 @@ commands.
             :arrow_left              "←"
             :title                   "𝙏"
             :subtitle                "𝙩"
+            :language                "𝙇"
             :author                  "𝘼"
             :email                   "@"
             :date                    "𝘿"
@@ -3815,6 +3816,7 @@ commands.
   :arrow_left              "<-"
   :title                   "#+title:"
   :subtitle                "#+subtitle:"
+  :language                "#+language:"
   :author                  "#+author:"
   :email                   "#+email:"
   :date                    "#+date:"
