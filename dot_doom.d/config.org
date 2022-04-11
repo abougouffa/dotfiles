@@ -4160,11 +4160,19 @@ it should still work.
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("thesis"
+                 "\\documentclass[11pt]{report}"
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}"))))
 
 (setq org-latex-default-class "article")
-      ;; org-latex-tables-booktabs t
-      ;; org-latex-reference-command "\\cref{%s}")
+;; org-latex-tables-booktabs t
+;; org-latex-reference-command "\\cref{%s}")
 #+end_src
 
 * System configuration :linux:system:
