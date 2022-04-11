@@ -1264,7 +1264,11 @@ Display Git information (author, date, message...) for current line
                    :italic t)))
   :config
   (global-blamer-mode 1)
-  (add-hook! 'writeroom-mode-hook (blamer-mode -1))) ;; Disable in zen (writeroom) mode
+  
+  ;; Disable in zen (writeroom) mode
+  (when (featurep! :ui zen)
+    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 #+end_src
 
 *** Systemd :systemd:
@@ -3909,11 +3913,21 @@ let's make it transparent.
 (setq org-format-latex-options
       (plist-put org-format-latex-options :background "Transparent"))
 
-(setq org-format-latex-options
-      (plist-put org-format-latex-options :scale 1.4))
-
 ;; Can be dvipng, dvisvgm, imagemagick
 (setq org-preview-latex-default-process 'dvisvgm)
+
+;; Define a function to set the format latex scale (to be reused in hooks)
+(defun ab/set-org-latex-scale (scale)
+  (setq org-format-latex-options
+        (plist-put org-format-latex-options :scale )))
+
+;; Set the default scale
+(ab/set-org-latex-scale 1.4)
+
+;; Change scale in Zen mode
+(when (featurep! :ui zen)
+  (add-hook! 'writeroom-mode-enable-hook (ab/set-org-latex-scale 2.0))
+  (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
 #+end_src
 
 **** Org Plot
