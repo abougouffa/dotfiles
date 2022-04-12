@@ -3921,7 +3921,7 @@ let's make it transparent.
 ;; Define a function to set the format latex scale (to be reused in hooks)
 (defun ab/set-org-latex-scale (scale)
   (setq org-format-latex-options
-        (plist-put org-format-latex-options :scale )))
+        (plist-put org-format-latex-options :scale scale)))
 
 ;; Set the default scale
 (ab/set-org-latex-scale 1.4)
