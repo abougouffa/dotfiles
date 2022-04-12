@@ -988,13 +988,15 @@ Together these should give me a rather good experience reading e-books.
 #+begin_src emacs-lisp
 (package! doct)
 (package! org-super-agenda)
-(package! org-fragtog)
 (package! org-ref)
 
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+#+end_src
 
+**** =org-ref-cite=
+#+begin_src emacs-lisp
 (package! org-ref-cite
   :recipe (:host github
            :repo "jkitchin/org-ref-cite"
@@ -1002,12 +1004,6 @@ Together these should give me a rather good experience reading e-books.
   :disable t) ;; BUG: Not working correctly!
 #+end_src
 
-Hook =org-fragtog-mode= to =org-mode=.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-#+end_src
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
@@ -1027,7 +1023,33 @@ Hook =org-fragtog-mode= to =org-mode=.
                                         (t basic)))
 #+end_src
 
-**** COMMENT Org modern
+**** Fragtog
+
+#+begin_src emacs-lisp
+(package! org-fragtog)
+#+end_src
+
+Hook =org-fragtog-mode= to =org-mode=.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+#+end_src
+
+**** Pretty table
+
+#+begin_src emacs-lisp
+(package! org-pretty-table
+  :recipe (:host github
+           :repo "Fuco1/org-pretty-table"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-pretty-table
+  :hook (org-mode . org-pretty-table-mode))
+#+end_src
+
+**** COMMENT Org Modern
 
 #+begin_src emacs-lisp
 (package! org-modern
