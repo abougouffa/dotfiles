@@ -706,6 +706,17 @@ I’d like to have just the buffer name, then if applicable the project folder
              (format (if (buffer-modified-p) " ◉ %s" " ● %s") project-name))))))
 #+end_src
 
+*** Vertico :vertico:posframe:
+Since [[https://github.com/hlissner/doom-emacs/commit/ece4a74a9b2ac84a4e85be3d094ceb4f0a441e39][doom-emacs@ece4a74]], Doom supports the =+childframe= for =:completion vertico=.
+This can be used to adjust the left and right fringes.
+
+#+begin_src emacs-lisp
+(after! vertico-posframe
+  (setq vertico-posframe-parameters
+        '((left-fringe . 12)
+          (right-fringe . 14))))
+#+end_src
+
 ** Editor :edit:
 *** Scratch buffer :scratch:
 Tell the scratch buffer to start in =emacs-lisp-mode=.
@@ -904,22 +915,6 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 #+begin_src emacs-lisp :tangle yes
 (use-package! focus
   :commands focus-mode)
-#+end_src
-
-*** Posframe :posframe:
-
-#+begin_src emacs-lisp
-(package! vertico-posframe
-  :disable t)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! vertico-posframe
-  :hook (vertico-mode . vertico-posframe-mode)
-  :config
-  (setq vertico-posframe-parameters
-        '((left-fringe . 12)
-          (right-fringe . 14))))
 #+end_src
 
 *** Goggles
