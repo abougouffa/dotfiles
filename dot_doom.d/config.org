@@ -683,7 +683,7 @@ Add an ASCII banner, used in terminal mode.
 *** Which key :key:
 Make =which-key= popup faster.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (setq which-key-idle-delay 0.5 ;; Default is 1.0
       which-key-idle-secondary-delay 0.05) ;; Default is nil
 #+end_src
@@ -691,7 +691,7 @@ Make =which-key= popup faster.
 *** Window title :title:
 I’d like to have just the buffer name, then if applicable the project folder
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (setq frame-title-format
       '(""
         (:eval
