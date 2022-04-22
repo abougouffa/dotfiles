@@ -1636,7 +1636,7 @@ table
 #+begin_src emacs-lisp
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱" "®" "™"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -2679,22 +2679,22 @@ the builtin =gdb-many-windows= layout.
 #+begin_src emacs-lisp :tangle yes
 (defvar gud-overlay
   (let* ((ov (make-overlay (point-min) (point-min))))
-     (overlay-put ov 'face 'secondary-selection)
-   ov)
-    "Overlay variable for GUD highlighting.")
+    (overlay-put ov 'face 'secondary-selection)
+    ov)
+  "Overlay variable for GUD highlighting.")
 
 (defadvice gud-display-line (after my-gud-highlight act)
   "Highlight current line."
   (let* ((ov gud-overlay)
          (bf (gud-find-file true-file)))
-  (with-current-buffer bf
-    (move-overlay ov (line-beginning-position) (line-beginning-position 2)
-      ;; (move-overlay ov (line-beginning-position) (line-end-position)
-                      (current-buffer)))))
+    (with-current-buffer bf
+      (move-overlay ov (line-beginning-position) (line-beginning-position 2)
+                    ;; (move-overlay ov (line-beginning-position) (line-end-position)
+                    (current-buffer)))))
 
 (defun gud-kill-buffer ()
   (if (derived-mode-p 'gud-mode)
-    (delete-overlay gud-overlay)))
+      (delete-overlay gud-overlay)))
 
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 #+end_src
@@ -3960,6 +3960,66 @@ let's make it transparent.
   (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
 #+end_src
 
+***** Better equation numbering
+Numbered equations all have (1) as the number for fragments with vanilla
+org-mode. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews so they look
+good. *Not working right now!*
+
+#+begin_src emacs-lisp
+(defun scimax-org-renumber-environment (orig-func &rest args)
+  "A function to inject numbers in LaTeX fragment previews."
+  (let ((results '())
+        (counter -1)
+        (numberp))
+    (setq results (cl-loop for (begin .  env) in
+                           (org-element-map (org-element-parse-buffer) 'latex-environment
+                             (lambda (env)
+                               (cons
+                                (org-element-property :begin env)
+                                (org-element-property :value env))))
+                           collect
+                           (cond
+                            ((and (string-match "\\\\begin{equation}" env)
+                                  (not (string-match "\\\\tag{" env)))
+                             (cl-incf counter)
+                             (cons begin counter))
+                            ((string-match "\\\\begin{align}" env)
+                             (prog2
+                                 (cl-incf counter)
+                                 (cons begin counter)
+                               (with-temp-buffer
+                                 (insert env)
+                                 (goto-char (point-min))
+                                 ;; \\ is used for a new line. Each one leads to a number
+                                 (cl-incf counter (count-matches "\\\\$"))
+                                 ;; unless there are nonumbers.
+                                 (goto-char (point-min))
+                                 (cl-decf counter (count-matches "\\nonumber")))))
+                            (t
+                             (cons begin nil)))))
+
+    (when (setq numberp (cdr (assoc (point) results)))
+      (setf (car args)
+            (concat
+             (format "\\setcounter{equation}{%s}\n" numberp)
+             (car args)))))
+
+  (apply orig-func args))
+
+
+(defun scimax-toggle-latex-equation-numbering ()
+  "Toggle whether LaTeX fragments are numbered."
+  (interactive)
+  (if (not (get 'scimax-org-renumber-environment 'enabled))
+      (progn
+        (advice-add 'org-create-formula-image :around #'scimax-org-renumber-environment)
+        (put 'scimax-org-renumber-environment 'enabled t)
+        (message "Latex numbering enabled"))
+    (advice-remove 'org-create-formula-image #'scimax-org-renumber-environment)
+    (put 'scimax-org-renumber-environment 'enabled nil)
+    (message "Latex numbering disabled.")))
+#+end_src
+
 **** Org Plot
 We can use some variables in =org-plot= to use the current doom theme
 colors.
@@ -4072,7 +4132,7 @@ levels of depth. The two main formats I care about exporting to are LaTeX and
 HTML. When using an =article= class, LaTeX headlines go from =\section=,
 =\subsection=, =\subsubsection=, and =\paragraph= to =\subgraph= --- /five/ levels.
 HTML5 has six levels of headings (=<h1>= to =<h6>=), but first level Org headings
-get exported as =<h2>= elements --- leaving /five/ usable levels.
+get exported as ~<h2>~ elements --- leaving /five/ usable levels.
 
 As such, it would seem to make sense to recognize the first /five/ levels of Org
 headings when exporting.
@@ -4081,9 +4141,9 @@ headings when exporting.
 (setq org-export-headline-levels 5) ; I like nesting
 #+end_src
 
-I'm also going to make use of an item in =ox-extra= so that I can add an =:ignore:=
+I'm also going to make use of an item in =ox-extra= so that I can add an ~:ignore:~
 tag to headings for the content to be kept, but the heading itself ignored
-(unlike =:noexport:= which ignored both heading and content). This is useful when
+(unlike ~:noexport:~ which ignored both heading and content). This is useful when
 I want to use headings to provide a structure for writing that doesn't appear in
 the final documents.
 
@@ -4133,15 +4193,72 @@ value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
 
+***** COMMENT Default packages
+I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-latex.el][scimax]].
+
+#+begin_src emacs-lisp
+(setq org-latex-default-packages-alist
+      '(("AUTO" "inputenc" t)
+
+        ;; this is for having good fonts
+        ("" "lmodern" nil)
+
+        ;; This is for handling accented characters
+        ("T1" "fontenc" t)
+
+        ;; This makes standard margins
+        ("top=2cm, bottom=2cm, left=2cm, right=2cm" "geometry" nil)
+        ("" "graphicx" t)
+        ("" "longtable" nil)
+        ("" "float" nil)
+        ("" "wrapfig" nil)    ; makes it possible to wrap text around figures
+        ("" "rotating" nil)
+        ("normalem" "ulem" t)
+
+        ;; These provide math symbols
+        ("" "amsmath" t)
+        ("" "textcomp" t)
+        ("" "marvosym" t)
+        ("" "wasysym" t)
+        ("" "amssymb" t)
+        ("" "amsmath" t)
+        ("theorems, skins" "tcolorbox" t)
+
+        ;; used for marking up chemical formulars
+        ;; ("version=3" "mhchem" t)
+
+        ("numbers,super,sort&compress" "natbib" nil)
+        ("" "natmove" nil)
+
+        ("" "url" nil)
+        ;; this is used for syntax highlighting of code
+        ("cache=false" "minted" nil)
+
+        ;; this allows you to use underscores in places like filenames. I still
+        ;; wouldn't do it.
+        ("strings" "underscore" nil)
+        ("linktocpage,pdfstartview=FitH,colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
+         "hyperref" nil)
+
+        ;; enables you to embed files in pdfs
+        ("" "attachfile" nil)
+
+        ;; set default spacing
+        ("" "setspace" nil)
+
+    ))
+#+end_src
+
 ***** COMMENT Export PDFs with syntax highlighting
 
 #+begin_src emacs-lisp
-(require 'ox-latex)
-
-(add-to-list 'org-latex-packages-alist '("" "minted"))
-
-(setq org-latex-listings 'minted
-      org-src-fontify-natively t)
+;; this is for code syntax highlighting in export. you need to use
+;; -shell-escape with latex, and install pygments.
+(setq org-latex-listings 'minted)
+(setq org-latex-minted-options
+      '(("frame" "lines")
+        ("fontsize" "\\scriptsize")
+        ("linenos" "")))
 #+end_src
 
 ***** Class templates
