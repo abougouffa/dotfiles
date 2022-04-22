@@ -226,7 +226,10 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
 ;; This file controls what Doom modules are enabled and what order they load in.
 ;; Press 'K' on a module to view its documentation, and 'gd' to browse its directory.
 
-(doom! :completion
+(doom! :input
+       <<doom-input>>
+
+       :completion
        <<doom-completion>>
 
        :ui
@@ -262,6 +265,14 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
        :config
        <<doom-config>>
 )
+#+end_src
+
+** Input (=:input=)
+Enable bidirectional languages support (=bidi=).
+
+#+name: doom-input
+#+begin_src emacs-lisp
+bidi
 #+end_src
 
 ** General (=:config=)
