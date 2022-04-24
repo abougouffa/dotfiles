@@ -4197,6 +4197,45 @@ This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example
 it should still work.
 
 ***** COMMENT Default packages
+
+#+begin_src emacs-lisp
+(setq org-latex-default-packages-alist
+      '(("AUTO" "inputenc" t ("pdflatex"))
+
+        ("T1" "fontenc" t ("pdflatex"))
+
+        ("" "graphicx" t)
+        ;; ("" "longtable" nil)
+        ("" "wrapfig" nil)
+        ("" "float" nil)
+        ("" "rotating" nil)
+        ("normalem" "ulem" t)
+
+        ("" "siunitx" t)
+        ("" "amsmath" t)
+        ("" "amssymb" t)
+        ("" "capt-of" nil)
+        ("" "url" nil)
+        ("" "hyperref" nil)
+
+        ;; ("" "theorems,skins" "tcolorbox" t)
+        ;; ("numbers,square,sort&compress" "natbib" nil)
+        ;; ("" "natmove" nil)
+
+        ;; enables you to embed files in pdfs
+        ;; ("" "attachfile" nil)
+
+        ;; this allows you to use underscores in places like filenames. I still
+        ;; wouldn't do it.
+        ;; ("strings" "underscore" nil)
+        ;; ("linktocpage,pdfstartview=FitH,colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
+        ;;  "hyperref" nil)
+
+        ;; set default spacing
+        ("" "setspace" nil)))
+#+end_src
+
+***** COMMENT Default packages
 I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-latex.el][scimax]].
 
 #+begin_src emacs-lisp
@@ -4311,7 +4350,15 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
   (add-to-list 'org-latex-classes
                '("thesis"
-                 "\\documentclass[11pt]{report}"
+                 "\\documentclass[11pt]{book}"
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("thesis-fr"
+                 "\\documentclass[french,12pt,a4paper]{book}"
                  ("\\chapter{%s}" . "\\chapter*{%s}")
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
