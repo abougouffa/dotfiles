@@ -3,14 +3,15 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+options: title:t author:t email:t toc:t tags:nil
+#+date: <2022-04-24 Sun>
+#+options: title:t author:t email:t toc:nil tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
 #+property: header-args:shell :tangle "setup.sh"
 #+property: header-args :tangle no :results silent :eval no-export
 #+setupfile: assets/template.org
 #+startup: fold
-
+#+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo/
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
@@ -467,6 +468,7 @@ qt                     ; the 'cutest' gui framework ever
      +jupyter
      +pandoc
      +noter
+     +hugo
      +present
      +pomodoro
      +roam2
@@ -4318,6 +4320,19 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
 (setq org-latex-default-class "article")
 ;; org-latex-tables-booktabs t
 ;; org-latex-reference-command "\\cref{%s}")
+#+end_src
+
+**** Hugo
+
+Update files with last modified date, when ~#+lastmod:~ is available
+
+#+begin_src emacs-lisp :tangle yes
+(setq time-stamp-active t
+      time-stamp-start "#\\+lastmod:[ \t]*"
+      time-stamp-end "$"
+      time-stamp-format "%04Y-%02m-%02d")
+
+(add-hook 'before-save-hook 'time-stamp nil)
 #+end_src
 
 * System configuration :linux:system:
