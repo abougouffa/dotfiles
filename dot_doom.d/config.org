@@ -2166,7 +2166,7 @@ I configure my email accounts in a private file in
 
   ;; Add shortcut to view yesterday's messages
   (add-to-list 'mu4e-bookmarks
-               '(:name "Yesterday's messages" :query "date:2d..1d" :key ?y) t)
+               '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
