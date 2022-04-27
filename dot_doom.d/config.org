@@ -1093,6 +1093,20 @@ with it.
                 org-roam-ui-open-on-start t))
 #+end_src
 
+**** Org notifier
+Add support for[[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
+
+#+begin_src emacs-lisp
+(package! org-wild-notifier)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-wild-notifier
+  :hook (org-load . org-wild-notifier-mode)
+  :config
+  (setq org-wild-notifier-alert-time '(60 30)))
+#+end_src
+
 *** Info colors
 Better colors for manual pages.
 
