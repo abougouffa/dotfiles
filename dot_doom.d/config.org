@@ -1720,7 +1720,7 @@ For =spell-fu=
 sudo pacman -S aspell aspell-en aspell-fr
 #+end_example
 
-*** Spell Fu :spellfu:
+*** Spell-Fu :spellfu:
 Now, =spell-fu= supports multiple languages! Lets add English, French and Arabic.
 So I can "mélanger les langues sans avoir de problèmes!".
 
@@ -1756,7 +1756,7 @@ So I can "mélanger les langues sans avoir de problèmes!".
 
   ;; Define the personal dictionary path, and use it only when it exists
   (setq ispell-personal-dictionary
-    (expand-file-name ".ispell_personal_dict" doom-private-dir))
+        (expand-file-name ".ispell_personal_dict" doom-private-dir))
   (unless (file-exists-p ispell-personal-dictionary)
     (write-region "" nil ispell-personal-dictionary nil 0)))
 #+end_src
