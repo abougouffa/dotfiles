@@ -549,6 +549,749 @@ everywhere             ; *leave* Emacs!? You must be joking
 ;;twitter              ; twitter client https://twitter.com/vnought
 #+end_src
 
+* Additional Packages (=packages.el=) :package:
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle "packages.el" :comments no
+:END:
+
+This file shouldn't be byte compiled.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+;; -*- no-byte-compile: t; -*-
+#+end_src
+
+** General Packages :general:
+*** Weather :wttrin:
+
+#+begin_src emacs-lisp
+;; lisp/wttrin/wttrin.el taken from:
+;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
+(package! wttrin
+  :recipe (:local-repo "lisp/wttrin"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! wttrin
+  :commands wttrin)
+#+end_src
+
+*** TODO CalDAV :calendar:caldav:
+
+#+begin_src emacs-lisp
+(package! caldav
+  :recipe (:host github
+           :repo "dengste/org-caldav"))
+#+end_src
+
+*** =xkcd=
+
+#+begin_src emacs-lisp
+(package! xkcd
+  :recipe (:host github
+           :repo "vibhavp/emacs-xkcd"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! xkcd
+  :commands (xkcd-get xkcd)
+  :config
+  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
+        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
+#+end_src
+
+** Themes and UI :ui:theme:
+*** SVG Tag Mode :svg:
+
+#+begin_src emacs-lisp
+(package! svg-tag-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! svg-tag-mode
+  :commands svg-tag-mode
+  :config
+  (setq svg-tag-tags
+      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+         ((lambda (tag) (svg-tag-make tag
+                                 :beg 1
+                                 :font-family "Roboto Mono"
+                                 :font-size 6
+                                 :height 0.6
+                                 :padding 0
+                                 :margin 0))))
+        ("\\(:[A-Za-z0-9]+:\\)$" .
+         ((lambda (tag) (svg-tag-make tag
+                                 :beg 1
+                                 :end -1
+                                 :font-family "Roboto Mono"
+                                 :font-size 6
+                                 :height 0.6
+                                 :padding 0
+                                 :margin 0)))))))
+#+end_src
+
+*** N Λ N O :nano:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp
+(package! nano-doom
+  :disable t
+  :recipe (:host github :repo "skyler544/doom-nano-testing"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Note tangled
+(require 'load-nano)
+#+end_src
+
+*** Bespoke themes :bespoke:
+
+#+begin_src emacs-lisp
+(package! bespoke-themes
+  :recipe (:host github
+           :repo "mclear-tools/bespoke-themes"))
+
+(package! bespoke-modeline
+  :recipe (:host github
+           :repo "mclear-tools/bespoke-modeline"))
+#+end_src
+
+*** Focus :focus:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp
+(package! focus)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! focus
+  :commands focus-mode)
+#+end_src
+
+*** Goggles
+Visual feedback after kill/yank actions.
+
+#+begin_src emacs-lisp
+(package! goggles
+  :recipe (:host github
+           :repo "minad/goggles"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! goggles
+  :hook ((prog-mode text-mode) . goggles-mode)
+  :config
+  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
+#+end_src
+
+*** Smooth scrolling
+
+#+begin_src emacs-lisp
+(when (<= emacs-major-version 28)
+  (package! good-scroll))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(if (> emacs-major-version 28)
+    (pixel-scroll-precision-mode 1)
+  (use-package! good-scroll
+    :config (good-scroll-mode 1)))
+#+end_src
+
+** Features :features:
+*** ESS :ess:
+View data frames better with
+
+#+begin_src emacs-lisp
+(package! ess-view)
+#+end_src
+
+*** Very large files :large:vlf:
+The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
+
+#+begin_src emacs-lisp
+(package! vlf)
+#+end_src
+
+To make VLF available without delaying startup, we'll just load it in quiet moments.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+#+end_src
+
+*** e-Book reading :ebook:
+Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
+
+#+begin_src emacs-lisp
+(package! nov)
+#+end_src
+
+Together these should give me a rather good experience reading e-books.
+
+*** Info colors
+Better colors for manual pages.
+
+#+begin_src emacs-lisp
+(package! info-colors)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+#+end_src
+
+*** Grammarly
+
+#+begin_src emacs-lisp
+(package! grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/grammarly")
+  :disable t) ;; TODO: It messes my org files up, need to investigate
+
+(package! flycheck-grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/flycheck-grammarly")
+  :disable t) ;; TODO: It messes my org files up, need to investigate
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-grammarly
+  :config (load! "lisp/private/+grammarly-account.el"))
+#+end_src
+
+*** Grammalecte
+
+#+begin_src emacs-lisp
+(package! flycheck-grammalecte
+  :recipe (:host github
+           :repo "milouse/flycheck-grammalecte")
+  :disable t) ; FIXME Not working correctly
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-grammalecte
+  :config (flycheck-grammalecte-setup))
+
+;; (use-package flycheck-grammalecte
+;;              :hook (fountain-mode . flycheck-mode)
+;;              :init
+;;              (setq flycheck-grammalecte-report-apos nil
+;;                    flycheck-grammalecte-report-esp nil
+;;                    flycheck-grammalecte-report-nbsp nil)
+;;              :config
+;;              (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode)
+;;              (grammalecte-download-grammalecte)
+;;              (flycheck-grammalecte-setup))
+#+end_src
+
+*** Zotero Zotxt :zotero:
+
+#+begin_src emacs-lisp
+(package! zotxt)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! zotxt
+  :commands org-zotxt-mode)
+#+end_src
+
+*** CRDT :crdt:
+Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
+Replicated Data Type]]/.
+
+#+begin_src emacs-lisp
+(package! crdt)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! crdt
+  :commands (crdt-share-buffer
+             crdt-connect
+             crdt-visualize-author-mode
+             crdt-org-sync-overlay-mode))
+#+end_src
+
+*** Ag.el
+An Emacs frontend to The Silver Searcher, first we need to install =ag= using =sudo
+pacman -S the_silver_searcher=.
+
+#+begin_src emacs-lisp
+(package! ag)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! ag
+  :commands (ag
+             ag-files
+             ag-regexp
+             ag-project
+             ag-project-files
+             ag-project-regexp))
+#+end_src
+
+** Org-mode related :org:
+*** Templates
+
+#+begin_src emacs-lisp
+(package! doct)
+#+end_src
+
+*** Agenda
+
+#+begin_src emacs-lisp
+(package! org-super-agenda)
+#+end_src
+
+*** Academic
+
+#+begin_src emacs-lisp
+(package! org-ref)
+
+(package! academic-phrases
+  :recipe (:host github
+           :repo "nashamri/academic-phrases"))
+#+end_src
+
+**** Org-Ref :heart: Org-Cite
+
+#+begin_src emacs-lisp
+(package! org-ref-cite
+  :recipe (:host github
+           :repo "jkitchin/org-ref-cite"
+           :files (:defaults "readme.org"))
+  :disable t) ;; BUG: Not working correctly!
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
+(use-package! org-ref-cite
+  :after org-cite
+  :config
+  ;; I like green links
+  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
+  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
+  (setq org-cite-global-bibliography bibtex-completion-bibliography
+        org-cite-csl-styles-dir "~/Zotero/styles"
+        org-cite-insert-processor 'org-ref-cite
+        org-cite-follow-processor 'org-ref-cite
+        org-cite-activate-processor 'org-ref-cite
+        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
+                                        (latex org-ref-cite)
+                                        (t basic)))
+#+end_src
+
+*** Fragtog
+
+#+begin_src emacs-lisp
+(package! org-fragtog)
+#+end_src
+
+Hook =org-fragtog-mode= to =org-mode=.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+#+end_src
+
+*** Pretty table
+
+#+begin_src emacs-lisp
+(package! org-pretty-table
+  :recipe (:host github
+           :repo "Fuco1/org-pretty-table"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-pretty-table
+  :hook (org-mode . org-pretty-table-mode))
+#+end_src
+
+*** Org Modern
+Not working correctly, do not respect the indentation.
+
+#+begin_src emacs-lisp
+(package! org-modern
+  :recipe (:host github
+           :repo "minad/org-modern")
+  :disable t) ;; Not working ATM
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode))
+#+end_src
+
+*** Org Roam :roam:
+Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
+with it.
+
+#+begin_src emacs-lisp
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! websocket
+  :after org-roam-ui)
+
+(use-package! org-roam-ui
+  :commands org-roam-ui-open
+  :config (setq org-roam-ui-sync-theme t
+                org-roam-ui-follow t
+                org-roam-ui-update-on-save t
+                org-roam-ui-open-on-start t))
+#+end_src
+
+*** Org notifier
+Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
+
+#+begin_src emacs-lisp
+(package! org-wild-notifier)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-wild-notifier
+  :hook (org-load . org-wild-notifier-mode)
+  :config
+  (setq org-wild-notifier-alert-time '(60 30)))
+#+end_src
+
+** Programming :programming:
+*** Repo :repo:
+Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
+distributions, or directly with:
+
+#+begin_src shell :tangle no :eval no
+REPO_PATH="$HOME/.local/bin/repo"
+curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
+chmod a+x ${REPO_PATH}
+#+end_src
+
+#+begin_src emacs-lisp
+(package! repo)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! repo
+  :commands repo-status)
+#+end_src
+
+*** Devdocs :devdocs:
+
+#+begin_src emacs-lisp
+(package! devdocs
+  :recipe (:host github
+           :repo "astoff/devdocs.el"
+           :files ("*.el")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! devdocs
+  :commands (devdocs-lookup devdocs-install)
+  :config
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+#+end_src
+
+*** Emacs GDB :gdb:
+DAP mode is great, however, it is not mature for C/C++ debugging, it does not
+support some basic features like /Run until cursor/, /Show disassembled code/...
+etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+
+The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
+to it's C module), and it defines some easy to use UI, with Visual Studio like
+keybindings.
+
+#+begin_src emacs-lisp
+(package! gdb-mi
+  :recipe (:host github
+           :repo "weirdNox/emacs-gdb"
+           :files ("*.el" "*.c" "*.h" "Makefile")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! gdb-mi
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug)
+  :config
+  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
+#+end_src
+
+*** Disaster :disaster:disassemble:
+
+#+begin_src emacs-lisp
+(package! disaster)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; TODO: Configure to take into account "compile_commands.json"
+(use-package! disaster
+  :commands (disaster))
+#+end_src
+
+*** Magit Delta :magit:delta:
+Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
+specially with big change chunks.
+
+#+begin_src emacs-lisp
+(package! magit-delta
+  :disable t) ;; Disabled, too slow on big chunks
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! magit-delta
+  :commands magit-status
+  :hook (magit-mode . magit-delta-mode))
+#+end_src
+
+*** Blamer :git:blame:
+Display Git information (author, date, message...) for current line
+
+#+begin_src emacs-lisp
+(package! blamer
+  :recipe (:host github
+           :repo "artawower/blamer.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! blamer
+  :bind (("s-i" . blamer-show-commit-info))
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 60)
+  (blamer-prettify-time-p t)
+  (blamer-entire-formatter "    %s")
+  (blamer-author-formatter " %s ")
+  (blamer-datetime-formatter "[%s], ")
+  (blamer-commit-formatter "“%s”")
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                   :background nil
+                   :height 125
+                   :italic t)))
+  :config
+  (global-blamer-mode 1)
+  
+  ;; Disable in zen (writeroom) mode
+  (when (featurep! :ui zen)
+    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
+#+end_src
+
+*** Systemd :systemd:
+For editing systemd unit files.
+
+#+begin_src emacs-lisp
+(package! systemd)
+#+end_src
+
+*** Bitbake (Yocto) :bitbake:yocto:
+Add support for Yocto Project files.
+
+#+begin_src emacs-lisp
+(package! bitbake-modes
+  :recipe (:host bitbucket
+           :repo "olanilsson/bitbake-modes"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package bitbake-modes
+  :commands (bitbake-mode
+             conf-bitbake-mode
+             bb-scc-mode wks-mode
+             bitbake-task-log-mode
+             bb-sh-mode
+             mmm-mode))
+#+end_src
+
+*** LaTeX :latex:
+
+#+begin_src emacs-lisp
+(package! aas
+  :recipe (:host github
+           :repo "ymarco/auto-activating-snippets"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! aas
+  :commands aas-mode)
+#+end_src
+
+*** Project CMake :cmake:
+A good new package to facilitate using CMake projects with Emacs, it glues
+together =project=, =eglot=, =cmake= and =clangd=.
+
+#+begin_src emacs-lisp
+(package! project-cmake
+  :disable (not (featurep! lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :recipe (:host github
+           :repo "juanjosegarciaripoll/project-cmake"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
+#+end_src
+
+*** Franca IDL
+Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
+
+#+begin_src emacs-lisp
+(package! franca-idl
+  :recipe (:host github
+           :repo "zeph1e/franca-idl.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! franca-idl
+  :commands franca-idl-mode)
+#+end_src
+
+*** Flycheck :heart: projectile
+WIP: Not working atm!
+
+#+begin_src emacs-lisp
+(package! flycheck-projectile
+  :recipe (:host github
+           :repo "nbfalcon/flycheck-projectile"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-projectile
+  :commands flycheck-projectile-list-errors)
+#+end_src
+
+*** Graphviz :graphviz:
+Graphviz is a nice method of visualizing simple graphs, based on plaintext
+=.dot= / =.gv= files.
+
+#+begin_src emacs-lisp
+(package! graphviz-dot-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! graphviz-dot-mode
+  :commands (graphviz-dot-mode graphviz-dot-preview))
+#+end_src
+
+*** Maxima :maxima:math:
+I've been experiencing an annoying bug with the =maxima= package, when I launch
+the interpreter, it complains about a file not being found, the package searches
+in =~/.emacs-doom/.local/straight/repos-28.0.90/maxima/keywords/functions= instead
+of =~/.../build-28.0.90/...=, when I investigated this issue, it turned out that,
+the package (in the =maxima-font-lock.el= file), replaces =build= with =repos= when it
+sees =straight= in the path (as a workaround to support =straight=), however, Doom
+Emacs redefine the value of =straight-build-dir= to be =build-<emacs-version>=,, so
+the workaround is no more needed. To fix this, I set the
+=maxima-font-lock-keywords-directory= with the right path.
+
+#+begin_src emacs-lisp
+(package! imaxima)
+(package! maxima
+  :recipe (:host gitlab
+           :repo "sasanidas/maxima"
+           :files ("*.el" "keywords")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! maxima
+  :init
+  (add-hook 'maxima-mode-hook #'maxima-hook-function)
+  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+  (require 'straight)
+  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
+        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
+  (setq maxima-display-maxima-buffer nil)
+  ;; (require 'org) ;; to set `org-format-latex-options'
+  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  :commands (maxima-mode maxima)
+  :config
+  (require 'company-maxima)
+  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+  :mode ("\\.mac\\'" . maxima-mode)
+  :interpreter ("maxima" . maxima-mode))
+
+(use-package! imaxima
+  :commands (imaxima))
+
+(use-package! imath
+  :commands (imath-mode imath))
+#+end_src
+
+*** ROS :ros:
+**** ROS Emacs utils
+This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
+need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
+container or on a remote robot. ATM, I need just to configure =rosemacs= to use
+Emacs to develop ROS packages using C++/Python, I'm not interested now for
+ROS Common Lisp development.
+
+#+begin_src emacs-lisp
+(package! rosemacs
+  :recipe (:host github
+           :repo "code-iai/ros_emacs_utils"
+           :files ("rosemacs/*"))
+  :disable t) ;; No clear way to make it work on a remote machine
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! rosemacs
+  :config
+  (require 'rosemacs-config)
+  :commands (ros-core ros-topic-info))
+#+end_src
+
+**** =ros.el=
+I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
+facilitate working with ROS machines, supports ROS1 and ROS2, with local
+workspaces or remote ones (over Trump!).
+
+#+begin_src emacs-lisp
+;; `ros.el' depends on `with-shell-interpreter' among other packages
+;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
+(package! with-shell-interpreter)
+(package! ros
+  :recipe (:host github
+           :repo "DerBeutlin/ros.el"))
+#+end_src
+
+Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
+to install some tools on the ROS machine, and build the workspace for the first
+time using =colcon build=, the repo contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]] and
+[[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! ros
+  :init (map! :leader
+              :prefix ("l" . "custom")
+              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :commands (hydra-ros-main/body ros-set-workspace)
+  :config
+  (setq ros-workspaces
+        (list (ros-dump-workspace
+               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros2_ws"
+               :extends '("/opt/ros/foxy/")))))
+#+end_src
+
 * Doom Configuration :doom:config:
 ** User Interface :ui:
 *** Font Face :font:
@@ -810,718 +1553,6 @@ straightforward, I'll just redefine it to a simpler, async, function.
 (require 'org) (setq org-confirm-babel-evaluate nil) \
 (org-babel-tangle-file \\\"%s\\\"))\""
              +literate-config-file))))
-#+end_src
-
-* Additional Packages (=packages.el=) :package:
-:PROPERTIES:
-:header-args:emacs-lisp: :tangle "packages.el" :comments no
-:END:
-
-This file shouldn't be byte compiled.
-
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
-;; -*- no-byte-compile: t; -*-
-#+end_src
-
-** General Packages :general:
-*** Weather :wttrin:
-
-#+begin_src emacs-lisp
-;; lisp/wttrin/wttrin.el taken from:
-;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
-(package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! wttrin
-  :commands wttrin)
-#+end_src
-
-*** TODO CalDAV :calendar:caldav:
-
-#+begin_src emacs-lisp
-(package! caldav
-  :recipe (:host github
-           :repo "dengste/org-caldav"))
-#+end_src
-
-*** =xkcd=
-
-#+begin_src emacs-lisp
-(package! xkcd
-  :recipe (:host github
-           :repo "vibhavp/emacs-xkcd"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! xkcd
-  :commands (xkcd-get xkcd)
-  :config
-  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
-        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
-#+end_src
-
-** Themes and UI :ui:theme:
-*** SVG Tag Mode :svg:
-
-#+begin_src emacs-lisp
-(package! svg-tag-mode)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! svg-tag-mode
-  :commands svg-tag-mode
-  :config
-  (setq svg-tag-tags
-      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
-         ((lambda (tag) (svg-tag-make tag
-                                 :beg 1
-                                 :font-family "Roboto Mono"
-                                 :font-size 6
-                                 :height 0.6
-                                 :padding 0
-                                 :margin 0))))
-        ("\\(:[A-Za-z0-9]+:\\)$" .
-         ((lambda (tag) (svg-tag-make tag
-                                 :beg 1
-                                 :end -1
-                                 :font-family "Roboto Mono"
-                                 :font-size 6
-                                 :height 0.6
-                                 :padding 0
-                                 :margin 0)))))))
-#+end_src
-
-*** N Λ N O :nano:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
-
-#+begin_src emacs-lisp
-(package! nano-doom
-  :disable t
-  :recipe (:host github :repo "skyler544/doom-nano-testing"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Note tangled
-(require 'load-nano)
-#+end_src
-
-*** Bespoke themes :bespoke:
-
-#+begin_src emacs-lisp
-(package! bespoke-themes
-  :recipe (:host github
-           :repo "mclear-tools/bespoke-themes"))
-
-(package! bespoke-modeline
-  :recipe (:host github
-           :repo "mclear-tools/bespoke-modeline"))
-#+end_src
-
-*** Focus :focus:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
-
-#+begin_src emacs-lisp
-(package! focus)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! focus
-  :commands focus-mode)
-#+end_src
-
-*** Goggles
-Visual feedback after kill/yank actions.
-
-#+begin_src emacs-lisp
-(package! goggles
-  :recipe (:host github
-           :repo "minad/goggles"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! goggles
-  :hook ((prog-mode text-mode) . goggles-mode)
-  :config
-  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
-#+end_src
-
-*** Smooth scrolling
-
-#+begin_src emacs-lisp
-(when (<= emacs-major-version 28)
-  (package! good-scroll))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(if (> emacs-major-version 28)
-    (pixel-scroll-precision-mode 1)
-  (use-package! good-scroll
-    :config (good-scroll-mode 1)))
-#+end_src
-
-** Features :features:
-*** ESS :ess:
-View data frames better with
-
-#+begin_src emacs-lisp
-(package! ess-view)
-#+end_src
-
-*** Very large files :large:vlf:
-The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
-
-#+begin_src emacs-lisp
-(package! vlf)
-#+end_src
-
-To make VLF available without delaying startup, we'll just load it in quiet moments.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! vlf-setup
-  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
-#+end_src
-
-*** e-Book reading :ebook:
-Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
-
-#+begin_src emacs-lisp
-(package! nov)
-#+end_src
-
-Together these should give me a rather good experience reading e-books.
-
-*** Org related :org:
-
-#+begin_src emacs-lisp
-(package! doct)
-(package! org-super-agenda)
-(package! org-ref)
-
-(package! academic-phrases
-  :recipe (:host github
-           :repo "nashamri/academic-phrases"))
-#+end_src
-
-**** =org-ref-cite=
-#+begin_src emacs-lisp
-(package! org-ref-cite
-  :recipe (:host github
-           :repo "jkitchin/org-ref-cite"
-           :files (:defaults "readme.org"))
-  :disable t) ;; BUG: Not working correctly!
-#+end_src
-
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
-(use-package! org-ref-cite
-  :after org-cite
-  :config
-  ;; I like green links
-  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
-  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
-  (setq org-cite-global-bibliography bibtex-completion-bibliography
-        org-cite-csl-styles-dir "~/Zotero/styles"
-        org-cite-insert-processor 'org-ref-cite
-        org-cite-follow-processor 'org-ref-cite
-        org-cite-activate-processor 'org-ref-cite
-        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
-                                        (latex org-ref-cite)
-                                        (t basic)))
-#+end_src
-
-**** Fragtog
-
-#+begin_src emacs-lisp
-(package! org-fragtog)
-#+end_src
-
-Hook =org-fragtog-mode= to =org-mode=.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-#+end_src
-
-**** Pretty table
-
-#+begin_src emacs-lisp
-(package! org-pretty-table
-  :recipe (:host github
-           :repo "Fuco1/org-pretty-table"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-pretty-table
-  :hook (org-mode . org-pretty-table-mode))
-#+end_src
-
-**** COMMENT Org Modern
-
-#+begin_src emacs-lisp
-(package! org-modern
-  :recipe (:host github
-           :repo "minad/org-modern"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-modern
-  :hook (org-mode . org-modern-mode))
-#+end_src
-
-**** Org Roam :roam:
-Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
-with it.
-
-#+begin_src emacs-lisp
-(unpin! org-roam) ;; To avoid problems with org-roam-ui
-(package! websocket)
-(package! org-roam-ui)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! websocket
-  :after org-roam-ui)
-
-(use-package! org-roam-ui
-  :commands org-roam-ui-open
-  :config (setq org-roam-ui-sync-theme t
-                org-roam-ui-follow t
-                org-roam-ui-update-on-save t
-                org-roam-ui-open-on-start t))
-#+end_src
-
-**** Org notifier
-Add support for[[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
-
-#+begin_src emacs-lisp
-(package! org-wild-notifier)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-wild-notifier
-  :hook (org-load . org-wild-notifier-mode)
-  :config
-  (setq org-wild-notifier-alert-time '(60 30)))
-#+end_src
-
-*** Info colors
-Better colors for manual pages.
-
-#+begin_src emacs-lisp
-(package! info-colors)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! info-colors
-  :commands (info-colors-fontify-node))
-
-(add-hook 'Info-selection-hook 'info-colors-fontify-node)
-#+end_src
-
-*** Grammarly
-
-#+begin_src emacs-lisp
-(package! grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
-
-(package! flycheck-grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/flycheck-grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-grammarly
-  :config (load! "lisp/private/+grammarly-account.el"))
-#+end_src
-
-*** Grammalecte
-
-#+begin_src emacs-lisp
-(package! flycheck-grammalecte
-  :recipe (:host github
-           :repo "milouse/flycheck-grammalecte")
-  :disable t) ; FIXME Not working correctly
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-grammalecte
-  :config (flycheck-grammalecte-setup))
-
-;; (use-package flycheck-grammalecte
-;;              :hook (fountain-mode . flycheck-mode)
-;;              :init
-;;              (setq flycheck-grammalecte-report-apos nil
-;;                    flycheck-grammalecte-report-esp nil
-;;                    flycheck-grammalecte-report-nbsp nil)
-;;              :config
-;;              (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode)
-;;              (grammalecte-download-grammalecte)
-;;              (flycheck-grammalecte-setup))
-#+end_src
-
-*** Zotero Zotxt :zotero:
-
-#+begin_src emacs-lisp
-(package! zotxt)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! zotxt
-  :commands org-zotxt-mode)
-#+end_src
-
-*** CRDT :crdt:
-Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
-Replicated Data Type]]/.
-
-#+begin_src emacs-lisp
-(package! crdt)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! crdt
-  :commands (crdt-share-buffer
-             crdt-connect
-             crdt-visualize-author-mode
-             crdt-org-sync-overlay-mode))
-#+end_src
-
-** Programming :programming:
-*** Repo :repo:
-Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not =pacman -S repo= on Arch-based
-distributions, or directly with:
-
-#+begin_src shell :tangle no
-REPO_PATH="$HOME/.local/bin/repo"
-curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
-chmod a+x ${REPO_PATH}
-#+end_src
-
-#+begin_src emacs-lisp
-(package! repo)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! repo
-  :commands repo-status)
-#+end_src
-
-*** Devdocs :devdocs:
-
-#+begin_src emacs-lisp
-(package! devdocs
-  :recipe (:host github
-           :repo "astoff/devdocs.el"
-           :files ("*.el")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! devdocs
-  :commands (devdocs-lookup devdocs-install)
-  :config
-  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
-#+end_src
-
-*** Emacs GDB :gdb:
-DAP mode is great, however, it is not mature for C/C++ debugging, it does not
-support some basic features like /Run until cursor/, /Show disassembled code/...
-etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
-
-The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
-to it's C module), and it defines some easy to use UI, with Visual Studio like
-keybindings.
-
-#+begin_src emacs-lisp
-(package! gdb-mi
-  :recipe (:host github
-           :repo "weirdNox/emacs-gdb"
-           :files ("*.el" "*.c" "*.h" "Makefile")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! gdb-mi
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug)
-  :config
-  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
-#+end_src
-
-*** Disaster :disaster:disassemble:
-
-#+begin_src emacs-lisp
-(package! disaster)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-;; TODO: Configure to take into account "compile_commands.json"
-(use-package! disaster
-  :commands (disaster))
-#+end_src
-
-*** Magit Delta :magit:delta:
-Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
-specially with big change chunks.
-
-#+begin_src emacs-lisp
-(package! magit-delta
-  :disable t)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! magit-delta
-  :commands magit-status
-  :hook (magit-mode . magit-delta-mode))
-#+end_src
-
-*** Blamer :git:blame:
-Display Git information (author, date, message...) for current line
-
-#+begin_src emacs-lisp
-(package! blamer
-  :recipe (:host github
-           :repo "artawower/blamer.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! blamer
-  :bind (("s-i" . blamer-show-commit-info))
-  :defer 20
-  :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 60)
-  (blamer-prettify-time-p t)
-  (blamer-entire-formatter "    %s")
-  (blamer-author-formatter " %s ")
-  (blamer-datetime-formatter "[%s], ")
-  (blamer-commit-formatter "“%s”")
-  :custom-face
-  (blamer-face ((t :foreground "#7a88cf"
-                   :background nil
-                   :height 125
-                   :italic t)))
-  :config
-  (global-blamer-mode 1)
-  
-  ;; Disable in zen (writeroom) mode
-  (when (featurep! :ui zen)
-    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
-#+end_src
-
-*** Systemd :systemd:
-For editing systemd unit files.
-
-#+begin_src emacs-lisp
-(package! systemd)
-#+end_src
-
-*** Bitbake (Yocto) :bitbake:yocto:
-This package is not maintained, but still a good for my Yocto projects. I don't
-really use the =bitbake= commands from Emacs, so this package can be easily
-replaced with [[https://bitbucket.org/olanilsson/bitbake-modes][~bitbake-modes~]].
-
-#+begin_src emacs-lisp
-(package! bitbake-modes
-  :recipe (:host bitbucket
-           :repo "olanilsson/bitbake-modes"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package bitbake-modes
-  :commands (bitbake-mode
-             conf-bitbake-mode
-             bb-scc-mode wks-mode
-             bitbake-task-log-mode
-             bb-sh-mode
-             mmm-mode))
-#+end_src
-
-*** LaTeX :latex:
-
-#+begin_src emacs-lisp
-(package! aas
-  :recipe (:host github
-           :repo "ymarco/auto-activating-snippets"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! aas
-  :commands aas-mode)
-#+end_src
-
-*** =project-cmake= :cmake:
-A good new package to facilitate using CMake projects with Emacs, it glues
-together =project=, =eglot=, =cmake= and =clangd=.
-
-#+begin_src emacs-lisp
-(package! project-cmake
-  :disable (not (featurep! lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :recipe (:host github
-           :repo "juanjosegarciaripoll/project-cmake"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! project-cmake
-    :config
-    (require 'eglot)
-    (project-cmake-scan-kits)
-    (project-cmake-eglot-integration))
-#+end_src
-
-*** Franca IDL
-
-#+begin_src emacs-lisp
-(package! franca-idl
-  :recipe (:host github
-           :repo "zeph1e/franca-idl.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! franca-idl
-  :commands franca-idl-mode)
-#+end_src
-
-*** Flycheck + projectile
-WIP: Not working atm!
-
-#+begin_src emacs-lisp
-(package! flycheck-projectile
-  :recipe (:host github
-           :repo "nbfalcon/flycheck-projectile"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-projectile
-  :commands flycheck-projectile-list-errors)
-#+end_src
-
-*** Graphviz :graphviz:
-Graphviz is a nice method of visualizing simple graphs, based on plaintext
-=.dot= / =.gv= files.
-
-#+begin_src emacs-lisp
-(package! graphviz-dot-mode)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! graphviz-dot-mode
-  :commands (graphviz-dot-mode graphviz-dot-preview))
-#+end_src
-
-*** Maxima :maxima:math:
-I've been experiencing an annoying bug with the =maxima= package, when I launch
-the interpreter, it complains about a file not being found, the package searches
-in =~/.emacs-doom/.local/straight/repos-28.0.90/maxima/keywords/functions= instead
-of =~/.../build-28.0.90/...=, when I investigated this issue, it turned out that,
-the package (in the =maxima-font-lock.el= file), replaces =build= with =repos= when it
-sees =straight= in the path (as a workaround to support =straight=), however, Doom
-Emacs redefine the value of =straight-build-dir= to be =build-<emacs-version>=,, so
-the workaround is no more needed. To fix this, I set the
-=maxima-font-lock-keywords-directory= with the right path.
-
-#+begin_src emacs-lisp
-(package! imaxima)
-(package! maxima
-  :recipe (:host gitlab
-           :repo "sasanidas/maxima"
-           :files ("*.el" "keywords")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! maxima
-  :init
-  (add-hook 'maxima-mode-hook #'maxima-hook-function)
-  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-  (require 'straight)
-  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
-        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
-  (setq maxima-display-maxima-buffer nil)
-  ;; (require 'org) ;; to set `org-format-latex-options'
-  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-  :commands (maxima-mode maxima)
-  :config
-  (require 'company-maxima)
-  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-  :mode ("\\.mac\\'" . maxima-mode)
-  :interpreter ("maxima" . maxima-mode))
-
-(use-package! imaxima
-  :commands (imaxima))
-
-(use-package! imath
-  :commands (imath-mode imath))
-#+end_src
-
-*** ROS :ros:
-**** ROS Emacs utils
-This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
-need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
-container or on a remote robot. ATM, I need just to configure =rosemacs= to use
-Emacs to develop ROS packages using C++/Python, I'm not interested now for
-ROS Common Lisp development.
-
-#+begin_src emacs-lisp
-(package! rosemacs
-  :recipe (:host github
-           :repo "code-iai/ros_emacs_utils"
-           :files ("rosemacs/*"))
-  :disable t) ;; No clear way to make it work on a remote machine
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! rosemacs
-  :config
-  (require 'rosemacs-config)
-  :commands (ros-core ros-topic-info))
-#+end_src
-
-**** =ros.el=
-I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
-facilitate working with ROS machines, supports ROS1 and ROS2, with local
-workspaces or remote ones (over Trump!),
-
-#+begin_src emacs-lisp
-;; `ros.el' depends on `with-shell-interpreter' among other packages
-;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
-(package! with-shell-interpreter)
-(package! ros
-  :recipe (:host github
-           :repo "DerBeutlin/ros.el"))
-#+end_src
-
-Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
-to install some tools on the ROS machine, and build the workspace for the first
-time using =colcon build=, the repo contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]] and
-[[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! ros
-  :init (map! :leader
-              :prefix ("l" . "custom")
-              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
-  :commands (hydra-ros-main/body ros-set-workspace)
-  :config
-  (setq ros-workspaces
-        (list (ros-dump-workspace
-               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros2_ws"
-               :extends '("/opt/ros/foxy/")))))
 #+end_src
 
 * Emacs Daemon :daemon:
