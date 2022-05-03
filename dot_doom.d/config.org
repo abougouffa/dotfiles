@@ -1442,6 +1442,19 @@ Make =which-key= popup faster.
       which-key-idle-secondary-delay 0.05) ;; Default is nil
 #+end_src
 
+I stol this chunk from [[https://tecosaur.github.io/emacs-config/config.html#interface][tecosaur's config]], it helps replacing the =evil-= prefix
+with a unicode char, making =which-key='s candidate list less verbose.
+
+#+begin_src emacs-lisp
+(setq which-key-allow-multiple-replacements t)
+
+;; TODO: Add equivalent replacements for org
+(after! which-key
+  (pushnew! which-key-replacement-alist
+            '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
+            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+#+end_src
+
 *** Window title :title:
 I’d like to have just the buffer name, then if applicable the project folder
 
