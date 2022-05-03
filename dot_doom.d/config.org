@@ -973,6 +973,17 @@ A game to practice speed typing in Emacs.
   :commands (speed-type-text))
 #+end_src
 
+*** 2048 Game
+
+#+begin_src emacs-lisp
+(package! 2048-game)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! 2048-game
+  :commands (2048-game))
+#+end_src
+
 ** Org-mode related :org:
 *** Templates
 
