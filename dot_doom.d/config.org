@@ -854,6 +854,20 @@ pacman -S the_silver_searcher=.
   :commands (aweshell-new aweshell-dedicated-open))
 #+end_src
 
+*** COMMENT Page break lines
+A feature that displays ugly form feed characters as tidy horizontal rules.
+Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp
+(package! page-break-lines)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! page-break-lines
+  :diminish
+  :init (global-page-break-lines-mode))
+#+end_src
+
 ** Org-mode related :org:
 *** Templates
 
