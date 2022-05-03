@@ -1575,23 +1575,22 @@ Lastly, while I'm not sure quite why it happens, but after a bit it seems that
 new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
 I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
-#+name: daemon initialization
 #+begin_src emacs-lisp
-(defun greedy-on-daemon-startup ()
+(defun greedily-do-daemon-setup ()
   (require 'org)
   (when (require 'mu4e nil t)
     (setq mu4e-confirm-quit t)
     (setq +mu4e-lock-greedy t)
     (setq +mu4e-lock-relaxed t)
-    (mu4e~start))
+    (+mu4e-lock-start 'mu4e~start))
   (when (require 'elfeed nil t)
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
-  (add-hook  'emacs-startup-hook #'greedy-on-daemon-startup)
+  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
   (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
   (add-hook! 'server-after-make-frame-hook
-    (unless (string-match-p "\\*draft" (buffer-name))
+    (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
       (switch-to-buffer +doom-dashboard-name))))
 #+end_src
 
