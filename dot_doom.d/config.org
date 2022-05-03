@@ -832,6 +832,17 @@ pacman -S the_silver_searcher=.
              ag-project-regexp))
 #+end_src
 
+*** COMMENT Disk usage
+
+#+begin_src emacs-lisp
+(package! disk-usage)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! disk-usage
+  :commands (disk-usage))
+#+end_src
+
 ** Org-mode related :org:
 *** Templates
 
