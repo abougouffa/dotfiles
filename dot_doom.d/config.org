@@ -960,6 +960,19 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (eaf-bind-key toggle_preview "P" eaf-file-manager-keybinding))
 #+end_src
 
+** COMMENT Fun :fun:
+*** Speed Type
+A game to practice speed typing in Emacs.
+
+#+begin_src emacs-lisp
+(package! speed-type)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! speed-type
+  :commands (speed-type-text))
+#+end_src
+
 ** Org-mode related :org:
 *** Templates
 
