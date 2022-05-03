@@ -984,6 +984,25 @@ A game to practice speed typing in Emacs.
   :commands (2048-game))
 #+end_src
 
+*** EPaint
+A simple paint tool for emacs ([[https://github.com/chuntaro/epaint][=epaint=]]). Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp
+(package! epaint)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! epaint
+  :if (display-graphic-p)
+  :commands (epaint)
+  :init
+  (with-eval-after-load (quote epaint-context)
+    (unless (boundp (quote cl-struct-epaint-drawable))
+      (defvar cl-struct-epaint-drawable (quote epaint-drawable)))
+    (unless (boundp (quote cl-struct-epaint-gc))
+      (defvar cl-struct-epaint-gc (quote epaint-gc)))))
+#+end_src
+
 ** Org-mode related :org:
 *** Templates
 
