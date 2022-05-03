@@ -843,6 +843,17 @@ pacman -S the_silver_searcher=.
   :commands (disk-usage))
 #+end_src
 
+*** COMMENT Aweshell
+
+#+begin_src emacs-lisp
+(package! aweshell)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! aweshell
+  :commands (aweshell-new aweshell-dedicated-open))
+#+end_src
+
 ** Org-mode related :org:
 *** Templates
 
