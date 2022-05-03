@@ -66,144 +66,7 @@ This needs to be sourced in the shell session (source it in =~/.zshrc=).
 # Abdelhak BOUGOUFFA (c) 2022
 #+end_src
 
-* General Settings :global:
-** User information :user:info:
-
-#+begin_src emacs-lisp
-(setq user-full-name "Abdelhak Bougouffa"
-      user-mail-address "abougouffa@fedoraproject.org")
-#+end_src
-
-** Secrets :gpg:pass:secret:
-Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil=
-instead of the default 2 hours.
-
-#+begin_src emacs-lisp
-(setq auth-sources '("~/.authinfo.gpg")
-      auth-source-cache-expiry nil ; defaut is 2h (7200)
-      password-cache-expiry nil
-      password-cache t
-      auth-source-do-cache t
-      epa-file-cache-passphrase-for-symmetric-encryption t)
-#+end_src
-
-** Better defaults :default:
-*** File deletion :delete:trash:
-Delete files by moving them to trash.
-
-#+begin_src emacs-lisp
-(setq-default delete-by-moving-to-trash t)
-#+end_src
-
-*** Window :window:
-Take new window space from all other windows (not just current).
-
-#+begin_src emacs-lisp
-(setq-default window-combination-resize t)
-#+end_src
-
-**** Split defaults
-Split horizontally to right, vertically below the current window.
-
-#+begin_src emacs-lisp
-(setq evil-vsplit-window-right t
-      evil-split-window-below t)
-#+end_src
-
-Show list of buffers when splitting.
-
-#+begin_src emacs-lisp
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (consult-buffer))
-#+end_src
-
-*** Undo and auto-save :save:undo:
-
-#+begin_src emacs-lisp
-(setq undo-limit 80000000   ; Raise undo-limit to 80Mb
-      evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
-      auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      scroll-preserve-screen-position 'always ; Don't have `point' jump around
-      scroll-margin 2)      ; It's nice to maintain a little margin
-#+end_src
-
-*** Editing :edit:cursor:
-
-#+begin_src emacs-lisp
-;; Stretch cursor to the glyph width
-(setq-default x-stretch-cursor t)
-
-;; Enable relative line numbers
-(setq display-line-numbers-type 'relative)
-
-;; Iterate through CamelCase words
-(global-subword-mode 1)
-#+end_src
-
-*** Frame :frame:
-**** Maximizing :maximize:
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, replaced with params passed to emacsclient
-;; start the initial frame maximized
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
-
-;; start every frame maximized
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+end_src
-
-To avoid conflict when launching Emacs in =emacs-everywhere= mode. I'm using it in
-command line when calling =emacsclient=, by adding this:
-
-#+begin_src shell :tangle no
---frame-parameters="'(fullscreen . maximized)"
-#+end_src
-
-**** Focus created frame :focus:
-The problem is, every time I launch an Emacs frame (from KDE), Emacs starts
-with no focus, I need each time to =Alt-TAB= to get Emacs under focus, and then
-start typing. I tried changing this behavior from Emacs by hooking =raise-frame=
-at startup, but it didn't work.
-
-Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working on my Emacs version.
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, not working
-(add-hook 'server-switch-hook #'raise-frame)
-#+end_src
-
-After some investigations, I found that this issue is probably KDE specific, the
-issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
-stealing prevention* to /None/ in the KDE Settings.
-
-**** Margins :margins:
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
-(set-frame-parameter nil 'internal-border-width 15)
-#+end_src
-
-** Chemacs2
-Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
-however, I like to try other configs to get inspired!
-
-#+begin_src emacs-lisp :tangle "~/.emacs-profiles.el"
-(("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
-                 (env . (("DOOMDIR" . "~/.doom.d")))))
- ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")
-                 (env . (("RATIONAL_EMACS_HOME" . "~/.config/emacs.rational")))))
- ("scimax"    . ((user-emacs-directory . "~/.config/emcas.scimax")))
- ("spacemacs" . ((user-emacs-directory . "~/.config/emacs.spacemacs"))))
-#+end_src
-
-Make =doom= the default profile.
-
-#+begin_src text :tangle "~/.emacs-profile"
-doom
-#+end_src
-
-* Modules (=init.el=) :module:
+* Doom modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
 :END:
@@ -549,921 +412,186 @@ everywhere             ; *leave* Emacs!? You must be joking
 ;;twitter              ; twitter client https://twitter.com/vnought
 #+end_src
 
-* Additional Packages (=packages.el=) :package:
-:PROPERTIES:
-:header-args:emacs-lisp: :tangle "packages.el" :comments no
-:END:
-
-This file shouldn't be byte compiled.
-
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
-;; -*- no-byte-compile: t; -*-
-#+end_src
-
-** General Packages :general:
-*** Weather :wttrin:
+* General Emacs settings :global:
+** User information :user:info:
 
 #+begin_src emacs-lisp
-;; lisp/wttrin/wttrin.el taken from:
-;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
-(package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
+(setq user-full-name "Abdelhak Bougouffa"
+      user-mail-address "abougouffa@fedoraproject.org")
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
-(use-package! wttrin
-  :commands wttrin)
-#+end_src
-
-*** TODO CalDAV :calendar:caldav:
+** Secrets :gpg:pass:secret:
+Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil=
+instead of the default 2 hours.
 
 #+begin_src emacs-lisp
-(package! caldav
-  :recipe (:host github
-           :repo "dengste/org-caldav"))
+(setq auth-sources '("~/.authinfo.gpg")
+      auth-source-cache-expiry nil ; defaut is 2h (7200)
+      password-cache-expiry nil
+      password-cache t
+      auth-source-do-cache t
+      epa-file-cache-passphrase-for-symmetric-encryption t)
 #+end_src
 
-*** =xkcd=
+** Better defaults :default:
+*** File deletion :delete:trash:
+Delete files by moving them to trash.
 
 #+begin_src emacs-lisp
-(package! xkcd
-  :recipe (:host github
-           :repo "vibhavp/emacs-xkcd"))
+(setq-default delete-by-moving-to-trash t)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
-(use-package! xkcd
-  :commands (xkcd-get xkcd)
-  :config
-  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
-        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
-#+end_src
-
-** Themes and UI :ui:theme:
-*** SVG Tag Mode :svg:
+*** Window :window:
+Take new window space from all other windows (not just current).
 
 #+begin_src emacs-lisp
-(package! svg-tag-mode)
+(setq-default window-combination-resize t)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
-(use-package! svg-tag-mode
-  :commands svg-tag-mode
-  :config
-  (setq svg-tag-tags
-      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
-         ((lambda (tag) (svg-tag-make tag
-                                 :beg 1
-                                 :font-family "Roboto Mono"
-                                 :font-size 6
-                                 :height 0.6
-                                 :padding 0
-                                 :margin 0))))
-        ("\\(:[A-Za-z0-9]+:\\)$" .
-         ((lambda (tag) (svg-tag-make tag
-                                 :beg 1
-                                 :end -1
-                                 :font-family "Roboto Mono"
-                                 :font-size 6
-                                 :height 0.6
-                                 :padding 0
-                                 :margin 0)))))))
-#+end_src
-
-*** N Λ N O :nano:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
+**** Split defaults
+Split horizontally to right, vertically below the current window.
 
 #+begin_src emacs-lisp
-(package! nano-doom
-  :disable t
-  :recipe (:host github :repo "skyler544/doom-nano-testing"))
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
 #+end_src
+
+Show list of buffers when splitting.
+
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (consult-buffer))
+#+end_src
+
+*** Undo and auto-save :save:undo:
+
+#+begin_src emacs-lisp
+(setq undo-limit 80000000   ; Raise undo-limit to 80Mb
+      evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
+      auto-save-default t   ; Nobody likes to lose work, I certainly don't
+      scroll-preserve-screen-position 'always ; Don't have `point' jump around
+      scroll-margin 2)      ; It's nice to maintain a little margin
+#+end_src
+
+*** Editing :edit:cursor:
+
+#+begin_src emacs-lisp
+;; Stretch cursor to the glyph width
+(setq-default x-stretch-cursor t)
+
+;; Enable relative line numbers
+(setq display-line-numbers-type 'relative)
+
+;; Iterate through CamelCase words
+(global-subword-mode 1)
+#+end_src
+
+*** Frame :frame:
+**** Maximizing :maximize:
 
 #+begin_src emacs-lisp :tangle no
-;; NOTE: Note tangled
-(require 'load-nano)
+;; NOTE: Not tangled, replaced with params passed to emacsclient
+;; start the initial frame maximized
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
+;; start every frame maximized
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+end_src
 
-*** Bespoke themes :bespoke:
+To avoid conflict when launching Emacs in =emacs-everywhere= mode. I'm using it in
+command line when calling =emacsclient=, by adding this:
 
-#+begin_src emacs-lisp
-(package! bespoke-themes
-  :recipe (:host github
-           :repo "mclear-tools/bespoke-themes"))
-
-(package! bespoke-modeline
-  :recipe (:host github
-           :repo "mclear-tools/bespoke-modeline"))
+#+begin_src shell :tangle no
+--frame-parameters="'(fullscreen . maximized)"
 #+end_src
 
-*** Focus :focus:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
+**** Focus created frame :focus:
+The problem is, every time I launch an Emacs frame (from KDE), Emacs starts
+with no focus, I need each time to =Alt-TAB= to get Emacs under focus, and then
+start typing. I tried changing this behavior from Emacs by hooking =raise-frame=
+at startup, but it didn't work.
 
-#+begin_src emacs-lisp
-(package! focus)
+Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working on my Emacs version.
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, not working
+(add-hook 'server-switch-hook #'raise-frame)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
-(use-package! focus
-  :commands focus-mode)
-#+end_src
-
-*** Goggles
-Visual feedback after kill/yank actions.
-
-#+begin_src emacs-lisp
-(package! goggles
-  :recipe (:host github
-           :repo "minad/goggles"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! goggles
-  :hook ((prog-mode text-mode) . goggles-mode)
-  :config
-  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
-#+end_src
-
-*** Smooth scrolling
-
-#+begin_src emacs-lisp
-(when (<= emacs-major-version 28)
-  (package! good-scroll))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(if (> emacs-major-version 28)
-    (pixel-scroll-precision-mode 1)
-  (use-package! good-scroll
-    :config (good-scroll-mode 1)))
-#+end_src
-
-** Features :features:
-*** ESS :ess:
-View data frames better with
-
-#+begin_src emacs-lisp
-(package! ess-view)
-#+end_src
-
-*** Very large files :large:vlf:
-The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
-
-#+begin_src emacs-lisp
-(package! vlf)
-#+end_src
-
-To make VLF available without delaying startup, we'll just load it in quiet moments.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! vlf-setup
-  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
-#+end_src
-
-*** e-Book reading :ebook:
-Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
-
-#+begin_src emacs-lisp
-(package! nov)
-#+end_src
-
-Together these should give me a rather good experience reading e-books.
-
-*** Info colors
-Better colors for manual pages.
-
-#+begin_src emacs-lisp
-(package! info-colors)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! info-colors
-  :commands (info-colors-fontify-node))
-
-(add-hook 'Info-selection-hook 'info-colors-fontify-node)
-#+end_src
-
-*** Grammarly
-
-#+begin_src emacs-lisp
-(package! grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
-
-(package! flycheck-grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/flycheck-grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-grammarly
-  :config (load! "lisp/private/+grammarly-account.el"))
-#+end_src
-
-*** Grammalecte
-
-#+begin_src emacs-lisp
-(package! flycheck-grammalecte
-  :recipe (:host github
-           :repo "milouse/flycheck-grammalecte")
-  :disable t) ; FIXME Not working correctly
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-grammalecte
-  :config (flycheck-grammalecte-setup))
-
-;; (use-package flycheck-grammalecte
-;;              :hook (fountain-mode . flycheck-mode)
-;;              :init
-;;              (setq flycheck-grammalecte-report-apos nil
-;;                    flycheck-grammalecte-report-esp nil
-;;                    flycheck-grammalecte-report-nbsp nil)
-;;              :config
-;;              (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode)
-;;              (grammalecte-download-grammalecte)
-;;              (flycheck-grammalecte-setup))
-#+end_src
-
-*** Zotero Zotxt :zotero:
-
-#+begin_src emacs-lisp
-(package! zotxt)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! zotxt
-  :commands org-zotxt-mode)
-#+end_src
-
-*** CRDT :crdt:
-Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
-Replicated Data Type]]/.
-
-#+begin_src emacs-lisp
-(package! crdt)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! crdt
-  :commands (crdt-share-buffer
-             crdt-connect
-             crdt-visualize-author-mode
-             crdt-org-sync-overlay-mode))
-#+end_src
-
-*** Ag.el
-An Emacs frontend to The Silver Searcher, first we need to install =ag= using =sudo
-pacman -S the_silver_searcher=.
-
-#+begin_src emacs-lisp
-(package! ag)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! ag
-  :commands (ag
-             ag-files
-             ag-regexp
-             ag-project
-             ag-project-files
-             ag-project-regexp))
-#+end_src
-
-*** COMMENT Disk usage
-
-#+begin_src emacs-lisp
-(package! disk-usage)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! disk-usage
-  :commands (disk-usage))
-#+end_src
-
-*** COMMENT Aweshell
-
-#+begin_src emacs-lisp
-(package! aweshell)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! aweshell
-  :commands (aweshell-new aweshell-dedicated-open))
-#+end_src
-
-*** COMMENT Page break lines
-A feature that displays ugly form feed characters as tidy horizontal rules.
-Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
-
-#+begin_src emacs-lisp
-(package! page-break-lines)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! page-break-lines
-  :diminish
-  :init (global-page-break-lines-mode))
-#+end_src
-
-*** Emacs Application Framework
-EAF is presented as: /A free/libre and open-source extensible framework that
-revolutionizes the graphical capabilities of Emacs/. Or the key to ultimately
-/Live in Emacs/.
-
-First, install EAF as specified in the project's [[https://github.com/emacs-eaf/emacs-application-framework#install][readme]]. To update EAF, we need
-to run =git pull ; ./install-eaf.py= in =lisp/emacs-application-framework= and =(M-x
-eaf-install-and-update)= in Emacs. This updates EAF, applications and their
-dependencies.
-
-Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
-
-#+begin_src emacs-lisp
-;; (package! eaf
-;;   :recipe (:local-repo "lisp/emacs-application-framework"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! eaf
-  :load-path "lisp/emacs-application-framework"
-  :custom
-  (browse-url-browser-function #'eaf-open-browser) ;; Make EAF Browser my default browser
-  (eaf-browser-continue-where-left-off t)
-  (eaf-start-python-process-when-require t)
-  (eaf-browser-default-zoom 1.25)
-  (eaf-browser-dark-mode nil)
-  (eaf-browser-scroll-step 200)
-  (eaf-browser-enable-adblocker t)
-  (eaf-file-manager-show-preview nil)
-  (eaf-pdf-dark-mode "ignore")
-  :demand
-  :commands (eaf-open-in-file-manager
-             eaf-open-rss-reader
-             eaf-open-rss-reader)
-  ;; :bind
-  ;; (("C-x j" . eaf-open-in-file-manager)
-  ;;  ("M-z r" . eaf-open-rss-reader)
-  ;;  ("M-m r" . eaf-open-rss-reader))
-  :config
-  ;; Require all EAF apps unconditionally, change to apps you're interested in.
-  (require 'eaf-file-manager nil t)
-  (require 'eaf-music-player nil t)
-  (require 'eaf-image-viewer nil t)
-  (require 'eaf-camera nil t)
-; (require 'eaf-demo nil t)
-  (require 'eaf-airshare nil t)
-  (require 'eaf-terminal nil t)
-  (require 'eaf-markdown-previewer nil t)
-  (require 'eaf-video-player nil t)
-; (require 'eaf-vue-demo nil t)
-  (require 'eaf-file-sender nil t)
-  (require 'eaf-pdf-viewer nil t)
-  (require 'eaf-mindmap nil t)
-  (require 'eaf-netease-cloud-music nil t)
-  (require 'eaf-jupyter nil t)
-  (require 'eaf-org-previewer nil t)
-  (require 'eaf-system-monitor nil t)
-  (require 'eaf-rss-reader nil t)
-  (require 'eaf-file-browser nil t)
-  (require 'eaf-browser nil t)
-  (require 'eaf-org)
-  (require 'eaf-mail)
-  (require 'eaf-git)
-  (when (display-graphic-p)
-    (require 'eaf-all-the-icons))
-  (defalias 'browse-web #'eaf-open-browser)
-  (eaf-bind-key nil "M-q" eaf-browser-keybinding)
-  (eaf-bind-key open_link "C-M-s" eaf-browser-keybinding)
-  (eaf-bind-key open_devtools "M-i" eaf-browser-keybinding)
-  (eaf-bind-key insert_or_recover_prev_close_page "X" eaf-browser-keybinding)
-  (eaf-bind-key scroll_up "RET" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key delete_cookies "C-M-q" eaf-browser-keybinding)
-  (eaf-bind-key delete_all_cookies "C-M-Q" eaf-browser-keybinding)
-  (eaf-bind-key clear_history "C-M-p" eaf-browser-keybinding)
-  (eaf-bind-key scroll_down_page "DEL" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_down_page "u" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_up_page "d" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_to_end "M->" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_to_begin "M-<" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key quit-window "q" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key zoom_in "C-=" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key zoom_out "C--" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
-  (eaf-bind-key eaf-send-key-sequence "M-]" eaf-terminal-keybinding)
-  (eaf-bind-key eaf-send-key-sequence "M-]" eaf-terminal-keybinding)
-  (eaf-bind-key js_select_next_file "n" eaf-file-manager-keybinding)
-  (eaf-bind-key js_select_prev_file "p" eaf-file-manager-keybinding)
-  (eaf-bind-key new_file "F" eaf-file-manager-keybinding)
-  (eaf-bind-key new_directory "D" eaf-file-manager-keybinding)
-  (eaf-bind-key toggle_preview "P" eaf-file-manager-keybinding))
-#+end_src
-
-** COMMENT Fun :fun:
-*** Speed Type
-A game to practice speed typing in Emacs.
-
-#+begin_src emacs-lisp
-(package! speed-type)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! speed-type
-  :commands (speed-type-text))
-#+end_src
-
-*** 2048 Game
-
-#+begin_src emacs-lisp
-(package! 2048-game)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! 2048-game
-  :commands (2048-game))
-#+end_src
-
-*** EPaint
-A simple paint tool for emacs ([[https://github.com/chuntaro/epaint][=epaint=]]). Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
-
-#+begin_src emacs-lisp
-(package! epaint)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! epaint
-  :if (display-graphic-p)
-  :commands (epaint)
-  :init
-  (with-eval-after-load (quote epaint-context)
-    (unless (boundp (quote cl-struct-epaint-drawable))
-      (defvar cl-struct-epaint-drawable (quote epaint-drawable)))
-    (unless (boundp (quote cl-struct-epaint-gc))
-      (defvar cl-struct-epaint-gc (quote epaint-gc)))))
-#+end_src
-
-** Org-mode related :org:
-*** Templates
-
-#+begin_src emacs-lisp
-(package! doct)
-#+end_src
-
-*** Agenda
-
-#+begin_src emacs-lisp
-(package! org-super-agenda)
-#+end_src
-
-*** Academic
-
-#+begin_src emacs-lisp
-(package! org-ref)
-
-(package! academic-phrases
-  :recipe (:host github
-           :repo "nashamri/academic-phrases"))
-#+end_src
-
-**** Org-Ref :heart: Org-Cite
-
-#+begin_src emacs-lisp
-(package! org-ref-cite
-  :recipe (:host github
-           :repo "jkitchin/org-ref-cite"
-           :files (:defaults "readme.org"))
-  :disable t) ;; BUG: Not working correctly!
-#+end_src
-
+After some investigations, I found that this issue is probably KDE specific, the
+issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
+stealing prevention* to /None/ in the KDE Settings.
+
+**** Margins :margins:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
-(use-package! org-ref-cite
-  :after org-cite
-  :config
-  ;; I like green links
-  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
-  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
-  (setq org-cite-global-bibliography bibtex-completion-bibliography
-        org-cite-csl-styles-dir "~/Zotero/styles"
-        org-cite-insert-processor 'org-ref-cite
-        org-cite-follow-processor 'org-ref-cite
-        org-cite-activate-processor 'org-ref-cite
-        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
-                                        (latex org-ref-cite)
-                                        (t basic)))
+(set-frame-parameter nil 'internal-border-width 15)
 #+end_src
 
-*** Fragtog
+** Chemacs2
+Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
+however, I like to try other configs to get inspired!
+
+#+begin_src emacs-lisp :tangle "~/.emacs-profiles.el"
+(("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
+                 (env . (("DOOMDIR" . "~/.doom.d")))))
+ ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")
+                 (env . (("RATIONAL_EMACS_HOME" . "~/.config/emacs.rational")))))
+ ("scimax"    . ((user-emacs-directory . "~/.config/emcas.scimax")))
+ ("spacemacs" . ((user-emacs-directory . "~/.config/emacs.spacemacs"))))
+#+end_src
+
+Make =doom= the default profile.
+
+#+begin_src text :tangle "~/.emacs-profile"
+doom
+#+end_src
+
+* Emacs daemon :daemon:
+** Initialization :init:
+When the daemon is running, I almost always want to do a few particular things
+with it, so I may as well eat the load time at startup. We also want to keep
+=mu4e= running.
+
+Lastly, while I'm not sure quite why it happens, but after a bit it seems that
+new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
+I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
 #+begin_src emacs-lisp
-(package! org-fragtog)
+(defun greedily-do-daemon-setup ()
+  (require 'org)
+  (when (require 'mu4e nil t)
+    (setq mu4e-confirm-quit t)
+    (setq +mu4e-lock-greedy t)
+    (setq +mu4e-lock-relaxed t)
+    (+mu4e-lock-start 'mu4e~start))
+  (when (require 'elfeed nil t)
+    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+
+(when (daemonp)
+  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
+  (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
+  (add-hook! 'server-after-make-frame-hook
+    (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
+      (switch-to-buffer +doom-dashboard-name))))
 #+end_src
 
-Hook =org-fragtog-mode= to =org-mode=.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-#+end_src
-
-*** Pretty table
+** Tweaks :tweak:
+*** Save recent files :recentf:
+When editing files with Emacs client, the files does not get stored by =recentf=,
+making Emacs forgets about recently opened files. A quick fix is to hook the
+src_elisp{recentf-save-list} command to the src_elisp{delete-frame-functions}
+and src_elisp{delete-terminal-functions} which gets executed each time a
+frame/terminal is deleted.
 
 #+begin_src emacs-lisp
-(package! org-pretty-table
-  :recipe (:host github
-           :repo "Fuco1/org-pretty-table"))
+(when (daemonp)
+  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-pretty-table
-  :hook (org-mode . org-pretty-table-mode))
-#+end_src
-
-*** Org Modern
-Not working correctly, do not respect the indentation.
-
-#+begin_src emacs-lisp
-(package! org-modern
-  :recipe (:host github
-           :repo "minad/org-modern")
-  :disable t) ;; Not working ATM
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-modern
-  :hook (org-mode . org-modern-mode))
-#+end_src
-
-*** Org Roam :roam:
-Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
-with it.
-
-#+begin_src emacs-lisp
-(unpin! org-roam) ;; To avoid problems with org-roam-ui
-(package! websocket)
-(package! org-roam-ui)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! websocket
-  :after org-roam-ui)
-
-(use-package! org-roam-ui
-  :commands org-roam-ui-open
-  :config (setq org-roam-ui-sync-theme t
-                org-roam-ui-follow t
-                org-roam-ui-update-on-save t
-                org-roam-ui-open-on-start t))
-#+end_src
-
-*** Org notifier
-Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
-
-#+begin_src emacs-lisp
-(package! org-wild-notifier)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-wild-notifier
-  :hook (org-load . org-wild-notifier-mode)
-  :config
-  (setq org-wild-notifier-alert-time '(60 30)))
-#+end_src
-
-** Programming :programming:
-*** Repo :repo:
-Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
-distributions, or directly with:
-
-#+begin_src shell :tangle no :eval no
-REPO_PATH="$HOME/.local/bin/repo"
-curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
-chmod a+x ${REPO_PATH}
-#+end_src
-
-#+begin_src emacs-lisp
-(package! repo)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! repo
-  :commands repo-status)
-#+end_src
-
-*** Devdocs :devdocs:
-
-#+begin_src emacs-lisp
-(package! devdocs
-  :recipe (:host github
-           :repo "astoff/devdocs.el"
-           :files ("*.el")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! devdocs
-  :commands (devdocs-lookup devdocs-install)
-  :config
-  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
-#+end_src
-
-*** Emacs GDB :gdb:
-DAP mode is great, however, it is not mature for C/C++ debugging, it does not
-support some basic features like /Run until cursor/, /Show disassembled code/...
-etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
-
-The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
-to it's C module), and it defines some easy to use UI, with Visual Studio like
-keybindings.
-
-#+begin_src emacs-lisp
-(package! gdb-mi
-  :recipe (:host github
-           :repo "weirdNox/emacs-gdb"
-           :files ("*.el" "*.c" "*.h" "Makefile")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! gdb-mi
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug)
-  :config
-  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
-#+end_src
-
-*** Disaster :disaster:disassemble:
-
-#+begin_src emacs-lisp
-(package! disaster)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-;; TODO: Configure to take into account "compile_commands.json"
-(use-package! disaster
-  :commands (disaster))
-#+end_src
-
-*** Magit Delta :magit:delta:
-Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
-specially with big change chunks.
-
-#+begin_src emacs-lisp
-(package! magit-delta
-  :disable t) ;; Disabled, too slow on big chunks
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! magit-delta
-  :commands magit-status
-  :hook (magit-mode . magit-delta-mode))
-#+end_src
-
-*** Blamer :git:blame:
-Display Git information (author, date, message...) for current line
-
-#+begin_src emacs-lisp
-(package! blamer
-  :recipe (:host github
-           :repo "artawower/blamer.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! blamer
-  :bind (("s-i" . blamer-show-commit-info))
-  :defer 20
-  :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 60)
-  (blamer-prettify-time-p t)
-  (blamer-entire-formatter "    %s")
-  (blamer-author-formatter " %s ")
-  (blamer-datetime-formatter "[%s], ")
-  (blamer-commit-formatter "“%s”")
-  :custom-face
-  (blamer-face ((t :foreground "#7a88cf"
-                   :background nil
-                   :height 125
-                   :italic t)))
-  :config
-  (global-blamer-mode 1)
-  
-  ;; Disable in zen (writeroom) mode
-  (when (featurep! :ui zen)
-    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
-#+end_src
-
-*** Systemd :systemd:
-For editing systemd unit files.
-
-#+begin_src emacs-lisp
-(package! systemd)
-#+end_src
-
-*** Bitbake (Yocto) :bitbake:yocto:
-Add support for Yocto Project files.
-
-#+begin_src emacs-lisp
-(package! bitbake-modes
-  :recipe (:host bitbucket
-           :repo "olanilsson/bitbake-modes"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package bitbake-modes
-  :commands (bitbake-mode
-             conf-bitbake-mode
-             bb-scc-mode wks-mode
-             bitbake-task-log-mode
-             bb-sh-mode
-             mmm-mode))
-#+end_src
-
-*** LaTeX :latex:
-
-#+begin_src emacs-lisp
-(package! aas
-  :recipe (:host github
-           :repo "ymarco/auto-activating-snippets"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! aas
-  :commands aas-mode)
-#+end_src
-
-*** Project CMake :cmake:
-A good new package to facilitate using CMake projects with Emacs, it glues
-together =project=, =eglot=, =cmake= and =clangd=.
-
-#+begin_src emacs-lisp
-(package! project-cmake
-  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :recipe (:host github
-           :repo "juanjosegarciaripoll/project-cmake"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! project-cmake
-    :config
-    (require 'eglot)
-    (project-cmake-scan-kits)
-    (project-cmake-eglot-integration))
-#+end_src
-
-*** Franca IDL
-Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
-
-#+begin_src emacs-lisp
-(package! franca-idl
-  :recipe (:host github
-           :repo "zeph1e/franca-idl.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! franca-idl
-  :commands franca-idl-mode)
-#+end_src
-
-*** Flycheck :heart: projectile
-WIP: Not working atm!
-
-#+begin_src emacs-lisp
-(package! flycheck-projectile
-  :recipe (:host github
-           :repo "nbfalcon/flycheck-projectile"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-projectile
-  :commands flycheck-projectile-list-errors)
-#+end_src
-
-*** Graphviz :graphviz:
-Graphviz is a nice method of visualizing simple graphs, based on plaintext
-=.dot= / =.gv= files.
-
-#+begin_src emacs-lisp
-(package! graphviz-dot-mode)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! graphviz-dot-mode
-  :commands (graphviz-dot-mode graphviz-dot-preview))
-#+end_src
-
-*** Maxima :maxima:math:
-I've been experiencing an annoying bug with the =maxima= package, when I launch
-the interpreter, it complains about a file not being found, the package searches
-in =~/.emacs-doom/.local/straight/repos-28.0.90/maxima/keywords/functions= instead
-of =~/.../build-28.0.90/...=, when I investigated this issue, it turned out that,
-the package (in the =maxima-font-lock.el= file), replaces =build= with =repos= when it
-sees =straight= in the path (as a workaround to support =straight=), however, Doom
-Emacs redefine the value of =straight-build-dir= to be =build-<emacs-version>=,, so
-the workaround is no more needed. To fix this, I set the
-=maxima-font-lock-keywords-directory= with the right path.
-
-#+begin_src emacs-lisp
-(package! imaxima)
-(package! maxima
-  :recipe (:host gitlab
-           :repo "sasanidas/maxima"
-           :files ("*.el" "keywords")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! maxima
-  :init
-  (add-hook 'maxima-mode-hook #'maxima-hook-function)
-  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-  (require 'straight)
-  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
-        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
-  (setq maxima-display-maxima-buffer nil)
-  ;; (require 'org) ;; to set `org-format-latex-options'
-  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-  :commands (maxima-mode maxima)
-  :config
-  (require 'company-maxima)
-  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-  :mode ("\\.mac\\'" . maxima-mode)
-  :interpreter ("maxima" . maxima-mode))
-
-(use-package! imaxima
-  :commands (imaxima))
-
-(use-package! imath
-  :commands (imath-mode imath))
-#+end_src
-
-*** ROS :ros:
-**** ROS Emacs utils
-This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
-need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
-container or on a remote robot. ATM, I need just to configure =rosemacs= to use
-Emacs to develop ROS packages using C++/Python, I'm not interested now for
-ROS Common Lisp development.
-
-#+begin_src emacs-lisp
-(package! rosemacs
-  :recipe (:host github
-           :repo "code-iai/ros_emacs_utils"
-           :files ("rosemacs/*"))
-  :disable t) ;; No clear way to make it work on a remote machine
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! rosemacs
-  :config
-  (require 'rosemacs-config)
-  :commands (ros-core ros-topic-info))
-#+end_src
-
-**** =ros.el=
-I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
-facilitate working with ROS machines, supports ROS1 and ROS2, with local
-workspaces or remote ones (over Trump!).
-
-#+begin_src emacs-lisp
-;; `ros.el' depends on `with-shell-interpreter' among other packages
-;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
-(package! with-shell-interpreter)
-(package! ros
-  :recipe (:host github
-           :repo "DerBeutlin/ros.el"))
-#+end_src
-
-Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
-to install some tools on the ROS machine, and build the workspace for the first
-time using =colcon build=, the repo contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]] and
-[[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! ros
-  :init (map! :leader
-              :prefix ("l" . "custom")
-              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
-  :commands (hydra-ros-main/body ros-set-workspace)
-  :config
-  (setq ros-workspaces
-        (list (ros-dump-workspace
-               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros2_ws"
-               :extends '("/opt/ros/foxy/")))))
-#+end_src
-
-* Doom Configuration :doom:config:
+* Doom configuration :doom:config:
 ** User Interface :ui:
 *** Font Face :font:
 Doom exposes five (optional) variables for controlling fonts in Doom. Here are
@@ -1736,48 +864,6 @@ straightforward, I'll just redefine it to a simpler, async, function.
              +literate-config-file))))
 #+end_src
 
-* Emacs Daemon :daemon:
-** Initialization :init:
-When the daemon is running, I almost always want to do a few particular things
-with it, so I may as well eat the load time at startup. We also want to keep
-=mu4e= running.
-
-Lastly, while I'm not sure quite why it happens, but after a bit it seems that
-new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
-I prefer the dashboard, so let's ensure that's always switched to in new frames.
-
-#+begin_src emacs-lisp
-(defun greedily-do-daemon-setup ()
-  (require 'org)
-  (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (setq +mu4e-lock-greedy t)
-    (setq +mu4e-lock-relaxed t)
-    (+mu4e-lock-start 'mu4e~start))
-  (when (require 'elfeed nil t)
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
-
-(when (daemonp)
-  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
-  (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
-  (add-hook! 'server-after-make-frame-hook
-    (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-      (switch-to-buffer +doom-dashboard-name))))
-#+end_src
-
-** Tweaks :tweak:
-*** Save recent files :recentf:
-When editing files with Emacs client, the files does not get stored by =recentf=,
-making Emacs forgets about recently opened files. A quick fix is to hook the
-src_elisp{recentf-save-list} command to the src_elisp{delete-frame-functions}
-and src_elisp{delete-terminal-functions} which gets executed each time a
-frame/terminal is deleted.
-
-#+begin_src emacs-lisp
-(when (daemonp)
-  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
-#+end_src
-
 * Package configuration :config:
 ** All the icons :icon:
 Set some custom icons for some file extensions, basically for =.m= files.
@@ -2025,15 +1111,17 @@ So I can "mélanger les langues sans avoir de problèmes!".
 
 #+begin_src emacs-lisp
 ;; Run `M-x projectile-project-search-path' to reload paths from this variable
-(setq projectile-project-search-path '("~/PhD/workspace"
-                                       "~/PhD/workspace-no"
-                                       "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-                                       "~/Projects/foss_projects"))
+(setq projectile-project-search-path
+      '("~/PhD/workspace"
+        "~/PhD/workspace-no"
+        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
+        "~/Projects/foss_projects"))
 
-(setq projectile-ignored-projects '("~/"
-                                    "/tmp"
-                                    "~/.cache"
-                                    "~/.emacs.d/.local/straight/repos/"))
+(setq projectile-ignored-projects
+      '("~/"
+        "/tmp"
+        "~/.cache"
+        "~/.emacs.d/.local/straight/repos/"))
 
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
@@ -2062,6 +1150,923 @@ them in C/C++, Rust and Python modes.
 
 #+begin_src emacs-lisp
 (setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
+#+end_src
+
+** Additional Packages (=packages.el=) :package:
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle "packages.el" :comments no
+:END:
+
+This section generates Doom's =packages.el=, with the associated configurations
+(~use-package!~ blocks).
+
+This file shouldn't be byte compiled.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+;; -*- no-byte-compile: t; -*-
+#+end_src
+
+*** General Packages :general:
+**** Weather :wttrin:
+
+#+begin_src emacs-lisp
+;; lisp/wttrin/wttrin.el taken from:
+;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
+(package! wttrin
+  :recipe (:local-repo "lisp/wttrin"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! wttrin
+  :commands wttrin)
+#+end_src
+
+**** TODO CalDAV :calendar:caldav:
+
+#+begin_src emacs-lisp
+(package! caldav
+  :recipe (:host github
+           :repo "dengste/org-caldav"))
+#+end_src
+
+**** =xkcd=
+
+#+begin_src emacs-lisp
+(package! xkcd
+  :recipe (:host github
+           :repo "vibhavp/emacs-xkcd"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! xkcd
+  :commands (xkcd-get xkcd)
+  :config
+  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
+        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
+#+end_src
+
+*** Themes and UI :ui:theme:
+**** SVG Tag Mode :svg:
+
+#+begin_src emacs-lisp
+(package! svg-tag-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! svg-tag-mode
+  :commands svg-tag-mode
+  :config
+  (setq svg-tag-tags
+      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+         ((lambda (tag) (svg-tag-make)
+                    tag
+                    :beg 1
+                    :font-family "Roboto Mono"
+                    :font-size 6
+                    :height 0.6
+                    :padding 0
+                    :margin 0)))
+        ("\\(:[A-Za-z0-9]+:\\)$" .
+         ((lambda (tag) (svg-tag-make)
+                    tag
+                    :beg 1
+                    :end -1
+                    :font-family "Roboto Mono"
+                    :font-size 6
+                    :height 0.6
+                    :padding 0
+                    :margin 0))))))
+#+end_src
+
+**** N Λ N O :nano:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp
+(package! nano-doom
+  :disable t
+  :recipe (:host github :repo "skyler544/doom-nano-testing"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Note tangled
+(require 'load-nano)
+#+end_src
+
+**** Bespoke themes :bespoke:
+
+#+begin_src emacs-lisp
+(package! bespoke-themes
+  :recipe (:host github
+           :repo "mclear-tools/bespoke-themes"))
+
+(package! bespoke-modeline
+  :recipe (:host github
+           :repo "mclear-tools/bespoke-modeline"))
+#+end_src
+
+**** Focus :focus:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp
+(package! focus)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! focus
+  :commands focus-mode)
+#+end_src
+
+**** Goggles
+Visual feedback after kill/yank actions.
+
+#+begin_src emacs-lisp
+(package! goggles
+  :recipe (:host github
+           :repo "minad/goggles"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! goggles
+  :hook ((prog-mode text-mode) . goggles-mode)
+  :config
+  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
+#+end_src
+
+**** Smooth scrolling
+
+#+begin_src emacs-lisp
+(when (<= emacs-major-version 28)
+  (package! good-scroll))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(if (> emacs-major-version 28)
+    (pixel-scroll-precision-mode 1)
+  (use-package! good-scroll
+    :config (good-scroll-mode 1)))
+#+end_src
+
+*** Features :features:
+**** ESS :ess:
+View data frames better with
+
+#+begin_src emacs-lisp
+(package! ess-view)
+#+end_src
+
+**** Very large files :large:vlf:
+The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
+
+#+begin_src emacs-lisp
+(package! vlf)
+#+end_src
+
+To make VLF available without delaying startup, we'll just load it in quiet moments.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+#+end_src
+
+**** e-Book reading :ebook:
+Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
+
+#+begin_src emacs-lisp
+(package! nov)
+#+end_src
+
+**** Info colors
+Better colors for manual pages.
+
+#+begin_src emacs-lisp
+(package! info-colors)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+#+end_src
+
+**** Grammarly
+
+#+begin_src emacs-lisp
+(package! grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/grammarly")
+  :disable t) ;; TODO: It messes my org files up, need to investigate
+
+(package! flycheck-grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/flycheck-grammarly")
+  :disable t) ;; TODO: It messes my org files up, need to investigate
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-grammarly
+  :config (load! "lisp/private/+grammarly-account.el"))
+#+end_src
+
+**** Grammalecte
+
+#+begin_src emacs-lisp
+(package! flycheck-grammalecte
+  :recipe (:host github
+           :repo "milouse/flycheck-grammalecte")
+  :disable t) ; FIXME Not working correctly
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-grammalecte
+  :config (flycheck-grammalecte-setup))
+
+;; (use-package flycheck-grammalecte
+;;              :hook (fountain-mode . flycheck-mode)
+;;              :init
+;;              (setq flycheck-grammalecte-report-apos nil
+;;                    flycheck-grammalecte-report-esp nil
+;;                    flycheck-grammalecte-report-nbsp nil)
+;;              :config
+;;              (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode)
+;;              (grammalecte-download-grammalecte)
+;;              (flycheck-grammalecte-setup))
+#+end_src
+
+**** Zotero Zotxt :zotero:
+
+#+begin_src emacs-lisp
+(package! zotxt)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! zotxt
+  :commands org-zotxt-mode)
+#+end_src
+
+**** CRDT :crdt:
+Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
+Replicated Data Type]]/.
+
+#+begin_src emacs-lisp
+(package! crdt)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! crdt
+  :commands (crdt-share-buffer
+             crdt-connect
+             crdt-visualize-author-mode
+             crdt-org-sync-overlay-mode))
+#+end_src
+
+**** Ag.el
+An Emacs frontend to The Silver Searcher, first we need to install =ag= using =sudo
+pacman -S the_silver_searcher=.
+
+#+begin_src emacs-lisp
+(package! ag)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! ag
+  :commands (ag
+             ag-files
+             ag-regexp
+             ag-project
+             ag-project-files
+             ag-project-regexp))
+#+end_src
+
+**** COMMENT Disk usage
+
+#+begin_src emacs-lisp
+(package! disk-usage)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! disk-usage
+  :commands (disk-usage))
+#+end_src
+
+**** COMMENT Aweshell
+
+#+begin_src emacs-lisp
+(package! aweshell)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! aweshell
+  :commands (aweshell-new aweshell-dedicated-open))
+#+end_src
+
+**** COMMENT Page break lines
+A feature that displays ugly form feed characters as tidy horizontal rules.
+Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp
+(package! page-break-lines)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! page-break-lines
+  :diminish
+  :init (global-page-break-lines-mode))
+#+end_src
+
+**** Emacs Application Framework
+EAF is presented as: /A free/libre and open-source extensible framework that
+revolutionizes the graphical capabilities of Emacs/. Or the key to ultimately
+/Live in Emacs/.
+
+First, install EAF as specified in the project's [[https://github.com/emacs-eaf/emacs-application-framework#install][readme]]. To update EAF, we need
+to run =git pull ; ./install-eaf.py= in =lisp/emacs-application-framework= and =(M-x
+eaf-install-and-update)= in Emacs. This updates EAF, applications and their
+dependencies.
+
+Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp
+;; (package! eaf
+;;   :recipe (:local-repo "lisp/emacs-application-framework"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! eaf
+  :load-path "lisp/emacs-application-framework"
+  :custom
+  (browse-url-browser-function #'eaf-open-browser) ;; Make EAF Browser my default browser
+  (eaf-browser-continue-where-left-off t)
+  (eaf-start-python-process-when-require t)
+  (eaf-browser-default-zoom 1.25)
+  (eaf-browser-dark-mode nil)
+  (eaf-browser-scroll-step 200)
+  (eaf-browser-enable-adblocker t)
+  (eaf-file-manager-show-preview nil)
+  (eaf-pdf-dark-mode "ignore")
+  :demand
+  :commands (eaf-open-in-file-manager
+             eaf-open-rss-reader
+             eaf-open-rss-reader)
+  ;; :bind
+  ;; (("C-x j" . eaf-open-in-file-manager)
+  ;;  ("M-z r" . eaf-open-rss-reader)
+  ;;  ("M-m r" . eaf-open-rss-reader))
+  :config
+  ;; Require all EAF apps unconditionally, change to apps you're interested in.
+  (require 'eaf-file-manager nil t)
+  (require 'eaf-music-player nil t)
+  (require 'eaf-image-viewer nil t)
+  (require 'eaf-camera nil t)
+; (require 'eaf-demo nil t)
+  (require 'eaf-airshare nil t)
+  (require 'eaf-terminal nil t)
+  (require 'eaf-markdown-previewer nil t)
+  (require 'eaf-video-player nil t)
+; (require 'eaf-vue-demo nil t)
+  (require 'eaf-file-sender nil t)
+  (require 'eaf-pdf-viewer nil t)
+  (require 'eaf-mindmap nil t)
+  (require 'eaf-netease-cloud-music nil t)
+  (require 'eaf-jupyter nil t)
+  (require 'eaf-org-previewer nil t)
+  (require 'eaf-system-monitor nil t)
+  (require 'eaf-rss-reader nil t)
+  (require 'eaf-file-browser nil t)
+  (require 'eaf-browser nil t)
+  (require 'eaf-org)
+  (require 'eaf-mail)
+  (require 'eaf-git)
+  (when (display-graphic-p)
+    (require 'eaf-all-the-icons))
+  (defalias 'browse-web #'eaf-open-browser)
+  (eaf-bind-key nil "M-q" eaf-browser-keybinding)
+  (eaf-bind-key open_link "C-M-s" eaf-browser-keybinding)
+  (eaf-bind-key open_devtools "M-i" eaf-browser-keybinding)
+  (eaf-bind-key insert_or_recover_prev_close_page "X" eaf-browser-keybinding)
+  (eaf-bind-key scroll_up "RET" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key delete_cookies "C-M-q" eaf-browser-keybinding)
+  (eaf-bind-key delete_all_cookies "C-M-Q" eaf-browser-keybinding)
+  (eaf-bind-key clear_history "C-M-p" eaf-browser-keybinding)
+  (eaf-bind-key scroll_down_page "DEL" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_down_page "u" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_up_page "d" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_to_end "M->" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_to_begin "M-<" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key quit-window "q" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key zoom_in "C-=" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key zoom_out "C--" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+  (eaf-bind-key eaf-send-key-sequence "M-]" eaf-terminal-keybinding)
+  (eaf-bind-key eaf-send-key-sequence "M-]" eaf-terminal-keybinding)
+  (eaf-bind-key js_select_next_file "n" eaf-file-manager-keybinding)
+  (eaf-bind-key js_select_prev_file "p" eaf-file-manager-keybinding)
+  (eaf-bind-key new_file "F" eaf-file-manager-keybinding)
+  (eaf-bind-key new_directory "D" eaf-file-manager-keybinding)
+  (eaf-bind-key toggle_preview "P" eaf-file-manager-keybinding))
+#+end_src
+
+*** COMMENT Fun :fun:
+**** Speed Type
+A game to practice speed typing in Emacs.
+
+#+begin_src emacs-lisp
+(package! speed-type)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! speed-type
+  :commands (speed-type-text))
+#+end_src
+
+**** 2048 Game
+
+#+begin_src emacs-lisp
+(package! 2048-game)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! 2048-game
+  :commands (2048-game))
+#+end_src
+
+**** EPaint
+A simple paint tool for emacs ([[https://github.com/chuntaro/epaint][=epaint=]]). Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp
+(package! epaint)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! epaint
+  :if (display-graphic-p)
+  :commands (epaint)
+  :init
+  (with-eval-after-load (quote epaint-context)
+    (unless (boundp (quote cl-struct-epaint-drawable))
+      (defvar cl-struct-epaint-drawable (quote epaint-drawable)))
+    (unless (boundp (quote cl-struct-epaint-gc))
+      (defvar cl-struct-epaint-gc (quote epaint-gc)))))
+#+end_src
+
+*** Org-mode related :org:
+**** Templates
+
+#+begin_src emacs-lisp
+(package! doct)
+#+end_src
+
+**** Agenda
+
+#+begin_src emacs-lisp
+(package! org-super-agenda)
+#+end_src
+
+**** Academic
+
+#+begin_src emacs-lisp
+(package! org-ref)
+
+(package! academic-phrases
+  :recipe (:host github
+           :repo "nashamri/academic-phrases"))
+#+end_src
+
+***** Org-Ref :heart: Org-Cite
+
+#+begin_src emacs-lisp
+(package! org-ref-cite
+  :recipe (:host github
+           :repo "jkitchin/org-ref-cite"
+           :files (:defaults "readme.org"))
+  :disable t) ;; BUG: Not working correctly!
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
+(use-package! org-ref-cite
+  :after org-cite
+  :config
+  ;; I like green links
+  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
+  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
+  (setq org-cite-global-bibliography bibtex-completion-bibliography
+        org-cite-csl-styles-dir "~/Zotero/styles"
+        org-cite-insert-processor 'org-ref-cite
+        org-cite-follow-processor 'org-ref-cite
+        org-cite-activate-processor 'org-ref-cite
+        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
+                                        (latex org-ref-cite)
+                                        (t basic)))
+#+end_src
+
+**** Fragtog
+
+#+begin_src emacs-lisp
+(package! org-fragtog)
+#+end_src
+
+Hook =org-fragtog-mode= to =org-mode=.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+#+end_src
+
+**** Pretty table
+
+#+begin_src emacs-lisp
+(package! org-pretty-table
+  :recipe (:host github
+           :repo "Fuco1/org-pretty-table"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-pretty-table
+  :hook (org-mode . org-pretty-table-mode))
+#+end_src
+
+**** Org Modern
+Not working correctly, do not respect the indentation.
+
+#+begin_src emacs-lisp
+(package! org-modern
+  :recipe (:host github
+           :repo "minad/org-modern")
+  :disable t) ;; Not working ATM
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode))
+#+end_src
+
+**** Org Roam :roam:
+Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
+with it.
+
+#+begin_src emacs-lisp
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! websocket
+  :after org-roam-ui)
+
+(use-package! org-roam-ui
+  :commands org-roam-ui-open
+  :config (setq org-roam-ui-sync-theme t
+                org-roam-ui-follow t
+                org-roam-ui-update-on-save t
+                org-roam-ui-open-on-start t))
+#+end_src
+
+**** Org notifier
+Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
+
+#+begin_src emacs-lisp
+(package! org-wild-notifier)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-wild-notifier
+  :hook (org-load . org-wild-notifier-mode)
+  :config
+  (setq org-wild-notifier-alert-time '(60 30)))
+#+end_src
+
+*** Programming :programming:
+**** Repo :repo:
+Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
+distributions, or directly with:
+
+#+begin_src shell :tangle no :eval no
+REPO_PATH="$HOME/.local/bin/repo"
+curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
+chmod a+x ${REPO_PATH}
+#+end_src
+
+#+begin_src emacs-lisp
+(package! repo)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! repo
+  :commands repo-status)
+#+end_src
+
+**** Devdocs :devdocs:
+
+#+begin_src emacs-lisp
+(package! devdocs
+  :recipe (:host github
+           :repo "astoff/devdocs.el"
+           :files ("*.el")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! devdocs
+  :commands (devdocs-lookup devdocs-install)
+  :config
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+#+end_src
+
+**** Emacs GDB :gdb:
+DAP mode is great, however, it is not mature for C/C++ debugging, it does not
+support some basic features like /Run until cursor/, /Show disassembled code/...
+etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+
+The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
+to it's C module), and it defines some easy to use UI, with Visual Studio like
+keybindings.
+
+#+begin_src emacs-lisp
+(package! gdb-mi
+  :recipe (:host github
+           :repo "weirdNox/emacs-gdb"
+           :files ("*.el" "*.c" "*.h" "Makefile")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! gdb-mi
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug)
+  :config
+  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
+#+end_src
+
+**** Disaster :disaster:disassemble:
+
+#+begin_src emacs-lisp
+(package! disaster)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; TODO: Configure to take into account "compile_commands.json"
+(use-package! disaster
+  :commands (disaster))
+#+end_src
+
+**** Magit Delta :magit:delta:
+Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
+specially with big change chunks.
+
+#+begin_src emacs-lisp
+(package! magit-delta
+  :disable t) ;; Disabled, too slow on big chunks
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! magit-delta
+  :commands magit-status
+  :hook (magit-mode . magit-delta-mode))
+#+end_src
+
+**** Blamer :git:blame:
+Display Git information (author, date, message...) for current line
+
+#+begin_src emacs-lisp
+(package! blamer
+  :recipe (:host github
+           :repo "artawower/blamer.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! blamer
+  :bind (("s-i" . blamer-show-commit-info))
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 60)
+  (blamer-prettify-time-p t)
+  (blamer-entire-formatter "    %s")
+  (blamer-author-formatter " %s ")
+  (blamer-datetime-formatter "[%s], ")
+  (blamer-commit-formatter "“%s”")
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                   :background nil
+                   :height 125
+                   :italic t)))
+  :config
+  (global-blamer-mode 1)
+  
+  ;; Disable in zen (writeroom) mode
+  (when (featurep! :ui zen)
+    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
+#+end_src
+
+**** Systemd :systemd:
+For editing systemd unit files.
+
+#+begin_src emacs-lisp
+(package! systemd)
+#+end_src
+
+**** Bitbake (Yocto) :bitbake:yocto:
+Add support for Yocto Project files.
+
+#+begin_src emacs-lisp
+(package! bitbake-modes
+  :recipe (:host bitbucket
+           :repo "olanilsson/bitbake-modes"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package bitbake-modes
+  :commands (bitbake-mode
+             conf-bitbake-mode
+             bb-scc-mode wks-mode
+             bitbake-task-log-mode
+             bb-sh-mode
+             mmm-mode))
+#+end_src
+
+**** LaTeX :latex:
+
+#+begin_src emacs-lisp
+(package! aas
+  :recipe (:host github
+           :repo "ymarco/auto-activating-snippets"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! aas
+  :commands aas-mode)
+#+end_src
+
+**** Project CMake :cmake:
+A good new package to facilitate using CMake projects with Emacs, it glues
+together =project=, =eglot=, =cmake= and =clangd=.
+
+#+begin_src emacs-lisp
+(package! project-cmake
+  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :recipe (:host github
+           :repo "juanjosegarciaripoll/project-cmake"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
+#+end_src
+
+**** Franca IDL
+Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
+
+#+begin_src emacs-lisp
+(package! franca-idl
+  :recipe (:host github
+           :repo "zeph1e/franca-idl.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! franca-idl
+  :commands franca-idl-mode)
+#+end_src
+
+**** Flycheck :heart: projectile
+WIP: Not working atm!
+
+#+begin_src emacs-lisp
+(package! flycheck-projectile
+  :recipe (:host github
+           :repo "nbfalcon/flycheck-projectile"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-projectile
+  :commands flycheck-projectile-list-errors)
+#+end_src
+
+**** Graphviz :graphviz:
+Graphviz is a nice method of visualizing simple graphs, based on plaintext
+=.dot= / =.gv= files.
+
+#+begin_src emacs-lisp
+(package! graphviz-dot-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! graphviz-dot-mode
+  :commands (graphviz-dot-mode graphviz-dot-preview))
+#+end_src
+
+**** Maxima :maxima:math:
+I've been experiencing an annoying bug with the =maxima= package, when I launch
+the interpreter, it complains about a file not being found, the package searches
+in =~/.emacs-doom/.local/straight/repos-28.0.90/maxima/keywords/functions= instead
+of =~/.../build-28.0.90/...=, when I investigated this issue, it turned out that,
+the package (in the =maxima-font-lock.el= file), replaces =build= with =repos= when it
+sees =straight= in the path (as a workaround to support =straight=), however, Doom
+Emacs redefine the value of =straight-build-dir= to be =build-<emacs-version>=,, so
+the workaround is no more needed. To fix this, I set the
+=maxima-font-lock-keywords-directory= with the right path.
+
+#+begin_src emacs-lisp
+(package! imaxima)
+(package! maxima
+  :recipe (:host gitlab
+           :repo "sasanidas/maxima"
+           :files ("*.el" "keywords")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! maxima
+  :init
+  (add-hook 'maxima-mode-hook #'maxima-hook-function)
+  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+  (require 'straight)
+  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
+        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
+  (setq maxima-display-maxima-buffer nil)
+  ;; (require 'org) ;; to set `org-format-latex-options'
+  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  :commands (maxima-mode maxima)
+  :config
+  (require 'company-maxima)
+  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+  :mode ("\\.mac\\'" . maxima-mode)
+  :interpreter ("maxima" . maxima-mode))
+
+(use-package! imaxima
+  :commands (imaxima))
+
+(use-package! imath
+  :commands (imath-mode imath))
+#+end_src
+
+**** ROS :ros:
+***** ROS Emacs utils
+This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
+need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
+container or on a remote robot. ATM, I need just to configure =rosemacs= to use
+Emacs to develop ROS packages using C++/Python, I'm not interested now for
+ROS Common Lisp development.
+
+#+begin_src emacs-lisp
+(package! rosemacs
+  :recipe (:host github
+           :repo "code-iai/ros_emacs_utils"
+           :files ("rosemacs/*"))
+  :disable t) ;; No clear way to make it work on a remote machine
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! rosemacs
+  :config
+  (require 'rosemacs-config)
+  :commands (ros-core ros-topic-info))
+#+end_src
+
+***** =ros.el=
+I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
+facilitate working with ROS machines, supports ROS1 and ROS2, with local
+workspaces or remote ones (over Trump!).
+
+#+begin_src emacs-lisp
+;; `ros.el' depends on `with-shell-interpreter' among other packages
+;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
+(package! with-shell-interpreter)
+(package! ros
+  :recipe (:host github
+           :repo "DerBeutlin/ros.el"))
+#+end_src
+
+Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
+to install some tools on the ROS machine, and build the workspace for the first
+time using =colcon build=, the repo contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]] and
+[[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! ros
+  :init (map! :leader
+              :prefix ("l" . "custom")
+              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :commands (hydra-ros-main/body ros-set-workspace)
+  :config
+  (setq ros-workspaces
+        (list (ros-dump-workspace
+               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros2_ws"
+               :extends '("/opt/ros/foxy/")))))
 #+end_src
 
 * Applications :apps:
