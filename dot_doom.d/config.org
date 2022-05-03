@@ -28,7 +28,7 @@ of vanilla Emacs style configurations and Doom style ones.
 
 Now I decided to rewrite a cleaner version of my configuration which will be
 more Doom friendly, and for that, I found an excellent example in /[[https://github.com/tecosaur][tecosaur]]/'s
-[[https://github.com/tecosaur/emacs-config.git][emacs-config]], so my current configuration is heavily inspired by /tecosaur/'s.
+[[https://github.com/tecosaur/emacs-config.git][emacs-config]], so my current configuration is heavily inspired by /tecosaur/'s one.
 
 ** This file :header:
 This is my literate configuration file, I use it to generate Doom's config files
