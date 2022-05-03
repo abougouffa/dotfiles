@@ -1359,15 +1359,12 @@ Display time and set the format to 24h.
 Show battery level unless battery is not present or battery information is unknown.
 
 #+begin_src emacs-lisp
-;; This code causes 'doom doctor' to fail. TODO: What's wrong with this function?
 (after! doom-modeline
-  (defun ab/display-battery ()
-    (let ((batt-status (battery)))
-      (unless (or (string-match-p "unknown"    batt-status)
-                  (string-match-p "^Power N/A" batt-status))
-        (display-battery-mode 1)))) ; it's nice to know how much power you have
-
-  (ab/display-battery))
+  (let ((battery-str (battery)))
+     (unless (or (equal "Battery status not available" battery-str)
+                 (string-match-p (regexp-quote "unknown") battery-str)
+                 (string-match-p (regexp-quote "N/A") battery-str))
+      (display-battery-mode 1))))
 #+end_src
 
 *** Set transparency :transparent:
