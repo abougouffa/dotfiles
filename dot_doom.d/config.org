@@ -1744,6 +1744,7 @@ Add some packages for better assembly coding.
 (package! nasm-mode)
 (package! haxor-mode)
 (package! mips-mode)
+(package! x86-lookup)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1756,6 +1757,14 @@ Add some packages for better assembly coding.
 
 (use-package! mips-mode
   :mode "\\.mips$")
+
+(use-package! x86-lookup
+  :commands (x86-lookup)
+  :config
+  (when (featurep! :tools pdf)
+     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
+  ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
 #+end_src
 
 **** Repo :repo:
