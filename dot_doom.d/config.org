@@ -1477,6 +1477,8 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (eaf-browser-enable-adblocker t)
   (eaf-file-manager-show-preview nil)
   (eaf-pdf-dark-mode "follow")
+  (setq eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono")
+  (setq eaf-webengine-font-size 13)
   :demand
   :config
   ;; Require all EAF apps unconditionally, change to apps you're interested in.
