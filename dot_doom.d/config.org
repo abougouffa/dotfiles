@@ -1742,11 +1742,16 @@ Add some packages for better assembly coding.
 
 #+begin_src emacs-lisp
 (package! nasm-mode)
+(package! haxor-mode)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! nasm-mode
   :mode "\\.[n]*\\(asm\\|s\\)\\'")
+
+;; Get Haxor VM from https://github.com/krzysztof-magosa/haxor
+(use-package! haxor-mode
+  :mode "\\.hax\\'")
 #+end_src
 
 **** Repo :repo:
