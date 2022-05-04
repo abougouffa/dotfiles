@@ -1737,6 +1737,18 @@ Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-no
 #+end_src
 
 *** Programming :programming:
+**** Assembly :asm:assembly:
+Add some packages for better assembly coding.
+
+#+begin_src emacs-lisp
+(package! nasm-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! nasm-mode
+  :mode "\\.[n]*\\(asm\\|s\\)\\'")
+#+end_src
+
 **** Repo :repo:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
 distributions, or directly with:
