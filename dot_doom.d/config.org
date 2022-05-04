@@ -1488,11 +1488,6 @@ dependencies.
 
 Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
-#+begin_src emacs-lisp
-;; (package! eaf
-;;   :recipe (:local-repo "lisp/emacs-application-framework"))
-#+end_src
-
 #+begin_src emacs-lisp :tangle yes
 (use-package! eaf
   :load-path "lisp/emacs-application-framework"
@@ -1501,31 +1496,22 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (eaf-browser-continue-where-left-off t)
   (eaf-start-python-process-when-require t)
   (eaf-browser-default-zoom 1.25)
-  (eaf-browser-dark-mode nil)
+  (eaf-browser-dark-mode "follow")
   (eaf-browser-scroll-step 200)
   (eaf-browser-enable-adblocker t)
   (eaf-file-manager-show-preview nil)
-  (eaf-pdf-dark-mode "ignore")
+  (eaf-pdf-dark-mode "follow")
   :demand
-  :commands (eaf-open-in-file-manager
-             eaf-open-rss-reader
-             eaf-open-rss-reader)
-  ;; :bind
-  ;; (("C-x j" . eaf-open-in-file-manager)
-  ;;  ("M-z r" . eaf-open-rss-reader)
-  ;;  ("M-m r" . eaf-open-rss-reader))
   :config
   ;; Require all EAF apps unconditionally, change to apps you're interested in.
   (require 'eaf-file-manager nil t)
   (require 'eaf-music-player nil t)
   (require 'eaf-image-viewer nil t)
   (require 'eaf-camera nil t)
-; (require 'eaf-demo nil t)
   (require 'eaf-airshare nil t)
   (require 'eaf-terminal nil t)
   (require 'eaf-markdown-previewer nil t)
   (require 'eaf-video-player nil t)
-; (require 'eaf-vue-demo nil t)
   (require 'eaf-file-sender nil t)
   (require 'eaf-pdf-viewer nil t)
   (require 'eaf-mindmap nil t)
@@ -1541,34 +1527,25 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (require 'eaf-git)
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
+
   (defalias 'browse-web #'eaf-open-browser)
-  (eaf-bind-key nil "M-q" eaf-browser-keybinding)
-  (eaf-bind-key open_link "C-M-s" eaf-browser-keybinding)
-  (eaf-bind-key open_devtools "M-i" eaf-browser-keybinding)
-  (eaf-bind-key insert_or_recover_prev_close_page "X" eaf-browser-keybinding)
-  (eaf-bind-key scroll_up "RET" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key delete_cookies "C-M-q" eaf-browser-keybinding)
-  (eaf-bind-key delete_all_cookies "C-M-Q" eaf-browser-keybinding)
-  (eaf-bind-key clear_history "C-M-p" eaf-browser-keybinding)
-  (eaf-bind-key scroll_down_page "DEL" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_down_page "u" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_up_page "d" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_to_end "M->" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key scroll_to_begin "M-<" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key quit-window "q" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key zoom_in "C-=" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key zoom_out "C--" eaf-pdf-viewer-keybinding)
-  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
-  (eaf-bind-key eaf-send-key-sequence "M-]" eaf-terminal-keybinding)
-  (eaf-bind-key eaf-send-key-sequence "M-]" eaf-terminal-keybinding)
-  (eaf-bind-key js_select_next_file "n" eaf-file-manager-keybinding)
-  (eaf-bind-key js_select_prev_file "p" eaf-file-manager-keybinding)
-  (eaf-bind-key new_file "F" eaf-file-manager-keybinding)
-  (eaf-bind-key new_directory "D" eaf-file-manager-keybinding)
-  (eaf-bind-key toggle_preview "P" eaf-file-manager-keybinding))
+
+  ;; EVIL keybindings for Doom
+  (require 'eaf-evil)
+  (define-key key-translation-map (kbd "SPC")
+    (lambda (prompt)
+      (if (derived-mode-p 'eaf-mode)
+          (pcase eaf--buffer-app-name
+            ("browser" (if  (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
+                           (kbd "SPC")
+                         (kbd eaf-evil-leader-key)))
+            ("pdf-viewer" (kbd eaf-evil-leader-key))
+            ("image-viewer" (kbd eaf-evil-leader-key))
+            (_  (kbd "SPC")))
+        (kbd "SPC")))))
 #+end_src
 
-*** COMMENT Fun :fun:
+*** Fun :fun:
 **** Speed Type
 A game to practice speed typing in Emacs.
 
