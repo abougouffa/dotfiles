@@ -1066,7 +1066,7 @@ So I can "mélanger les langues sans avoir de problèmes!".
         flyspell-lazy-window-idle-seconds 5))
 #+end_src
 
-*** Shortcuts to change dictionary :dict:
+**** Shortcuts to change dictionary :dict:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled, using spell-fu with multiple dictionaries
@@ -1091,7 +1091,8 @@ So I can "mélanger les langues sans avoir de problèmes!".
        :desc "Français (fr_FR)"   "f" #'(lambda () (interactive) (ab-conf/spelldict :fr))))
 #+end_src
 
-*** Shortcuts to check grammar :langtool:
+*** LanguageTool :langtool:
+Define some shortcuts to check the grammar.
 
 #+begin_src emacs-lisp
 (map! :leader :prefix ("l" . "custom")
@@ -1152,7 +1153,7 @@ them in C/C++, Rust and Python modes.
 (setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
 #+end_src
 
-** Additional Packages (=packages.el=) :package:
+** Additional packages (=packages.el=) :package:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle "packages.el" :comments no
 :END:
@@ -1164,45 +1165,6 @@ This file shouldn't be byte compiled.
 
 #+begin_src emacs-lisp :tangle "packages.el" :comments no
 ;; -*- no-byte-compile: t; -*-
-#+end_src
-
-*** General Packages :general:
-**** Weather :wttrin:
-
-#+begin_src emacs-lisp
-;; lisp/wttrin/wttrin.el taken from:
-;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
-(package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! wttrin
-  :commands wttrin)
-#+end_src
-
-**** TODO CalDAV :calendar:caldav:
-
-#+begin_src emacs-lisp
-(package! caldav
-  :recipe (:host github
-           :repo "dengste/org-caldav"))
-#+end_src
-
-**** =xkcd=
-
-#+begin_src emacs-lisp
-(package! xkcd
-  :recipe (:host github
-           :repo "vibhavp/emacs-xkcd"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! xkcd
-  :commands (xkcd-get xkcd)
-  :config
-  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
-        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
 #+end_src
 
 *** Themes and UI :ui:theme:
@@ -1307,6 +1269,20 @@ Visual feedback after kill/yank actions.
 #+end_src
 
 *** Features :features:
+**** Weather :wttrin:
+
+#+begin_src emacs-lisp
+;; lisp/wttrin/wttrin.el taken from:
+;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
+(package! wttrin
+  :recipe (:local-repo "lisp/wttrin"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! wttrin
+  :commands wttrin)
+#+end_src
+
 **** ESS :ess:
 View data frames better with
 
@@ -1449,7 +1425,7 @@ pacman -S the_silver_searcher=.
   :commands (disk-usage))
 #+end_src
 
-**** Aweshell
+**** Aweshell :eshell:shell:
 
 #+begin_src emacs-lisp
 (package! aweshell
@@ -1581,6 +1557,22 @@ Let it snow in Emacs!
   :commands (snow))
 #+end_src
 
+**** =xkcd=
+
+#+begin_src emacs-lisp
+(package! xkcd
+  :recipe (:host github
+           :repo "vibhavp/emacs-xkcd"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! xkcd
+  :commands (xkcd-get xkcd)
+  :config
+  (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
+        xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
+#+end_src
+
 *** Org-mode related :org:
 **** Templates
 
@@ -1592,6 +1584,14 @@ Let it snow in Emacs!
 
 #+begin_src emacs-lisp
 (package! org-super-agenda)
+#+end_src
+
+**** TODO CalDAV :calendar:caldav:
+
+#+begin_src emacs-lisp
+(package! caldav
+  :recipe (:host github
+           :repo "dengste/org-caldav"))
 #+end_src
 
 **** Academic
@@ -1784,7 +1784,7 @@ keybindings.
   :commands (disaster))
 #+end_src
 
-**** Magit Delta :magit:delta:
+**** Magit :heart: Delta :magit:delta:
 Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
 specially with big change chunks.
 
@@ -1827,7 +1827,7 @@ Display Git information (author, date, message...) for current line
                    :italic t)))
   :config
   (global-blamer-mode 1)
-  
+
   ;; Disable in zen (writeroom) mode
   (when (featurep! :ui zen)
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
@@ -1906,7 +1906,7 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
   :commands franca-idl-mode)
 #+end_src
 
-**** Flycheck :heart: projectile
+**** Flycheck :heart: Projectile
 WIP: Not working atm!
 
 #+begin_src emacs-lisp
@@ -2123,7 +2123,7 @@ Set RSS news feeds
         "https://lwn.net/headlines/rss"))
 #+end_src
 
-** VPN Config :vpn:
+** VPN configuration :vpn:
 *** NetExtender wrapper
 I store my NetExtender VPN parameters in a GPG encrypted file. The credentials file
 contains a line of private parameters to pass to =netExtender=, like this:
@@ -2180,6 +2180,8 @@ echo "Y\n" | netExtender --auto-reconnect \
 ** Email =mu4e= :mail:mu4e:
 Configuring =mu4e= email accounts, note that you need to have a proper
 =mbsyncrc= file in the right directory.
+
+*** mbsync 
 
 You will need to:
 - Install =mu= and =isync= (=sudo pacman -S mu isync=)
@@ -2320,6 +2322,9 @@ Channel gmail-spam
 # END OF SECTION
 #+end_src
 
+*** mu4e
+Add =mu4e= to path if it exists on the file system.
+
 #+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/local/share/emacs/site-lisp/mu4e") "yes" "no")
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 #+end_src
@@ -2424,7 +2429,7 @@ configuration as follows:
 #+end_src
 
 * Programming :prog:
-** File Templates :template:
+** File templates :template:
 For some file types, we overwrite defaults in the [[file:./snippets][snippets]] directory, others
 need to have a template assigned.
 
@@ -2727,7 +2732,7 @@ reverse debugging.
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 #+end_src
 
-*** RealGUD =.dir-locals.el= support (Only for GDB) :locals:
+*** RealGUD =.dir-locals.el= support (only for GDB) :locals:
 I do a lot of development on C/C++ apps which gets data from command line
 arguments, which means I have to type my arguments manually after calling
 =realgud:gdb=, which is very annoying.
@@ -4924,7 +4929,7 @@ by exporting an XML config file which will be used when launching the Tika App
 </properties>
 #+end_src
 
-** Emacs' Systemd Daemon :systemd:
+** Emacs' Systemd daemon :systemd:
 Let's define a Systemd service to launch Emacs server automatically.
 
 #+name: emacs daemon
