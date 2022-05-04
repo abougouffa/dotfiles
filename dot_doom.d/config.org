@@ -1438,7 +1438,7 @@ pacman -S the_silver_searcher=.
              ag-project-regexp))
 #+end_src
 
-**** COMMENT Disk usage
+**** Disk usage
 
 #+begin_src emacs-lisp
 (package! disk-usage)
@@ -1449,10 +1449,12 @@ pacman -S the_silver_searcher=.
   :commands (disk-usage))
 #+end_src
 
-**** COMMENT Aweshell
+**** Aweshell
 
 #+begin_src emacs-lisp
-(package! aweshell)
+(package! aweshell
+  :recipe (:host github
+           :repo "manateelazycat/aweshell"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1460,7 +1462,7 @@ pacman -S the_silver_searcher=.
   :commands (aweshell-new aweshell-dedicated-open))
 #+end_src
 
-**** COMMENT Page break lines
+**** Page break lines
 A feature that displays ugly form feed characters as tidy horizontal rules.
 Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
@@ -1590,23 +1592,16 @@ A game to practice speed typing in Emacs.
   :commands (2048-game))
 #+end_src
 
-**** EPaint
-A simple paint tool for emacs ([[https://github.com/chuntaro/epaint][=epaint=]]). Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+**** Snow
+Let it snow in Emacs!
 
 #+begin_src emacs-lisp
-(package! epaint)
+(package! snow)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package! epaint
-  :if (display-graphic-p)
-  :commands (epaint)
-  :init
-  (with-eval-after-load (quote epaint-context)
-    (unless (boundp (quote cl-struct-epaint-drawable))
-      (defvar cl-struct-epaint-drawable (quote epaint-drawable)))
-    (unless (boundp (quote cl-struct-epaint-gc))
-      (defvar cl-struct-epaint-gc (quote epaint-gc)))))
+(use-package! snow
+  :commands (snow))
 #+end_src
 
 *** Org-mode related :org:
