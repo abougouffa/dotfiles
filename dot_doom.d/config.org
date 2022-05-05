@@ -1497,6 +1497,7 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
   ;; File manager settings
   (eaf-file-manager-show-preview nil)
+  (eaf-find-alternate-file-in-dired t)
 
   ;; PDF Viewer settings
   (eaf-pdf-dark-mode "follow")
@@ -1518,6 +1519,18 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   ;; (require 'eaf-music-player)
   ;; (require 'eaf-image-viewer)
   ;; (require 'eaf-video-player)
+
+  ;; Interleave, presents your pdf side by side to an org-mode buffer with your notes
+  ;; See: https://github.com/emacs-eaf/emacs-application-framework/wiki/eaf-interleave
+  (after! org
+    (require 'eaf-interleave)
+    (add-hook 'eaf-pdf-viewer-hook 'eaf-interleave-app-mode)
+    (add-hook 'eaf-browser-hook 'eaf-interleave-app-mode)
+    (add-hook 'org-mode-hook 'eaf-interleave-mode)
+    (setq eaf-interleave-org-notes-dir-list '("~/Dropbox/Org/interleave/"))
+    (setq eaf-interleave-split-direction 'vertical)
+    (setq eaf-interleave-disable-narrowing t)
+    (setq eaf-interleave-split-lines 20))
 
   ;; Make EAF Browser my default browser
   (setq browse-url-browser-function #'eaf-open-browser)
