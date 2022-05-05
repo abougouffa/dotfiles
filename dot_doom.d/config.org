@@ -1530,7 +1530,15 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
     (setq eaf-interleave-org-notes-dir-list '("~/Dropbox/Org/interleave/"))
     (setq eaf-interleave-split-direction 'vertical)
     (setq eaf-interleave-disable-narrowing t)
-    (setq eaf-interleave-split-lines 20))
+    (setq eaf-interleave-split-lines 20)
+
+    ;; Use EAF PDF Viewer in Org
+    (defun +eaf-org-open-file-fn (file &optional link)
+      "An wrapper function on `eaf-open'."
+      (eaf-open file))
+
+    ;; use `emacs-application-framework' to open PDF file: link
+    (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
 
   ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
   ;; the Command>Compile and view (C-c C-a) option will compile the .tex
@@ -1540,6 +1548,7 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
     (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
     (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
     (add-to-list 'TeX-view-program-selection '(output-pdf "eaf")))
+
   ;; Make EAF Browser my default browser
   (setq browse-url-browser-function #'eaf-open-browser)
   (defalias 'browse-web #'eaf-open-browser)
