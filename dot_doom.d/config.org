@@ -2641,33 +2641,6 @@ Add ROS specific file formats:
 #+end_src
 
 ** LSP :lsp:ide:
-*** Enable some useful UI stuff :diagnostics:ui:
-LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables a set of
-UI components to provide a less intrusive UI, however I like to enable some less
-intrusive, more useful UI stuff.
-
-#+begin_src emacs-lisp
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover nil
-        lsp-log-io nil
-        lsp-lens-enable nil ; not working properly with ccls!
-        lsp-diagnostics-provider :auto
-        lsp-enable-symbol-highlighting t
-        lsp-headerline-breadcrumb-enable nil
-        lsp-headerline-breadcrumb-segments '(symbols)))
-#+end_src
-
-*** Fringe :fringe:
-Increase the left fringe width, to enable rendering breakpoints correctly.
-
-#+begin_src emacs-lisp
-(after! lsp-mode
-  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
-#+end_src
-
 *** Eglot :eglot:
 Eglot uses =project.el= to detect the project root. This is [[https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367][a workaround]] to make
 it work with =projectile=:
@@ -2686,7 +2659,35 @@ it work with =projectile=:
   (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
 #+end_src
 
-*** LSP mode with =clangd= :clangd:c:cpp:
+*** LSP mode
+**** Enable some useful UI stuff :diagnostics:ui:
+LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables a set of
+UI components to provide a less intrusive UI, however I like to enable some less
+intrusive, more useful UI stuff.
+
+#+begin_src emacs-lisp
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil
+        lsp-log-io nil
+        lsp-lens-enable nil ; not working properly with ccls!
+        lsp-diagnostics-provider :auto
+        lsp-enable-symbol-highlighting t
+        lsp-headerline-breadcrumb-enable nil
+        lsp-headerline-breadcrumb-segments '(symbols)))
+#+end_src
+
+**** Fringe :fringe:
+Increase the left fringe width, to enable rendering breakpoints correctly.
+
+#+begin_src emacs-lisp
+(after! lsp-mode
+  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
+#+end_src
+
+**** LSP mode with =clangd= :clangd:c:cpp:
 
 #+begin_src emacs-lisp
 (after! lsp-clangd
@@ -2700,7 +2701,7 @@ it work with =projectile=:
   (set-lsp-priority! 'clangd 2))
 #+end_src
 
-*** LSP mode with =ccls= :ccls:c:cpp:
+**** LSP mode with =ccls= :ccls:c:cpp:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled, using the default ccls
@@ -2713,8 +2714,8 @@ it work with =projectile=:
   (set-lsp-priority! 'ccls 2)) ; optional as ccls is the default in Doom
 #+end_src
 
-*** Enable =lsp= over =tramp= :tramp:
-**** For Python :python:
+**** Enable =lsp= over =tramp= :tramp:
+***** Python :python:
 
 #+begin_src emacs-lisp
 (after! tramp
@@ -2735,7 +2736,7 @@ it work with =projectile=:
     :server-id 'pyls-remote)))
 #+end_src
 
-**** For C/C++ with =ccls= :ccls:
+***** C/C++ with =ccls= :ccls:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: WIP: Not tangled
@@ -2761,7 +2762,7 @@ it work with =projectile=:
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 #+end_src
 
-**** For C/C++ with =clangd= :clangd:
+***** C/C++ with =clangd= :clangd:
 
 #+begin_src emacs-lisp
 (after! tramp
