@@ -4022,7 +4022,7 @@ sacrificing visual amenities with the =org-appear= package.
   (run-at-time nil nil #'org-appear--set-elements))
 #+end_src
 
-**** Font trick
+**** COMMENT Font trick
 Org files can be rather nice to look at, particularly with some customization
 here. This comes at a cost however, expensive font-lock. Feeling like you're
 typing through molasses in large files is no fun, but there is a way I can defer
