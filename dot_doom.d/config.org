@@ -1554,19 +1554,23 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (defalias 'browse-web #'eaf-open-browser)
 
   ;; EVIL keybindings for Doom
-  (require 'eaf-evil)
-  (define-key key-translation-map (kbd "SPC")
-    (lambda (prompt)
-      (if (derived-mode-p 'eaf-mode)
-          (pcase eaf--buffer-app-name
-            ("browser" (if  (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
-                           (kbd "SPC")
-                         (kbd eaf-evil-leader-key)))
-            ("pdf-viewer" (kbd eaf-evil-leader-key))
-            ("image-viewer" (kbd eaf-evil-leader-key))
-            (_  (kbd "SPC")))
-        (kbd "SPC")))))
+  (after! evil
+    (require 'eaf-evil)
+    (define-key key-translation-map (kbd "SPC")
+      (lambda (prompt)
+        (if (derived-mode-p 'eaf-mode)
+            (pcase eaf--buffer-app-name
+              ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
+                             (kbd "SPC")
+                           (kbd eaf-evil-leader-key)))
+              ("pdf-viewer" (kbd eaf-evil-leader-key))
+              ("image-viewer" (kbd eaf-evil-leader-key))
+              ("music-player" (kbd eaf-evil-leader-key))
+              ("video-player" (kbd eaf-evil-leader-key))
+              (_  (kbd "SPC")))
+          (kbd "SPC"))))))
 #+end_src
+
 **** COMMENT Popweb
 A lightweight version of EAF that provides multimedia capabilities.
 
