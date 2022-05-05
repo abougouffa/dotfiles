@@ -3145,8 +3145,8 @@ on that.
 :END:
 
 *** Intro
-Because this section is fairly expensive to initialize, we'll wrap
-it in a src_elisp{(after! ...)} block.
+Because this section is fairly expensive to initialize, we'll wrap it in a
+src_elisp{(after! ...)} block.
 
 #+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
 (after! org
@@ -4549,7 +4549,7 @@ the creator string.
 
 #+begin_src emacs-lisp
 (setq org-export-creator-string
-      (format "Emacs %s (Org mode %s %s)" emacs-version (org-release) (org-git-version)))
+      (format "Emacs %s (Org mode %s)" emacs-version (org-release)))
 #+end_src
 
 **** LaTeX export
