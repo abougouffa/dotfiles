@@ -1532,6 +1532,14 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
     (setq eaf-interleave-disable-narrowing t)
     (setq eaf-interleave-split-lines 20))
 
+  ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
+  ;; the Command>Compile and view (C-c C-a) option will compile the .tex
+  ;; file into a .pdf file and display it using EAF. Double clicking on the
+  ;; PDF side jumps to editing the clicked section.
+  (after! latex
+    (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
+    (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
+    (add-to-list 'TeX-view-program-selection '(output-pdf "eaf")))
   ;; Make EAF Browser my default browser
   (setq browse-url-browser-function #'eaf-open-browser)
   (defalias 'browse-web #'eaf-open-browser)
