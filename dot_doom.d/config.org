@@ -5461,6 +5461,16 @@ export PATH="$PATH:$NPM_PACKAGES/bin"
 # Preserve MANPATH if you already defined it somewhere in your config.
 # Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
 export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
+
+# Tell Node about these packages
+export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+#+end_src
+
+Tell NPM to use this directory for its global package installs by adding this
+in =~/.npmrc=:
+
+#+begin_src conf :tangle ~/.npmrc
+prefix = ~/.npm-packages
 #+end_src
 
 Some useful stuff (=fzf=, =opam=, Doom Emacs...)
