@@ -1501,6 +1501,7 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
   ;; PDF Viewer settings
   (eaf-pdf-dark-mode "follow")
+
   :config
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
@@ -3961,7 +3962,7 @@ Example of usage:
 Here I try to do two things: improve the styling of the various documents, via
 font changes etc., and also propagate colours from the current theme.
 
-**** Font Display
+**** Font display
 ***** Headings
 Let's make the title and the headings a bit bigger:
 
@@ -3991,7 +3992,7 @@ It seems reasonable to have deadlines in the error face when they're passed.
         (0.0 . org-upcoming-distant-deadline)))
 #+end_src
 
-***** Org Pretty Mode
+***** Org pretty mode
 Activate ~+org-pretty-mode~.
 
 #+begin_src emacs-lisp :
@@ -4276,7 +4277,7 @@ commands.
   :priority_e              "[#E]")
 #+end_src
 
-**** LaTeX Fragments
+**** LaTeX fragments
 ***** Prettier highlighting
 First off, we want those fragments to look good.
 
@@ -4411,7 +4412,7 @@ good. *Not working right now!*
     (message "Latex numbering disabled.")))
 #+end_src
 
-**** Org Plot
+**** Org plot
 We can use some variables in =org-plot= to use the current doom theme
 colors.
 
@@ -4551,7 +4552,7 @@ the creator string.
       (format "Emacs %s (Org mode %s %s)" emacs-version (org-release) (org-git-version)))
 #+end_src
 
-**** LaTeX Export
+**** LaTeX export
 ***** Compiling
 By default Org uses ~pdflatex~ \times 3 + ~bibtex~. This simply won't do in our
 modern world. ~latexmk~ + ~biber~ (which is used automatically with ~latexmk~) is a
@@ -4759,7 +4760,6 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
 #+end_src
 
 **** Hugo
-
 Update files with last modified date, when ~#+lastmod:~ is available
 
 #+begin_src emacs-lisp :tangle yes
