@@ -1704,13 +1704,18 @@ Let it snow in Emacs!
 #+end_src
 
 *** Org-mode related :org:
-**** Templates
+**** Templates :template:
 
 #+begin_src emacs-lisp
 (package! doct)
 #+end_src
 
-**** Agenda
+#+begin_src emacs-lisp :tangle yes
+(use-package! doct
+  :commands (doct))
+#+end_src
+
+**** Agenda :agenda:
 
 #+begin_src emacs-lisp
 (package! org-super-agenda)
@@ -1722,6 +1727,7 @@ Let it snow in Emacs!
 #+end_src
 
 **** TODO CalDAV :calendar:caldav:
+Need to be configured, see the [[https://github.com/dengste/org-caldav][github repo]].
 
 #+begin_src emacs-lisp
 (package! caldav
@@ -1729,7 +1735,12 @@ Let it snow in Emacs!
            :repo "dengste/org-caldav"))
 #+end_src
 
-**** Academic
+#+begin_src emacs-lisp :tangle yes
+(use-package! caldav
+  :commands (org-caldav-sync))
+#+end_src
+
+**** Academic :academic:
 
 #+begin_src emacs-lisp
 (package! org-ref)
@@ -1876,7 +1887,7 @@ Add some packages for better assembly coding.
   (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
 #+end_src
 
-**** Repo :repo:
+**** Repo :repo:git:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
 distributions, or directly with:
 
@@ -3408,9 +3419,6 @@ Set capture files
 Lets set up some org-capture templates, and make them visually nice to access.
 
 #+begin_src emacs-lisp :noweb no-export
-(use-package! doct
-  :commands (doct))
-
 (after! org-capture
   <<prettify-capture>>
 
