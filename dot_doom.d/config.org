@@ -283,7 +283,9 @@ upload                 ; map local to remote projects via ssh/ftp
 (debugger +lsp)        ; FIXME stepping through code, to help you add bugs
 (docker +lsp)
 (eval +overlay)        ; run code, run (also, repls)
-(lookup +docsets)      ; navigate your code and its documentation
+(lookup +docsets       ; navigate your code and its documentation
+        +dictrionary
+        +offline)
 (magit +forge)         ; a git porcelain for Emacs
 ;;ansible
 ;;pass                 ; password manager for nerds
