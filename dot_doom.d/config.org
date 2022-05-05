@@ -1571,14 +1571,15 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
           (kbd "SPC"))))))
 #+end_src
 
-**** COMMENT Popweb
+**** Popweb
 A lightweight version of EAF that provides multimedia capabilities.
 
 #+begin_src emacs-lisp
 (package! popweb
   :recipe (:host github
            :repo "manateelazycat/popweb"
-           :files ("*.el" "*.js" "*.py" "extension")))
+           :files ("*.el" "*.js" "*.py" "extension"))
+  :disable t) ; It works, but I'm not using it ATM
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1588,7 +1589,7 @@ A lightweight version of EAF that provides multimedia capabilities.
   (add-to-list 'load-path (expand-file-name (format "straight/%s/popweb/extension/latex" straight-build-dir) straight-base-dir))
   (add-to-list 'load-path (expand-file-name (format "straight/%s/popweb/extension/dict" straight-build-dir) straight-base-dir))
   (require 'popweb-latex)
-  (require 'popweb-dict-youdao)
+  (require 'popweb-dict-bing)
   :custom
   (popweb-popup-pos "point-bottom")
   :hook ((org-mode . popweb-latex-mode)
