@@ -1474,44 +1474,47 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 (use-package! eaf
   :load-path "lisp/emacs-application-framework"
   :custom
-  (browse-url-browser-function #'eaf-open-browser) ;; Make EAF Browser my default browser
-  (eaf-browser-continue-where-left-off t)
+  ;; Generic
   (eaf-start-python-process-when-require t)
+  (eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono")
+  (eaf-webengine-font-size 14)
+  ;; Browser settings
+  (eaf-browser-continue-where-left-off t)
   (eaf-browser-default-zoom 1.25)
   (eaf-browser-dark-mode "follow")
   (eaf-browser-scroll-step 200)
   (eaf-browser-enable-adblocker t)
+  (eaf-browser-translate-language "fr")
+  (eaf-browser-default-search-engine "duckduckgo")
+  (eaf-browser-enable-plugin t)
+  (eaf-browser-enable-javascript t)
+
+  ;; File manager settings
   (eaf-file-manager-show-preview nil)
+
+  ;; PDF Viewer settings
   (eaf-pdf-dark-mode "follow")
-  (setq eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono")
-  (setq eaf-webengine-font-size 13)
-  :demand
   :config
-  ;; Require all EAF apps unconditionally, change to apps you're interested in.
-  (require 'eaf-file-manager nil t)
-  (require 'eaf-music-player nil t)
-  (require 'eaf-image-viewer nil t)
-  (require 'eaf-camera nil t)
-  (require 'eaf-airshare nil t)
-  (require 'eaf-terminal nil t)
-  (require 'eaf-markdown-previewer nil t)
-  (require 'eaf-video-player nil t)
-  (require 'eaf-file-sender nil t)
-  (require 'eaf-pdf-viewer nil t)
-  (require 'eaf-mindmap nil t)
-  (require 'eaf-netease-cloud-music nil t)
-  (require 'eaf-jupyter nil t)
-  (require 'eaf-org-previewer nil t)
-  (require 'eaf-system-monitor nil t)
-  (require 'eaf-rss-reader nil t)
-  (require 'eaf-file-browser nil t)
-  (require 'eaf-browser nil t)
-  (require 'eaf-org)
-  (require 'eaf-mail)
-  (require 'eaf-git)
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
 
+  (require 'eaf-browser)
+  (require 'eaf-pdf-viewer)
+  (require 'eaf-file-manager)
+  (require 'eaf-file-browser)
+  (require 'eaf-file-sender)
+  (require 'eaf-mindmap)
+  (require 'eaf-jupyter)
+  (require 'eaf-markdown-previewer)
+  (require 'eaf-org-previewer)
+  (require 'eaf-org)
+  ;; (require 'eaf-git)
+  ;; (require 'eaf-music-player)
+  ;; (require 'eaf-image-viewer)
+  ;; (require 'eaf-video-player)
+
+  ;; Make EAF Browser my default browser
+  (setq browse-url-browser-function #'eaf-open-browser)
   (defalias 'browse-web #'eaf-open-browser)
 
   ;; EVIL keybindings for Doom
