@@ -1476,8 +1476,14 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   :custom
   ;; Generic
   (eaf-start-python-process-when-require t)
+
+  ;; Customize fonts
   (eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono")
+  (eaf-webengine-fixed-font-family "FantasqueSansMono Nerd Font Mono")
+  (eaf-webengine-serif-font-family "FantasqueSansMono Nerd Font Mono")
   (eaf-webengine-font-size 14)
+  (eaf-webengine-fixed-font-size 14)
+
   ;; Browser settings
   (eaf-browser-continue-where-left-off t)
   (eaf-browser-default-zoom 1.25)
