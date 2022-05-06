@@ -1763,6 +1763,21 @@ Phrases".
              academic-phrases-by-section))
 #+end_src
 
+***** Org-bib
+A mode to work with annotated bibliography in Org-Mode. See [[https://github.com/rougier/org-bib-mode][the repo]] for an
+example.
+
+#+begin_src emacs-lisp
+(package! org-bib
+  :recipe (:host github
+           :repo "rougier/org-bib-mode" ))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-bib
+  :commands (org-bib-mode))
+#+end_src
+
 ***** Org-ref
 Use Org as LaTeX!
 
