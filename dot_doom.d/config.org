@@ -1741,13 +1741,33 @@ Need to be configured, see the [[https://github.com/dengste/org-caldav][github r
 #+end_src
 
 **** Academic :academic:
+***** Academic phrases
+When writing your academic paper, you might get stuck trying to find the right
+phrase that captures your intention. This package tries to alleviate that
+problem by presenting you with a list of phrases organized by the topic or by
+the paper section that you are writing. This package has around 600 phrases so
+far.
+
+This is based on the book titled "English for Writing Research - Papers Useful
+Phrases".
 
 #+begin_src emacs-lisp
-(package! org-ref)
-
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! academic-phrases
+  :commands (academic-phrases
+             academic-phrases-by-section))
+#+end_src
+
+***** Org-ref
+Use Org as LaTeX!
+
+#+begin_src emacs-lisp
+(package! org-ref)
 #+end_src
 
 ***** Org-Ref :heart: Org-Cite
