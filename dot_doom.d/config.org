@@ -2917,9 +2917,9 @@ close Hydra when DAP is terminated.
 
   ;; Automatically delete session and close dap-hydra when DAP is terminated.
   (add-hook 'dap-terminated-hook
-    (lambda (arg)
-      (progn (call-interactively #'dap-delete-session)
-             (dap-hydra/nil)))))
+            (lambda (arg)
+              (progn (call-interactively #'dap-delete-session)
+                     (dap-hydra/nil)))))
 #+end_src
 
 *** Doom store
