@@ -184,7 +184,7 @@ workspaces                   ; tab emulation, persistence & separate workspaces
 zen                          ; distraction-free coding or writing
 (window-select +numbers)     ; visually switch windows
 (ligatures +extra)           ; ligatures and symbols to make your code pretty again
-(treemacs +lsp)              ; a project drawer, like neotree but cooler
+;;(treemacs +lsp)            ; a project drawer, like neotree but cooler
 (popup +all                  ; tame sudden yet inevitable temporary windows
        +defaults)
 (emoji +ascii
@@ -194,7 +194,7 @@ zen                          ; distraction-free coding or writing
 ;;fill-column                ; a `fill-column' indicator
 ;;indent-guides              ; highlighted indent columns, notoriously slow
 ;;minimap                    ; show a map of the code on the side
-;;neotree                    ; a project drawer, like NERDTree for vim
+neotree                      ; a project drawer, like NERDTree for vim
 ;;unicode                    ; extended unicode support for various languages
 ;;tabs                       ; a tab bar for Emacs
 ;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
