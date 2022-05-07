@@ -2308,8 +2308,8 @@ npm install -g @unibeautify/cli
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-;; (use-package! unibeautify
-;;   :recipe ')
+(use-package! unibeautify
+  :commands (unibeautify))
 
 #+end_src
 
