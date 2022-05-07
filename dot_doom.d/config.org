@@ -2310,7 +2310,19 @@ npm install -g @unibeautify/cli
 #+begin_src emacs-lisp :tangle yes
 (use-package! unibeautify
   :commands (unibeautify))
+#+end_src
 
+**** Emacs Inspector :inspector:debug:
+
+#+begin_src emacs-lisp
+(package! inspector
+  :recipe (:host github
+           :repo "mmontone/emacs-inspector"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! inspector
+  :commands (inspect-expression inspect-last-sexp))
 #+end_src
 
 * Applications :apps:
