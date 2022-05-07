@@ -2269,8 +2269,8 @@ workspaces or remote ones (over Trump!).
 
 Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
 to install some tools on the ROS machine, and build the workspace for the first
-time using =colcon build=, the repo contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]] and
-[[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
+time using =colcon build=, the repository contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]]
+and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! ros
