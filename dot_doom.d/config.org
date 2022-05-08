@@ -3594,12 +3594,12 @@ Set files for =org-agenda=
 **** Google calendar (=org-gcal=) :calendar:google:
 I store my =org-gcal= configuration privately, it contains something like this:
 
-#+begin_src emacs-lisp :tangle no
+#+begin_example emacs-lisp :tangle no
 (after! org-gcal
   (setq org-gcal-client-id "<SOME_ID>.apps.googleusercontent.com"
         org-gcal-client-secret "<SOME_SECRET>"
         org-gcal-fetch-file-alist '(("<USERNAME>@gmail.com" . "~/Dropbox/Org/gcal-agenda.org"))))
-#+end_src
+#+end_example
 
 #+begin_src emacs-lisp
 (load! "lisp/private/+org-gcal.el")
