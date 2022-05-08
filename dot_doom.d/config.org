@@ -1289,6 +1289,32 @@ Visual feedback after kill/yank actions.
   :commands wttrin)
 #+end_src
 
+**** OpenStreetMap :osm:map:
+
+#+begin_src emacs-lisp
+(package! osm)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! osm
+  :commands (osm-home
+             osm-search
+             osm-server
+             osm-goto
+             osm-gpx-show
+             osm-bookmark-jump)
+
+  :custom
+  ;; Take a look at the customization group `osm' for more options.
+  (osm-server 'default) ;; Configure the tile server
+  (osm-copyright t)     ;; Display the copyright information
+
+  :init
+  ;; Load Org link support
+  (with-eval-after-load 'org
+    (require 'osm-ol)))
+#+end_src
+
 **** ESS :ess:
 View data frames better with
 
