@@ -1315,6 +1315,26 @@ Visual feedback after kill/yank actions.
     (require 'osm-ol)))
 #+end_src
 
+**** Islamic prayer times
+Currently giving wrong times!
+
+#+begin_src emacs-lisp
+(package! awqat
+  :recipe (:host github
+           :repo "zkry/awqat"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! awqat
+  :commands (awqat-display-prayer-time-mode
+             awqat-times-for-day)
+
+  :config
+  (setq awqat-asr-hanafi nil)
+  (setq awqat-fajr-angle -12)
+  (setq awqat-isha-angle -12))
+#+end_src
+
 **** ESS :ess:
 View data frames better with
 
