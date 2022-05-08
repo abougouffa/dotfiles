@@ -2948,6 +2948,10 @@ I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over 
 when the program hits a break point, and automatically delete the session and
 close Hydra when DAP is terminated.
 
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(unpin! dap-mode)
+#+end_src
+
 #+begin_src emacs-lisp
 (after! dap-mode
   ;; Which version to download when running 'dap-cpptools-setup', default 0.29.0
