@@ -1315,13 +1315,15 @@ Visual feedback after kill/yank actions.
     (require 'osm-ol)))
 #+end_src
 
-**** Islamic prayer times
-Currently giving wrong times!
+**** Islamic prayer times :prayer:
 
 #+begin_src emacs-lisp
 (package! awqat
   :recipe (:host github
-           :repo "zkry/awqat"))
+           ;; Temporary use my fork with angles fixes.
+           ;; Upstream repo "zkry/awqat"
+           :repo "abougouffa/awqat"
+           :branch "fix-angle-for-uoif"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1330,9 +1332,10 @@ Currently giving wrong times!
              awqat-times-for-day)
 
   :config
+  ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
+  ;; otherwise, set them here.
   (setq awqat-asr-hanafi nil)
-  (setq awqat-fajr-angle -12)
-  (setq awqat-isha-angle -12))
+  (awqat-set-preset-french-muslims))
 #+end_src
 
 **** ESS :ess:
