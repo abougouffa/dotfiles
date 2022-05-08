@@ -2352,6 +2352,14 @@ npm install -g @unibeautify/cli
 #+end_src
 
 * Applications :apps:
+** Calendar :calendar:
+
+#+begin_src emacs-lisp :tangle yes
+(setq calendar-latitude 48.7)
+(setq calendar-longitude 2.17)
+(setq calendar-location-name "Orsay, FR")
+#+end_src
+
 ** e-Books =nov= :ebook:epub:
 Use =nov= to read EPUB e-books.
 
