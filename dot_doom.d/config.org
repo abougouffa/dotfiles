@@ -2089,6 +2089,37 @@ keybindings.
         gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
 #+end_src
 
+**** Embed.el :embedded:
+Some embedded systems development tools.
+
+TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
+- [[https://github.com/probe-rs/vscode][probe-rs-debugger]]
+- [[https://github.com/Marus/cortex-debug][cortex-debug]]
+- [[https://github.com/espressif/esp-debug-adapter][esp-debug-adapter]]
+
+#+begin_src emacs-lisp
+(package! embed
+  :recipe (:host github
+           :repo "sjsch/embed-el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! embed
+  :commands (embed-openocd-start
+             embed-openocd-stop
+             embed-openocd-gdb
+             embed-openocd-flash)
+
+  :init
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger +lsp)
+         :prefix-map ("e" . "embedded")
+         :desc "Start OpenOCD"    "o" #'embed-openocd-start
+         :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
+         :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
+         :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
+#+end_src
+
 **** Disaster :disaster:disassemble:
 
 #+begin_src emacs-lisp
