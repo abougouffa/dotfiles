@@ -1404,24 +1404,42 @@ Better colors for manual pages.
 #+begin_src emacs-lisp
 (package! flycheck-grammalecte
   :recipe (:host github
-           :repo "milouse/flycheck-grammalecte")
-  :disable t) ; FIXME Not working correctly
+           :repo "milouse/flycheck-grammalecte"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! flycheck-grammalecte
-  :config (flycheck-grammalecte-setup))
+  :commands (flycheck-grammalecte-correct-error-at-point
+             grammalecte-conjugate-verb
+             grammalecte-define
+             grammalecte-define-at-point
+             grammalecte-find-synonyms
+             grammalecte-find-synonyms-at-point)
+  :init
+  (setq flycheck-grammalecte-report-spellcheck t
+        flycheck-grammalecte-report-grammar t
+        flycheck-grammalecte-report-apos nil
+        flycheck-grammalecte-report-esp nil
+        flycheck-grammalecte-report-nbsp nil
+        flycheck-grammalecte-filters
+        '("(?m)^# ?-*-.+$"
+          ;; Ignore LaTeX equations (inline and block)
+          "\\$.*?\\$"
+          "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
 
-;; (use-package flycheck-grammalecte
-;;              :hook (fountain-mode . flycheck-mode)
-;;              :init
-;;              (setq flycheck-grammalecte-report-apos nil
-;;                    flycheck-grammalecte-report-esp nil
-;;                    flycheck-grammalecte-report-nbsp nil)
-;;              :config
-;;              (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode)
-;;              (grammalecte-download-grammalecte)
-;;              (flycheck-grammalecte-setup))
+  (map! :leader :prefix ("l" . "custom")
+        (:prefix-map ("g" . "grammalecte")
+         :desc "Correct error at point"     "p" #'flycheck-grammalecte-correct-error-at-point
+         :desc "Conjugate a verb"           "V" #'grammalecte-conjugate-verb
+         :desc "Define a word"              "W" #'grammalecte-define
+         :desc "Conjugate a verb at point"  "w" #'grammalecte-define-at-point
+         :desc "Find synonyms"              "S" #'grammalecte-find-synonyms
+         :desc "Find synonyms at point"     "s" #'grammalecte-find-synonyms-at-point))
+
+  :config
+  (grammalecte-download-grammalecte)
+  (flycheck-grammalecte-setup)
+  (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 #+end_src
 
 **** Zotero Zotxt :zotero:
