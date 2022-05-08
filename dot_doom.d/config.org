@@ -1525,7 +1525,7 @@ Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]]
   :init (global-page-break-lines-mode))
 #+end_src
 
-**** Emacs Application Framework
+**** Emacs Application Framework :eaf:
 EAF is presented as: /A free/libre and open-source extensible framework that
 revolutionizes the graphical capabilities of Emacs/. Or the key to ultimately
 /Live in Emacs/.
@@ -1665,7 +1665,7 @@ A lightweight version of EAF that provides multimedia capabilities.
          (ein:markdown-mode . popweb-latex-mode)))
 #+end_src
 
-**** Chezmoi
+**** Chezmoi :dotfiles:
 
 #+begin_src emacs-lisp
 (package! chezmoi)
