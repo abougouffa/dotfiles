@@ -1381,6 +1381,29 @@ Better colors for manual pages.
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 #+end_src
 
+**** Guess language
+
+#+begin_src emacs-lisp
+(package! guess-language
+  :recipe (:host github
+           :repo "tmalsburg/guess-language.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! guess-language
+  :config
+  (setq guess-language-languages '(en fr ar)
+        guess-language-min-paragraph-length 35
+        guess-language-langcodes '((en . ("en_US" "English" "🇺🇸" "English"))
+                                   (fr . ("francais" "French" "🇫🇷" "Français"))
+                                   (ar . ("arabic" "Arabic" "🇩🇿" "Arabic"))))
+  ;; :hook (text-mode . guess-language-mode)
+  :commands (guess-language
+             guess-language-mode
+             guess-language-region
+             guess-language-mark-lines))
+#+end_src
+
 **** Grammarly
 
 #+begin_src emacs-lisp
