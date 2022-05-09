@@ -1381,7 +1381,7 @@ Better colors for manual pages.
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 #+end_src
 
-**** Guess language
+**** Guess language :language:text:
 
 #+begin_src emacs-lisp
 (package! guess-language
@@ -1404,7 +1404,7 @@ Better colors for manual pages.
              guess-language-mark-lines))
 #+end_src
 
-**** Grammarly
+**** Grammarly :language:grammar:
 
 #+begin_src emacs-lisp
 (package! grammarly
@@ -1435,7 +1435,7 @@ Better colors for manual pages.
     (lsp-deferred))
 #+end_src
 
-**** Grammalecte
+**** Grammalecte :french:grammar:
 
 #+begin_src emacs-lisp
 (package! flycheck-grammalecte
@@ -1505,7 +1505,7 @@ Replicated Data Type]]/.
              crdt-org-sync-overlay-mode))
 #+end_src
 
-**** Ag.el
+**** Ag.el :search:
 An Emacs frontend to The Silver Searcher, first we need to install =ag= using =sudo
 pacman -S the_silver_searcher=.
 
@@ -1523,7 +1523,7 @@ pacman -S the_silver_searcher=.
              ag-project-regexp))
 #+end_src
 
-**** Disk usage
+**** Disk usage :fs:
 
 #+begin_src emacs-lisp
 (package! disk-usage)
@@ -1547,7 +1547,7 @@ pacman -S the_silver_searcher=.
   :commands (aweshell-new aweshell-dedicated-open))
 #+end_src
 
-**** Page break lines
+**** Page break lines :editor:
 A feature that displays ugly form feed characters as tidy horizontal rules.
 Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
@@ -1675,7 +1675,7 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
           (kbd "SPC"))))))
 #+end_src
 
-**** Popweb
+**** Popweb :text:
 A lightweight version of EAF that provides multimedia capabilities.
 
 #+begin_src emacs-lisp
