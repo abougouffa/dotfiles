@@ -472,8 +472,35 @@ is binary, activate `hexl-mode'."
 
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 
-(use-package! flycheck-grammarly
-  :config (load! "lisp/private/+grammarly-account.el"))
+(use-package! guess-language
+  :config
+  (setq guess-language-languages '(en fr ar)
+        guess-language-min-paragraph-length 35
+        guess-language-langcodes '((en . ("en_US" "English" "🇺🇸" "English"))
+                                   (fr . ("francais" "French" "🇫🇷" "Français"))
+                                   (ar . ("arabic" "Arabic" "🇩🇿" "Arabic"))))
+  ;; :hook (text-mode . guess-language-mode)
+  :commands (guess-language
+             guess-language-mode
+             guess-language-region
+             guess-language-mark-lines))
+
+(use-package! grammarly
+  :config
+  (grammarly-load-from-authinfo))
+
+(use-package! lsp-grammarly
+  :ensure t
+  :commands (+lsp-grammarly-load))
+  :init
+;; :hook (text-mode . (lambda ()
+;;                      (require 'lsp-grammarly)
+;;                      (lsp-deferred))))  ; or (lsp)
+  (defun +lsp-grammarly-load ()
+    "Load Grammarly LSP server."
+    (interactive)
+    (require 'lsp-grammarly)
+    (lsp-deferred))
 
 (use-package! flycheck-grammalecte
   :commands (flycheck-grammalecte-correct-error-at-point
@@ -569,7 +596,11 @@ is binary, activate `hexl-mode'."
   :config
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
+  ;; Extensions
+  (require 'eaf-org)
+  (require 'eaf-mail)
 
+  ;; Apps
   (require 'eaf-browser)
   (require 'eaf-pdf-viewer)
   (require 'eaf-file-manager)
@@ -579,11 +610,10 @@ is binary, activate `hexl-mode'."
   (require 'eaf-jupyter)
   (require 'eaf-markdown-previewer)
   (require 'eaf-org-previewer)
-  (require 'eaf-org)
+  (require 'eaf-music-player)
+  (require 'eaf-video-player)
   ;; (require 'eaf-git)
-  ;; (require 'eaf-music-player)
   ;; (require 'eaf-image-viewer)
-  ;; (require 'eaf-video-player)
 
   ;; Interleave, presents your pdf side by side to an org-mode buffer with your notes
   ;; See: https://github.com/emacs-eaf/emacs-application-framework/wiki/eaf-interleave

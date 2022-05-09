@@ -45,15 +45,17 @@
 
 (package! info-colors)
 
+(package! guess-language
+  :recipe (:host github
+           :repo "tmalsburg/guess-language.el"))
+
 (package! grammarly
   :recipe (:host github
-           :repo "emacs-grammarly/grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
+           :repo "emacs-grammarly/grammarly"))
 
-(package! flycheck-grammarly
+(package! lsp-grammarly
   :recipe (:host github
-           :repo "emacs-grammarly/flycheck-grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
+           :repo "emacs-grammarly/lsp-grammarly"))
 
 (package! flycheck-grammalecte
   :recipe (:host github
