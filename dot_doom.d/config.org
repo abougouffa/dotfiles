@@ -1386,18 +1386,14 @@ Better colors for manual pages.
 #+begin_src emacs-lisp
 (package! grammarly
   :recipe (:host github
-           :repo "emacs-grammarly/grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
+           :repo "emacs-grammarly/grammarly"))
 
-(package! flycheck-grammarly
   :recipe (:host github
-           :repo "emacs-grammarly/flycheck-grammarly")
-  :disable t) ;; TODO: It messes my org files up, need to investigate
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-grammarly
-  :config (load! "lisp/private/+grammarly-account.el"))
+(use-package! grammarly
+  :config
 #+end_src
 
 **** Grammalecte
