@@ -1608,7 +1608,11 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   :config
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
+  ;; Extensions
+  (require 'eaf-org)
+  (require 'eaf-mail)
 
+  ;; Apps
   (require 'eaf-browser)
   (require 'eaf-pdf-viewer)
   (require 'eaf-file-manager)
@@ -1618,11 +1622,10 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (require 'eaf-jupyter)
   (require 'eaf-markdown-previewer)
   (require 'eaf-org-previewer)
-  (require 'eaf-org)
+  (require 'eaf-music-player)
+  (require 'eaf-video-player)
   ;; (require 'eaf-git)
-  ;; (require 'eaf-music-player)
   ;; (require 'eaf-image-viewer)
-  ;; (require 'eaf-video-player)
 
   ;; Interleave, presents your pdf side by side to an org-mode buffer with your notes
   ;; See: https://github.com/emacs-eaf/emacs-application-framework/wiki/eaf-interleave
