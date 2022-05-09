@@ -1388,12 +1388,28 @@ Better colors for manual pages.
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
 
+(package! lsp-grammarly
   :recipe (:host github
+           :repo "emacs-grammarly/lsp-grammarly"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! grammarly
   :config
+  (grammarly-load-from-authinfo))
+
+(use-package! lsp-grammarly
+  :ensure t
+  :commands (+lsp-grammarly-load))
+  :init
+;; :hook (text-mode . (lambda ()
+;;                      (require 'lsp-grammarly)
+;;                      (lsp-deferred))))  ; or (lsp)
+  (defun +lsp-grammarly-load ()
+    "Load Grammarly LSP server."
+    (interactive)
+    (require 'lsp-grammarly)
+    (lsp-deferred))
 #+end_src
 
 **** Grammalecte
