@@ -1098,7 +1098,8 @@ So I can "mélanger les langues sans avoir de problèmes!".
 #+end_src
 
 *** LanguageTool :langtool:
-Define some shortcuts to check the grammar.
+Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool][LSP]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] implementations. This section defines some
+shortcuts to check the grammar.
 
 #+begin_src emacs-lisp
 (map! :leader :prefix ("l" . "custom")
