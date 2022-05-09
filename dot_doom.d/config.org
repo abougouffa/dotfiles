@@ -1335,8 +1335,10 @@ Visual feedback after kill/yank actions.
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
   ;; otherwise, set them here.
-  (setq awqat-asr-hanafi nil)
-  (awqat-set-preset-french-muslims))
+  (setq awqat-asr-hanafi nil
+        awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) ")
+  (awqat-set-preset-french-muslims)
+  (awqat-display-prayer-time-mode 1))
 #+end_src
 
 **** ESS :ess:
