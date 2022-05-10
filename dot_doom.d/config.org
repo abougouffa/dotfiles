@@ -2859,6 +2859,160 @@ configuration as follows:
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
+** EMMS :media:music:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! emms-mode-line-cycle
+  :recipe (:host github
+           :repo "abougouffa/emms-mode-line-cycle"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! emms-mode-line-cycle
+  :after emms
+  :config
+  (setq emms-mode-line-cycle-max-width 15
+        emms-mode-line-cycle-additional-space-num 4
+        emms-mode-line-format " ⟨𝅘𝅥𝅮 %s"
+        emms-mode-line-cycle-any-width-p nil
+        emms-mode-line-cycle-velocity 2
+        emms-mode-line-cycle-current-title-function
+        (lambda ()
+          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
+            (if (file-name-absolute-p name)
+                (file-name-base name)
+              name)))
+        emms-mode-line-titlebar-function
+        (lambda ()
+          '(:eval
+            (when emms-player-playing-p
+              (format " %s %s"
+                      (format emms-mode-line-format (emms-mode-line-cycle-get-title))
+                      emms-playing-time-string)))))
+  (emms-mode-line-cycle 1))
+#+end_src
+
+#+begin_src emacs-lisp
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :app emms)
+       :prefix-map ("m" . "emms")
+       :desc "Playlist go"             "g" #'emms-playlist-mode-go
+       :desc "Add playlist"            "D" #'emms-add-playlist
+       :desc "Add directory"           "d" #'emms-add-directory
+       :desc "Add file"                "f" #'emms-add-file
+       :desc "Play/Pause"              "p" #'emms-pause
+       :desc "Start"                   "S" #'emms-start
+       :desc "Stop"                    "s" #'emms-stop))
+
+(after! emms
+  ;; EMMS basic configuration
+  (require 'emms-setup)
+  (require 'emms-playing-time)
+  (emms-all)
+  (emms-default-players)
+
+  ;; Change to your music folder
+  (setq emms-source-file-default-directory "~/Music/"
+        emms-info-functions '(emms-info-tinytag) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
+        ;; Load cover images
+        emms-browser-covers 'emms-browser-cache-thumbnail-async)
+
+  ;; Mode line formatting settings
+  ;; This format complements the 'emms-mode-line-format' one.
+  (setq emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
+        emms-playing-time-display-format " %s⟩ ")
+
+  (defun +emms-mode-line-toggle-format-hook ()
+    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
+    (setq emms-mode-line-format
+          (concat " ⟨𝅘𝅥𝅮 %s " (if emms-player-paused-p "⏸" "⏵")))
+    ;; Trigger a forced update of mode line (useful when pausing)
+    (emms-mode-line-alter-mode-line))
+
+  ;; Hook the function to the 'emms-player-paused-hook'
+  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+
+  ;; Keyboard shortcuts
+  (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
+  (global-set-key (kbd "<XF86AudioNext>") 'emms-next)
+  (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+
+  ;; Activate EMMS in mode line
+  (emms-mode-line 1)
+
+  ;; More descriptive track lines in playlists
+  ;; From: https://www.emacswiki.org/emacs/EMMS#h5o-15
+  (defun +better-emms-track-description (track)
+    "Return a somewhat nice track description."
+    (let ((artist (emms-track-get track 'info-artist))
+          (year (emms-track-get track 'info-year))
+          (album (emms-track-get track 'info-album))
+          (tracknumber (emms-track-get track 'info-tracknumber))
+          (title (emms-track-get track 'info-title)))
+      (cond
+       ((or artist title)
+        (concat
+         (if (> (length artist) 0) artist "Unknown artist") " - "
+         (if (> (length year) 0) year "XXXX") " - "
+         (if (> (length album) 0) album "Unknown album") " - "
+         (if (> (length tracknumber) 0) (format "%02d" (string-to-number tracknumber)) "XX") " - "
+         (if (> (length title) 0) title "Unknown title")))
+       (t
+        (emms-track-simple-description track)))))
+
+  (setq emms-track-description-function '+better-emms-track-description)
+
+  ;; Manage notifications, inspired by:
+  ;; https://www.emacswiki.org/emacs/EMMS#h5o-9
+  ;; https://www.emacswiki.org/emacs/EMMS#h5o-11
+
+  ;; Choose the notification system to use.
+  (cond
+   ;; Choose D-Bus to disseminate messages, if available.
+   ((and (require 'dbus nil t) (dbus-ping :session "org.freedesktop.Notifications"))
+    (setq +emms-notifier-function '+notify-via-freedesktop-notifications)
+    (require 'notifications))
+   ;; Try to make use of KNotify if D-Bus isn't present.
+   ((and window-system (executable-find "kdialog"))
+    (setq +emms-notifier-function '+notify-via-kdialog))
+   ;; Use the message system otherwise
+   (t
+    (setq +emms-notifier-function '+notify-via-messages)))
+
+  (setq +emms-notification-icon "/usr/share/icons/Papirus/64x64/apps/enjoy-music-player.svg")
+
+  (defun +notify-via-kdialog (title msg icon)
+    "Send notification with TITLE, MSG, and ICON via `KDialog'."
+    (emms-next-noerror)
+    (call-process "kdialog"
+                  nil nil nil
+                  "--title" title
+                  "--passivepopup" msg "5"
+                  "--icon" icon))
+
+  (defun +notify-via-freedesktop-notifications (title msg icon)
+    "Send notification with TITLE, MSG, and ICON via `D-Bus'."
+    (notifications-notify
+     :title title
+     :body msg
+     :app-icon icon
+     :urgency 'low))
+
+  (defun +notify-via-messages (title msg icon)
+    "Send notification with TITLE, MSG to message. ICON is ignored."
+    (message "%s %s" title msg))
+
+  (setq emms-player-next-function '+emms-notify-and-next)
+
+  (defun +emms-notify-and-next ()
+    "Send a notification of track and start next."
+    (emms-next-noerror)
+    (funcall +emms-notifier-function
+             "EMMS is now playing:"
+             (emms-track-description (emms-playlist-current-selected-track))
+             +emms-notification-icon)))
+#+end_src
+
 * Programming :prog:
 ** File templates :template:
 For some file types, we overwrite defaults in the [[file:./snippets][snippets]] directory, others
