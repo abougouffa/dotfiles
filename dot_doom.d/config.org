@@ -2041,6 +2041,7 @@ Add some packages for better assembly coding.
 (package! nasm-mode)
 (package! haxor-mode)
 (package! mips-mode)
+(package! riscv-mode)
 (package! x86-lookup)
 #+end_src
 
@@ -2054,6 +2055,10 @@ Add some packages for better assembly coding.
 
 (use-package! mips-mode
   :mode "\\.mips$")
+
+(use-package! riscv-mode
+  :commands (riscv-mode)
+  :mode "\\.riscv$")
 
 (use-package! x86-lookup
   :commands (x86-lookup)
