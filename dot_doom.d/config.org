@@ -1321,24 +1321,19 @@ Visual feedback after kill/yank actions.
 #+begin_src emacs-lisp
 (package! awqat
   :recipe (:host github
-           ;; Temporary use my fork with angles fixes.
-           ;; Upstream repo "zkry/awqat"
-           :repo "abougouffa/awqat"
-           :branch "fix-angle-for-uoif"))
+           :repo "zkry/awqat"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! awqat
   :commands (awqat-display-prayer-time-mode
              awqat-times-for-day)
-
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
   ;; otherwise, set them here.
   (setq awqat-asr-hanafi nil
         awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) ")
-  (awqat-set-preset-french-muslims)
-  (awqat-display-prayer-time-mode 1))
+  (awqat-set-preset-french-muslims))
 #+end_src
 
 **** ESS :ess:
