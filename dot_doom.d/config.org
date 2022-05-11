@@ -830,6 +830,17 @@ is binary, activate `hexl-mode'."
 (add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
 #+end_src
 
+*** Evil
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! evil-escape :disable t)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! evil
+  (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
+#+end_src
+
 ** Allow babel execution in =doom= CLI actions :babel:cli:
 This file generates all my Doom config files, it works nicely, but for it to
 work with =doom sync= et al. I need to make sure that Org doesn't try to confirm
