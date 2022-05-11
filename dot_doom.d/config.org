@@ -2862,7 +2862,7 @@ configuration as follows:
   :config
   (setq emms-mode-line-cycle-max-width 15
         emms-mode-line-cycle-additional-space-num 4
-        emms-mode-line-format " ⟨𝅘𝅥𝅮 %s"
+        emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
         emms-mode-line-cycle-any-width-p nil
         emms-mode-line-cycle-velocity 2
         emms-mode-line-cycle-current-title-function
@@ -2897,6 +2897,7 @@ configuration as follows:
   ;; EMMS basic configuration
   (require 'emms-setup)
   (require 'emms-playing-time)
+
   (emms-all)
   (emms-default-players)
 
@@ -2954,8 +2955,6 @@ configuration as follows:
   ;; Manage notifications, inspired by:
   ;; https://www.emacswiki.org/emacs/EMMS#h5o-9
   ;; https://www.emacswiki.org/emacs/EMMS#h5o-11
-
-  ;; Choose the notification system to use.
   (cond
    ;; Choose D-Bus to disseminate messages, if available.
    ((and (require 'dbus nil t) (dbus-ping :session "org.freedesktop.Notifications"))
