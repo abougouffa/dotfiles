@@ -863,7 +863,7 @@ avoid polluting the output.
 (advice-add 'org-babel-execute-src-block :around #'doom-shut-up-a)
 #+end_src
 
-** Asynchronous config tangling :async:babel:tangle:
+** Asynchronous tangling :async:babel:tangle:
 Doom adds an =org-mode= hook ~+literate-enable-recompile-h~. This is a nice idea,
 but it's too blocking for my taste. Since I trust my tangling to be fairly
 straightforward, I'll just redefine it to a simpler, async, function.
@@ -2472,9 +2472,9 @@ npm install -g @unibeautify/cli
 ** Calendar :calendar:
 
 #+begin_src emacs-lisp :tangle yes
-(setq calendar-latitude 48.7)
-(setq calendar-longitude 2.17)
-(setq calendar-location-name "Orsay, FR")
+(setq calendar-latitude 48.7
+      calendar-longitude 2.17
+      calendar-location-name "Orsay, FR")
 #+end_src
 
 ** e-Books =nov= :ebook:epub:
