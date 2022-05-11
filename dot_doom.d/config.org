@@ -1575,7 +1575,7 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   :load-path "lisp/emacs-application-framework"
   :custom
   ;; Generic
-  (eaf-start-python-process-when-require t)
+  (eaf-start-python-process-when-require nil)
 
   ;; Customize fonts
   (eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono")
@@ -1596,8 +1596,8 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   (eaf-browser-enable-javascript t)
 
   ;; File manager settings
-  (eaf-file-manager-show-preview nil)
-  (eaf-find-alternate-file-in-dired t)
+  ;; (eaf-file-manager-show-preview nil)
+  ;; (eaf-find-alternate-file-in-dired t)
 
   ;; PDF Viewer settings
   (eaf-pdf-dark-mode "follow")
@@ -1605,6 +1605,7 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   :config
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
+
   ;; Extensions
   (require 'eaf-org)
   (require 'eaf-mail)
@@ -1612,30 +1613,19 @@ Taken from [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
   ;; Apps
   (require 'eaf-browser)
   (require 'eaf-pdf-viewer)
-  (require 'eaf-file-manager)
-  (require 'eaf-file-browser)
-  (require 'eaf-file-sender)
-  (require 'eaf-mindmap)
   (require 'eaf-jupyter)
   (require 'eaf-markdown-previewer)
   (require 'eaf-org-previewer)
-  (require 'eaf-music-player)
-  (require 'eaf-video-player)
+  ;; (require 'eaf-mindmap)
+  ;; (require 'eaf-file-manager)
+  ;; (require 'eaf-file-browser)
+  ;; (require 'eaf-file-sender)
+  ;; (require 'eaf-music-player)
+  ;; (require 'eaf-video-player)
   ;; (require 'eaf-git)
   ;; (require 'eaf-image-viewer)
 
-  ;; Interleave, presents your pdf side by side to an org-mode buffer with your notes
-  ;; See: https://github.com/emacs-eaf/emacs-application-framework/wiki/eaf-interleave
   (after! org
-    (require 'eaf-interleave)
-    (add-hook 'eaf-pdf-viewer-hook 'eaf-interleave-app-mode)
-    (add-hook 'eaf-browser-hook 'eaf-interleave-app-mode)
-    (add-hook 'org-mode-hook 'eaf-interleave-mode)
-    (setq eaf-interleave-org-notes-dir-list '("~/Dropbox/Org/interleave/"))
-    (setq eaf-interleave-split-direction 'vertical)
-    (setq eaf-interleave-disable-narrowing t)
-    (setq eaf-interleave-split-lines 20)
-
     ;; Use EAF PDF Viewer in Org
     (defun +eaf-org-open-file-fn (file &optional link)
       "An wrapper function on `eaf-open'."
