@@ -91,8 +91,7 @@
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
   (setq display-time-string-forms
-        '((propertize (concat 24-hours ":" minutes))))
-
+        '((propertize (concat " ⌛ " 24-hours ":" minutes))))
   (display-time-mode 1)) ; Enable time in the mode-line
 ;; Clock:1 ends here
 
@@ -207,7 +206,12 @@ is binary, activate `hexl-mode'."
 (add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
 ;; Binary files:1 ends here
 
-;; [[file:config.org::*Asynchronous config tangling][Asynchronous config tangling:1]]
+;; [[file:config.org::*Evil][Evil:2]]
+(after! evil
+  (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
+;; Evil:2 ends here
+
+;; [[file:config.org::*Asynchronous tangling][Asynchronous tangling:1]]
 (defadvice! +literate-tangle-async-h ()
   "A very simplified version of `+literate-tangle-h', but async."
   :override #'+literate-tangle-h
@@ -217,7 +221,7 @@ is binary, activate `hexl-mode'."
 (require 'org) (setq org-confirm-babel-evaluate nil) \
 (org-babel-tangle-file \\\"%s\\\"))\""
              +literate-config-file))))
-;; Asynchronous config tangling:1 ends here
+;; Asynchronous tangling:1 ends here
 
 ;; [[file:config.org::*All the icons][All the icons:1]]
 (after! all-the-icons
@@ -457,11 +461,11 @@ is binary, activate `hexl-mode'."
 (use-package! awqat
   :commands (awqat-display-prayer-time-mode
              awqat-times-for-day)
-
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
   ;; otherwise, set them here.
-  (setq awqat-asr-hanafi nil)
+  (setq awqat-asr-hanafi nil
+        awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) ")
   (awqat-set-preset-french-muslims))
 
 (use-package! vlf-setup
@@ -490,7 +494,6 @@ is binary, activate `hexl-mode'."
   (grammarly-load-from-authinfo))
 
 (use-package! lsp-grammarly
-  :ensure t
   :commands (+lsp-grammarly-load))
   :init
 ;; :hook (text-mode . (lambda ()
@@ -564,6 +567,11 @@ is binary, activate `hexl-mode'."
 
 (use-package! eaf
   :load-path "lisp/emacs-application-framework"
+  :commands (eaf-open
+             eaf-open-browser
+             eaf-open-jupyter
+             eaf-open-mail-as-html
+             eaf-org-export-to-pdf-and-open)
   :custom
   ;; Generic
   (eaf-start-python-process-when-require t)
@@ -587,8 +595,8 @@ is binary, activate `hexl-mode'."
   (eaf-browser-enable-javascript t)
 
   ;; File manager settings
-  (eaf-file-manager-show-preview nil)
-  (eaf-find-alternate-file-in-dired t)
+  ;; (eaf-file-manager-show-preview nil)
+  ;; (eaf-find-alternate-file-in-dired t)
 
   ;; PDF Viewer settings
   (eaf-pdf-dark-mode "follow")
@@ -596,6 +604,7 @@ is binary, activate `hexl-mode'."
   :config
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
+
   ;; Extensions
   (require 'eaf-org)
   (require 'eaf-mail)
@@ -603,30 +612,19 @@ is binary, activate `hexl-mode'."
   ;; Apps
   (require 'eaf-browser)
   (require 'eaf-pdf-viewer)
-  (require 'eaf-file-manager)
-  (require 'eaf-file-browser)
-  (require 'eaf-file-sender)
-  (require 'eaf-mindmap)
   (require 'eaf-jupyter)
   (require 'eaf-markdown-previewer)
   (require 'eaf-org-previewer)
-  (require 'eaf-music-player)
-  (require 'eaf-video-player)
+  ;; (require 'eaf-mindmap)
+  ;; (require 'eaf-file-manager)
+  ;; (require 'eaf-file-browser)
+  ;; (require 'eaf-file-sender)
+  ;; (require 'eaf-music-player)
+  ;; (require 'eaf-video-player)
   ;; (require 'eaf-git)
   ;; (require 'eaf-image-viewer)
 
-  ;; Interleave, presents your pdf side by side to an org-mode buffer with your notes
-  ;; See: https://github.com/emacs-eaf/emacs-application-framework/wiki/eaf-interleave
   (after! org
-    (require 'eaf-interleave)
-    (add-hook 'eaf-pdf-viewer-hook 'eaf-interleave-app-mode)
-    (add-hook 'eaf-browser-hook 'eaf-interleave-app-mode)
-    (add-hook 'org-mode-hook 'eaf-interleave-mode)
-    (setq eaf-interleave-org-notes-dir-list '("~/Dropbox/Org/interleave/"))
-    (setq eaf-interleave-split-direction 'vertical)
-    (setq eaf-interleave-disable-narrowing t)
-    (setq eaf-interleave-split-lines 20)
-
     ;; Use EAF PDF Viewer in Org
     (defun +eaf-org-open-file-fn (file &optional link)
       "An wrapper function on `eaf-open'."
@@ -798,7 +796,43 @@ is binary, activate `hexl-mode'."
   :hook (org-mode . org-pretty-table-mode))
 
 (use-package! org-modern
-  :hook (org-mode . org-modern-mode))
+                                        ;:hook (org-mode . org-modern-mode)
+  :init
+  ;; Add frame borders and window dividers
+  ;; (modify-all-frames-parameters
+  ;;  '((right-divider-width . 40)
+  ;;    (internal-border-width . 40)))
+
+  ;; (dolist (face '(window-divider
+  ;;                 window-divider-first-pixel
+  ;;                 window-divider-last-pixel))
+  ;;   (face-spec-reset-face face)
+  ;;   (set-face-foreground face (face-attribute 'default :background)))
+
+  ;; (set-face-background 'fringe (face-attribute 'default :background))
+
+  ;; Edit settings
+  (setq org-auto-align-tags nil
+        org-tags-column 0
+        org-catch-invisible-edits 'show-and-error
+        org-special-ctrl-a/e t
+        org-insert-heading-respect-content t
+
+        ;; Org styling, hide markup etc.
+        org-hide-emphasis-markers t
+        org-pretty-entities t
+        org-ellipsis "↩"
+
+        ;; Agenda styling
+        org-agenda-block-separator ?─
+        org-agenda-time-grid
+        '((daily today require-timed)
+          (800 1000 1200 1400 1600 1800 2000)
+          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+        org-agenda-current-time-string
+        "⭠ now ─────────────────────────────────────────────────")
+
+  (global-org-modern-mode))
 
 (use-package! websocket
   :after org-roam-ui)
@@ -824,6 +858,10 @@ is binary, activate `hexl-mode'."
 
 (use-package! mips-mode
   :mode "\\.mips$")
+
+(use-package! riscv-mode
+  :commands (riscv-mode)
+  :mode "\\.riscv$")
 
 (use-package! x86-lookup
   :commands (x86-lookup)
@@ -980,9 +1018,9 @@ is binary, activate `hexl-mode'."
   :commands (inspect-expression inspect-last-sexp))
 
 ;; [[file:config.org::*Calendar][Calendar:1]]
-(setq calendar-latitude 48.7)
-(setq calendar-longitude 2.17)
-(setq calendar-location-name "Orsay, FR")
+(setq calendar-latitude 48.7
+      calendar-longitude 2.17
+      calendar-location-name "Orsay, FR")
 ;; Calendar:1 ends here
 
 ;; [[file:config.org::*e-Books =nov=][e-Books =nov=:1]]
@@ -1150,6 +1188,151 @@ is binary, activate `hexl-mode'."
   (load! "lisp/private/+mu4e-accounts.el"))
 ;; mu4e:2 ends here
 
+;; [[file:config.org::*EMMS][EMMS:2]]
+(use-package! emms-mode-line-cycle
+  :after emms
+  :config
+  (setq emms-mode-line-cycle-max-width 15
+        emms-mode-line-cycle-additional-space-num 4
+        emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
+        emms-mode-line-cycle-any-width-p nil
+        emms-mode-line-cycle-velocity 2
+        emms-mode-line-cycle-current-title-function
+        (lambda ()
+          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
+            (if (file-name-absolute-p name)
+                (file-name-base name)
+              name)))
+        emms-mode-line-titlebar-function
+        (lambda ()
+          '(:eval
+            (when emms-player-playing-p
+              (format " %s %s"
+                      (format emms-mode-line-format (emms-mode-line-cycle-get-title))
+                      emms-playing-time-string)))))
+  (emms-mode-line-cycle 1))
+;; EMMS:2 ends here
+
+;; [[file:config.org::*EMMS][EMMS:3]]
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :app emms)
+       :prefix-map ("m" . "emms")
+       :desc "Playlist go"             "g" #'emms-playlist-mode-go
+       :desc "Add playlist"            "D" #'emms-add-playlist
+       :desc "Add directory"           "d" #'emms-add-directory
+       :desc "Add file"                "f" #'emms-add-file
+       :desc "Play/Pause"              "p" #'emms-pause
+       :desc "Start"                   "S" #'emms-start
+       :desc "Stop"                    "s" #'emms-stop))
+
+(after! emms
+  ;; EMMS basic configuration
+  (require 'emms-setup)
+  (require 'emms-playing-time)
+
+  (emms-all)
+  (emms-default-players)
+
+  ;; Change to your music folder
+  (setq emms-source-file-default-directory "~/Music/"
+        emms-info-functions '(emms-info-tinytag) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
+        ;; Load cover images
+        emms-browser-covers 'emms-browser-cache-thumbnail-async)
+
+  ;; Mode line formatting settings
+  ;; This format complements the 'emms-mode-line-format' one.
+  (setq emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
+        emms-playing-time-display-format " %s⟩ ")
+
+  (defun +emms-mode-line-toggle-format-hook ()
+    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
+    (setq emms-mode-line-format
+          (concat " ⟨𝅘𝅥𝅮 %s " (if emms-player-paused-p "⏸" "⏵")))
+    ;; Trigger a forced update of mode line (useful when pausing)
+    (emms-mode-line-alter-mode-line))
+
+  ;; Hook the function to the 'emms-player-paused-hook'
+  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+
+  ;; Keyboard shortcuts
+  (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
+  (global-set-key (kbd "<XF86AudioNext>") 'emms-next)
+  (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+
+  ;; Activate EMMS in mode line
+  (emms-mode-line 1)
+
+  ;; More descriptive track lines in playlists
+  ;; From: https://www.emacswiki.org/emacs/EMMS#h5o-15
+  (defun +better-emms-track-description (track)
+    "Return a somewhat nice track description."
+    (let ((artist (emms-track-get track 'info-artist))
+          (year (emms-track-get track 'info-year))
+          (album (emms-track-get track 'info-album))
+          (tracknumber (emms-track-get track 'info-tracknumber))
+          (title (emms-track-get track 'info-title)))
+      (cond
+       ((or artist title)
+        (concat
+         (if (> (length artist) 0) artist "Unknown artist") " - "
+         (if (> (length year) 0) year "XXXX") " - "
+         (if (> (length album) 0) album "Unknown album") " - "
+         (if (> (length tracknumber) 0) (format "%02d" (string-to-number tracknumber)) "XX") " - "
+         (if (> (length title) 0) title "Unknown title")))
+       (t
+        (emms-track-simple-description track)))))
+
+  (setq emms-track-description-function '+better-emms-track-description)
+
+  ;; Manage notifications, inspired by:
+  ;; https://www.emacswiki.org/emacs/EMMS#h5o-9
+  ;; https://www.emacswiki.org/emacs/EMMS#h5o-11
+  (cond
+   ;; Choose D-Bus to disseminate messages, if available.
+   ((and (require 'dbus nil t) (dbus-ping :session "org.freedesktop.Notifications"))
+    (setq +emms-notifier-function '+notify-via-freedesktop-notifications)
+    (require 'notifications))
+   ;; Try to make use of KNotify if D-Bus isn't present.
+   ((and window-system (executable-find "kdialog"))
+    (setq +emms-notifier-function '+notify-via-kdialog))
+   ;; Use the message system otherwise
+   (t
+    (setq +emms-notifier-function '+notify-via-messages)))
+
+  (setq +emms-notification-icon "/usr/share/icons/Papirus/64x64/apps/enjoy-music-player.svg")
+
+  (defun +notify-via-kdialog (title msg icon)
+    "Send notification with TITLE, MSG, and ICON via `KDialog'."
+    (emms-next-noerror)
+    (call-process "kdialog"
+                  nil nil nil
+                  "--title" title
+                  "--passivepopup" msg "5"
+                  "--icon" icon))
+
+  (defun +notify-via-freedesktop-notifications (title msg icon)
+    "Send notification with TITLE, MSG, and ICON via `D-Bus'."
+    (notifications-notify
+     :title title
+     :body msg
+     :app-icon icon
+     :urgency 'low))
+
+  (defun +notify-via-messages (title msg icon)
+    "Send notification with TITLE, MSG to message. ICON is ignored."
+    (message "%s %s" title msg))
+
+  (setq emms-player-next-function '+emms-notify-and-next)
+
+  (defun +emms-notify-and-next ()
+    "Send a notification of track and start next."
+    (emms-next-noerror)
+    (funcall +emms-notifier-function
+             "EMMS is now playing:"
+             (emms-track-description (emms-playlist-current-selected-track))
+             +emms-notification-icon)))
+;; EMMS:3 ends here
+
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
 (set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
@@ -1171,13 +1354,13 @@ is binary, activate `hexl-mode'."
     (font-lock-mode 1)
     (let* ((separator (or separator ?\,))
            (n (count-matches (string separator) (point-at-bol) (point-at-eol)))
-           (colors (loop for i from 0 to 1.0 by (/ 2.0 n)
-                         collect (apply #'color-rgb-to-hex
-                                        (color-hsl-to-rgb i 0.3 0.5)))))
-      (loop for i from 2 to n by 2
-            for c in colors
-            for r = (format "^\\([^%c\n]+%c\\)\\{%d\\}" separator separator i)
-            do (font-lock-add-keywords nil `((,r (1 '(face (:foreground ,c))))))))))
+           (colors (cl-loop for i from 0 to 1.0 by (/ 2.0 n)
+                            collect (apply #'color-rgb-to-hex
+                                           (color-hsl-to-rgb i 0.3 0.5)))))
+      (cl-loop for i from 2 to n by 2
+               for c in colors
+               for r = (format "^\\([^%c\n]+%c\\)\\{%d\\}" separator separator i)
+               do (font-lock-add-keywords nil `((,r (1 '(face (:foreground ,c))))))))))
 
 ;; ;; provide CSV mode setup
 ;; (defun +csv-rainbow-mode-hook ()
@@ -2171,11 +2354,6 @@ is binary, activate `hexl-mode'."
             (replace-match (downcase (match-string 0)) t)
             (setq count (1+ count))))
         (message "Replaced %d occurances" count))))
-  (defadvice! shut-up-org-problematic-hooks (orig-fn &rest args)
-    :around #'org-fancy-priorities-mode
-    :around #'org-superstar-mode
-  ; :around #'dap-mode-hook
-    (ignore-errors (apply orig-fn args)))
   (org-link-set-parameters
    "subfig"
    :follow (lambda (file) (find-file file))
@@ -2214,109 +2392,20 @@ is binary, activate `hexl-mode'."
           (1.0 . org-warning)
           (0.5 . org-upcoming-deadline)
           (0.0 . org-upcoming-distant-deadline)))
-  (add-hook 'org-mode-hook #'+org-pretty-mode)
-  (setq org-fontify-quote-and-verse-blocks t)
-  (use-package! org-appear
-    :hook (org-mode . org-appear-mode)
-    :config
-    (setq org-appear-autoemphasis t
-          org-appear-autosubmarkers t
-          org-appear-autolinks nil)
-    ;; for proper first-time setup, `org-appear--set-elements'
-    ;; needs to be run after other hooks have acted.
-    (run-at-time nil nil #'org-appear--set-elements))
-  (defvar org-prettify-inline-results t
-    "Whether to use (ab)use prettify-symbols-mode on {{{results(...)}}}.
-  Either t or a cons cell of strings which are used as substitutions
-  for the start and end of inline results, respectively.")
+  ;; (after! org-superstar
+  ;;   (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+  ;;         org-superstar-prettify-item-bullets t))
   
-  (defvar org-fontify-inline-src-blocks-max-length 200
-    "Maximum content length of an inline src block that will be fontified.")
-  
-  (defun org-fontify-inline-src-blocks (limit)
-    "Try to apply `org-fontify-inline-src-blocks-1'."
-    (condition-case nil
-        (org-fontify-inline-src-blocks-1 limit)
-      (error (message "Org mode fontification error in %S at %d"
-                      (current-buffer)
-                      (line-number-at-pos)))))
-  
-  (defun org-fontify-inline-src-blocks-1 (limit)
-    "Fontify inline src_LANG blocks, from `point' up to LIMIT."
-    (let ((case-fold-search t)
-          (initial-point (point)))
-      (while (re-search-forward "\\_<src_\\([^ \t\n[{]+\\)[{[]?" limit t) ; stolen from `org-element-inline-src-block-parser'
-        (let ((beg (match-beginning 0))
-              pt
-              (lang-beg (match-beginning 1))
-              (lang-end (match-end 1)))
-          (remove-text-properties beg lang-end '(face nil))
-          (font-lock-append-text-property lang-beg lang-end 'face 'org-meta-line)
-          (font-lock-append-text-property beg lang-beg 'face 'shadow)
-          (font-lock-append-text-property beg lang-end 'face 'org-block)
-          (setq pt (goto-char lang-end))
-          ;; `org-element--parse-paired-brackets' doesn't take a limit, so to
-          ;; prevent it searching the entire rest of the buffer we temporarily
-          ;; narrow the active region.
-          (save-restriction
-            (narrow-to-region beg (min (point-max) limit (+ lang-end org-fontify-inline-src-blocks-max-length)))
-            (when (ignore-errors (org-element--parse-paired-brackets ?\[))
-              (remove-text-properties pt (point) '(face nil))
-              (font-lock-append-text-property pt (point) 'face 'org-block)
-              (setq pt (point)))
-            (when (ignore-errors (org-element--parse-paired-brackets ?\{))
-              (remove-text-properties pt (point) '(face nil))
-              (font-lock-append-text-property pt (1+ pt) 'face '(org-block shadow))
-              (unless (= (1+ pt) (1- (point)))
-                (if org-src-fontify-natively
-                    (org-src-font-lock-fontify-block (buffer-substring-no-properties lang-beg lang-end) (1+ pt) (1- (point)))
-                  (font-lock-append-text-property (1+ pt) (1- (point)) 'face 'org-block)))
-              (font-lock-append-text-property (1- (point)) (point) 'face '(org-block shadow))
-              (setq pt (point))))
-          (when (and org-prettify-inline-results (re-search-forward "\\= {{{results(" limit t))
-            (font-lock-append-text-property pt (1+ pt) 'face 'org-block)
-            (goto-char pt))))
-      (when org-prettify-inline-results
-        (goto-char initial-point)
-        (org-fontify-inline-src-results limit))))
-  
-  (defun org-fontify-inline-src-results (limit)
-    (while (re-search-forward "{{{results(\\(.+?\\))}}}" limit t)
-      (remove-list-of-text-properties (match-beginning 0) (point)
-                                      '(composition
-                                        prettify-symbols-start
-                                        prettify-symbols-end))
-      (font-lock-append-text-property (match-beginning 0) (match-end 0) 'face 'org-block)
-      (let ((start (match-beginning 0)) (end (match-beginning 1)))
-        (with-silent-modifications
-          (compose-region start end (if (eq org-prettify-inline-results t) "⟨" (car org-prettify-inline-results)))
-          (add-text-properties start end `(prettify-symbols-start ,start prettify-symbols-end ,end))))
-      (let ((start (match-end 1)) (end (point)))
-        (with-silent-modifications
-          (compose-region start end (if (eq org-prettify-inline-results t) "⟩" (cdr org-prettify-inline-results)))
-          (add-text-properties start end `(prettify-symbols-start ,start prettify-symbols-end ,end))))))
-  
-  (defun org-fontify-inline-src-blocks-enable ()
-    "Add inline src fontification to font-lock in Org.
-  Must be run as part of `org-font-lock-set-keywords-hook'."
-    (setq org-font-lock-extra-keywords
-          (append org-font-lock-extra-keywords '((org-fontify-inline-src-blocks)))))
-  
-  (add-hook 'org-font-lock-set-keywords-hook #'org-fontify-inline-src-blocks-enable)
-  (after! org-superstar
-    (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-          org-superstar-prettify-item-bullets t))
-  
-  (setq org-ellipsis " ▾ "
-        org-hide-leading-stars t
-        org-priority-highest ?A
-        org-priority-lowest ?E
-        org-priority-faces
-        '((?A . 'all-the-icons-red)
-          (?B . 'all-the-icons-orange)
-          (?C . 'all-the-icons-yellow)
-          (?D . 'all-the-icons-green)
-          (?E . 'all-the-icons-blue)))
+  ;; (setq org-ellipsis " ▾ "
+  ;;       org-hide-leading-stars t
+  ;;       org-priority-highest ?A
+  ;;       org-priority-lowest ?E
+  ;;       org-priority-faces
+  ;;       '((?A . 'all-the-icons-red)
+  ;;         (?B . 'all-the-icons-orange)
+  ;;         (?C . 'all-the-icons-yellow)
+  ;;         (?D . 'all-the-icons-green)
+  ;;         (?E . 'all-the-icons-blue)))
   (appendq! +ligatures-extra-symbols
             '(:checkbox                "☐"
               :pending                 "◼"
