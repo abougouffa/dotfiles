@@ -340,8 +340,8 @@ qt                     ; the 'cutest' gui framework ever
      +hugo
      +present
      +pomodoro
-     +roam2
-     +pretty)
+;;  +pretty
+     +roam2)
 (racket +lsp           ; a DSL for DSLs
         +xp)
 (scheme +mit           ; a fully conniving family of lisps
@@ -1992,13 +1992,48 @@ Not working correctly, do not respect the indentation.
 #+begin_src emacs-lisp
 (package! org-modern
   :recipe (:host github
-           :repo "minad/org-modern")
-  :disable t) ;; Not working ATM
+           :repo "minad/org-modern"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! org-modern
-  :hook (org-mode . org-modern-mode))
+                                        ;:hook (org-mode . org-modern-mode)
+  :init
+  ;; Add frame borders and window dividers
+  ;; (modify-all-frames-parameters
+  ;;  '((right-divider-width . 40)
+  ;;    (internal-border-width . 40)))
+
+  ;; (dolist (face '(window-divider
+  ;;                 window-divider-first-pixel
+  ;;                 window-divider-last-pixel))
+  ;;   (face-spec-reset-face face)
+  ;;   (set-face-foreground face (face-attribute 'default :background)))
+
+  ;; (set-face-background 'fringe (face-attribute 'default :background))
+
+  ;; Edit settings
+  (setq org-auto-align-tags nil
+        org-tags-column 0
+        org-catch-invisible-edits 'show-and-error
+        org-special-ctrl-a/e t
+        org-insert-heading-respect-content t
+
+        ;; Org styling, hide markup etc.
+        org-hide-emphasis-markers t
+        org-pretty-entities t
+        org-ellipsis "↩"
+
+        ;; Agenda styling
+        org-agenda-block-separator ?─
+        org-agenda-time-grid
+        '((daily today require-timed)
+          (800 1000 1200 1400 1600 1800 2000)
+          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+        org-agenda-current-time-string
+        "⭠ now ─────────────────────────────────────────────────")
+
+  (global-org-modern-mode))
 #+end_src
 
 **** Org Roam :roam:
@@ -4280,7 +4315,7 @@ It likely misses some edge cases, but should mostly work.
       (message "Replaced %d occurances" count))))
 #+end_src
 
-**** Fix problematic hooks
+**** COMMENT Fix problematic hooks
 When one of the src_elisp{org-mode-hook} functions errors, it halts the hook
 execution. This is problematic, and there are two hooks in particular which
 cause issues. Let's make their failure less eventful.
@@ -4370,14 +4405,7 @@ It seems reasonable to have deadlines in the error face when they're passed.
         (0.0 . org-upcoming-distant-deadline)))
 #+end_src
 
-***** Org pretty mode
-Activate ~+org-pretty-mode~.
-
-#+begin_src emacs-lisp :
-(add-hook 'org-mode-hook #'+org-pretty-mode)
-#+end_src
-
-***** Font styling
+***** COMMENT Font styling
 We can then have quote blocks stand out a bit more by making them /italic/.
 
 #+begin_src emacs-lisp
@@ -4530,20 +4558,20 @@ and add an extra ~org-bullet~ to the default list of four.
 I've also added some fun alternatives, just commented out.
 
 #+begin_src emacs-lisp
-(after! org-superstar
-  (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-        org-superstar-prettify-item-bullets t))
+;; (after! org-superstar
+;;   (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+;;         org-superstar-prettify-item-bullets t))
 
-(setq org-ellipsis " ▾ "
-      org-hide-leading-stars t
-      org-priority-highest ?A
-      org-priority-lowest ?E
-      org-priority-faces
-      '((?A . 'all-the-icons-red)
-        (?B . 'all-the-icons-orange)
-        (?C . 'all-the-icons-yellow)
-        (?D . 'all-the-icons-green)
-        (?E . 'all-the-icons-blue)))
+;; (setq org-ellipsis " ▾ "
+;;       org-hide-leading-stars t
+;;       org-priority-highest ?A
+;;       org-priority-lowest ?E
+;;       org-priority-faces
+;;       '((?A . 'all-the-icons-red)
+;;         (?B . 'all-the-icons-orange)
+;;         (?C . 'all-the-icons-yellow)
+;;         (?D . 'all-the-icons-green)
+;;         (?E . 'all-the-icons-blue)))
 #+end_src
 
 It's also nice to make use of the Unicode characters for check boxes, and other

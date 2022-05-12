@@ -1,3 +1,7 @@
+;; [[file:config.org::*Evil][Evil:1]]
+(package! evil-escape :disable t)
+;; Evil:1 ends here
+
 ;; -*- no-byte-compile: t; -*-
 
 (package! svg-tag-mode)
@@ -125,8 +129,7 @@
 
 (package! org-modern
   :recipe (:host github
-           :repo "minad/org-modern")
-  :disable t) ;; Not working ATM
+           :repo "minad/org-modern"))
 
 (unpin! org-roam) ;; To avoid problems with org-roam-ui
 (package! websocket)
@@ -137,6 +140,7 @@
 (package! nasm-mode)
 (package! haxor-mode)
 (package! mips-mode)
+(package! riscv-mode)
 (package! x86-lookup)
 
 (package! repo)
@@ -215,5 +219,11 @@
 (package! inspector
   :recipe (:host github
            :repo "mmontone/emacs-inspector"))
+
+;; [[file:config.org::*EMMS][EMMS:1]]
+(package! emms-mode-line-cycle
+  :recipe (:host github
+           :repo "abougouffa/emms-mode-line-cycle"))
+;; EMMS:1 ends here
 
 (unpin! dap-mode)

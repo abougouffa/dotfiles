@@ -137,8 +137,8 @@
             +hugo
             +present
             +pomodoro
-            +roam2
-            +pretty)
+       ;;  +pretty
+            +roam2)
        (racket +lsp           ; a DSL for DSLs
                +xp)
        (scheme +mit           ; a fully conniving family of lisps
