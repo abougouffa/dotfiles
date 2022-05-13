@@ -447,6 +447,13 @@ default =auto-save-mode=.
 (global-subword-mode 1)
 #+end_src
 
+*** Emacs sources
+
+#+begin_src emacs-lisp
+(setq source-directory
+      (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git"))
+#+end_src
+
 *** Frame :frame:
 **** Maximizing :maximize:
 
