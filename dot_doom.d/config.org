@@ -408,11 +408,10 @@ instead of the default 2 hours.
 
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo.gpg")
-      auth-source-cache-expiry nil ; defaut is 2h (7200)
-      password-cache-expiry nil
-      password-cache t
       auth-source-do-cache t
-      epa-file-cache-passphrase-for-symmetric-encryption t)
+      auth-source-cache-expiry 86400 ; All day, defaut is 2h (7200)
+      password-cache t
+      password-cache-expiry 86400)
 #+end_src
 
 ** Better defaults :default:
