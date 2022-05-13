@@ -510,7 +510,19 @@ stealing prevention* to /None/ in the KDE Settings.
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
-(set-frame-parameter nil 'internal-border-width 15)
+;; (set-frame-parameter nil 'internal-border-width 15)
+
+;; Add frame borders and window dividers
+(modify-all-frames-parameters '((right-divider-width . 20)
+                                (internal-border-width . 20)))
+
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+
+(set-face-background 'fringe (face-attribute 'default :background))
 #+end_src
 
 ** Chemacs2
