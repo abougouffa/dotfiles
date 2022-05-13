@@ -154,14 +154,14 @@ I'm lazy, I like Emacs to complete my writings.
 
 #+name: doom-completion
 #+begin_src emacs-lisp
-(vertico +icons)             ; the search engine of the future
-company                      ; the ultimate code completion backend
-;;(ivy +childframe           ; a search engine for love and life
+(vertico +icons)
+company
+;;(ivy +childframe
 ;;     +fuzzy
 ;;     +icons
 ;;     +prescient)
-;;helm                       ; the *other* search engine for love and life
-;;ido                        ; the other *other* search engine...
+;;helm
+;;ido
 #+end_src
 
 ** User interface (=:ui=)
@@ -171,33 +171,33 @@ Enables some user interface features for better user experience, the beautiful
 
 #+name: doom-ui
 #+begin_src emacs-lisp
-deft                         ; notational velocity for Emacs
-doom                         ; what makes DOOM look the way it does
-doom-dashboard               ; a nifty splash screen for Emacs
-hl-todo                      ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-hydra                        ; quick documentation for related commands
-modeline                     ; snazzy, Atom-inspired modeline, plus API
-nav-flash                    ; blink the current line after jumping
-ophints                      ; highlight the region an operation acts on
-vc-gutter                    ; vcs diff in the fringe
-workspaces                   ; tab emulation, persistence & separate workspaces
-zen                          ; distraction-free coding or writing
-(window-select +numbers)     ; visually switch windows
-(ligatures +extra)           ; ligatures and symbols to make your code pretty again
-;;(treemacs +lsp)            ; a project drawer, like neotree but cooler
-(popup +all                  ; tame sudden yet inevitable temporary windows
+deft
+doom
+doom-dashboard
+hl-todo
+hydra
+modeline
+vc-gutter
+workspaces
+zen
+neotree
+(window-select +numbers)
+(ligatures +extra)
+(popup +all
        +defaults)
 (emoji +ascii
        +unicode
        +github)
-;;doom-quit                  ; DOOM quit-message prompts when you quit Emacs
-;;fill-column                ; a `fill-column' indicator
-;;indent-guides              ; highlighted indent columns, notoriously slow
-;;minimap                    ; show a map of the code on the side
-neotree                      ; a project drawer, like NERDTree for vim
-;;unicode                    ; extended unicode support for various languages
-;;tabs                       ; a tab bar for Emacs
-;;vi-tilde-fringe            ; fringe tildes to mark beyond EOB
+;;ophints
+;;nav-flash
+;;(treemacs +lsp)
+;;doom-quit
+;;fill-column
+;;indent-guides
+;;minimap
+;;unicode
+;;tabs
+;;vi-tilde-fringe
 #+end_src
 
 ** Editor (=:editor=)
@@ -207,31 +207,31 @@ support, wrap long lines, auto format support.
 
 #+name: doom-editor
 #+begin_src emacs-lisp
-(evil +everywhere)           ; come to the dark side, we have cookies
-(objed +manual)              ; text object editing for the innocent
-file-templates               ; auto-snippets for empty files
-fold                         ; (nigh) universal code folding
-format                       ; automated prettiness
-multiple-cursors             ; editing in many places at once
-parinfer                     ; turn lisp into python, sort of
-snippets                     ; my elves. They type, so I don't have to
-word-wrap                    ; soft wrapping with language-aware indent
-lispy                        ; vim for lisp, for people who don't like vim
-;;god                        ; run Emacs commands without modifier keys
-;;rotate-text                ; cycle region at point between text candidates
+(evil +everywhere)
+file-templates
+fold
+format
+multiple-cursors
+parinfer
+snippets
+word-wrap
+;;lispy
+;;(objed +manual)
+;;god
+;;rotate-text
 #+end_src
 
-** Emacs' builtin (=:emacs=)
+** Emacs builtin stuff (=:emacs=)
 Beautify Emacs builtin packages.
 
 #+name: doom-emacs
 #+begin_src emacs-lisp
-(dired +icons                ; making dired pretty [functional]
+(dired +icons
        +ranger)
-(ibuffer +icons)             ; interactive buffer management
-(undo +tree)                 ; persistent, smarter undo for your inevitable mistakes
-electric                     ; smarter, keyword-based electric-indent
-vc                           ; version-control and Emacs, sitting in a tree
+(ibuffer +icons)
+(undo +tree)
+;;vc
+;;electric
 #+end_src
 
 ** Terminals (=:term=)
@@ -241,10 +241,10 @@ file editing (via Tramp).
 
 #+name: doom-term
 #+begin_src emacs-lisp
-eshell                       ; the elisp shell that works everywhere
-vterm                        ; the best terminal emulation in Emacs
-shell                        ; simple shell REPL for Emacs
-term                         ; basic terminal emulator for Emacs
+eshell
+vterm
+shell
+term
 #+end_src
 
 ** Checkers (=:checkers=)
@@ -253,9 +253,9 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 
 #+name: doom-checkers
 #+begin_src emacs-lisp
-(syntax +childframe)   ; tasing you for every semicolon you forget
+(syntax +childframe)
 (spell +aspell)
-grammar                ; tasing grammar mistake every you make
+grammar
 #+end_src
 
 ** Tools (=:tools=)
@@ -269,29 +269,26 @@ Emacs, I also enable some extra tools, like =magit=, =lookup=, =tmux=... etc.
 #+name: doom-tools
 #+begin_src emacs-lisp
 direnv
-editorconfig           ; let someone else argue about tabs vs spaces
-ein                    ; tame Jupyter notebooks with emacs
-;;chezmoi
-;;biblio               ; Writes a PhD for you (citation needed)
-gist                   ; interacting with github gists
-make                   ; run make tasks from Emacs
-pdf                    ; pdf enhancements
-rgb                    ; creating color strings
-tmux                   ; an API for interacting with tmux
-upload                 ; map local to remote projects via ssh/ftp
-(lsp +peek)            ; LPS
-(debugger +lsp)        ; FIXME stepping through code, to help you add bugs
+editorconfig
+ein
+gist
+make
+pdf
+rgb
+tmux
+upload
+pass
+(lsp +peek)
+(debugger +lsp)
 (docker +lsp)
-(eval +overlay)        ; run code, run (also, repls)
-(lookup +docsets       ; navigate your code and its documentation
-        +dictrionary
-        +offline)
-(magit +forge)         ; a git porcelain for Emacs
+(eval +overlay)
+(lookup +docsets +dictrionary +offline)
+(magit +forge)
+;;biblio
 ;;ansible
-;;pass                 ; password manager for nerds
-;;prodigy              ; FIXME managing external services & code builders
-;;taskrunner           ; taskrunner for all your projects
-;;terraform            ; infrastructure as code
+;;prodigy
+;;taskrunner
+;;terraform
 #+end_src
 
 ** Operating system (=:os=)
@@ -299,7 +296,7 @@ I enable =tty= for better support of terminal editing.
 
 #+name: doom-os
 #+begin_src emacs-lisp
-(tty +osc)             ; Configures Emacs for use in the terminal
+(tty +osc)
 #+end_src
 
 ** Language support (=:lang=)
@@ -311,43 +308,26 @@ I do enable =plantuml= also to quickly plot UML models withing Org documents.
 
 #+name: doom-lang
 #+begin_src emacs-lisp
-plantuml               ; diagrams for confusing people more
-emacs-lisp             ; drown in parentheses
-common-lisp            ; if you've seen one lisp, you've seen them all
-markdown               ; writing docs for people to ignore
-data                   ; config/data formats
-qt                     ; the 'cutest' gui framework ever
-(cc +lsp)              ; C/C++/Obj-C madness
-(json +lsp)            ; At least it ain't XML
-(julia +lsp)           ; a better, faster MATLAB
-(latex +lsp            ; writing papers in Emacs has never been so fun
-       +latexmk
-       +cdlatex
-       +fold)
-(rust +lsp)            ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
-(ess +lsp)             ; emacs speaks statistics
-(yaml +lsp)            ; JSON, but readable
-(sh +lsp)              ; she sells {ba,z,fi}sh shells on the C xor
-(python +lsp           ; beautiful is better than ugly
-        +pyright
-        +pyenv
-        +conda)
-(org +dragndrop        ; organize your plain life in plain text
-     +gnuplot
-     +jupyter
-     +pandoc
-     +noter
-     +hugo
-     +present
-     +pomodoro
-;;  +pretty
-     +roam2)
-(racket +lsp           ; a DSL for DSLs
-        +xp)
-(scheme +mit           ; a fully conniving family of lisps
-        +guile
-        +racket
-        +chez)
+plantuml
+emacs-lisp
+common-lisp
+markdown
+data
+qt
+(cc +lsp)
+(json +lsp)
+(julia +lsp)
+(latex +lsp +latexmk +fold)
+(rust +lsp)
+(ess +lsp)
+(yaml +lsp)
+(sh +lsp)
+(python +lsp +pyright +pyenv +conda)
+(org +dragndrop +gnuplot +jupyter
+     +pandoc +noter +hugo +present
+     +pomodoro +roam2)
+(racket +lsp +xp)
+(scheme +mit +guile +racket +chez)
 ;;rst                  ; ReST in peace
 ;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
@@ -395,11 +375,7 @@ I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= su
 
 #+name: doom-email
 #+begin_src emacs-lisp
-(mu4e +org
-      +gmail)
-;;(notmuch +org
-;;         +afew)
-;;(wanderlust +gmail)
+(mu4e +org +gmail)
 #+end_src
 
 ** Apps (=:app=)
@@ -411,11 +387,11 @@ sometimes to play music without leaving Emacs, and I like to enable support for
 #+name: doom-app
 #+begin_src emacs-lisp
 calendar
-irc                    ; how neckbeards socialize
+irc
 emms
-everywhere             ; *leave* Emacs!? You must be joking
-(rss +org)             ; emacs as an RSS reader
-;;twitter              ; twitter client https://twitter.com/vnought
+everywhere
+(rss +org)
+;;twitter
 #+end_src
 
 * General Emacs settings :global:
