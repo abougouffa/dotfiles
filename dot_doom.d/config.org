@@ -446,12 +446,14 @@ Show list of buffers when splitting.
 #+end_src
 
 *** Undo and auto-save :save:undo:
+There is a package [[https://github.com/bbatsov/super-save]], maybe better than the
+default =auto-save-mode=.
 
 #+begin_src emacs-lisp
 (setq undo-limit 80000000   ; Raise undo-limit to 80Mb
       evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
       auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      scroll-preserve-screen-position 'always ; Don't have `point' jump around
+      ;; scroll-preserve-screen-position 'always ; Don't have `point' jump around
       scroll-margin 2)      ; It's nice to maintain a little margin
 #+end_src
 
