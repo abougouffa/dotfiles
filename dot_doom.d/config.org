@@ -558,9 +558,9 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 (defun greedily-do-daemon-setup ()
   (require 'org)
   (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (setq +mu4e-lock-greedy t)
-    (setq +mu4e-lock-relaxed t)
+    (setq mu4e-confirm-quit t
+          +mu4e-lock-greedy t
+          +mu4e-lock-relaxed t)
     (+mu4e-lock-start 'mu4e~start))
   (when (require 'elfeed nil t)
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
@@ -583,7 +583,8 @@ frame/terminal is deleted.
 
 #+begin_src emacs-lisp
 (when (daemonp)
-  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
+  (add-hook! '(delete-frame-functions delete-terminal-functions)
+    (lambda (arg) (recentf-save-list))))
 #+end_src
 
 * Doom configuration :doom:config:
@@ -615,7 +616,6 @@ Some good fonts:
 
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      ;; doom-variable-pitch-font (font-spec :family "Latin Modern Roman") ; inherits the :size from doom-font
       doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
@@ -634,7 +634,10 @@ Set Doom's theme, some good choices:
 - =doom-monokai-pro=
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-one) ; Load theme
+(setq doom-theme 'doom-vibrant)
+;; (remove-hook 'window-setup-hook #'doom-init-theme-h)
+;; (add-hook 'after-init-hook #'doom-init-theme-h 'append)
+(delq! t custom-theme-load-path)
 #+end_src
 
 *** Mode line :modeline:
@@ -672,6 +675,8 @@ Show battery level unless battery is not present or battery information is unkno
 **** Custom Splash Image :image:banner:
 Change the logo to an image, a set of beautiful images can be found in =assets=.
 
+
+|----------------------+-------------------------------|
 | File                 | Preview                       |
 |----------------------+-------------------------------|
 | =emacs-e.svg=          | [[./assets/emacs-e.svg]]          |
@@ -688,10 +693,10 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 |----------------------+-------------------------------|
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
 #+end_src
 
-**** Clean Screen :clean:
+**** COMMENT Clean Screen :clean:
 Let's disable the dashboard commands, for a particularly /clean/ look disable the
 mode-line and ~hl-line-mode~, then also hide the cursor.
 
@@ -699,32 +704,6 @@ mode-line and ~hl-line-mode~, then also hide the cursor.
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
-#+end_src
-
-**** The ASCII Banner :ascii:banner:
-Add an ASCII banner, used in terminal mode.
-
-#+begin_src emacs-lisp
-(defun doom-dashboard-draw-ascii-emacs-banner-fn ()
-  (let* ((banner
-          '("______  _____  _____ ___  ___"
-            "|  _  \|  _  ||  _  ||  \/  |"
-            "| | | || | | || | | || .  . |"
-            "| | | || | | || | | || |\/| |"
-            "| |/ / \ \_/ /\ \_/ /| |  | |"
-            "|___/   \___/  \___/ \_|  |_/"))
-         (longest-line (apply #'max (mapcar #'length banner))))
-    (put-text-property
-     (point)
-     (dolist (line banner (point))
-       (insert (+doom-dashboard--center
-                +doom-dashboard--width
-                (concat line (make-string (max 0 (- longest-line (length line))) 32))))
-       "\n")
-     'face 'doom-dashboard-banner)))
-
-(unless (display-graphic-p) ; for some reason this messes up the graphical splash screen atm
-  (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
 #+end_src
 
 *** Which key :key:
@@ -741,7 +720,6 @@ with a unicode char, making =which-key='s candidate list less verbose.
 #+begin_src emacs-lisp
 (setq which-key-allow-multiple-replacements t)
 
-;; TODO: Add equivalent replacements for org
 (after! which-key
   (pushnew! which-key-replacement-alist
             '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
@@ -785,7 +763,7 @@ Tell the scratch buffer to start in =emacs-lisp-mode=.
 (setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
 #+end_src
 
-*** Mouse Buttons :mouse:
+*** Mouse buttons :mouse:
 Map extra mouse buttons to jump between buffers
 
 #+begin_src emacs-lisp
@@ -804,9 +782,8 @@ A binary buffer is defined as containing at least one null byte.
 
 Returns either nil, or the position of the first null byte."
   (with-current-buffer (or buffer (current-buffer))
-    (save-excursion
-      (goto-char (point-min))
-      (search-forward (string ?\x00) nil t 1))))
+    (save-excursion (goto-char (point-min))
+                    (search-forward (string ?\x00) nil t 1))))
 
 (defun +hexl/hexl-if-binary ()
   "If `hexl-mode' is not already active, and the current buffer
@@ -1325,8 +1302,8 @@ Visual feedback after kill/yank actions.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! awqat
-  :commands (awqat-display-prayer-time-mode
-             awqat-times-for-day)
+  ;; :load-path "~/Projects/foss_projects/awqat"
+  :commands (awqat-display-prayer-time-mode awqat-times-for-day)
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
   ;; otherwise, set them here.
@@ -1484,7 +1461,7 @@ Better colors for manual pages.
   :commands org-zotxt-mode)
 #+end_src
 
-**** CRDT :crdt:
+**** CRDT :crdt:collab:
 Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
 Replicated Data Type]]/.
 
@@ -1967,7 +1944,8 @@ Hook =org-fragtog-mode= to =org-mode=.
 #+begin_src emacs-lisp
 (package! org-pretty-table
   :recipe (:host github
-           :repo "Fuco1/org-pretty-table"))
+           :repo "Fuco1/org-pretty-table")
+  :disable t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1976,7 +1954,6 @@ Hook =org-fragtog-mode= to =org-mode=.
 #+end_src
 
 **** Org Modern
-Not working correctly, do not respect the indentation.
 
 #+begin_src emacs-lisp
 (package! org-modern
@@ -2657,7 +2634,6 @@ rename the =[Gmail]/...= folders). Here is an explained configuration example.
 
 #+begin_src conf-space :tangle no
 # mbsync config file
-
 # GLOBAL OPTIONS
 BufferLimit 50mb             # Global option:   Default buffer size is 10M, too small for modern machines.
 Sync All                     # Channels global: Sync everything "Pull Push New ReNew Delete Flags" (default option)
@@ -2797,15 +2773,14 @@ I configure my email accounts in a private file in
   (require 'smtpmail)
 
   ;; Common parameters
-  (setq smtpmail-auth-credentials "~/.authinfo.gpg"
-        mu4e-maildir "~/Maildir"
-        mu4e-update-interval (* 3 60) ;; Every 3 min
+  (setq mu4e-update-interval (* 3 60) ;; Every 3 min
+        +mu4e-backend 'mbsync
         ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
         mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
-        ;; message-send-mail-function 'smtpmail-send-it ;; Set by default
+        ;; message-send-mail-function 'smtpmail-send-it ;; Not needed, it is set by default
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
-        mu4e-context-policy 'pick-first ;; Start with the first context
+        mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
 
   (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
@@ -2844,11 +2819,11 @@ I configure my email accounts in a private file in
         :n "G" #'org-msg-goto-body)
 
   ;; I like to always BCC myself
-  (defun ab/bcc-me ()
+  (defun +bbc-me ()
     "Add my email to BCC."
     (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
 
-  (add-hook 'mu4e-compose-mode-hook 'ab/bcc-me)
+  (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
   ;; Load
   (load! "lisp/private/+mu4e-smart-refiling.el")
@@ -2901,22 +2876,39 @@ configuration as follows:
   :config
   (setq emms-mode-line-cycle-max-width 15
         emms-mode-line-cycle-additional-space-num 4
-        emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
         emms-mode-line-cycle-any-width-p nil
-        emms-mode-line-cycle-velocity 2
-        emms-mode-line-cycle-current-title-function
+        emms-mode-line-cycle-velocity 2)
+
+  ;; Some music files do not have metadata, by default, the track title
+  ;; will be the full file path, so, if I detect what seems to be an absolute
+  ;; path, I trim the directory part and get only the file name.
+  (setq emms-mode-line-cycle-current-title-function
         (lambda ()
           (let ((name (emms-track-description (emms-playlist-current-selected-track))))
-            (if (file-name-absolute-p name)
-                (file-name-base name)
-              name)))
-        emms-mode-line-titlebar-function
+            (if (file-name-absolute-p name) (file-name-base name) name))))
+
+  ;; Mode line formatting settings
+  ;; This format complements the 'emms-mode-line-format' one.
+  (setq emms-mode-line-format " ⟨%s⟩")  ; 𝅘𝅥𝅮 ⏵ ⏸
+
+  (setq emms-mode-line-titlebar-function
         (lambda ()
           '(:eval
             (when emms-player-playing-p
               (format " %s %s"
                       (format emms-mode-line-format (emms-mode-line-cycle-get-title))
                       emms-playing-time-string)))))
+
+  (defun +emms-mode-line-toggle-format-hook ()
+    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
+    (setq emms-mode-line-format
+          (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
+    ;; Trigger a forced update of mode line (useful when pausing)
+    (emms-mode-line-alter-mode-line))
+
+  ;; Hook the function to the 'emms-player-paused-hook'
+  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+
   (emms-mode-line-cycle 1))
 #+end_src
 
@@ -2945,21 +2937,6 @@ configuration as follows:
         emms-info-functions '(emms-info-tinytag) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
         ;; Load cover images
         emms-browser-covers 'emms-browser-cache-thumbnail-async)
-
-  ;; Mode line formatting settings
-  ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
-        emms-playing-time-display-format " %s⟩ ")
-
-  (defun +emms-mode-line-toggle-format-hook ()
-    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
-    (setq emms-mode-line-format
-          (concat " ⟨𝅘𝅥𝅮 %s " (if emms-player-paused-p "⏸" "⏵")))
-    ;; Trigger a forced update of mode line (useful when pausing)
-    (emms-mode-line-alter-mode-line))
-
-  ;; Hook the function to the 'emms-player-paused-hook'
-  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
 
   ;; Keyboard shortcuts
   (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
@@ -3055,7 +3032,6 @@ need to have a template assigned.
 Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?utm_source=reddit&utm_medium=web2x&context=3][here]].
 
 #+begin_src emacs-lisp
-
 (after! csv-mode
   ;; TODO: Need to fix the case of two commas, example "a,b,,c,d"
   (require 'cl-lib)
@@ -3078,12 +3054,8 @@ Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?ut
                for r = (format "^\\([^%c\n]+%c\\)\\{%d\\}" separator separator i)
                do (font-lock-add-keywords nil `((,r (1 '(face (:foreground ,c))))))))))
 
-;; ;; provide CSV mode setup
-;; (defun +csv-rainbow-mode-hook ()
-;;   15 being an arbitrary color count
-;;   (+csv-rainbow 15))
-
-;; (add-hook 'csv-mode-hook '+csv-rainbow-mode-hook))
+;; provide CSV mode setup
+;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 #+end_src
 
 ** GNU Octave :octave:
@@ -3126,9 +3098,9 @@ it work with =projectile=:
 
 *** LSP mode
 **** Enable some useful UI stuff :diagnostics:ui:
-LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables a set of
-UI components to provide a less intrusive UI, however I like to enable some less
-intrusive, more useful UI stuff.
+LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables some of
+the UI components; however, I like to enable some less intrusive, more useful UI
+stuff.
 
 #+begin_src emacs-lisp
 (after! lsp-ui
@@ -3137,7 +3109,7 @@ intrusive, more useful UI stuff.
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-hover nil
         lsp-log-io nil
-        lsp-lens-enable nil ; not working properly with ccls!
+        lsp-lens-enable t ; not working properly with ccls!
         lsp-diagnostics-provider :auto
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
@@ -3618,13 +3590,13 @@ on that.
                (ansi-color-apply-on-region (point-min) (point-max) t))))
 #+end_src
 
-** Org :org:
+* Org mode :org:
 :PROPERTIES:
 :CUSTOM_ID: org
 :header-args:emacs-lisp: :tangle no :noweb-ref org-conf
 :END:
 
-*** Intro
+** Intro
 Because this section is fairly expensive to initialize, we'll wrap it in a
 src_elisp{(after! ...)} block.
 
@@ -3634,18 +3606,22 @@ src_elisp{(after! ...)} block.
 )
 #+end_src
 
-*** Behavior :behavior:
-**** Tweaking defaults
+** Behavior :behavior:
+*** Tweaking defaults
 
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/"        ; let's put files here
       org-use-property-inheritance t        ; it's convenient to have properties inherited
       org-log-done 'time                    ; having the time an item is done sounds convenient
       org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-;;    org-export-in-background t            ; run export processes in external emacs process
+      org-export-in-background t            ; run export processes in external emacs process
 ;;    org-export-async-debug t
+      org-tags-column 0
       org-catch-invisible-edits 'smart      ; try not to accidently do weird stuff in invisible regions
-      org-export-with-sub-superscripts '{}) ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+      org-export-with-sub-superscripts '{}  ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+      org-auto-align-tags nil
+      org-special-ctrl-a/e t
+      org-insert-heading-respect-content t)
 #+end_src
 
 I also like the src_elisp{:comments} header-argument, so let's make that a
@@ -3664,7 +3640,7 @@ default.
 #+end_src
 
 By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
-However, this messes with tables in Org-mode, and other plaintext files (e.g.
+However, this messes with tables in Org-mode, and other plain text files (e.g.
 markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
 specific modes as desired.
 
@@ -3686,12 +3662,10 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
 
 Babel is really annoying when it comes to working with Scheme (via Geiser), it
 keeps asking about which Scheme implementation to use, I tried to set this in
-file local variables and dir-locals but it didn't work. This should work now!
+file local variables (with the src_org{# -*- geiser-scheme-implementation:
+'guile; -*-}) and dir-locals but it didn't work. This should work now!
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, I managed to fix the problem by specifying
-;; the implementation in file var prop line
-;; ===> # -*- geiser-scheme-implementation: 'guile; -*-
+#+begin_src emacs-lisp
 (after! geiser
   (setq geiser-default-implementation 'guile))
 
@@ -3702,16 +3676,16 @@ file local variables and dir-locals but it didn't work. This should work now!
 (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 #+end_src
 
-**** Extra functionality :extra:
-***** List bullet sequence :bullet:
+*** Extra functionality :extra:
+**** List bullet sequence :bullet:
 I think it makes sense to have list bullets change with depth
 
 #+begin_src emacs-lisp
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 #+end_src
 
-***** Citations :ref:
-****** =org-ref=
+**** Citations :ref:
+***** =org-ref=
 
 #+begin_src emacs-lisp
 (use-package! org-ref
@@ -3745,7 +3719,7 @@ I think it makes sense to have list bullets change with depth
           (org-ref-open-bibtex-pdf))))))
 #+end_src
 
-****** =org-cite=
+***** =org-cite=
 
 #+begin_src emacs-lisp
 (after! oc
@@ -3776,7 +3750,7 @@ I think it makes sense to have list bullets change with depth
                                  (match-string 2))))))))
 #+end_src
 
-***** Spellcheck :spell:
+**** Spellcheck :spell:
 I turn off spell checking by default to make Org files open quickly.
 
 #+begin_src emacs-lisp
@@ -3785,7 +3759,7 @@ I turn off spell checking by default to make Org files open quickly.
 ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
 #+end_src
 
-**** TODOs :todo:
+*** TODOs :todo:
 
 #+begin_src emacs-lisp
 (setq org-todo-keywords
@@ -3802,7 +3776,7 @@ I turn off spell checking by default to make Org files open quickly.
 (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
-**** Agenda :agenda:
+*** Agenda :agenda:
 Set files for =org-agenda=
 
 #+begin_src emacs-lisp
@@ -3813,7 +3787,20 @@ Set files for =org-agenda=
                              (expand-file-name "projects.org" org-directory)))
 #+end_src
 
-**** Google calendar (=org-gcal=) :calendar:google:
+Apply some styling on the standard agenda:
+
+#+begin_src emacs-lisp :tangle yes
+;; Agenda styling
+(setq org-agenda-block-separator ?─
+      org-agenda-time-grid
+      '((daily today require-timed)
+        (800 1000 1200 1400 1600 1800 2000)
+        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+      org-agenda-current-time-string
+      "⭠ now ─────────────────────────────────────────────────")
+#+end_src
+
+*** Google calendar (=org-gcal=) :calendar:google:
 I store my =org-gcal= configuration privately, it contains something like this:
 
 #+begin_example emacs-lisp :tangle no
@@ -3827,7 +3814,7 @@ I store my =org-gcal= configuration privately, it contains something like this:
 (load! "lisp/private/+org-gcal.el")
 #+end_src
 
-**** Capture :capture:
+*** Capture :capture:
 Set capture files
 
 #+begin_src emacs-lisp
@@ -4119,8 +4106,8 @@ no modeline.
         (org-capture)))
 #+end_src
 
-**** Roam :roam:
-***** Basic settings
+*** Roam :roam:
+**** Basic settings
 
 #+begin_src emacs-lisp :noweb-ref none :tangle yes
 (setq org-roam-directory "~/Dropbox/Org/slip-box")
@@ -4135,7 +4122,7 @@ to initialize), let's not load roam.
 (package! org-roam :disable t)
 #+end_src
 
-***** Mode line file name :modeline:
+**** Mode line file name :modeline:
 All those numbers! It's messy. Let's adjust this similarly that I have in
 the window title
 
@@ -4150,7 +4137,7 @@ the window title
     (funcall orig-fun)))
 #+end_src
 
-***** Org Roam Capture template :template:
+**** Org Roam Capture template :template:
 
 #+begin_src emacs-lisp
 (after! org-roam
@@ -4160,7 +4147,7 @@ the window title
            :unnarrowed t))))
 #+end_src
 
-**** Snippet Helpers
+*** Snippet Helpers
 I often want to set =src-block= headers, and it's a pain to:
 + type them out
 + remember what the accepted values are
@@ -4276,7 +4263,7 @@ Return nil otherwise."
     (car (cl-set-difference src-langs header-langs :test #'string=))))
 #+end_src
 
-**** Translate capital keywords (old) to lower case (new)
+*** Translate capital keywords (old) to lower case (new)
 Everyone used to use ~#+CAPITAL~ keywords. Then people realised that ~#+lowercase~
 is actually both marginally easier and visually nicer, so now the capital
 version is just used in the manual.
@@ -4304,7 +4291,7 @@ It likely misses some edge cases, but should mostly work.
       (message "Replaced %d occurances" count))))
 #+end_src
 
-**** COMMENT Fix problematic hooks
+*** COMMENT Fix problematic hooks
 When one of the src_elisp{org-mode-hook} functions errors, it halts the hook
 execution. This is problematic, and there are two hooks in particular which
 cause issues. Let's make their failure less eventful.
@@ -4317,8 +4304,8 @@ cause issues. Let's make their failure less eventful.
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
-*** Custom links
-**** Subfig
+** Custom links
+*** Subfig
 This defines a new link type =subfig= to enable exporting sub-figures to LaTeX,
 taken form [[https://orgmode.org/list/87mty1an66.fsf@posteo.net/]["Export subfigures to LaTeX (and HTML)"]].
 
@@ -4360,12 +4347,12 @@ Example of usage:
 ,#+end_figure
 #+end_example
 
-*** Visuals
+** Visuals
 Here I try to do two things: improve the styling of the various documents, via
 font changes etc., and also propagate colours from the current theme.
 
-**** Font display
-***** Headings
+*** Font display
+**** Headings
 Let's make the title and the headings a bit bigger:
 
 #+begin_src emacs-lisp
@@ -4383,7 +4370,7 @@ Let's make the title and the headings a bit bigger:
   '(outline-9 :weight semi-bold))
 #+end_src
 
-***** Deadlines
+**** Deadlines
 It seems reasonable to have deadlines in the error face when they're passed.
 
 #+begin_src emacs-lisp
@@ -4394,7 +4381,7 @@ It seems reasonable to have deadlines in the error face when they're passed.
         (0.0 . org-upcoming-distant-deadline)))
 #+end_src
 
-***** COMMENT Font styling
+**** Font styling
 We can then have quote blocks stand out a bit more by making them /italic/.
 
 #+begin_src emacs-lisp
@@ -4404,6 +4391,10 @@ We can then have quote blocks stand out a bit more by making them /italic/.
 While ~org-hide-emphasis-markers~ is very nice, it can sometimes make edits which
 occur at the border a bit more fiddley. We can improve this situation without
 sacrificing visual amenities with the =org-appear= package.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-appear)
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package! org-appear
@@ -4417,150 +4408,36 @@ sacrificing visual amenities with the =org-appear= package.
   (run-at-time nil nil #'org-appear--set-elements))
 #+end_src
 
-**** COMMENT Font trick
-Org files can be rather nice to look at, particularly with some customization
-here. This comes at a cost however, expensive font-lock. Feeling like you're
-typing through molasses in large files is no fun, but there is a way I can defer
-font-locking when typing to make the experience more responsive.
+**** Inline blocks
 
 #+begin_src emacs-lisp
-(defun locally-defer-font-lock ()
-  "Set jit-lock defer and stealth, when buffer is over a certain size."
-  (when (> (buffer-size) 50000)
-    (setq-local jit-lock-defer-time 0.05
-                jit-lock-stealth-time 1)))
-
-(add-hook 'org-mode-hook #'locally-defer-font-lock)
+(setq org-inline-src-prettify-results '("⟨" . "⟩")
+      doom-themes-org-fontify-special-tags nil)
 #+end_src
 
-Apparently this causes issues with some people, but I haven't noticed anything
-problematic beyond the expected slight delay in some fontification, so until I
-do, I'll use the above.
+*** Symbols
 
-**** Fontifying inline src blocks
-Org does lovely things with =#+begin_src= blocks, like using font-lock for
-language's major-mode behind the scenes and pulling out the lovely colorful
-results. By contrast, inline =src_= blocks are somewhat neglected.
-
-I am not the first person to feel this way, thankfully others have [[https://stackoverflow.com/questions/20309842/how-to-syntax-highlight-for-org-mode-inline-source-code-src-lang/28059832][taken to
-stackexchange]] to voice their desire for inline src fontification. I was going to
-steal their work, but unfortunately they didn't perform /true/ source code
-fontification, but simply applied the =org-code= face to the content.
-
-We can do better than that, and we shall! Using ~org-src-font-lock-fontify-block~
-we can apply language-appropriate syntax highlighting. Then, continuing on to
-={{{results(...)}}}= , it can have the =org-block= face applied to match, and then
-the value-surrounding constructs hidden by mimicking the behavior of
-~prettify-symbols-mode~.
-
-#+begin_warning
-This currently only highlights a single inline src block per line.
-I have no idea why it stops, but I'd rather it didn't.
-If you have any idea what's going on or how to fix this /please/ get in touch.
-#+end_warning
-
-#+begin_src emacs-lisp
-(defvar org-prettify-inline-results t
-  "Whether to use (ab)use prettify-symbols-mode on {{{results(...)}}}.
-Either t or a cons cell of strings which are used as substitutions
-for the start and end of inline results, respectively.")
-
-(defvar org-fontify-inline-src-blocks-max-length 200
-  "Maximum content length of an inline src block that will be fontified.")
-
-(defun org-fontify-inline-src-blocks (limit)
-  "Try to apply `org-fontify-inline-src-blocks-1'."
-  (condition-case nil
-      (org-fontify-inline-src-blocks-1 limit)
-    (error (message "Org mode fontification error in %S at %d"
-                    (current-buffer)
-                    (line-number-at-pos)))))
-
-(defun org-fontify-inline-src-blocks-1 (limit)
-  "Fontify inline src_LANG blocks, from `point' up to LIMIT."
-  (let ((case-fold-search t)
-        (initial-point (point)))
-    (while (re-search-forward "\\_<src_\\([^ \t\n[{]+\\)[{[]?" limit t) ; stolen from `org-element-inline-src-block-parser'
-      (let ((beg (match-beginning 0))
-            pt
-            (lang-beg (match-beginning 1))
-            (lang-end (match-end 1)))
-        (remove-text-properties beg lang-end '(face nil))
-        (font-lock-append-text-property lang-beg lang-end 'face 'org-meta-line)
-        (font-lock-append-text-property beg lang-beg 'face 'shadow)
-        (font-lock-append-text-property beg lang-end 'face 'org-block)
-        (setq pt (goto-char lang-end))
-        ;; `org-element--parse-paired-brackets' doesn't take a limit, so to
-        ;; prevent it searching the entire rest of the buffer we temporarily
-        ;; narrow the active region.
-        (save-restriction
-          (narrow-to-region beg (min (point-max) limit (+ lang-end org-fontify-inline-src-blocks-max-length)))
-          (when (ignore-errors (org-element--parse-paired-brackets ?\[))
-            (remove-text-properties pt (point) '(face nil))
-            (font-lock-append-text-property pt (point) 'face 'org-block)
-            (setq pt (point)))
-          (when (ignore-errors (org-element--parse-paired-brackets ?\{))
-            (remove-text-properties pt (point) '(face nil))
-            (font-lock-append-text-property pt (1+ pt) 'face '(org-block shadow))
-            (unless (= (1+ pt) (1- (point)))
-              (if org-src-fontify-natively
-                  (org-src-font-lock-fontify-block (buffer-substring-no-properties lang-beg lang-end) (1+ pt) (1- (point)))
-                (font-lock-append-text-property (1+ pt) (1- (point)) 'face 'org-block)))
-            (font-lock-append-text-property (1- (point)) (point) 'face '(org-block shadow))
-            (setq pt (point))))
-        (when (and org-prettify-inline-results (re-search-forward "\\= {{{results(" limit t))
-          (font-lock-append-text-property pt (1+ pt) 'face 'org-block)
-          (goto-char pt))))
-    (when org-prettify-inline-results
-      (goto-char initial-point)
-      (org-fontify-inline-src-results limit))))
-
-(defun org-fontify-inline-src-results (limit)
-  (while (re-search-forward "{{{results(\\(.+?\\))}}}" limit t)
-    (remove-list-of-text-properties (match-beginning 0) (point)
-                                    '(composition
-                                      prettify-symbols-start
-                                      prettify-symbols-end))
-    (font-lock-append-text-property (match-beginning 0) (match-end 0) 'face 'org-block)
-    (let ((start (match-beginning 0)) (end (match-beginning 1)))
-      (with-silent-modifications
-        (compose-region start end (if (eq org-prettify-inline-results t) "⟨" (car org-prettify-inline-results)))
-        (add-text-properties start end `(prettify-symbols-start ,start prettify-symbols-end ,end))))
-    (let ((start (match-end 1)) (end (point)))
-      (with-silent-modifications
-        (compose-region start end (if (eq org-prettify-inline-results t) "⟩" (cdr org-prettify-inline-results)))
-        (add-text-properties start end `(prettify-symbols-start ,start prettify-symbols-end ,end))))))
-
-(defun org-fontify-inline-src-blocks-enable ()
-  "Add inline src fontification to font-lock in Org.
-Must be run as part of `org-font-lock-set-keywords-hook'."
-  (setq org-font-lock-extra-keywords
-        (append org-font-lock-extra-keywords '((org-fontify-inline-src-blocks)))))
-
-(add-hook 'org-font-lock-set-keywords-hook #'org-fontify-inline-src-blocks-enable)
+#+begin_src emacs-lisp :tangle yes
 #+end_src
 
-**** Symbols
-It's also nice to change the character used for collapsed items (by default ~…~),
-I think ~▾~ is better for indicating 'collapsed section'.
-and add an extra ~org-bullet~ to the default list of four.
-I've also added some fun alternatives, just commented out.
-
 #+begin_src emacs-lisp
-;; (after! org-superstar
-;;   (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-;;         org-superstar-prettify-item-bullets t))
+(after! org-superstar
+  (setq org-superstar-headline-bullets-list '("◉" "○" "◈" "◇" "✳" "✤" "✜" "◆" "▶")
+        org-superstar-prettify-item-bullets t))
 
-;; (setq org-ellipsis " ▾ "
-;;       org-hide-leading-stars t
-;;       org-priority-highest ?A
-;;       org-priority-lowest ?E
-;;       org-priority-faces
-;;       '((?A . 'all-the-icons-red)
-;;         (?B . 'all-the-icons-orange)
-;;         (?C . 'all-the-icons-yellow)
-;;         (?D . 'all-the-icons-green)
-;;         (?E . 'all-the-icons-blue)))
+;; Org styling, hide markup etc.
+(setq org-hide-emphasis-markers t
+      org-pretty-entities t
+      org-ellipsis "↩"
+      org-hide-leading-stars t
+      org-priority-highest ?A
+      org-priority-lowest ?E
+      org-priority-faces
+      '((?A . 'all-the-icons-red)
+        (?B . 'all-the-icons-orange)
+        (?C . 'all-the-icons-yellow)
+        (?D . 'all-the-icons-green)
+        (?E . 'all-the-icons-blue)))
 #+end_src
 
 It's also nice to make use of the Unicode characters for check boxes, and other
@@ -4672,8 +4549,8 @@ commands.
   :priority_e              "[#E]")
 #+end_src
 
-**** LaTeX fragments
-***** Prettier highlighting
+*** LaTeX fragments
+**** Prettier highlighting
 First off, we want those fragments to look good.
 
 #+begin_src emacs-lisp
@@ -4695,7 +4572,7 @@ passed, and so we can override the background as discussed above.
 (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
 #+end_src
 
-***** Prettier rendering
+**** Prettier rendering
 It's nice to customize the look of LaTeX fragments, so they fit better in the
 text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}\).
 
@@ -4747,7 +4624,7 @@ let's make it transparent.
   (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
 #+end_src
 
-***** Better equation numbering
+**** Better equation numbering
 Numbered equations all have (1) as the number for fragments with vanilla
 org-mode. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews so they look
 good. *Not working right now!*
@@ -4807,7 +4684,7 @@ good. *Not working right now!*
     (message "Latex numbering disabled.")))
 #+end_src
 
-**** Org plot
+*** Org plot
 We can use some variables in =org-plot= to use the current doom theme
 colors.
 
@@ -4884,7 +4761,7 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
-*** Bibliography
+** Bibliography
 
 #+begin_src emacs-lisp
 (setq org-cite-csl-styles-dir "~/Zotero/styles")
@@ -4911,8 +4788,8 @@ enhanced functionality:
 ;;        citar-notes-paths '("/path/to/your/notes/"))
 #+end_src
 
-*** Exporting
-**** General settings
+** Exporting
+*** General settings
 By default Org only exports the first three levels of headings as ... headings.
 This is rather unfortunate as my documents frequently stray far beyond three
 levels of depth. The two main formats I care about exporting to are LaTeX and
@@ -4947,8 +4824,8 @@ the creator string.
       (format "Emacs %s (Org mode %s)" emacs-version (org-release)))
 #+end_src
 
-**** LaTeX export
-***** Compiling
+*** LaTeX export
+**** Compiling
 By default Org uses ~pdflatex~ \times 3 + ~bibtex~. This simply won't do in our
 modern world. ~latexmk~ + ~biber~ (which is used automatically with ~latexmk~) is a
 simply superior combination.
@@ -4980,7 +4857,7 @@ value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
 
-***** COMMENT Default packages
+**** COMMENT Default packages
 
 #+begin_src emacs-lisp
 (setq org-latex-default-packages-alist
@@ -5019,7 +4896,7 @@ it should still work.
         ("" "setspace" nil)))
 #+end_src
 
-***** COMMENT Default packages
+**** COMMENT Default packages
 I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-latex.el][scimax]].
 
 #+begin_src emacs-lisp
@@ -5075,7 +4952,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
     ))
 #+end_src
 
-***** COMMENT Export PDFs with syntax highlighting
+**** COMMENT Export PDFs with syntax highlighting
 
 #+begin_src emacs-lisp
 ;; this is for code syntax highlighting in export. you need to use
@@ -5087,7 +4964,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
         ("linenos" "")))
 #+end_src
 
-***** Class templates
+**** Class templates
 
 #+begin_src emacs-lisp :noweb no-export
 (after! ox-latex
@@ -5154,7 +5031,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
 ;; org-latex-reference-command "\\cref{%s}")
 #+end_src
 
-**** Hugo
+*** Hugo
 Update files with last modified date, when ~#+lastmod:~ is available
 
 #+begin_src emacs-lisp :tangle yes
@@ -5183,8 +5060,8 @@ be changed with the following file. For system-wide changes try
 </mime-info>
 #+end_src
 
-What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=.
-One simply needs to refresh their mime database
+What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=. One simply needs to
+refresh their mime database:
 
 #+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
 update-mime-database ~/.local/share/mime
