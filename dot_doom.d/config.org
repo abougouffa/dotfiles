@@ -1395,15 +1395,21 @@ Better colors for manual pages.
 #+end_src
 
 **** Grammarly :language:grammar:
+Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly]] or [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly]].
 
 #+begin_src emacs-lisp
 (package! grammarly
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
 
-(package! lsp-grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/lsp-grammarly"))
+;; Install the suitable LSP frontend
+(if (featurep! :tools lsp +eglot)
+  (package! eglot-grammarly
+    :recipe (:host github
+             :repo "emacs-grammarly/eglot-grammarly"))
+  (package! lsp-grammarly
+    :recipe (:host github
+             :repo "emacs-grammarly/lsp-grammarly")))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -1411,17 +1417,30 @@ Better colors for manual pages.
   :config
   (grammarly-load-from-authinfo))
 
-(use-package! lsp-grammarly
-  :commands (+lsp-grammarly-load))
-  :init
+(if (featurep! :tools lsp +eglot)
+    (use-package! eglot-grammarly
+      :commands (+lsp-grammarly-load)
+      :init
+      (defun +lsp-grammarly-load ()
+        "Load Grammarly LSP server."
+        (interactive)
+        (require 'eglot-grammarly)
+        (call-interactively #'eglot)))
+  (use-package! lsp-grammarly
+    :commands (+lsp-grammarly-load)
+    :init
+    (defun +lsp-grammarly-load ()
+      "Load Grammarly LSP server."
+      (require 'lsp-grammarly)
+      (lsp-deferred)))) ;; or (lsp)
+;;
 ;; :hook (text-mode . (lambda ()
 ;;                      (require 'lsp-grammarly)
 ;;                      (lsp-deferred))))  ; or (lsp)
-  (defun +lsp-grammarly-load ()
-    "Load Grammarly LSP server."
-    (interactive)
-    (require 'lsp-grammarly)
-    (lsp-deferred))
+
+;; :hook (text-mode . (lambda ()))
+;;                    (require 'eglot-grammarly)
+;;                    (call-interactively #'eglot)))
 #+end_src
 
 **** Grammalecte :french:grammar:
