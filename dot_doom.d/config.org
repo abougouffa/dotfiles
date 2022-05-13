@@ -386,6 +386,9 @@ instead of the default 2 hours.
       auth-source-cache-expiry 86400 ; All day, defaut is 2h (7200)
       password-cache t
       password-cache-expiry 86400)
+
+;; Set my GPG key as the default key
+(setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
 #+end_src
 
 ** Better defaults :default:
