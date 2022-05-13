@@ -2830,6 +2830,11 @@ configuration as follows:
                       (smtpmail-stream-type         . ssl)
                       (smtpmail-default-smtp-server . "smtps.server.com")
                       (smtpmail-smtp-server         . "smtps.server.com")
+                      ;; By default, 'smtpmail' try to send mails without authentication,
+                      ;; and if rejected, it tries to send credentials. This behavior
+                      ;; broke my configuration. So I set this to tell 'smtpmail'
+                      ;; to require authentication on ALL servers.
+                      (smtpmail-servers-requiring-authorization . ".*")
                       (smtpmail-smtp-service        . 465))
                      t)
 
