@@ -7,11 +7,10 @@
 
 ;; [[file:config.org::*Secrets][Secrets:1]]
 (setq auth-sources '("~/.authinfo.gpg")
-      auth-source-cache-expiry nil ; defaut is 2h (7200)
-      password-cache-expiry nil
-      password-cache t
       auth-source-do-cache t
-      epa-file-cache-passphrase-for-symmetric-encryption t)
+      auth-source-cache-expiry 86400 ; All day, defaut is 2h (7200)
+      password-cache t
+      password-cache-expiry 86400)
 ;; Secrets:1 ends here
 
 ;; [[file:config.org::*File deletion][File deletion:1]]
@@ -37,7 +36,7 @@
 (setq undo-limit 80000000   ; Raise undo-limit to 80Mb
       evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
       auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      scroll-preserve-screen-position 'always ; Don't have `point' jump around
+      ;; scroll-preserve-screen-position 'always ; Don't have `point' jump around
       scroll-margin 2)      ; It's nice to maintain a little margin
 ;; Undo and auto-save:1 ends here
 
@@ -56,9 +55,9 @@
 (defun greedily-do-daemon-setup ()
   (require 'org)
   (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (setq +mu4e-lock-greedy t)
-    (setq +mu4e-lock-relaxed t)
+    (setq mu4e-confirm-quit t
+          +mu4e-lock-greedy t
+          +mu4e-lock-relaxed t)
     (+mu4e-lock-start 'mu4e~start))
   (when (require 'elfeed nil t)
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
@@ -73,19 +72,22 @@
 
 ;; [[file:config.org::*Save recent files][Save recent files:1]]
 (when (daemonp)
-  (add-hook! '(delete-frame-functions delete-terminal-functions) #'(lambda (arg) (recentf-save-list))))
+  (add-hook! '(delete-frame-functions delete-terminal-functions)
+    (lambda (arg) (recentf-save-list))))
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font Face][Font Face:1]]
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      ;; doom-variable-pitch-font (font-spec :family "Latin Modern Roman") ; inherits the :size from doom-font
       doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
 ;; Font Face:1 ends here
 
 ;; [[file:config.org::*Theme][Theme:1]]
-(setq doom-theme 'doom-one) ; Load theme
+(setq doom-theme 'doom-vibrant)
+;; (remove-hook 'window-setup-hook #'doom-init-theme-h)
+;; (add-hook 'after-init-hook #'doom-init-theme-h 'append)
+(delq! t custom-theme-load-path)
 ;; Theme:1 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
@@ -105,37 +107,8 @@
 ;; Battery:1 ends here
 
 ;; [[file:config.org::*Custom Splash Image][Custom Splash Image:1]]
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
 ;; Custom Splash Image:1 ends here
-
-;; [[file:config.org::*Clean Screen][Clean Screen:1]]
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-(add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
-(setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
-;; Clean Screen:1 ends here
-
-;; [[file:config.org::*The ASCII Banner][The ASCII Banner:1]]
-(defun doom-dashboard-draw-ascii-emacs-banner-fn ()
-  (let* ((banner
-          '("______  _____  _____ ___  ___"
-            "|  _  \|  _  ||  _  ||  \/  |"
-            "| | | || | | || | | || .  . |"
-            "| | | || | | || | | || |\/| |"
-            "| |/ / \ \_/ /\ \_/ /| |  | |"
-            "|___/   \___/  \___/ \_|  |_/"))
-         (longest-line (apply #'max (mapcar #'length banner))))
-    (put-text-property
-     (point)
-     (dolist (line banner (point))
-       (insert (+doom-dashboard--center
-                +doom-dashboard--width
-                (concat line (make-string (max 0 (- longest-line (length line))) 32))))
-       "\n")
-     'face 'doom-dashboard-banner)))
-
-(unless (display-graphic-p) ; for some reason this messes up the graphical splash screen atm
-  (setq +doom-dashboard-ascii-banner-fn #'doom-dashboard-draw-ascii-emacs-banner-fn))
-;; The ASCII Banner:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
 (setq which-key-idle-delay 0.5 ;; Default is 1.0
@@ -145,7 +118,6 @@
 ;; [[file:config.org::*Which key][Which key:2]]
 (setq which-key-allow-multiple-replacements t)
 
-;; TODO: Add equivalent replacements for org
 (after! which-key
   (pushnew! which-key-replacement-alist
             '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
@@ -178,10 +150,10 @@
 (setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
 ;; Scratch buffer:1 ends here
 
-;; [[file:config.org::*Mouse Buttons][Mouse Buttons:1]]
+;; [[file:config.org::*Mouse buttons][Mouse buttons:1]]
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
-;; Mouse Buttons:1 ends here
+;; Mouse buttons:1 ends here
 
 ;; [[file:config.org::*Binary files][Binary files:1]]
 (defun +hexl/buffer-binary-p (&optional buffer)
@@ -191,9 +163,8 @@ A binary buffer is defined as containing at least one null byte.
 
 Returns either nil, or the position of the first null byte."
   (with-current-buffer (or buffer (current-buffer))
-    (save-excursion
-      (goto-char (point-min))
-      (search-forward (string ?\x00) nil t 1))))
+    (save-excursion (goto-char (point-min))
+                    (search-forward (string ?\x00) nil t 1))))
 
 (defun +hexl/hexl-if-binary ()
   "If `hexl-mode' is not already active, and the current buffer
@@ -228,6 +199,18 @@ is binary, activate `hexl-mode'."
   (setcdr (assoc "m" all-the-icons-extension-icon-alist)
           (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
 ;; All the icons:1 ends here
+
+;; [[file:config.org::*Company][Company:1]]
+;; (add-hook 'org-mode-hook (lambda () (company-mode -1)))
+(setq company-global-modes
+      '(not erc-mode
+            circe-mode
+            message-mode
+            help-mode
+            gud-mode
+            vterm-mode
+            org-mode))
+;; Company:1 ends here
 
 ;; [[file:config.org::*Centaur tabs][Centaur tabs:1]]
 (after! centaur-tabs
@@ -459,8 +442,8 @@ is binary, activate `hexl-mode'."
     (require 'osm-ol)))
 
 (use-package! awqat
-  :commands (awqat-display-prayer-time-mode
-             awqat-times-for-day)
+  ;; :load-path "~/Projects/foss_projects/awqat"
+  :commands (awqat-display-prayer-time-mode awqat-times-for-day)
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
   ;; otherwise, set them here.
@@ -796,41 +779,10 @@ is binary, activate `hexl-mode'."
   :hook (org-mode . org-pretty-table-mode))
 
 (use-package! org-modern
-                                        ;:hook (org-mode . org-modern-mode)
+  ;; :hook (org-mode . org-modern-mode)
   :init
-  ;; Add frame borders and window dividers
-  ;; (modify-all-frames-parameters
-  ;;  '((right-divider-width . 40)
-  ;;    (internal-border-width . 40)))
-
-  ;; (dolist (face '(window-divider
-  ;;                 window-divider-first-pixel
-  ;;                 window-divider-last-pixel))
-  ;;   (face-spec-reset-face face)
-  ;;   (set-face-foreground face (face-attribute 'default :background)))
-
-  ;; (set-face-background 'fringe (face-attribute 'default :background))
-
-  ;; Edit settings
-  (setq org-auto-align-tags nil
-        org-tags-column 0
-        org-catch-invisible-edits 'show-and-error
-        org-special-ctrl-a/e t
-        org-insert-heading-respect-content t
-
-        ;; Org styling, hide markup etc.
-        org-hide-emphasis-markers t
-        org-pretty-entities t
-        org-ellipsis "↩"
-
-        ;; Agenda styling
-        org-agenda-block-separator ?─
-        org-agenda-time-grid
-        '((daily today require-timed)
-          (800 1000 1200 1400 1600 1800 2000)
-          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-        org-agenda-current-time-string
-        "⭠ now ─────────────────────────────────────────────────")
+  (setq org-modern-table-vertical 1
+        org-modern-table-horizontal 1)
 
   (global-org-modern-mode))
 
@@ -1128,15 +1080,14 @@ is binary, activate `hexl-mode'."
   (require 'smtpmail)
 
   ;; Common parameters
-  (setq smtpmail-auth-credentials "~/.authinfo.gpg"
-        mu4e-maildir "~/Maildir"
-        mu4e-update-interval (* 3 60) ;; Every 3 min
+  (setq mu4e-update-interval (* 3 60) ;; Every 3 min
+        +mu4e-backend 'mbsync
         ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
         mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
-        ;; message-send-mail-function 'smtpmail-send-it ;; Set by default
+        ;; message-send-mail-function 'smtpmail-send-it ;; Not needed, it is set by default
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
-        mu4e-context-policy 'pick-first ;; Start with the first context
+        mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
 
   (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
@@ -1175,11 +1126,11 @@ is binary, activate `hexl-mode'."
         :n "G" #'org-msg-goto-body)
 
   ;; I like to always BCC myself
-  (defun ab/bcc-me ()
+  (defun +bbc-me ()
     "Add my email to BCC."
     (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
 
-  (add-hook 'mu4e-compose-mode-hook 'ab/bcc-me)
+  (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
   ;; Load
   (load! "lisp/private/+mu4e-smart-refiling.el")
@@ -1194,22 +1145,39 @@ is binary, activate `hexl-mode'."
   :config
   (setq emms-mode-line-cycle-max-width 15
         emms-mode-line-cycle-additional-space-num 4
-        emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
         emms-mode-line-cycle-any-width-p nil
-        emms-mode-line-cycle-velocity 2
-        emms-mode-line-cycle-current-title-function
+        emms-mode-line-cycle-velocity 2)
+
+  ;; Some music files do not have metadata, by default, the track title
+  ;; will be the full file path, so, if I detect what seems to be an absolute
+  ;; path, I trim the directory part and get only the file name.
+  (setq emms-mode-line-cycle-current-title-function
         (lambda ()
           (let ((name (emms-track-description (emms-playlist-current-selected-track))))
-            (if (file-name-absolute-p name)
-                (file-name-base name)
-              name)))
-        emms-mode-line-titlebar-function
+            (if (file-name-absolute-p name) (file-name-base name) name))))
+
+  ;; Mode line formatting settings
+  ;; This format complements the 'emms-mode-line-format' one.
+  (setq emms-mode-line-format " ⟨%s⟩")  ; 𝅘𝅥𝅮 ⏵ ⏸
+
+  (setq emms-mode-line-titlebar-function
         (lambda ()
           '(:eval
             (when emms-player-playing-p
               (format " %s %s"
                       (format emms-mode-line-format (emms-mode-line-cycle-get-title))
                       emms-playing-time-string)))))
+
+  (defun +emms-mode-line-toggle-format-hook ()
+    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
+    (setq emms-mode-line-format
+          (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
+    ;; Trigger a forced update of mode line (useful when pausing)
+    (emms-mode-line-alter-mode-line))
+
+  ;; Hook the function to the 'emms-player-paused-hook'
+  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+
   (emms-mode-line-cycle 1))
 ;; EMMS:2 ends here
 
@@ -1238,21 +1206,6 @@ is binary, activate `hexl-mode'."
         emms-info-functions '(emms-info-tinytag) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
         ;; Load cover images
         emms-browser-covers 'emms-browser-cache-thumbnail-async)
-
-  ;; Mode line formatting settings
-  ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨𝅘𝅥𝅮 %s ⏵"
-        emms-playing-time-display-format " %s⟩ ")
-
-  (defun +emms-mode-line-toggle-format-hook ()
-    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
-    (setq emms-mode-line-format
-          (concat " ⟨𝅘𝅥𝅮 %s " (if emms-player-paused-p "⏸" "⏵")))
-    ;; Trigger a forced update of mode line (useful when pausing)
-    (emms-mode-line-alter-mode-line))
-
-  ;; Hook the function to the 'emms-player-paused-hook'
-  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
 
   ;; Keyboard shortcuts
   (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
@@ -1362,12 +1315,8 @@ is binary, activate `hexl-mode'."
                for r = (format "^\\([^%c\n]+%c\\)\\{%d\\}" separator separator i)
                do (font-lock-add-keywords nil `((,r (1 '(face (:foreground ,c))))))))))
 
-;; ;; provide CSV mode setup
-;; (defun +csv-rainbow-mode-hook ()
-;;   15 being an arbitrary color count
-;;   (+csv-rainbow 15))
-
-;; (add-hook 'csv-mode-hook '+csv-rainbow-mode-hook))
+;; provide CSV mode setup
+;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 ;; CSV Rainbow:1 ends here
 
 ;; [[file:config.org::*GNU Octave][GNU Octave:1]]
@@ -1403,7 +1352,7 @@ is binary, activate `hexl-mode'."
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-hover nil
         lsp-log-io nil
-        lsp-lens-enable nil ; not working properly with ccls!
+        lsp-lens-enable t ; not working properly with ccls!
         lsp-diagnostics-provider :auto
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
@@ -1764,10 +1713,14 @@ is binary, activate `hexl-mode'."
         org-use-property-inheritance t        ; it's convenient to have properties inherited
         org-log-done 'time                    ; having the time an item is done sounds convenient
         org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-  ;;    org-export-in-background t            ; run export processes in external emacs process
+        org-export-in-background t            ; run export processes in external emacs process
   ;;    org-export-async-debug t
+        org-tags-column 0
         org-catch-invisible-edits 'smart      ; try not to accidently do weird stuff in invisible regions
-        org-export-with-sub-superscripts '{}) ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+        org-export-with-sub-superscripts '{}  ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+        org-auto-align-tags nil
+        org-special-ctrl-a/e t
+        org-insert-heading-respect-content t)
   (setq org-babel-default-header-args
         '((:session  . "none")
           (:results  . "replace")
@@ -1785,9 +1738,6 @@ is binary, activate `hexl-mode'."
         :n "g <down>" #'org-forward-heading-same-level
         :n "g <left>" #'org-up-element
         :n "g <right>" #'org-down-element)
-  ;; NOTE: Not tangled, I managed to fix the problem by specifying
-  ;; the implementation in file var prop line
-  ;; ===> # -*- geiser-scheme-implementation: 'guile; -*-
   (after! geiser
     (setq geiser-default-implementation 'guile))
   
@@ -1872,6 +1822,14 @@ is binary, activate `hexl-mode'."
                                (expand-file-name "gcal-agenda.org" org-directory)
                                (expand-file-name "notes.org" org-directory)
                                (expand-file-name "projects.org" org-directory)))
+  ;; Agenda styling
+  (setq org-agenda-block-separator ?─
+        org-agenda-time-grid
+        '((daily today require-timed)
+          (800 1000 1200 1400 1600 1800 2000)
+          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+        org-agenda-current-time-string
+        "⭠ now ─────────────────────────────────────────────────")
   (load! "lisp/private/+org-gcal.el")
   (setq +org-capture-emails-file (expand-file-name "inbox.org" org-directory)
         +org-capture-todo-file (expand-file-name "inbox.org" org-directory)
@@ -2392,20 +2350,37 @@ is binary, activate `hexl-mode'."
           (1.0 . org-warning)
           (0.5 . org-upcoming-deadline)
           (0.0 . org-upcoming-distant-deadline)))
-  ;; (after! org-superstar
-  ;;   (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-  ;;         org-superstar-prettify-item-bullets t))
+  (setq org-fontify-quote-and-verse-blocks t)
+  (package! org-appear)
+  (use-package! org-appear
+    :hook (org-mode . org-appear-mode)
+    :config
+    (setq org-appear-autoemphasis t
+          org-appear-autosubmarkers t
+          org-appear-autolinks nil)
+    ;; for proper first-time setup, `org-appear--set-elements'
+    ;; needs to be run after other hooks have acted.
+    (run-at-time nil nil #'org-appear--set-elements))
+  (setq org-inline-src-prettify-results '("⟨" . "⟩")
+        doom-themes-org-fontify-special-tags nil)
   
-  ;; (setq org-ellipsis " ▾ "
-  ;;       org-hide-leading-stars t
-  ;;       org-priority-highest ?A
-  ;;       org-priority-lowest ?E
-  ;;       org-priority-faces
-  ;;       '((?A . 'all-the-icons-red)
-  ;;         (?B . 'all-the-icons-orange)
-  ;;         (?C . 'all-the-icons-yellow)
-  ;;         (?D . 'all-the-icons-green)
-  ;;         (?E . 'all-the-icons-blue)))
+  (after! org-superstar
+    (setq org-superstar-headline-bullets-list '("◉" "○" "◈" "◇" "✳" "✤" "✜" "◆" "▶")
+          org-superstar-prettify-item-bullets t))
+  
+  ;; Org styling, hide markup etc.
+  (setq org-hide-emphasis-markers t
+        org-pretty-entities t
+        org-ellipsis "↩"
+        org-hide-leading-stars t
+        org-priority-highest ?A
+        org-priority-lowest ?E
+        org-priority-faces
+        '((?A . 'all-the-icons-red)
+          (?B . 'all-the-icons-orange)
+          (?C . 'all-the-icons-yellow)
+          (?D . 'all-the-icons-green)
+          (?E . 'all-the-icons-blue)))
   (appendq! +ligatures-extra-symbols
             '(:checkbox                "☐"
               :pending                 "◼"
@@ -2765,8 +2740,19 @@ is binary, activate `hexl-mode'."
   (add-hook 'before-save-hook 'time-stamp nil)
 )
 
+;; Agenda styling
+(setq org-agenda-block-separator ?─
+      org-agenda-time-grid
+      '((daily today require-timed)
+        (800 1000 1200 1400 1600 1800 2000)
+        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+      org-agenda-current-time-string
+      "⭠ now ─────────────────────────────────────────────────")
+
 (setq org-roam-directory "~/Dropbox/Org/slip-box")
 (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
+
+
 
 (setq time-stamp-active t
       time-stamp-start "#\\+lastmod:[ \t]*"

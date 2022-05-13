@@ -36,10 +36,7 @@
 
 (package! awqat
   :recipe (:host github
-           ;; Temporary use my fork with angles fixes.
-           ;; Upstream repo "zkry/awqat"
-           :repo "abougouffa/awqat"
-           :branch "fix-angle-for-uoif"))
+           :repo "zkry/awqat"))
 
 (package! ess-view)
 
@@ -125,7 +122,8 @@
 
 (package! org-pretty-table
   :recipe (:host github
-           :repo "Fuco1/org-pretty-table"))
+           :repo "Fuco1/org-pretty-table")
+  :disable t)
 
 (package! org-modern
   :recipe (:host github
@@ -227,3 +225,5 @@
 ;; EMMS:1 ends here
 
 (unpin! dap-mode)
+
+(package! org-appear)
