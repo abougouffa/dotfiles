@@ -92,40 +92,28 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
 
 (doom! :input
        <<doom-input>>
-
        :completion
        <<doom-completion>>
-
        :ui
        <<doom-ui>>
-
        :editor
        <<doom-editor>>
-
        :emacs
        <<doom-emacs>>
-
        :term
        <<doom-term>>
-
        :checkers
        <<doom-checkers>>
-
        :tools
        <<doom-tools>>
-
        :os
        <<doom-os>>
-
        :lang
        <<doom-lang>>
-
        :email
        <<doom-email>>
-
        :app
        <<doom-app>>
-
        :config
        <<doom-config>>
 )
@@ -145,8 +133,7 @@ Enable =literate= configuration (like this file!), and some defaults.
 #+name: doom-config
 #+begin_src emacs-lisp
 literate
-(default +bindings
-         +smartparens)
+(default +bindings +smartparens)
 #+end_src
 
 ** Completion (=:completion=)
@@ -156,12 +143,6 @@ I'm lazy, I like Emacs to complete my writings.
 #+begin_src emacs-lisp
 (vertico +icons)
 company
-;;(ivy +childframe
-;;     +fuzzy
-;;     +icons
-;;     +prescient)
-;;helm
-;;ido
 #+end_src
 
 ** User interface (=:ui=)
@@ -180,19 +161,15 @@ modeline
 vc-gutter
 workspaces
 zen
-neotree
+ophints
+nav-flash
 (window-select +numbers)
 (ligatures +extra)
-(popup +all
-       +defaults)
-(emoji +ascii
-       +unicode
-       +github)
-;;ophints
-;;nav-flash
-;;(treemacs +lsp)
+(popup +all +defaults)
+(emoji +ascii +unicode +github)
+(treemacs +lsp)
+;;neotree
 ;;doom-quit
-;;fill-column
 ;;indent-guides
 ;;minimap
 ;;unicode
@@ -226,8 +203,7 @@ Beautify Emacs builtin packages.
 
 #+name: doom-emacs
 #+begin_src emacs-lisp
-(dired +icons
-       +ranger)
+(dired +icons +ranger)
 (ibuffer +icons)
 (undo +tree)
 ;;vc
@@ -322,12 +298,10 @@ qt
 (ess +lsp)
 (yaml +lsp)
 (sh +lsp)
-(python +lsp +pyright +pyenv +conda)
-(org +dragndrop +gnuplot +jupyter
-     +pandoc +noter +hugo +present
-     +pomodoro +roam2)
+(python +lsp +pyenv +conda +pyright)
 (racket +lsp +xp)
 (scheme +mit +guile +racket +chez)
+(org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
 ;;rst                  ; ReST in peace
 ;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
@@ -453,7 +427,7 @@ default =auto-save-mode=.
 (setq undo-limit 80000000   ; Raise undo-limit to 80Mb
       evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
       auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      ;; scroll-preserve-screen-position 'always ; Don't have `point' jump around
+      scroll-preserve-screen-position 'always ; Don't have `point' jump around
       scroll-margin 2)      ; It's nice to maintain a little margin
 #+end_src
 
@@ -2254,7 +2228,7 @@ Add support for Yocto Project files.
   :commands aas-mode)
 #+end_src
 
-**** Project CMake :cmake:
+**** COMMENT Project CMake :cmake:
 A good new package to facilitate using CMake projects with Emacs, it glues
 together =project=, =eglot=, =cmake= and =clangd=.
 
@@ -2474,11 +2448,13 @@ Use =nov= to read EPUB e-books.
 
   (defun doom-modeline-segment--nov-info ()
     (concat " "
-            (propertize (cdr (assoc 'creator nov-metadata)) 'face 'doom-modeline-project-parent-dir)
+            (propertize (cdr (assoc 'creator nov-metadata))
+                        'face 'doom-modeline-project-parent-dir)
             " "
             (cdr (assoc 'title nov-metadata))
             " "
-            (propertize (format "%d/%d" (1+ nov-documents-index) (length nov-documents)) 'face 'doom-modeline-info)))
+            (propertize (format "%d/%d" (1+ nov-documents-index) (length nov-documents))
+                        'face 'doom-modeline-info)))
 
   (advice-add 'nov-render-title :override #'ignore)
 
@@ -2498,7 +2474,8 @@ Use =nov= to read EPUB e-books.
     (visual-fill-column-mode 1)
     (hl-line-mode -1)
 
-    (add-to-list '+lookup-definition-functions #'+lookup/dictionary-definition)
+    (add-to-list '+lookup-definition-functions
+                 #'+lookup/dictionary-definition)
 
     (setq-local mode-line-format
                 `((:eval
@@ -2820,34 +2797,57 @@ The =lisp/private/+mu4e-accounts.el= file includes Doom's mu4e multi-account
 configuration as follows:
 
 #+begin_src emacs-lisp :eval no :tangle no
-(set-email-account! "Work"
-                    '((mu4e-sent-folder             . "/work-dir/Sent")
-                      (mu4e-drafts-folder           . "/work-dir/Drafts")
-                      (mu4e-trash-folder            . "/work-dir/Trash")
-                      (mu4e-refile-folder           . "/work-dir/Archive")
-                      (org-msg-signature            . "-- SIGNATURE")
-                      (smtpmail-smtp-user           . "username@server.com")
-                      (smtpmail-stream-type         . ssl)
-                      (smtpmail-default-smtp-server . "smtps.server.com")
-                      (smtpmail-smtp-server         . "smtps.server.com")
-                      ;; By default, 'smtpmail' try to send mails without authentication,
-                      ;; and if rejected, it tries to send credentials. This behavior
-                      ;; broke my configuration. So I set this to tell 'smtpmail'
-                      ;; to require authentication on ALL servers.
-                      (smtpmail-servers-requiring-authorization . ".*")
-                      (smtpmail-smtp-service        . 465))
-                     t)
+(set-email-account!
+ "Work" ;; Account label
 
-(set-email-account! "Gmail"
-                    '((mu4e-sent-folder             . "/gmail-dir/Sent")
-                      (mu4e-drafts-folder           . "/gmail-dir/Drafts")
-                      (mu4e-trash-folder            . "/gmail-dir/Trash")
-                      (mu4e-refile-folder           . "/gmail-dir/Archive")
-                      (org-msg-signature            . "-- SIGNATURE")
-                      (smtpmail-smtp-user           . "username@gmail.com")
-                      ...))
+ ;; Mu4e folders
+ '((mu4e-sent-folder             . "/work-dir/Sent")
+   (mu4e-drafts-folder           . "/work-dir/Drafts")
+   (mu4e-trash-folder            . "/work-dir/Trash")
+   (mu4e-refile-folder           . "/work-dir/Archive")
 
-; Tell Doom's mu4e module to override some commands to fix issues on Gmail accounts
+   ;; Org-msg template (signature and greeting)
+   (org-msg-greeting-fmt         . "Hello%s,")
+   (org-msg-signature            . "
+
+Regards,
+
+,#+begin_signature
+-----
+,*Abdelhak BOUGOUFFA* \\\\
+/PhD. Candidate in Robotics | R&D Engineer/ \\\\
+/Paris-Saclay University - SATIE/MOSS | ez-Wheel/ \\\\
+,#+end_signature")
+
+   ;; 'smtpmail' options
+   (smtpmail-smtp-user           . "username@server.com")
+   (smtpmail-smtp-server         . "smtps.server.com")
+   (smtpmail-stream-type         . ssl)
+   (smtpmail-smtp-service        . 465)
+
+   ;; By default, `smtpmail' will try to send mails without authentication, and if rejected,
+   ;; it tries to send credentials. This behavior broke my configuration. So I set this
+   ;; variable to tell 'smtpmail' to require authentication for our server (using a regex).
+   (smtpmail-servers-requiring-authorization . "smtps\\.server\\.com"))
+
+ t) ;; Use as default/fallback account
+
+;; Set another account
+(set-email-account!
+ "Gmail"
+ '((mu4e-sent-folder             . "/gmail-dir/Sent")
+   (mu4e-drafts-folder           . "/gmail-dir/Drafts")
+   (mu4e-trash-folder            . "/gmail-dir/Trash")
+   (mu4e-refile-folder           . "/gmail-dir/Archive")
+   (org-msg-greeting-fmt         . "Hello%s,")
+   (org-msg-signature            . "-- SIGNATURE")
+   (smtpmail-smtp-user           . "username@gmail.com")
+   (smtpmail-smtp-server         . "smtp.googlemail.com")
+   (smtpmail-stream-type         . starttls)
+   (smtpmail-smtp-service        . 587)
+   ...))
+
+;; Tell Doom's mu4e module to override some commands to fix issues on Gmail accounts
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
@@ -3146,7 +3146,7 @@ Increase the left fringe width, to enable rendering breakpoints correctly.
 #+begin_src emacs-lisp
 (after! tramp
   (require 'lsp-mode)
-  (require 'lsp-pyright)
+  ;; (require 'lsp-pyright)
 
   (setq lsp-enable-snippet nil
         lsp-log-io nil
