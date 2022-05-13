@@ -1330,6 +1330,12 @@ View data frames better with
 (package! ess-view)
 #+end_src
 
+**** PDF
+
+#+begin_src emacs-lisp
+(unpin! pdf-tools)
+#+end_src
+
 **** Very large files :large:vlf:
 The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
 
