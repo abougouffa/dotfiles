@@ -728,6 +728,16 @@ I’d like to have just the buffer name, then if applicable the project folder
              (format (if (buffer-modified-p) " ◉ %s" " ● %s") project-name))))))
 #+end_src
 
+*** Fringe :fringe:
+Increase the left fringe width, to enable rendering breakpoints (in debug modes)
+correctly.
+
+#+begin_src emacs-lisp
+;; (after! lsp-mode
+;;   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
+(set-fringe-mode '(15 . 15))
+#+end_src
+
 *** Vertico :vertico:posframe:
 Since [[https://github.com/hlissner/doom-emacs/commit/ece4a74a9b2ac84a4e85be3d094ceb4f0a441e39][doom-emacs@ece4a74]], Doom supports the =+childframe= for =:completion vertico=.
 This can be used to adjust the left and right fringes.
@@ -3113,14 +3123,6 @@ stuff.
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
         lsp-headerline-breadcrumb-segments '(symbols)))
-#+end_src
-
-**** Fringe :fringe:
-Increase the left fringe width, to enable rendering breakpoints correctly.
-
-#+begin_src emacs-lisp
-(after! lsp-mode
-  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
 #+end_src
 
 **** LSP mode with =clangd= :clangd:c:cpp:
