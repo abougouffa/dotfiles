@@ -1268,7 +1268,8 @@ do not give feedback.
 ;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
+  :recipe (:local-repo "lisp/wttrin")
+  :ignore t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
