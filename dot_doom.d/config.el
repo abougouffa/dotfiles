@@ -1128,7 +1128,8 @@ is binary, activate `hexl-mode'."
   ;; I like to always BCC myself
   (defun +bbc-me ()
     "Add my email to BCC."
-    (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
+    ;; (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
+    (save-excursion (message-add-header "Bcc: abdelhak.alg@gmail.com\n")))
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
