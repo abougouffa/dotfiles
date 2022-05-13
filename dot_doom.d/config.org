@@ -856,6 +856,21 @@ Set some custom icons for some file extensions, basically for =.m= files.
           (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
 #+end_src
 
+** Company
+I do not find =company= useful in Org files.
+
+#+begin_src emacs-lisp :tangle yes
+;; (add-hook 'org-mode-hook (lambda () (company-mode -1)))
+(setq company-global-modes
+      '(not erc-mode
+            circe-mode
+            message-mode
+            help-mode
+            gud-mode
+            vterm-mode
+            org-mode))
+#+end_src
+
 ** Centaur tabs :tab:
 A 'active-bar' is nice, so let's have one of those. If we have it ~under~ needs us to
 turn on ~x-underline-at-decent~ though. For some reason this didn't seem to work
