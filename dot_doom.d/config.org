@@ -3267,8 +3267,8 @@ close Hydra when DAP is terminated.
 
   ;; More minimal UI
   (setq dap-auto-configure-features '(locals tooltip)
-        lsp-enable-dap-auto-configure t
-        dap-auto-show-output nil) ;; Hide the annoying server output
+        dap-auto-show-output nil ;; Hide the annoying server output
+        lsp-enable-dap-auto-configure t)
 
   ;; Automatically trigger dap-hydra when a program hits a breakpoint.
   (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
@@ -3276,8 +3276,8 @@ close Hydra when DAP is terminated.
   ;; Automatically delete session and close dap-hydra when DAP is terminated.
   (add-hook 'dap-terminated-hook
             (lambda (arg)
-              (progn (call-interactively #'dap-delete-session)
-                     (dap-hydra/nil)))))
+              (call-interactively #'dap-delete-session)
+              (dap-hydra/nil))))
 #+end_src
 
 *** Doom store
