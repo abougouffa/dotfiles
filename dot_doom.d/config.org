@@ -3236,15 +3236,6 @@ close Hydra when DAP is terminated.
 
 #+begin_src emacs-lisp
 (after! dap-mode
-  ;; Which version to download when running 'dap-cpptools-setup', default 0.29.0
-  (setq dap-cpptools-extension-version "v1.9.8")
-
-  ;; Debug program path has changed in newer versions.
-  (setq dap-cpptools-debug-program
-        `(,(concat (expand-file-name "vscode/cpptools" dap-utils-extension-path)
-                   (format "/extension/debugAdapters/bin/OpenDebugAD7%s"
-                           (if (eq system-type 'windows-nt) ".exe" "")))))
-
   (require 'dap-cpptools)
 
   ;; More minimal UI
