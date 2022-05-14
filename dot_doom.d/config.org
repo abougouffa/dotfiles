@@ -2603,7 +2603,9 @@ npm install -g @unibeautify/cli
 #+begin_src emacs-lisp :tangle yes
 (setq calendar-latitude 48.7
       calendar-longitude 2.17
-      calendar-location-name "Orsay, FR")
+      calendar-location-name "Orsay, FR"
+      calendar-time-display-form '(24-hours ":" minutes
+                                            (if time-zone " (") time-zone (if time-zone ")")))
 #+end_src
 
 ** e-Books =nov= :ebook:epub:
