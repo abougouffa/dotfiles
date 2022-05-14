@@ -4452,12 +4452,13 @@ cause issues. Let's make their failure less eventful.
 *** Babel
 
 #+begin_src emacs-lisp
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((octave . t)
-   (emacs-lisp . t)
-   (python . t)
-   (shell . t)))
+(defvar org-babel-lang-list
+  '("go" "python" "ipython" "bash" "sh" "emacs-lisp" "octave"))
+
+(dolist (lang org-babel-lang-list)
+  (eval `(lsp-org-babel-enable ,lang)))
+#+end_src
+
 #+end_src
 
 ** Custom links
