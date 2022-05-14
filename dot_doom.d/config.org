@@ -655,9 +655,6 @@ Set Doom's theme, some good choices:
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-vibrant)
-;; (remove-hook 'window-setup-hook #'doom-init-theme-h)
-;; (add-hook 'after-init-hook #'doom-init-theme-h 'append)
-(delq! t custom-theme-load-path)
 #+end_src
 
 *** Mode line :modeline:
@@ -2958,10 +2955,14 @@ I configure my email accounts in a private file in
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
-  ;; Load
-  (load! "lisp/private/+mu4e-smart-refiling.el")
 
-  ;; Load my accounts
+  ;; I constantly get a non systematic error after sending a mail.
+  ;; >> Error (message-sent-hook): Error running hook "undo" because:
+  ;; >> (error Unrecognized entry in undo list undo-tree-canary)
+  ;; It is triggered by the 'message-sent-hook', so lets shut it up.
+  ;; (remove-hook! 'undo 'message-sent-hook)
+
+   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
 #+end_src
 
@@ -3814,10 +3815,10 @@ file local variables (with the src_org{# -*- geiser-scheme-implementation:
   (setq geiser-default-implementation 'guile))
 
 ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
-(defun my-org-confirm-babel-evaluate (lang body)
-  (not (string= lang "scheme"))) ; don't ask for ditaa
+(defun +org-confirm-babel-evaluate (lang body)
+  (not (string= lang "scheme"))) ;; don't ask for scheme
 
-(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+(setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 #+end_src
 
 *** Extra functionality :extra:
