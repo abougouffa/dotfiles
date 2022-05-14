@@ -1857,6 +1857,30 @@ A lightweight version of EAF that provides multimedia capabilities.
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
 #+end_src
 
+**** Lemon :monitor:system:
+
+#+begin_src emacs-lisp
+(package! lemon
+  :recipe (:host gitlab
+           :repo "ieure/lemon"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! lemon
+  :commands (lemon-mode)
+  :config
+  (require 'lemon-cpu)
+  (require 'lemon-memory)
+  (require 'lemon-network)
+  :init
+  (setq lemon-delay 5
+        lemon-refresh-rate 2
+        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
+                              (lemon-cpu-linux)
+                              (lemon-memory-linux)
+                              (lemon-linux-network-rx)))))
+#+end_src
+
 *** Fun :fun:
 **** Speed Type
 A game to practice speed typing in Emacs.
