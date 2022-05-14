@@ -683,6 +683,15 @@ Show battery level unless battery is not present or battery information is unkno
       (display-battery-mode 1))))
 #+end_src
 
+**** Modeline customization
+
+#+begin_src emacs-lisp
+(setq doom-modeline-major-mode-icon t
+      doom-modeline-major-mode-color-icon t
+      doom-modeline-buffer-state-icon t)
+(setq doom-modeline-github t)
+#+end_src
+
 *** Set transparency :transparent:
 
 #+begin_src emacs-lisp :tangle no
