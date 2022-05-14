@@ -780,7 +780,10 @@ correctly.
 #+begin_src emacs-lisp
 ;; (after! lsp-mode
 ;;   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
-(set-fringe-mode '(15 . 15))
+
+
+(setq-default left-fringe-width 15)
+; (set-fringe-mode '(15 . 15))
 #+end_src
 
 *** Vertico :vertico:posframe:
