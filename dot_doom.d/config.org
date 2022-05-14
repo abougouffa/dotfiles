@@ -406,6 +406,42 @@ Take new window space from all other windows (not just current).
 (setq-default window-combination-resize t)
 #+end_src
 
+Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://stackoverflow.com/a/6341139/3058915][this answer]].
+
+#+begin_src emacs-lisp
+(defvar buffer-tail-alist nil)
+
+(defun buffer-tail (name)
+  "Follow buffer tails, NAME."
+  (cond ((or (equal (buffer-name (current-buffer)) name))
+         (string-match "^ \\*Minibuf.*?\\*$" (buffer-name (current-buffer))))
+        ((get-buffer name)
+         (with-current-buffer (get-buffer name)
+           (goto-char (point-max))
+           (let ((windows (get-buffer-window-list (current-buffer) nil t)))
+             (while windows (set-window-point (car windows) (point-max))
+                    (with-selected-window (car windows) (recenter -3)) (setq windows (cdr windows))))))))
+
+(defun toggle-buffer-tail (&optional name force)
+  "Toggle tailing of buffer NAME.
+
+When called non-interactively, a FORCE arg of 'on' or 'off' can be used to ensure a given state for buffer NAME."
+  (interactive)
+  (let* ((name (if name name (current-buffer)))
+         (toggle (cond (force force)
+                       ((assoc name buffer-tail-alist) "off")
+                       (t "on"))))
+    (if (not (or (equal toggle "on") (equal toggle "off")))
+        (error "Invalid 'force' arg. required 'on'/'off'")
+      (progn
+        (while (assoc name buffer-tail-alist)
+          (cancel-timer (cdr (assoc name buffer-tail-alist)))
+          (setq buffer-tail-alist (remove* name buffer-tail-alist :key 'car :test 'equal)))
+        (if (equal toggle "on")
+            (add-to-list 'buffer-tail-alist (cons name (run-at-time t 1 'buffer-tail name))))
+        (message "Toggled `tail buffer' for `%s' %s" name toggle)))))
+#+end_src
+
 **** Split defaults
 Split horizontally to right, vertically below the current window.
 
