@@ -4978,7 +4978,7 @@ As such, it would seem to make sense to recognize the first /five/ levels of Org
 headings when exporting.
 
 #+begin_src emacs-lisp
-(setq org-export-headline-levels 5) ; I like nesting
+(setq org-export-headline-levels 5) ;; I like nesting
 #+end_src
 
 I'm also going to make use of an item in =ox-extra= so that I can add an ~:ignore:~
@@ -5128,7 +5128,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
     ))
 #+end_src
 
-**** COMMENT Export PDFs with syntax highlighting
+**** Export PDFs with syntax highlighting
 
 #+begin_src emacs-lisp
 ;; this is for code syntax highlighting in export. you need to use
