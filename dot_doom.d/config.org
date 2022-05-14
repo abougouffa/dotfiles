@@ -1264,16 +1264,52 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 (require 'load-nano)
 #+end_src
 
-**** Bespoke themes :bespoke:
+**** Lambda themes/line :lambda:theme:
 
 #+begin_src emacs-lisp
-(package! bespoke-themes
+(package! lambda-themes
   :recipe (:host github
-           :repo "mclear-tools/bespoke-themes"))
+           :repo "Lambda-Emacs/lambda-themes"))
 
-(package! bespoke-modeline
+(package! lambda-line
   :recipe (:host github
-           :repo "mclear-tools/bespoke-modeline"))
+           :repo "Lambda-Emacs/lambda-line"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(use-package! lambda-themes
+  :custom
+  (lambda-themes-set-italic-comments t)
+  (lambda-themes-set-italic-keywords t)
+  (lambda-themes-set-variable-pitch t)
+  :config
+  (load-theme 'lambda-dark))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(use-package! lambda-line
+  :custom
+  (lambda-line-position 'top) ;; Set position of status-line
+  (lambda-line-abbrev t) ;; abbreviate major modes
+  (lambda-line-hspace "  ")  ;; add some cushion
+  (lambda-line-prefix t) ;; use a prefix symbol
+  (lambda-line-prefix-padding nil) ;; no extra space for prefix
+  (lambda-line-status-invert nil)  ;; no invert colors
+  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
+  (lambda-line-gui-mod-symbol " ⬤")
+  (lambda-line-gui-rw-symbol  " ◯")
+  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom -.50)
+  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
+  :config
+  ;; activate lambda-line
+  (lambda-line-mode)
+  ;; set divider line in footer
+  (when (eq lambda-line-position 'top)
+   (setq-default mode-line-format (list "%_"))
+   (setq mode-line-format (list "%_"))))
+#+end_src
+
 #+end_src
 
 **** Focus :focus:
