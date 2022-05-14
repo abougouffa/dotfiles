@@ -926,7 +926,18 @@ inside the src_elisp{(after! ... )} block ¯\_(ツ)_/¯.
         centaur-tabs-gray-out-icons 'buffer))
 #+end_src
 
-** Better PDFs in mode line :modeline:pdf:
+** PDF tools
+*** Dark mode
+The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
+and read PDF documents, so lets make it dark by default, this can be toggled
+using the =m z=.
+
+#+begin_src emacs-lisp
+(after! pdf-tools
+  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
+#+end_src
+
+*** Better PDFs in mode line :modeline:pdf:
 First up I'm going to want a segment for just the buffer file name, and a PDF
 icon. Then we'll redefine two functions used to generate the modeline.
 
