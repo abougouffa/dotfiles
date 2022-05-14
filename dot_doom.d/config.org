@@ -2331,7 +2331,6 @@ Display Git information (author, date, message...) for current line
 #+begin_src emacs-lisp :tangle yes
 (use-package! blamer
   :bind (("s-i" . blamer-show-commit-info))
-  :defer 20
   :custom
   (blamer-idle-time 0.3)
   (blamer-min-offset 60)
@@ -2340,12 +2339,14 @@ Display Git information (author, date, message...) for current line
   (blamer-author-formatter " %s ")
   (blamer-datetime-formatter "[%s], ")
   (blamer-commit-formatter "“%s”")
+
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
                    :background nil
                    :height 125
                    :italic t)))
-  :config
+
+  :init
   (global-blamer-mode 1)
 
   ;; Disable in zen (writeroom) mode
@@ -2353,7 +2354,8 @@ Display Git information (author, date, message...) for current line
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1)))
 
-  (when t ;; Add some way to detect if EAF is present
+  ;; Disable on EAF mode
+  (when (require 'eaf nil t)
     (add-hook! 'eaf-mode-hook (blamer-mode -1))))
 #+end_src
 
