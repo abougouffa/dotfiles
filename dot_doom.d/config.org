@@ -792,9 +792,8 @@ This can be used to adjust the left and right fringes.
 
 #+begin_src emacs-lisp
 (after! vertico-posframe
-  (setq vertico-posframe-parameters
-        '((left-fringe . 12)
-          (right-fringe . 14))))
+  (setq vertico-posframe-parameters '((left-fringe . 12) (right-fringe . 14))
+        vertico-posframe-border-width 3))
 #+end_src
 
 ** Editor :edit:
