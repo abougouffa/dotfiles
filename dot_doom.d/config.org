@@ -206,7 +206,7 @@ Beautify Emacs builtin packages.
 (dired +icons +ranger)
 (ibuffer +icons)
 (undo +tree)
-;;vc
+vc
 ;;electric
 #+end_src
 
