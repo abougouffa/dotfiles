@@ -2350,9 +2350,13 @@ Display Git information (author, date, message...) for current line
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1)))
 
-  ;; Disable on EAF mode
+  ;; Disable on EAF modes
   (when (require 'eaf nil t)
-    (add-hook! 'eaf-mode-hook (blamer-mode -1))))
+    (add-hook! 'eaf-mode-hook (blamer-mode -1)))
+
+  ;; Disable in PDF view mode
+  (when (featurep! :tools pdf)
+    (add-hook! 'pdf-view-mode-hook (blamer-mode -1))))
 #+end_src
 
 **** Systemd :systemd:
