@@ -168,12 +168,12 @@ nav-flash
 (popup +all +defaults)
 (emoji +ascii +unicode +github)
 (treemacs +lsp)
+;;tabs
+;;unicode
 ;;neotree
 ;;doom-quit
 ;;indent-guides
 ;;minimap
-;;unicode
-;;tabs
 ;;vi-tilde-fringe
 #+end_src
 
@@ -910,10 +910,7 @@ I do not find =company= useful in Org files.
             org-mode))
 #+end_src
 
-** Centaur tabs :tab:
-A 'active-bar' is nice, so let's have one of those. If we have it ~under~ needs us to
-turn on ~x-underline-at-decent~ though. For some reason this didn't seem to work
-inside the src_elisp{(after! ... )} block ¯\_(ツ)_/¯.
+** COMMENT Centaur tabs :tab:
 
 #+begin_src emacs-lisp
 (after! centaur-tabs
@@ -3104,7 +3101,7 @@ Regards,
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
-** EMMS :media:music:
+** Emacs Multimedia System (EMMS) :media:music:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! emms-mode-line-cycle
@@ -3132,14 +3129,6 @@ Regards,
   ;; Mode line formatting settings
   ;; This format complements the 'emms-mode-line-format' one.
   (setq emms-mode-line-format " ⟨%s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
-
-  (setq emms-mode-line-titlebar-function
-        (lambda ()
-          '(:eval
-            (when emms-player-playing-p
-              (format " %s %s"
-                      (format emms-mode-line-format (emms-mode-line-cycle-get-title))
-                      emms-playing-time-string)))))
 
   (defun +emms-mode-line-toggle-format-hook ()
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
