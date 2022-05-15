@@ -5,17 +5,9 @@
 
 (doom! :input
        bidi
-
        :completion
        (vertico +icons)
        company
-       ;;(ivy +childframe
-       ;;     +fuzzy
-       ;;     +icons
-       ;;     +prescient)
-       ;;helm
-       ;;ido
-
        :ui
        deft
        doom
@@ -26,25 +18,20 @@
        vc-gutter
        workspaces
        zen
-       neotree
+       ophints
+       nav-flash
        (window-select +numbers)
        (ligatures +extra)
-       (popup +all
-              +defaults)
-       (emoji +ascii
-              +unicode
-              +github)
-       ;;ophints
-       ;;nav-flash
-       ;;(treemacs +lsp)
+       (popup +all +defaults)
+       (emoji +ascii +unicode +github)
+       (treemacs +lsp)
+       ;;neotree
        ;;doom-quit
-       ;;fill-column
        ;;indent-guides
        ;;minimap
        ;;unicode
        ;;tabs
        ;;vi-tilde-fringe
-
        :editor
        (evil +everywhere)
        file-templates
@@ -58,26 +45,21 @@
        ;;(objed +manual)
        ;;god
        ;;rotate-text
-
        :emacs
-       (dired +icons
-              +ranger)
+       (dired +icons +ranger)
        (ibuffer +icons)
        (undo +tree)
-       ;;vc
+       vc
        ;;electric
-
        :term
        eshell
        vterm
        shell
        term
-
        :checkers
        (syntax +childframe)
        (spell +aspell)
        grammar
-
        :tools
        direnv
        editorconfig
@@ -100,10 +82,8 @@
        ;;prodigy
        ;;taskrunner
        ;;terraform
-
        :os
        (tty +osc)
-
        :lang
        plantuml
        emacs-lisp
@@ -119,12 +99,10 @@
        (ess +lsp)
        (yaml +lsp)
        (sh +lsp)
-       (python +lsp +pyright +pyenv +conda)
-       (org +dragndrop +gnuplot +jupyter
-            +pandoc +noter +hugo +present
-            +pomodoro +roam2)
+       (python +lsp +pyenv +conda +pyright)
        (racket +lsp +xp)
        (scheme +mit +guile +racket +chez)
+       (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
        ;;rst                  ; ReST in peace
        ;;(lua +lsp)           ; one-based indices? one-based indices
        ;;agda                 ; types of types of types of types...
@@ -164,10 +142,8 @@
        ;;swift                ; who asked for emoji variables?
        ;;terra                ; Earth and Moon in alignment for performance.
        ;;web                  ; the tubes
-
        :email
        (mu4e +org +gmail)
-
        :app
        calendar
        irc
@@ -175,9 +151,7 @@
        everywhere
        (rss +org)
        ;;twitter
-
        :config
        literate
-       (default +bindings
-                +smartparens)
+       (default +bindings +smartparens)
 )

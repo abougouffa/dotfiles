@@ -10,19 +10,19 @@
   :disable t
   :recipe (:host github :repo "skyler544/doom-nano-testing"))
 
-(package! bespoke-themes
+(package! lambda-themes
   :recipe (:host github
-           :repo "mclear-tools/bespoke-themes"))
+           :repo "Lambda-Emacs/lambda-themes"))
 
-(package! bespoke-modeline
+(package! lambda-line
   :recipe (:host github
-           :repo "mclear-tools/bespoke-modeline"))
+           :repo "Lambda-Emacs/lambda-line"))
+
+(package! humanoid-themes
+  :recipe (:host github
+           :repo "humanoid-colors/emacs-humanoid-themes"))
 
 (package! focus)
-
-(package! goggles
-  :recipe (:host github
-           :repo "minad/goggles"))
 
 (when (<= emacs-major-version 28)
   (package! good-scroll))
@@ -30,7 +30,8 @@
 ;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
+  :recipe (:local-repo "lisp/wttrin")
+  :ignore t)
 
 (package! osm)
 
@@ -39,6 +40,8 @@
            :repo "zkry/awqat"))
 
 (package! ess-view)
+
+(unpin! pdf-tools)
 
 (package! vlf)
 
@@ -54,9 +57,14 @@
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
 
-(package! lsp-grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/lsp-grammarly"))
+;; Install the suitable LSP frontend
+(if (featurep! :tools lsp +eglot)
+  (package! eglot-grammarly
+    :recipe (:host github
+             :repo "emacs-grammarly/eglot-grammarly"))
+  (package! lsp-grammarly
+    :recipe (:host github
+             :repo "emacs-grammarly/lsp-grammarly")))
 
 (package! flycheck-grammalecte
   :recipe (:host github
@@ -83,6 +91,10 @@
   :disable t) ; It works, but I'm not using it ATM
 
 (package! chezmoi)
+
+(package! lemon
+  :recipe (:host gitlab
+           :repo "ieure/lemon"))
 
 (package! speed-type)
 
@@ -175,11 +187,6 @@
 (package! aas
   :recipe (:host github
            :repo "ymarco/auto-activating-snippets"))
-
-(package! project-cmake
-  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :recipe (:host github
-           :repo "juanjosegarciaripoll/project-cmake"))
 
 (package! franca-idl
   :recipe (:host github

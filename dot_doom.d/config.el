@@ -11,6 +11,9 @@
       auth-source-cache-expiry 86400 ; All day, defaut is 2h (7200)
       password-cache t
       password-cache-expiry 86400)
+
+;; Set my GPG key as the default key
+(setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
 ;; Secrets:1 ends here
 
 ;; [[file:config.org::*File deletion][File deletion:1]]
@@ -20,6 +23,40 @@
 ;; [[file:config.org::*Window][Window:1]]
 (setq-default window-combination-resize t)
 ;; Window:1 ends here
+
+;; [[file:config.org::*Window][Window:2]]
+(defvar buffer-tail-alist nil)
+
+(defun buffer-tail (name)
+  "Follow buffer tails, NAME."
+  (cond ((or (equal (buffer-name (current-buffer)) name))
+         (string-match "^ \\*Minibuf.*?\\*$" (buffer-name (current-buffer))))
+        ((get-buffer name)
+         (with-current-buffer (get-buffer name)
+           (goto-char (point-max))
+           (let ((windows (get-buffer-window-list (current-buffer) nil t)))
+             (while windows (set-window-point (car windows) (point-max))
+                    (with-selected-window (car windows) (recenter -3)) (setq windows (cdr windows))))))))
+
+(defun toggle-buffer-tail (&optional name force)
+  "Toggle tailing of buffer NAME.
+
+When called non-interactively, a FORCE arg of 'on' or 'off' can be used to ensure a given state for buffer NAME."
+  (interactive)
+  (let* ((name (if name name (current-buffer)))
+         (toggle (cond (force force)
+                       ((assoc name buffer-tail-alist) "off")
+                       (t "on"))))
+    (if (not (or (equal toggle "on") (equal toggle "off")))
+        (error "Invalid 'force' arg. required 'on'/'off'")
+      (progn
+        (while (assoc name buffer-tail-alist)
+          (cancel-timer (cdr (assoc name buffer-tail-alist)))
+          (setq buffer-tail-alist (remove* name buffer-tail-alist :key 'car :test 'equal)))
+        (if (equal toggle "on")
+            (add-to-list 'buffer-tail-alist (cons name (run-at-time t 1 'buffer-tail name))))
+        (message "Toggled `tail buffer' for `%s' %s" name toggle)))))
+;; Window:2 ends here
 
 ;; [[file:config.org::*Split defaults][Split defaults:1]]
 (setq evil-vsplit-window-right t
@@ -36,7 +73,7 @@
 (setq undo-limit 80000000   ; Raise undo-limit to 80Mb
       evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
       auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      ;; scroll-preserve-screen-position 'always ; Don't have `point' jump around
+      scroll-preserve-screen-position 'always ; Don't have `point' jump around
       scroll-margin 2)      ; It's nice to maintain a little margin
 ;; Undo and auto-save:1 ends here
 
@@ -50,6 +87,11 @@
 ;; Iterate through CamelCase words
 (global-subword-mode 1)
 ;; Editing:1 ends here
+
+;; [[file:config.org::*Emacs sources][Emacs sources:1]]
+(setq source-directory
+      (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git"))
+;; Emacs sources:1 ends here
 
 ;; [[file:config.org::*Initialization][Initialization:1]]
 (defun greedily-do-daemon-setup ()
@@ -85,9 +127,6 @@
 
 ;; [[file:config.org::*Theme][Theme:1]]
 (setq doom-theme 'doom-vibrant)
-;; (remove-hook 'window-setup-hook #'doom-init-theme-h)
-;; (add-hook 'after-init-hook #'doom-init-theme-h 'append)
-(delq! t custom-theme-load-path)
 ;; Theme:1 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
@@ -105,6 +144,13 @@
                  (string-match-p (regexp-quote "N/A") battery-str))
       (display-battery-mode 1))))
 ;; Battery:1 ends here
+
+;; [[file:config.org::*Modeline customization][Modeline customization:1]]
+(setq doom-modeline-major-mode-icon t
+      doom-modeline-major-mode-color-icon t
+      doom-modeline-buffer-state-icon t)
+(setq doom-modeline-github t)
+;; Modeline customization:1 ends here
 
 ;; [[file:config.org::*Custom Splash Image][Custom Splash Image:1]]
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
@@ -139,11 +185,19 @@
              (format (if (buffer-modified-p) " ◉ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
 
+;; [[file:config.org::*Fringe][Fringe:1]]
+;; (after! lsp-mode
+;;   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
+
+
+(setq-default left-fringe-width 15)
+; (set-fringe-mode '(15 . 15))
+;; Fringe:1 ends here
+
 ;; [[file:config.org::*Vertico][Vertico:1]]
 (after! vertico-posframe
-  (setq vertico-posframe-parameters
-        '((left-fringe . 12)
-          (right-fringe . 14))))
+  (setq vertico-posframe-parameters '((left-fringe . 12) (right-fringe . 14))
+        vertico-posframe-border-width 3))
 ;; Vertico:1 ends here
 
 ;; [[file:config.org::*Scratch buffer][Scratch buffer:1]]
@@ -220,6 +274,11 @@ is binary, activate `hexl-mode'."
         centaur-tabs-close-button "×"
         centaur-tabs-gray-out-icons 'buffer))
 ;; Centaur tabs:1 ends here
+
+;; [[file:config.org::*Dark mode][Dark mode:1]]
+(after! pdf-tools
+  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
+;; Dark mode:1 ends here
 
 ;; [[file:config.org::*Better PDFs in mode line][Better PDFs in mode line:1]]
 (after! doom-modeline
@@ -410,11 +469,6 @@ is binary, activate `hexl-mode'."
 (use-package! focus
   :commands focus-mode)
 
-(use-package! goggles
-  :hook ((prog-mode text-mode) . goggles-mode)
-  :config
-  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
-
 (if (> emacs-major-version 28)
     (pixel-scroll-precision-mode 1)
   (use-package! good-scroll
@@ -442,7 +496,7 @@ is binary, activate `hexl-mode'."
     (require 'osm-ol)))
 
 (use-package! awqat
-  ;; :load-path "~/Projects/foss_projects/awqat"
+  :load-path "~/Projects/foss_projects/awqat"
   :commands (awqat-display-prayer-time-mode awqat-times-for-day)
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
@@ -476,17 +530,30 @@ is binary, activate `hexl-mode'."
   :config
   (grammarly-load-from-authinfo))
 
-(use-package! lsp-grammarly
-  :commands (+lsp-grammarly-load))
-  :init
+(if (featurep! :tools lsp +eglot)
+    (use-package! eglot-grammarly
+      :commands (+lsp-grammarly-load)
+      :init
+      (defun +lsp-grammarly-load ()
+        "Load Grammarly LSP server."
+        (interactive)
+        (require 'eglot-grammarly)
+        (call-interactively #'eglot)))
+  (use-package! lsp-grammarly
+    :commands (+lsp-grammarly-load)
+    :init
+    (defun +lsp-grammarly-load ()
+      "Load Grammarly LSP server."
+      (require 'lsp-grammarly)
+      (lsp-deferred)))) ;; or (lsp)
+;;
 ;; :hook (text-mode . (lambda ()
 ;;                      (require 'lsp-grammarly)
 ;;                      (lsp-deferred))))  ; or (lsp)
-  (defun +lsp-grammarly-load ()
-    "Load Grammarly LSP server."
-    (interactive)
-    (require 'lsp-grammarly)
-    (lsp-deferred))
+
+;; :hook (text-mode . (lambda ()))
+;;                    (require 'eglot-grammarly)
+;;                    (call-interactively #'eglot)))
 
 (use-package! flycheck-grammalecte
   :commands (flycheck-grammalecte-correct-error-at-point
@@ -553,8 +620,7 @@ is binary, activate `hexl-mode'."
   :commands (eaf-open
              eaf-open-browser
              eaf-open-jupyter
-             eaf-open-mail-as-html
-             eaf-org-export-to-pdf-and-open)
+             eaf-open-mail-as-html)
   :custom
   ;; Generic
   (eaf-start-python-process-when-require t)
@@ -582,7 +648,7 @@ is binary, activate `hexl-mode'."
   ;; (eaf-find-alternate-file-in-dired t)
 
   ;; PDF Viewer settings
-  (eaf-pdf-dark-mode "follow")
+  ;; (eaf-pdf-dark-mode "follow")
 
   :config
   (when (display-graphic-p)
@@ -594,7 +660,6 @@ is binary, activate `hexl-mode'."
 
   ;; Apps
   (require 'eaf-browser)
-  (require 'eaf-pdf-viewer)
   (require 'eaf-jupyter)
   (require 'eaf-markdown-previewer)
   (require 'eaf-org-previewer)
@@ -607,23 +672,24 @@ is binary, activate `hexl-mode'."
   ;; (require 'eaf-git)
   ;; (require 'eaf-image-viewer)
 
-  (after! org
-    ;; Use EAF PDF Viewer in Org
-    (defun +eaf-org-open-file-fn (file &optional link)
-      "An wrapper function on `eaf-open'."
-      (eaf-open file))
+  ;; (require 'eaf-pdf-viewer)
+  ;; (after! org
+  ;;   ;; Use EAF PDF Viewer in Org
+  ;;   (defun +eaf-org-open-file-fn (file &optional link)
+  ;;     "An wrapper function on `eaf-open'."
+  ;;     (eaf-open file))
 
-    ;; use `emacs-application-framework' to open PDF file: link
-    (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
+  ;;   ;; use `emacs-application-framework' to open PDF file: link
+  ;;   (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
 
   ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
   ;; the Command>Compile and view (C-c C-a) option will compile the .tex
   ;; file into a .pdf file and display it using EAF. Double clicking on the
   ;; PDF side jumps to editing the clicked section.
-  (after! latex
-    (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
-    (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
-    (add-to-list 'TeX-view-program-selection '(output-pdf "eaf")))
+  ;; (after! latex
+  ;;   (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
+  ;;   (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
+  ;;   (add-to-list 'TeX-view-program-selection '(output-pdf "eaf")))
 
   ;; Make EAF Browser my default browser
   (setq browse-url-browser-function #'eaf-open-browser)
@@ -703,6 +769,20 @@ is binary, activate `hexl-mode'."
           (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
 
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
+
+(use-package! lemon
+  :commands (lemon-mode)
+  :config
+  (require 'lemon-cpu)
+  (require 'lemon-memory)
+  (require 'lemon-network)
+  :init
+  (setq lemon-delay 5
+        lemon-refresh-rate 2
+        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
+                              (lemon-cpu-linux)
+                              (lemon-memory-linux)
+                              (lemon-linux-network-rx)))))
 
 (use-package! speed-type
   :commands (speed-type-text))
@@ -863,8 +943,6 @@ is binary, activate `hexl-mode'."
   :hook (magit-mode . magit-delta-mode))
 
 (use-package! blamer
-  :bind (("s-i" . blamer-show-commit-info))
-  :defer 20
   :custom
   (blamer-idle-time 0.3)
   (blamer-min-offset 60)
@@ -873,12 +951,14 @@ is binary, activate `hexl-mode'."
   (blamer-author-formatter " %s ")
   (blamer-datetime-formatter "[%s], ")
   (blamer-commit-formatter "“%s”")
+
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
                    :background nil
                    :height 125
                    :italic t)))
-  :config
+
+  :init
   (global-blamer-mode 1)
 
   ;; Disable in zen (writeroom) mode
@@ -886,8 +966,13 @@ is binary, activate `hexl-mode'."
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1)))
 
-  (when t ;; Add some way to detect if EAF is present
-    (add-hook! 'eaf-mode-hook (blamer-mode -1))))
+  ;; Disable on EAF modes
+  (when (require 'eaf nil t)
+    (add-hook! 'eaf-mode-hook (blamer-mode -1)))
+
+  ;; Disable in PDF view mode
+  (when (featurep! :tools pdf)
+    (add-hook! 'pdf-view-mode-hook (blamer-mode -1))))
 
 (use-package bitbake-modes
   :commands (bitbake-mode
@@ -899,12 +984,6 @@ is binary, activate `hexl-mode'."
 
 (use-package! aas
   :commands aas-mode)
-
-(use-package! project-cmake
-    :config
-    (require 'eglot)
-    (project-cmake-scan-kits)
-    (project-cmake-eglot-integration))
 
 (use-package! franca-idl
   :commands franca-idl-mode)
@@ -972,7 +1051,9 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*Calendar][Calendar:1]]
 (setq calendar-latitude 48.7
       calendar-longitude 2.17
-      calendar-location-name "Orsay, FR")
+      calendar-location-name "Orsay, FR"
+      calendar-time-display-form '(24-hours ":" minutes
+                                            (if time-zone " (") time-zone (if time-zone ")")))
 ;; Calendar:1 ends here
 
 ;; [[file:config.org::*e-Books =nov=][e-Books =nov=:1]]
@@ -984,11 +1065,13 @@ is binary, activate `hexl-mode'."
 
   (defun doom-modeline-segment--nov-info ()
     (concat " "
-            (propertize (cdr (assoc 'creator nov-metadata)) 'face 'doom-modeline-project-parent-dir)
+            (propertize (cdr (assoc 'creator nov-metadata))
+                        'face 'doom-modeline-project-parent-dir)
             " "
             (cdr (assoc 'title nov-metadata))
             " "
-            (propertize (format "%d/%d" (1+ nov-documents-index) (length nov-documents)) 'face 'doom-modeline-info)))
+            (propertize (format "%d/%d" (1+ nov-documents-index) (length nov-documents))
+                        'face 'doom-modeline-info)))
 
   (advice-add 'nov-render-title :override #'ignore)
 
@@ -1008,7 +1091,8 @@ is binary, activate `hexl-mode'."
     (visual-fill-column-mode 1)
     (hl-line-mode -1)
 
-    (add-to-list '+lookup-definition-functions #'+lookup/dictionary-definition)
+    (add-to-list '+lookup-definition-functions
+                 #'+lookup/dictionary-definition)
 
     (setq-local mode-line-format
                 `((:eval
@@ -1128,15 +1212,18 @@ is binary, activate `hexl-mode'."
   ;; I like to always BCC myself
   (defun +bbc-me ()
     "Add my email to BCC."
-    ;; (save-excursion (message-add-header (concat "Bcc: " user-mail-address "\n"))))
-    (save-excursion (message-add-header "Bcc: abdelhak.alg@gmail.com\n")))
+    (save-excursion (message-add-header (format "Bcc: %s\n" user-mail-address))))
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
-  ;; Load
-  (load! "lisp/private/+mu4e-smart-refiling.el")
 
-  ;; Load my accounts
+  ;; I constantly get a non systematic error after sending a mail.
+  ;; >> Error (message-sent-hook): Error running hook "undo" because:
+  ;; >> (error Unrecognized entry in undo list undo-tree-canary)
+  ;; It is triggered by the 'message-sent-hook', so lets shut it up.
+  ;; (remove-hook! 'undo 'message-sent-hook)
+
+   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
 ;; mu4e:2 ends here
 
@@ -1321,7 +1408,6 @@ is binary, activate `hexl-mode'."
 ;; CSV Rainbow:1 ends here
 
 ;; [[file:config.org::*GNU Octave][GNU Octave:1]]
-(autoload 'octave-mode "octave-mode" "Loding octave-mode" t)
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 ;; GNU Octave:1 ends here
 
@@ -1360,11 +1446,6 @@ is binary, activate `hexl-mode'."
         lsp-headerline-breadcrumb-segments '(symbols)))
 ;; Enable some useful UI stuff:1 ends here
 
-;; [[file:config.org::*Fringe][Fringe:1]]
-(after! lsp-mode
-  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
-;; Fringe:1 ends here
-
 ;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
 (after! lsp-clangd
   (setq lsp-clients-clangd-args
@@ -1380,7 +1461,7 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*Python][Python:1]]
 (after! tramp
   (require 'lsp-mode)
-  (require 'lsp-pyright)
+  ;; (require 'lsp-pyright)
 
   (setq lsp-enable-snippet nil
         lsp-log-io nil
@@ -1420,21 +1501,12 @@ is binary, activate `hexl-mode'."
 
 ;; [[file:config.org::*DAP][DAP:2]]
 (after! dap-mode
-  ;; Which version to download when running 'dap-cpptools-setup', default 0.29.0
-  (setq dap-cpptools-extension-version "v1.9.8")
-
-  ;; Debug program path has changed in newer versions.
-  (setq dap-cpptools-debug-program
-        `(,(concat (expand-file-name "vscode/cpptools" dap-utils-extension-path)
-                   (format "/extension/debugAdapters/bin/OpenDebugAD7%s"
-                           (if (eq system-type 'windows-nt) ".exe" "")))))
-
   (require 'dap-cpptools)
 
   ;; More minimal UI
   (setq dap-auto-configure-features '(locals tooltip)
-        lsp-enable-dap-auto-configure t
-        dap-auto-show-output nil) ;; Hide the annoying server output
+        dap-auto-show-output nil ;; Hide the annoying server output
+        lsp-enable-dap-auto-configure t)
 
   ;; Automatically trigger dap-hydra when a program hits a breakpoint.
   (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
@@ -1442,8 +1514,8 @@ is binary, activate `hexl-mode'."
   ;; Automatically delete session and close dap-hydra when DAP is terminated.
   (add-hook 'dap-terminated-hook
             (lambda (arg)
-              (progn (call-interactively #'dap-delete-session)
-                     (dap-hydra/nil)))))
+              (call-interactively #'dap-delete-session)
+              (dap-hydra/nil))))
 ;; DAP:2 ends here
 
 ;; [[file:config.org::*Doom store][Doom store:1]]
@@ -1722,6 +1794,16 @@ is binary, activate `hexl-mode'."
         org-auto-align-tags nil
         org-special-ctrl-a/e t
         org-insert-heading-respect-content t)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t)
+     (python . t)
+     (ipython . t)
+     (octave . t)
+     (plantuml . t)
+     (C . t)
+     (cpp . t)
+     (emacs-lisp . t)))
   (setq org-babel-default-header-args
         '((:session  . "none")
           (:results  . "replace")
@@ -1743,10 +1825,10 @@ is binary, activate `hexl-mode'."
     (setq geiser-default-implementation 'guile))
   
   ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
-  (defun my-org-confirm-babel-evaluate (lang body)
-    (not (string= lang "scheme"))) ; don't ask for ditaa
+  (defun +org-confirm-babel-evaluate (lang body)
+    (not (string= lang "scheme"))) ;; don't ask for scheme
   
-  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+  (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
   (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
   (use-package! org-ref
     :after org
@@ -2318,22 +2400,14 @@ is binary, activate `hexl-mode'."
    :follow (lambda (file) (find-file file))
    :face '(:foreground "chocolate" :weight bold :underline t)
    :display 'full
-   :export (lambda (file desc backend)
-             (when (eq backend 'latex)
-               (if (string-match ">(\\(.+\\))" desc)
-                   (concat "\\begin{subfigure}[b]"
-                           "\\caption{"
-                           (replace-regexp-in-string "\s+>(.+)" "" desc)
-                           "}"
-                           "\\includegraphics"
-                           "["
-                           (match-string 1 desc)
-                           "]"
-                           "{"
-                           file
-                           "}"
-                           "\\end{subfigure}")
-                 (format "\\begin{subfigure}\\includegraphics{%s}\\end{subfigure}" desc file)))))
+   :export
+   (lambda (file desc backend)
+     (when (eq backend 'latex)
+       (if (string-match ">(\\(.+\\))" desc)
+           (concat "\\begin{subfigure}[b]"
+                   "\\caption{" (replace-regexp-in-string "\s+>(.+)" "" desc) "}"
+                   "\\includegraphics" "[" (match-string 1 desc) "]" "{" file "}" "\\end{subfigure}")
+         (format "\\begin{subfigure}\\includegraphics{%s}\\end{subfigure}" desc file)))))
   (custom-set-faces!
     '(org-document-title :height 1.2))
   
@@ -2657,7 +2731,7 @@ is binary, activate `hexl-mode'."
   ;;        bibtex-completion-notes-path "/path/to/your/notes/")
   ;; (setq! citar-library-paths '("/path/to/library/files/")
   ;;        citar-notes-paths '("/path/to/your/notes/"))
-  (setq org-export-headline-levels 5) ; I like nesting
+  (setq org-export-headline-levels 5) ;; I like nesting
   (require 'ox-extra)
   (ox-extras-activate '(ignore-headlines))
   (setq org-export-creator-string
@@ -2671,6 +2745,13 @@ is binary, activate `hexl-mode'."
           "bibtex %b"
           "pdflatex -interaction nonstopmode -output-directory %o %f"
           "pdflatex -interaction nonstopmode -output-directory %o %f"))
+  ;; this is for code syntax highlighting in export. you need to use
+  ;; -shell-escape with latex, and install pygments.
+  (setq org-latex-listings 'minted)
+  (setq org-latex-minted-options
+        '(("frame" "lines")
+          ("fontsize" "\\scriptsize")
+          ("linenos" "")))
   (after! ox-latex
     (add-to-list 'org-latex-classes
                  '("scr-article"
