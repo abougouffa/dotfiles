@@ -3228,7 +3228,6 @@ Files with =.m= extension gets recognized automatically as Objective C files. Le
 change this to be recognized as Octave/Matlab files.
 
 #+begin_src emacs-lisp
-(autoload 'octave-mode "octave-mode" "Loding octave-mode" t)
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 #+end_src
 
