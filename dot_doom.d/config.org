@@ -3771,6 +3771,20 @@ src_elisp{(after! ...)} block.
       org-insert-heading-respect-content t)
 #+end_src
 
+
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((R . t)
+   (python . t)
+   (ipython . t)
+   (octave . t)
+   (plantuml . t)
+   (C . t)
+   (cpp . t)
+   (emacs-lisp . t)))
+   #+end_src
+
 I also like the src_elisp{:comments} header-argument, so let's make that a
 default.
 
@@ -4451,7 +4465,6 @@ cause issues. Let's make their failure less eventful.
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
-*** Babel
 
 #+begin_src emacs-lisp
 (defvar org-babel-lang-list
