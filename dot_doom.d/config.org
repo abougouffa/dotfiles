@@ -4465,18 +4465,9 @@ cause issues. Let's make their failure less eventful.
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
+*** COMMENT LSP support for babel blocks
 
 #+begin_src emacs-lisp
-(defvar org-babel-lang-list
-  '("go" "python" "ipython" "bash" "sh" "emacs-lisp" "octave"))
-
-(dolist (lang org-babel-lang-list)
-  (eval `(lsp-org-babel-enable ,lang)))
-#+end_src
-
-**** LSP support for babel blocks
-
-#+begin_src emacs-lisp :tangle yes
 (cl-defmacro lsp-org-babel-enable (lang)
   "Support LANG in org source code block."
   (setq centaur-lsp 'lsp-mode)
@@ -4501,6 +4492,12 @@ cause issues. Let's make their failure less eventful.
            (put ',edit-pre 'function-documentation
                 (format "Prepare local buffer environment for org source block (%s)."
                         (upcase ,lang))))))))
+
+(defvar org-babel-lang-list
+  '("go" "python" "ipython" "bash" "sh" "emacs-lisp" "octave"))
+
+(dolist (lang org-babel-lang-list)
+  (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 
 ** Custom links
