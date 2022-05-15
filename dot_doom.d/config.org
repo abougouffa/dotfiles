@@ -636,7 +636,8 @@ Some good fonts:
 
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "FantasqueSansMono Nerd Font Mono") ; inherits the :size from doom-font
+      ;;doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
 #+end_src
