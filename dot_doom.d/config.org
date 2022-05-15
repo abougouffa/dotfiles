@@ -720,7 +720,7 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 |----------------------+-------------------------------|
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 #+end_src
 
 **** COMMENT Clean Screen :clean:
