@@ -2478,21 +2478,8 @@ Display Git information (author, date, message...) for current line
                    :height 125
                    :italic t)))
 
-  :init
-  (global-blamer-mode 1)
-
-  ;; Disable in zen (writeroom) mode
-  (when (featurep! :ui zen)
-    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1)))
-
-  ;; Disable on EAF modes
-  (when (require 'eaf nil t)
-    (add-hook! 'eaf-mode-hook (blamer-mode -1)))
-
-  ;; Disable in PDF view mode
-  (when (featurep! :tools pdf)
-    (add-hook! 'pdf-view-mode-hook (blamer-mode -1))))
+  :hook ((prog-mode . blamer-mode)
+         (text-mode . blamer-mode)))
 #+end_src
 
 **** Systemd :systemd:
