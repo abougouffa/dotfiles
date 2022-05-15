@@ -2327,7 +2327,6 @@ Display Git information (author, date, message...) for current line
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! blamer
-  :bind (("s-i" . blamer-show-commit-info))
   :custom
   (blamer-idle-time 0.3)
   (blamer-min-offset 60)
