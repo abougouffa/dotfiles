@@ -617,83 +617,156 @@ is binary, activate `hexl-mode'."
 
 (use-package! eaf
   :load-path "lisp/emacs-application-framework"
-  :commands (eaf-open
-             eaf-open-browser
-             eaf-open-jupyter
-             eaf-open-mail-as-html)
-  :custom
-  ;; Generic
-  (eaf-start-python-process-when-require t)
-
-  ;; Customize fonts
-  (eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono")
-  (eaf-webengine-fixed-font-family "FantasqueSansMono Nerd Font Mono")
-  (eaf-webengine-serif-font-family "FantasqueSansMono Nerd Font Mono")
-  (eaf-webengine-font-size 14)
-  (eaf-webengine-fixed-font-size 14)
-
-  ;; Browser settings
-  (eaf-browser-continue-where-left-off t)
-  (eaf-browser-default-zoom 1.25)
-  (eaf-browser-dark-mode "follow")
-  (eaf-browser-scroll-step 200)
-  (eaf-browser-enable-adblocker t)
-  (eaf-browser-translate-language "fr")
-  (eaf-browser-default-search-engine "duckduckgo")
-  (eaf-browser-enable-plugin t)
-  (eaf-browser-enable-javascript t)
-
-  ;; File manager settings
-  ;; (eaf-file-manager-show-preview nil)
-  ;; (eaf-find-alternate-file-in-dired t)
-
-  ;; PDF Viewer settings
-  ;; (eaf-pdf-dark-mode "follow")
+  :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
+  :init
+  (defvar +eaf-enabled-apps
+    '(org mail browser mindmap jupyter org-previewer markdown-previewer))
+  ;; mindmap file-manager file-browser
+  ;; file-sender music-player video-player
+  ;; git image-viewer
 
   :config
+  ;; Generic
+  (setq eaf-start-python-process-when-require t
+        eaf-kill-process-after-last-buffer-closed t
+        eaf-fullscreen-p nil)
+
+  ;; Debug
+  (setq eaf-enable-debug nil)
+
+  ;; Web engine
+  (setq eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono"
+        eaf-webengine-fixed-font-family "FantasqueSansMono Nerd Font Mono"
+        eaf-webengine-serif-font-family "FantasqueSansMono Nerd Font Mono"
+        eaf-webengine-font-size 14
+        eaf-webengine-fixed-font-size 14
+        eaf-webengine-download-path "~/Downloads"
+        eaf-webengine-enable-plugin t
+        eaf-webengine-enable-javascript t
+        eaf-webengine-enable-javascript-access-clipboard t
+        eaf-webengine-enable-scrollbar t
+        eaf-webengine-default-zoom 1.25
+        eaf-webengine-scroll-step 200)
+
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
 
-  ;; Extensions
-  (require 'eaf-org)
-  (require 'eaf-mail)
+  ;; Browser settings
+  (when (member 'browser +eaf-enabled-apps)
+    (setq eaf-browser-continue-where-left-off t
+          eaf-browser-dark-mode "follow"
+          eaf-browser-enable-adblocker t
+          eaf-browser-enable-autofill nil
+          eaf-browser-remember-history t
+          eaf-browser-ignore-history-list '("google.com/search" "file://")
+          eaf-browser-text-selection-color "auto"
+          eaf-browser-translate-language "fr"
+          eaf-browser-blank-page-url "https://www.duckduckgo.com"
+          eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
+          eaf-browser-default-search-engine "duckduckgo"
+          eaf-browser-continue-where-left-off nil)
 
-  ;; Apps
-  (require 'eaf-browser)
-  (require 'eaf-jupyter)
-  (require 'eaf-markdown-previewer)
-  (require 'eaf-org-previewer)
-  ;; (require 'eaf-mindmap)
-  ;; (require 'eaf-file-manager)
-  ;; (require 'eaf-file-browser)
-  ;; (require 'eaf-file-sender)
-  ;; (require 'eaf-music-player)
-  ;; (require 'eaf-video-player)
-  ;; (require 'eaf-git)
-  ;; (require 'eaf-image-viewer)
+    (require 'eaf-browser)
 
-  ;; (require 'eaf-pdf-viewer)
-  ;; (after! org
-  ;;   ;; Use EAF PDF Viewer in Org
-  ;;   (defun +eaf-org-open-file-fn (file &optional link)
-  ;;     "An wrapper function on `eaf-open'."
-  ;;     (eaf-open file))
+    ;; Make EAF Browser my default browser
+    (setq browse-url-browser-function #'eaf-open-browser)
+    (defalias 'browse-web #'eaf-open-browser))
 
-  ;;   ;; use `emacs-application-framework' to open PDF file: link
-  ;;   (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
 
-  ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
-  ;; the Command>Compile and view (C-c C-a) option will compile the .tex
-  ;; file into a .pdf file and display it using EAF. Double clicking on the
-  ;; PDF side jumps to editing the clicked section.
-  ;; (after! latex
-  ;;   (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
-  ;;   (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
-  ;;   (add-to-list 'TeX-view-program-selection '(output-pdf "eaf")))
+  ;; File manager settings
+  (when (member 'file-manager +eaf-enabled-apps)
+    (setq eaf-file-manager-show-preview nil
+          eaf-find-alternate-file-in-dired t
+          eaf-file-manager-show-hidden-file t
+          eaf-file-manager-show-icon t)
+    (require 'eaf-file-manager))
 
-  ;; Make EAF Browser my default browser
-  (setq browse-url-browser-function #'eaf-open-browser)
-  (defalias 'browse-web #'eaf-open-browser)
+  ;; File Browser
+  (when (member 'file-browser +eaf-enabled-apps)
+    (require 'eaf-file-browser))
+
+  ;; PDF Viewer settings
+  (when (member 'pdf-viewer +eaf-enabled-apps)
+    (setq eaf-pdf-dark-mode "follow"
+          eaf-pdf-show-progress-on-page nil
+          eaf-pdf-dark-exclude-image t
+          eaf-pdf-notify-file-changed t)
+    (require 'eaf-pdf-viewer)
+
+    (after! org
+      ;; Use EAF PDF Viewer in Org
+      (defun +eaf-org-open-file-fn (file &optional link)
+        "An wrapper function on `eaf-open'."
+        (eaf-open file))
+
+      ;; use `emacs-application-framework' to open PDF file: link
+      (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
+
+    (after! latex
+      ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
+      ;; the Command>Compile and view (C-c C-a) option will compile the .tex
+      ;; file into a .pdf file and display it using EAF. Double clicking on the
+      ;; PDF side jumps to editing the clicked section.
+      (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
+      (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
+      (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
+
+  ;; Org
+  (when (member 'rss-reader +eaf-enabled-apps)
+    (setq eaf-rss-reader-split-horizontally nil
+          eaf-rss-reader-web-page-other-window t) 
+    (require 'eaf-org))
+
+  ;; Org
+  (when (member 'org +eaf-enabled-apps)
+    (require 'eaf-org))
+
+  ;; Mail
+  (when (member 'mail +eaf-enabled-apps)
+    (require 'eaf-mail))
+
+  ;; Org Previewer
+  (when (member 'org-previewer +eaf-enabled-apps)
+    (setq eaf-org-dark-mode "follow")
+    (require 'eaf-org-previewer))
+
+  ;; Markdown Previewer
+  (when (member 'markdown-previewer +eaf-enabled-apps)
+    (setq eaf-markdown-dark-mode "follow")
+    (require 'eaf-markdown-previewer))
+
+  ;; Jupyter
+  (when (member 'jupyter +eaf-enabled-apps)
+    (setq eaf-jupyter-dark-mode "follow"
+          eaf-jupyter-font-family "JuliaMono"
+          eaf-jupyter-font-size 13)
+    (require 'eaf-jupyter))
+
+  ;; Mindmap
+  (when (member 'mindmap +eaf-enabled-apps)
+    (setq eaf-mindmap-dark-mode "follow"
+          eaf-mindmap-save-path "~/Dropbox/Mindmap")
+    (require 'eaf-mindmap))
+
+  ;; File Sender
+  (when (member 'file-sender +eaf-enabled-apps)
+    (require 'eaf-file-sender))
+
+  ;; Music Player
+  (when (member 'music-player +eaf-enabled-apps)
+    (require 'eaf-music-player))
+
+  ;; Video Player
+  (when (member 'video-player +eaf-enabled-apps)
+    (require 'eaf-video-player))
+
+  ;; Image Viewer
+  (when (member 'image-viewer +eaf-enabled-apps)
+    (require 'eaf-image-viewer))
+
+  ;; Git
+  (when (member 'git +eaf-enabled-apps)
+    (require 'eaf-git))
 
   ;; EVIL keybindings for Doom
   (after! evil
@@ -771,17 +844,17 @@ is binary, activate `hexl-mode'."
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
 
 (use-package! lemon
-  :commands (lemon-mode)
+  :commands (lemon-mode lemon-display)
   :config
   (require 'lemon-cpu)
   (require 'lemon-memory)
   (require 'lemon-network)
-  :init
   (setq lemon-delay 5
         lemon-refresh-rate 2
         lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
                               (lemon-cpu-linux)
                               (lemon-memory-linux)
+                              (lemon-linux-network-tx)
                               (lemon-linux-network-rx)))))
 
 (use-package! speed-type
@@ -1216,14 +1289,17 @@ is binary, activate `hexl-mode'."
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
-
   ;; I constantly get a non systematic error after sending a mail.
   ;; >> Error (message-sent-hook): Error running hook "undo" because:
   ;; >> (error Unrecognized entry in undo list undo-tree-canary)
-  ;; It is triggered by the 'message-sent-hook', so lets shut it up.
-  ;; (remove-hook! 'undo 'message-sent-hook)
+  ;; It is triggered by the 'message-sent-hook', so lets remove the 'undo'
+  ;; command from the hook, we can do this before sending the message via
+  ;; the 'message-send-hook'.
+  (add-hook 'message-send-hook ;; Befor sending the message
+            ;; Remove the problematic 'undo' hook.
+            (lambda () (remove-hook 'message-sent-hook 'undo t)))
 
-   ;; Load my accounts
+  ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
 ;; mu4e:2 ends here
 
@@ -1246,7 +1322,7 @@ is binary, activate `hexl-mode'."
 
   ;; Mode line formatting settings
   ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨%s⟩")  ; 𝅘𝅥𝅮 ⏵ ⏸
+  (setq emms-mode-line-format " ⟨%s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
 
   (setq emms-mode-line-titlebar-function
         (lambda ()
@@ -1275,6 +1351,7 @@ is binary, activate `hexl-mode'."
        :prefix-map ("m" . "emms")
        :desc "Playlist go"             "g" #'emms-playlist-mode-go
        :desc "Add playlist"            "D" #'emms-add-playlist
+       :desc "Toggle random playlist"  "r" #'emms-toggle-random-playlist
        :desc "Add directory"           "d" #'emms-add-directory
        :desc "Add file"                "f" #'emms-add-file
        :desc "Play/Pause"              "p" #'emms-pause
