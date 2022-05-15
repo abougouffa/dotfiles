@@ -834,7 +834,8 @@ is binary, activate `hexl-mode'."
 (add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
 #+end_src
 
-*** Evil
+*** Evil :evil:
+I'm not using =evil-escape=, lets disable it.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! evil-escape :disable t)
@@ -3054,7 +3055,7 @@ Regards,
 
   ;; Mode line formatting settings
   ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨%s⟩")  ; 𝅘𝅥𝅮 ⏵ ⏸
+  (setq emms-mode-line-format " ⟨%s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
 
   (setq emms-mode-line-titlebar-function
         (lambda ()
@@ -3083,6 +3084,7 @@ Regards,
        :prefix-map ("m" . "emms")
        :desc "Playlist go"             "g" #'emms-playlist-mode-go
        :desc "Add playlist"            "D" #'emms-add-playlist
+       :desc "Toggle random playlist"  "r" #'emms-toggle-random-playlist
        :desc "Add directory"           "d" #'emms-add-directory
        :desc "Add file"                "f" #'emms-add-file
        :desc "Play/Pause"              "p" #'emms-pause
@@ -3771,6 +3773,8 @@ src_elisp{(after! ...)} block.
       org-insert-heading-respect-content t)
 #+end_src
 
+Load Org Babel languages. I like to activate some languages, including C, C++,
+Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
 
 #+begin_src emacs-lisp
 (org-babel-do-load-languages
