@@ -2011,6 +2011,32 @@ A lightweight version of EAF that provides multimedia capabilities.
                               (lemon-linux-network-rx)))))
 #+end_src
 
+**** Bitwarden :pass:bitwarden:
+
+#+begin_src emacs-lisp
+(package! bitwarden
+  :recipe (:host github
+           :repo "seanfarley/emacs-bitwarden"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! bitwarden
+  ;;:config
+  ;;(bitwarden-auth-source-enable)
+
+  :init
+  (setq bitwarden-automatic-unlock
+        (lambda ()
+          (require 'auth-source)
+          (if-let* ((matches (auth-source-search :host "bitwarden.com" :user bitwarden-user :max 1 :require '(:user :secret)))
+                    (entry (nth 0 matches))
+                    (email (plist-get entry :user))
+                    (pass (plist-get entry :secret)))
+              (setq bitwarden-user email)
+              (funcall pass)
+            ""))))
+#+end_src
+
 *** Fun :fun:
 **** Speed Type
 A game to practice speed typing in Emacs.
@@ -6075,8 +6101,16 @@ then
 fi
 #+end_src
 
+Define some environment variables.
+
 #+begin_src shell :tangle ~/.env_stuff
 export DS_DIR=~/PhD/datasets-no/experiment_images/
+#+end_src
+
+Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
+
+#+begin_src shell :tangle ~/.env_stuff
+source ~/.bitwarden-session
 #+end_src
 
 ** System dark theme trick :zotero:
