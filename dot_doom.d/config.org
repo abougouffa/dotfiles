@@ -3184,10 +3184,10 @@ Regards,
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
-** Emacs Multimedia System (EMMS) :media:music:
+** Music :media:music:
 I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music.
 
-*** MPD/MPC
+*** MPD/MPC :mpd:mpc:
 First, let us define a constant to check whether MPC and MPC are present in the
 system.
 
