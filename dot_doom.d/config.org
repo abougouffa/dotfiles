@@ -3185,47 +3185,108 @@ Regards,
 #+end_src
 
 ** Emacs Multimedia System (EMMS) :media:music:
+I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music.
 
+*** MPD/MPC
+First, let us define a constant to check whether MPC and MPC are present in the
+system.
 
 #+begin_src emacs-lisp
+(defconst +mpd-present-p (not (null (and (executable-find "mpc") (executable-find "mpd")))))
 
+(unless +mpd-present-p
+  (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
 
-
-
-
+;; Not sure if it is required!
+(after! mpc
+  (setq mpc-host "localhost:6600"))
 #+end_src
 
-#+begin_src emacs-lisp
-(map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :app emms)
-       :prefix-map ("m" . "emms")
-       :desc "Playlist go"             "g" #'emms-playlist-mode-go
-       :desc "Add playlist"            "D" #'emms-add-playlist
-       :desc "Toggle random playlist"  "r" #'emms-toggle-random-playlist
-       :desc "Add directory"           "d" #'emms-add-directory
-       :desc "Add file"                "f" #'emms-add-file
-       :desc "Play/Pause"              "p" #'emms-pause
-       :desc "Start"                   "S" #'emms-start
-       :desc "Stop"                    "s" #'emms-stop))
+I like to launch the music daemon =mpd= using Systemd, lets define some commands
+in Emacs to start/kill the server:
 
+#+begin_src emacs-lisp
+(defun +mpd-daemon-start ()
+  "Start MPD, connects to it and syncs the metadata cache."
+  (interactive)
+  (let ((mpd-daemon-running-p (+mpd-daemon-running-p)))
+    (unless mpd-daemon-running-p
+      ;; Start the daemon if it is not already running.
+      (setq mpd-daemon-running-p (zerop (call-process "systemctl" nil nil nil "--user" "start" "mpd.service"))))
+    (cond ((+mpd-daemon-running-p)
+           (+mpd-mpc-update)
+           (emms-player-mpd-connect)
+           (emms-cache-set-from-mpd-all)
+           (message "Connected to MPD!"))
+          (t
+           (warn "An error occured when trying to start Systemd mpd.service.")))))
+
+(defun +mpd-daemon-stop ()
+  "Stops playback and kill the MPD daemon."
+  (interactive)
+  (emms-stop)
+  (call-process "systemctl" nil nil nil "--user" "stop" "mpd.service")
+  (message "MPD stopped!"))
+
+(defun +mpd-daemon-running-p ()
+  "Check if the MPD service is running."
+  (zerop (call-process "systemctl" nil nil nil "--user" "is-active" "--quiet" "mpd.service")))
+
+(defun +mpd-mpc-update ()
+  "Updates the MPD database synchronously."
+  (interactive)
+  (if (zerop (call-process "mpc" nil nil nil "update"))
+      (message "MPD database updated!")
+    (warn "An error occured when trying to update MPD database.")))
+#+end_src
+
+Lastly, lets define keybindings for these commands, under ~<leader> l m m~.
+
+#+begin_src emacs-lisp
+(map! :leader :prefix ("l m" . "custom")
+      (:when (and (featurep! :app emms) +mpd-present-p)
+       :prefix-map ("m" . "mpd/mpc")
+       :desc "Start daemon"              "s" #'+mpd-start-music-daemon
+       :desc "Stop daemon"               "k" #'+mpd-stop-music-daemon
+       :desc "EMMS player (MPD update)"  "R" #'emms-player-mpd-update-all-reset-cache
+       :desc "Update database"           "u" #'+mpd-update-database))
+#+end_src
+
+*** EMMS
+Now, we configure EMMS to use MPD if it is present; otherwise, it uses whatever
+default backend EMMS is using.
+
+#+begin_src emacs-lisp
 (after! emms
   ;; EMMS basic configuration
   (require 'emms-setup)
   (require 'emms-playing-time)
 
+  (when +mpd-presentp
+    (require 'emms-player-mpd))
+
   (emms-all)
   (emms-default-players)
 
-  ;; Change to your music folder
   (setq emms-source-file-default-directory "~/Music/"
-        emms-info-functions '(emms-info-tinytag) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
         ;; Load cover images
-        emms-browser-covers 'emms-browser-cache-thumbnail-async)
+        emms-browser-covers 'emms-browser-cache-thumbnail-async
+        emms-seek-seconds 5)
+
+  (if +mpd-presentp
+      ;; If using MPD as backend
+      (setq emms-player-list '(emms-player-mpd)
+            emms-info-functions '(emms-info-mpd)
+            emms-player-mpd-server-name "localhost"
+            emms-player-mpd-server-port "6600")
+    ;; Use whatever backend EMMS is using by default (VLC in my machine)
+    (setq emms-info-functions '(emms-info-tinytag))) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
 
   ;; Keyboard shortcuts
   (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
   (global-set-key (kbd "<XF86AudioNext>") 'emms-next)
   (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+  (global-set-key (kbd "<XF86AudioStop>") 'emms-stop)
 
   ;; Activate EMMS in mode line
   (emms-mode-line 1)
@@ -3299,6 +3360,25 @@ Regards,
              "EMMS is now playing:"
              (emms-track-description (emms-playlist-current-selected-track))
              +emms-notification-icon)))
+#+end_src
+
+And define some keybindings:
+
+#+begin_src emacs-lisp :tangle yes
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :app emms)
+       :prefix-map ("m" . "emms")
+       :desc "Playlist go"                 "g" #'emms-playlist-mode-go
+       :desc "Add playlist"                "D" #'emms-add-playlist
+       :desc "Toggle random playlist"      "r" #'emms-toggle-random-playlist
+       :desc "Add directory"               "d" #'emms-add-directory
+       :desc "Add file"                    "f" #'emms-add-file
+       :desc "Smart browse"                "b" #'emms-smart-browse
+       :desc "Play/Pause"                  "p" #'emms-pause
+       :desc "Start"                       "S" #'emms-start
+       :desc "Start"                       "S" #'emms-start
+       :desc "Stop"                        "s" #'emms-stop))
+
 #+end_src
 
 *** Cycle song information in mode line
