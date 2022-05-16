@@ -412,7 +412,7 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
 (defvar buffer-tail-alist nil)
 
 (defun buffer-tail (name)
-  "Follow buffer tails, NAME."
+  "Stick to tail on buffer named NAME."
   (cond ((or (equal (buffer-name (current-buffer)) name))
          (string-match "^ \\*Minibuf.*?\\*$" (buffer-name (current-buffer))))
         ((get-buffer name)
