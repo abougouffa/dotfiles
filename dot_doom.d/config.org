@@ -2503,7 +2503,13 @@ Display Git information (author, date, message...) for current line
                    :italic t)))
 
   :hook ((prog-mode . blamer-mode)
-         (text-mode . blamer-mode)))
+         (text-mode . blamer-mode))
+
+  :config
+  ;; Disable in zen (writeroom) mode
+  (when (featurep! :ui zen)
+    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 #+end_src
 
 **** Systemd :systemd:
