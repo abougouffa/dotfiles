@@ -3321,7 +3321,6 @@ default backend EMMS is using.
 
   (defun +notify-via-kdialog (title msg icon)
     "Send notification with TITLE, MSG, and ICON via `KDialog'."
-    (emms-next-noerror)
     (call-process "kdialog"
                   nil nil nil
                   "--title" title
@@ -3340,15 +3339,11 @@ default backend EMMS is using.
     "Send notification with TITLE, MSG to message. ICON is ignored."
     (message "%s %s" title msg))
 
-  (setq emms-player-next-function '+emms-notify-and-next)
-
-  (defun +emms-notify-and-next ()
-    "Send a notification of track and start next."
-    (emms-next-noerror)
-    (funcall +emms-notifier-function
-             "EMMS is now playing:"
-             (emms-track-description (emms-playlist-current-selected-track))
-             +emms-notification-icon)))
+  (add-hook 'emms-player-started-hook
+            (lambda () (funcall +emms-notifier-function
+                                "EMMS is now playing:"
+                                (emms-track-description (emms-playlist-current-selected-track))
+                                +emms-notification-icon))))
 #+end_src
 
 *** Keybindings
