@@ -3251,7 +3251,7 @@ default backend EMMS is using.
   (require 'emms-setup)
   (require 'emms-playing-time)
 
-  (when +mpd-presentp
+  (when +mpd-present-p
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -3262,7 +3262,7 @@ default backend EMMS is using.
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if +mpd-presentp
+  (if +mpd-present-p
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
