@@ -3177,7 +3177,7 @@ Regards,
 
   ;; Mode line formatting settings
   ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨%s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
+  (setq emms-mode-line-format " ⟨⏵ %s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
 
   (defun +emms-mode-line-toggle-format-hook ()
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
