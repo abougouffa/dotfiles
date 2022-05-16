@@ -3192,7 +3192,8 @@ First, let us define a constant to check whether MPC and MPC are present in the
 system.
 
 #+begin_src emacs-lisp
-(defconst +mpd-present-p (not (null (and (executable-find "mpc") (executable-find "mpd")))))
+(defconst +mpd-present-p (not (null (and (executable-find "mpc") (executable-find "mpd"))))
+  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
 (unless +mpd-present-p
   (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
