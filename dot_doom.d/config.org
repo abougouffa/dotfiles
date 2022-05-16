@@ -911,7 +911,7 @@ I do not find =company= useful in Org files.
             org-mode))
 #+end_src
 
-** COMMENT Centaur tabs :tab:
+** Centaur tabs :tab:
 
 #+begin_src emacs-lisp
 (after! centaur-tabs
