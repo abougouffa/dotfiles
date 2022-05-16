@@ -3186,44 +3186,13 @@ Regards,
 
 ** Emacs Multimedia System (EMMS) :media:music:
 
-#+begin_src emacs-lisp :tangle packages.el
-(package! emms-mode-line-cycle
-  :recipe (:host github
-           :repo "abougouffa/emms-mode-line-cycle"))
-#+end_src
 
 #+begin_src emacs-lisp
-(use-package! emms-mode-line-cycle
-  :after emms
-  :config
-  (setq emms-mode-line-cycle-max-width 15
-        emms-mode-line-cycle-additional-space-num 4
-        emms-mode-line-cycle-any-width-p nil
-        emms-mode-line-cycle-velocity 2)
 
-  ;; Some music files do not have metadata, by default, the track title
-  ;; will be the full file path, so, if I detect what seems to be an absolute
-  ;; path, I trim the directory part and get only the file name.
-  (setq emms-mode-line-cycle-current-title-function
-        (lambda ()
-          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
-            (if (file-name-absolute-p name) (file-name-base name) name))))
 
-  ;; Mode line formatting settings
-  ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨⏵ %s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
 
-  (defun +emms-mode-line-toggle-format-hook ()
-    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
-    (setq emms-mode-line-format
-          (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
-    ;; Trigger a forced update of mode line (useful when pausing)
-    (emms-mode-line-alter-mode-line))
 
-  ;; Hook the function to the 'emms-player-paused-hook'
-  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
 
-  (emms-mode-line-cycle 1))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3330,6 +3299,52 @@ Regards,
              "EMMS is now playing:"
              (emms-track-description (emms-playlist-current-selected-track))
              +emms-notification-icon)))
+#+end_src
+
+*** Cycle song information in mode line
+I found a useful package named ~emms-mode-line-cycle~ which permits to do this;
+however, it has not been updated since a while, it uses some obsolete functions
+to draw icon in mode line, so I forked it, got rid of the problematic parts, and
+added some minor stuff.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! emms-mode-line-cycle
+  :recipe (:host github
+           :repo "abougouffa/emms-mode-line-cycle"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! emms-mode-line-cycle
+  :after emms
+  :config
+  (setq emms-mode-line-cycle-max-width 15
+        emms-mode-line-cycle-additional-space-num 4
+        emms-mode-line-cycle-any-width-p nil
+        emms-mode-line-cycle-velocity 2)
+
+  ;; Some music files do not have metadata, by default, the track title
+  ;; will be the full file path, so, if I detect what seems to be an absolute
+  ;; path, I trim the directory part and get only the file name.
+  (setq emms-mode-line-cycle-current-title-function
+        (lambda ()
+          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
+            (if (file-name-absolute-p name) (file-name-base name) name))))
+
+  ;; Mode line formatting settings
+  ;; This format complements the 'emms-mode-line-format' one.
+  (setq emms-mode-line-format " ⟨⏵ %s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
+
+  (defun +emms-mode-line-toggle-format-hook ()
+    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
+    (setq emms-mode-line-format
+          (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
+    ;; Trigger a forced update of mode line (useful when pausing)
+    (emms-mode-line-alter-mode-line))
+
+  ;; Hook the function to the 'emms-player-paused-hook'
+  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+
+  (emms-mode-line-cycle 1))
 #+end_src
 
 * Programming :prog:
