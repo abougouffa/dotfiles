@@ -253,13 +253,13 @@ pdf
 rgb
 tmux
 upload
-pass
 (lsp +peek)
 (debugger +lsp)
 (docker +lsp)
 (eval +overlay)
 (lookup +docsets +dictrionary +offline)
 (magit +forge)
+;;pass
 ;;biblio
 ;;ansible
 ;;prodigy
