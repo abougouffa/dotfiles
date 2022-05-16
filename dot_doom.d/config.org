@@ -3241,18 +3241,6 @@ in Emacs to start/kill the server:
     (warn "An error occured when trying to update MPD database.")))
 #+end_src
 
-Lastly, lets define keybindings for these commands, under ~<leader> l m m~.
-
-#+begin_src emacs-lisp
-(map! :leader :prefix ("l m" . "custom")
-      (:when (and (featurep! :app emms) +mpd-present-p)
-       :prefix-map ("m" . "mpd/mpc")
-       :desc "Start daemon"              "s" #'+mpd-start-music-daemon
-       :desc "Stop daemon"               "k" #'+mpd-stop-music-daemon
-       :desc "EMMS player (MPD update)"  "R" #'emms-player-mpd-update-all-reset-cache
-       :desc "Update database"           "u" #'+mpd-update-database))
-#+end_src
-
 *** EMMS
 Now, we configure EMMS to use MPD if it is present; otherwise, it uses whatever
 default backend EMMS is using.
@@ -3363,12 +3351,13 @@ default backend EMMS is using.
              +emms-notification-icon)))
 #+end_src
 
-And define some keybindings:
+*** Keybindings
+Lastly, lets define keybindings for these commands, under ~<leader> l m~.
 
 #+begin_src emacs-lisp :tangle yes
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :app emms)
-       :prefix-map ("m" . "emms")
+       :prefix-map ("m" . "media")
        :desc "Playlist go"                 "g" #'emms-playlist-mode-go
        :desc "Add playlist"                "D" #'emms-add-playlist
        :desc "Toggle random playlist"      "r" #'emms-toggle-random-playlist
@@ -3380,6 +3369,19 @@ And define some keybindings:
        :desc "Start"                       "S" #'emms-start
        :desc "Stop"                        "s" #'emms-stop))
 
+#+end_src
+
+Then we add MPD related keybindings if MPD is used.
+
+#+begin_src emacs-lisp
+(map! :leader
+      :prefix ("l m")
+      (:when (and (featurep! :app emms) +mpd-present-p)
+       :prefix-map ("m" . "mpd/mpc")
+       :desc "Start daemon"              "s" #'+mpd-daemon-start
+       :desc "Stop daemon"               "k" #'+mpd-daemon-stop
+       :desc "EMMS player (MPD update)"  "R" #'emms-player-mpd-update-all-reset-cache
+       :desc "Update database"           "u" #'+mpd-mpc-update))
 #+end_src
 
 *** Cycle song information in mode line
