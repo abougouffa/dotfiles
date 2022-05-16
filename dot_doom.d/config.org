@@ -422,6 +422,7 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
              (while windows (set-window-point (car windows) (point-max))
                     (with-selected-window (car windows) (recenter -3)) (setq windows (cdr windows))))))))
 
+;; FIXME: Gets stuck when the buffer gets removed.
 (defun toggle-buffer-tail (&optional name force)
   "Toggle tailing of buffer NAME.
 
