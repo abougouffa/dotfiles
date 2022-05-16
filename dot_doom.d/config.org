@@ -3272,10 +3272,11 @@ default backend EMMS is using.
     (setq emms-info-functions '(emms-info-tinytag))) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
 
   ;; Keyboard shortcuts
-  (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
-  (global-set-key (kbd "<XF86AudioNext>") 'emms-next)
-  (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
-  (global-set-key (kbd "<XF86AudioStop>") 'emms-stop)
+  (global-set-key (kbd "<XF86AudioPrev>")  'emms-previous)
+  (global-set-key (kbd "<XF86AudioNext>")  'emms-next)
+  (global-set-key (kbd "<XF86AudioPlay>")  'emms-pause)
+  (global-set-key (kbd "<XF86AudioPause>") 'emms-pause)
+  (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Activate EMMS in mode line
   (emms-mode-line 1)
