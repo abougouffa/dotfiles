@@ -3403,7 +3403,7 @@ added some minor stuff.
   (setq emms-mode-line-cycle-max-width 15
         emms-mode-line-cycle-additional-space-num 4
         emms-mode-line-cycle-any-width-p nil
-        emms-mode-line-cycle-velocity 2)
+        emms-mode-line-cycle-velocity 4)
 
   ;; Some music files do not have metadata, by default, the track title
   ;; will be the full file path, so, if I detect what seems to be an absolute
