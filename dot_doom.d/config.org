@@ -3420,8 +3420,9 @@ added some minor stuff.
 
   (defun +emms-mode-line-toggle-format-hook ()
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
-    (setq emms-mode-line-format
-          (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
+    (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
+    ;; Force a sync to get the right song name over MPD in mode line
+    (when +mpd-present-p (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
