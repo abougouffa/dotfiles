@@ -410,38 +410,40 @@ Take new window space from all other windows (not just current).
 Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://stackoverflow.com/a/6341139/3058915][this answer]].
 
 #+begin_src emacs-lisp
-(defvar buffer-tail-alist nil)
+(defvar +messages-buffer-auto-tail--enabled nil)
 
-(defun buffer-tail (name)
-  "Stick to tail on buffer named NAME."
-  (cond ((or (equal (buffer-name (current-buffer)) name))
-         (string-match "^ \\*Minibuf.*?\\*$" (buffer-name (current-buffer))))
-        ((get-buffer name)
-         (with-current-buffer (get-buffer name)
-           (goto-char (point-max))
-           (let ((windows (get-buffer-window-list (current-buffer) nil t)))
-             (while windows (set-window-point (car windows) (point-max))
-                    (with-selected-window (car windows) (recenter -3)) (setq windows (cdr windows))))))))
+(defun +messages-buffer-auto-tail--advice (&rest _)
+  "Make *Messages* buffer auto-scroll to the end after each message."
+  (let* ((buf-name (buffer-name (messages-buffer)))
+         ;; Create *Messages* buffer if it does not exist
+         (buf (get-buffer-create buf-name)))
+    ;; Activate this advice only if the point is _not_ in the *Messages* buffer
+    ;; to begin with. This condition is required; otherwise you will not be
+    ;; able to use `isearch' and other stuff within the *Messages* buffer as
+    ;; the point will keep moving to the end of buffer :P
+    (when (not (string= buf-name (buffer-name)))
+      ;; Go to the end of buffer in all *Messages* buffer windows that are
+      ;; *live* (`get-buffer-window-list' returns a list of only live windows).
+      (dolist (win (get-buffer-window-list buf-name nil :all-frames))
+        (with-selected-window win
+          (goto-char (point-max))))
+      ;; Go to the end of the *Messages* buffer even if it is not in one of
+      ;; the live windows.
+      (with-current-buffer buf
+        (goto-char (point-max))))))
 
-;; FIXME: Gets stuck when the buffer gets removed.
-(defun toggle-buffer-tail (&optional name force)
-  "Toggle tailing of buffer NAME.
-
-When called non-interactively, a FORCE arg of 'on' or 'off' can be used to ensure a given state for buffer NAME."
+(defun +messages-buffer-toggle-auto-tail ()
+  "Auto tail the '*Messages*' buffer."
   (interactive)
-  (let* ((name (if name name (current-buffer)))
-         (toggle (cond (force force)
-                       ((assoc name buffer-tail-alist) "off")
-                       (t "on"))))
-    (if (not (or (equal toggle "on") (equal toggle "off")))
-        (error "Invalid 'force' arg. required 'on'/'off'")
-      (progn
-        (while (assoc name buffer-tail-alist)
-          (cancel-timer (cdr (assoc name buffer-tail-alist)))
-          (setq buffer-tail-alist (remove* name buffer-tail-alist :key 'car :test 'equal)))
-        (if (equal toggle "on")
-            (add-to-list 'buffer-tail-alist (cons name (run-at-time t 1 'buffer-tail name))))
-        (message "Toggled `tail buffer' for `%s' %s" name toggle)))))
+  ;; Add/remove an advice from the 'message' function.
+  (cond (+messages-buffer-auto-tail--enabled
+         (advice-remove 'message '+messages-buffer-auto-tail--advice)
+         (setq +messages-buffer-auto-tail--enabled nil)
+         (message "+messages-buffer-auto-tail: Disabled."))
+        (t
+         (advice-add 'message :after '+messages-buffer-auto-tail--advice)
+         (setq +messages-buffer-auto-tail--enabled t)
+         (message "+messages-buffer-auto-tail: Enabled."))))
 #+end_src
 
 **** Split defaults
