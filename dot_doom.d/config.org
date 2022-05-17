@@ -3252,7 +3252,6 @@ default backend EMMS is using.
 (after! emms
   ;; EMMS basic configuration
   (require 'emms-setup)
-  (require 'emms-playing-time)
 
   (when +mpd-present-p
     (require 'emms-player-mpd))
@@ -3415,7 +3414,9 @@ added some minor stuff.
 
   ;; Mode line formatting settings
   ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨⏵ %s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
+  (setq emms-mode-line-format " ⟨⏵ %s⟩"  ;; 𝅘𝅥𝅮 ⏵ ⏸
+        ;; To hide the playing time without stopping the cycling.
+        emms-playing-time-display-format "")
 
   (defun +emms-mode-line-toggle-format-hook ()
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
