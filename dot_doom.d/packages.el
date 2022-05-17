@@ -96,6 +96,10 @@
   :recipe (:host gitlab
            :repo "ieure/lemon"))
 
+(package! bitwarden
+  :recipe (:host github
+           :repo "seanfarley/emacs-bitwarden"))
+
 (package! speed-type)
 
 (package! 2048-game)
@@ -146,6 +150,8 @@
 (package! org-roam-ui)
 
 (package! org-wild-notifier)
+
+(package! org-appear)
 
 (package! nasm-mode)
 (package! haxor-mode)
@@ -198,12 +204,6 @@
 
 (package! graphviz-dot-mode)
 
-(package! imaxima)
-(package! maxima
-  :recipe (:host gitlab
-           :repo "sasanidas/maxima"
-           :files ("*.el" "keywords")))
-
 (package! rosemacs
   :recipe (:host github
            :repo "code-iai/ros_emacs_utils"
@@ -225,12 +225,26 @@
   :recipe (:host github
            :repo "mmontone/emacs-inspector"))
 
-;; [[file:config.org::*EMMS][EMMS:1]]
+;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:1]]
 (package! emms-mode-line-cycle
   :recipe (:host github
            :repo "abougouffa/emms-mode-line-cycle"))
-;; EMMS:1 ends here
+;; Cycle song information in mode line:1 ends here
+
+;; [[file:config.org::*Maxima][Maxima:1]]
+(package! maxima
+  :recipe (:host github
+           :repo "emacsmirror/maxima"
+           :files (:defaults
+                   "keywords"
+                   "company-maxima.el"
+                   "poly-maxima.el")))
+
+;; Use the `imaxima' package bundled with the official Maxima distribution.
+(package! imaxima
+  :recipe (:host nil
+           :repo "https://git.code.sf.net/p/maxima/code"
+           :files ("interfaces/emacs/imaxima/*")))
+;; Maxima:1 ends here
 
 (unpin! dap-mode)
-
-(package! org-appear)

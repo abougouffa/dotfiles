@@ -17,7 +17,8 @@
 ;; Secrets:1 ends here
 
 ;; [[file:config.org::*File deletion][File deletion:1]]
-(setq-default delete-by-moving-to-trash t)
+(setq-default delete-by-moving-to-trash t
+              trash-directory nil) ;; Use freedesktop.org trashcan
 ;; File deletion:1 ends here
 
 ;; [[file:config.org::*Window][Window:1]]
@@ -25,37 +26,41 @@
 ;; Window:1 ends here
 
 ;; [[file:config.org::*Window][Window:2]]
-(defvar buffer-tail-alist nil)
+(defvar +messages-buffer-auto-tail--enabled nil
+  "Holds the '+message-buffer-auto-tail' state.")
 
-(defun buffer-tail (name)
-  "Follow buffer tails, NAME."
-  (cond ((or (equal (buffer-name (current-buffer)) name))
-         (string-match "^ \\*Minibuf.*?\\*$" (buffer-name (current-buffer))))
-        ((get-buffer name)
-         (with-current-buffer (get-buffer name)
-           (goto-char (point-max))
-           (let ((windows (get-buffer-window-list (current-buffer) nil t)))
-             (while windows (set-window-point (car windows) (point-max))
-                    (with-selected-window (car windows) (recenter -3)) (setq windows (cdr windows))))))))
+(defun +messages-buffer-auto-tail--advice (&rest _)
+  "Make *Messages* buffer auto-scroll to the end after each message."
+  (let* ((buf-name (buffer-name (messages-buffer)))
+         ;; Create *Messages* buffer if it does not exist
+         (buf (get-buffer-create buf-name)))
+    ;; Activate this advice only if the point is _not_ in the *Messages* buffer
+    ;; to begin with. This condition is required; otherwise you will not be
+    ;; able to use `isearch' and other stuff within the *Messages* buffer as
+    ;; the point will keep moving to the end of buffer :P
+    (when (not (string= buf-name (buffer-name)))
+      ;; Go to the end of buffer in all *Messages* buffer windows that are
+      ;; *live* (`get-buffer-window-list' returns a list of only live windows).
+      (dolist (win (get-buffer-window-list buf-name nil :all-frames))
+        (with-selected-window win
+          (goto-char (point-max))))
+      ;; Go to the end of the *Messages* buffer even if it is not in one of
+      ;; the live windows.
+      (with-current-buffer buf
+        (goto-char (point-max))))))
 
-(defun toggle-buffer-tail (&optional name force)
-  "Toggle tailing of buffer NAME.
-
-When called non-interactively, a FORCE arg of 'on' or 'off' can be used to ensure a given state for buffer NAME."
+(defun +messages-buffer-toggle-auto-tail ()
+  "Auto tail the '*Messages*' buffer."
   (interactive)
-  (let* ((name (if name name (current-buffer)))
-         (toggle (cond (force force)
-                       ((assoc name buffer-tail-alist) "off")
-                       (t "on"))))
-    (if (not (or (equal toggle "on") (equal toggle "off")))
-        (error "Invalid 'force' arg. required 'on'/'off'")
-      (progn
-        (while (assoc name buffer-tail-alist)
-          (cancel-timer (cdr (assoc name buffer-tail-alist)))
-          (setq buffer-tail-alist (remove* name buffer-tail-alist :key 'car :test 'equal)))
-        (if (equal toggle "on")
-            (add-to-list 'buffer-tail-alist (cons name (run-at-time t 1 'buffer-tail name))))
-        (message "Toggled `tail buffer' for `%s' %s" name toggle)))))
+  ;; Add/remove an advice from the 'message' function.
+  (cond (+messages-buffer-auto-tail--enabled
+         (advice-remove 'message '+messages-buffer-auto-tail--advice)
+         (setq +messages-buffer-auto-tail--enabled nil)
+         (message "+messages-buffer-auto-tail: Disabled."))
+        (t
+         (advice-add 'message :after '+messages-buffer-auto-tail--advice)
+         (setq +messages-buffer-auto-tail--enabled t)
+         (message "+messages-buffer-auto-tail: Enabled."))))
 ;; Window:2 ends here
 
 ;; [[file:config.org::*Split defaults][Split defaults:1]]
@@ -120,7 +125,8 @@ When called non-interactively, a FORCE arg of 'on' or 'off' can be used to ensur
 
 ;; [[file:config.org::*Font Face][Font Face:1]]
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "FantasqueSansMono Nerd Font Mono") ; inherits the :size from doom-font
+      ;;doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
 ;; Font Face:1 ends here
@@ -153,7 +159,7 @@ When called non-interactively, a FORCE arg of 'on' or 'off' can be used to ensur
 ;; Modeline customization:1 ends here
 
 ;; [[file:config.org::*Custom Splash Image][Custom Splash Image:1]]
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.svg" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 ;; Custom Splash Image:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
@@ -274,6 +280,65 @@ is binary, activate `hexl-mode'."
         centaur-tabs-close-button "×"
         centaur-tabs-gray-out-icons 'buffer))
 ;; Centaur tabs:1 ends here
+
+;; [[file:config.org::*Treemacs][Treemacs:1]]
+;; My custom stuff (from tecosaur's config)
+(setq +treemacs-file-ignore-extensions
+      '(;; LaTeX
+        "aux" "ptc" "fdb_latexmk" "fls" "synctex.gz" "toc"
+        ;; LaTeX - bibliography
+        "bbl"
+        ;; LaTeX - glossary
+        "glg" "glo" "gls" "glsdefs" "ist" "acn" "acr" "alg"
+        ;; LaTeX - pgfplots
+        "mw"
+        ;; LaTeX - pdfx
+        "pdfa.xmpi"
+        ;; Python
+        "pyc"))
+
+(setq +treemacs-file-ignore-globs
+      '(;; LaTeX
+        "*/_minted-*"
+        ;; AucTeX
+        "*/.auctex-auto"
+        "*/_region_.log"
+        "*/_region_.tex"
+        ;; Python
+        "*/__pycache__"))
+
+(after! treemacs
+  ;; Reload the Treemacs theme
+  (require 'dired)
+
+  (setq treemacs-show-hidden-files nil
+        treemacs-width 30)
+
+  (defvar +treemacs-file-ignore-extensions '()
+    "File extension which `treemacs-ignore-filter' will ensure are ignored")
+
+  (defvar +treemacs-file-ignore-globs '()
+    "Globs which will are transformed to `+treemacs-file-ignore-regexps' which `+treemacs-ignore-filter' will ensure are ignored")
+
+  (defvar +treemacs-file-ignore-regexps '()
+    "RegExps to be tested to ignore files, generated from `+treeemacs-file-ignore-globs'")
+
+  (defun +treemacs-file-ignore-generate-regexps ()
+    "Generate `+treemacs-file-ignore-regexps' from `+treemacs-file-ignore-globs'"
+    (setq +treemacs-file-ignore-regexps (mapcar 'dired-glob-regexp +treemacs-file-ignore-globs)))
+
+  (unless (equal +treemacs-file-ignore-globs '())
+    (+treemacs-file-ignore-generate-regexps))
+
+  (defun +treemacs-ignore-filter (file full-path)
+    "Ignore files specified by `+treemacs-file-ignore-extensions', and `+treemacs-file-ignore-regexps'"
+    (or (member (file-name-extension file) +treemacs-file-ignore-extensions)
+        (let ((ignore-file nil))
+          (dolist (regexp +treemacs-file-ignore-regexps ignore-file)
+            (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
+
+  (add-to-list 'treemacs-ignored-file-predicates #'+treemacs-ignore-filter))
+;; Treemacs:1 ends here
 
 ;; [[file:config.org::*Dark mode][Dark mode:1]]
 (after! pdf-tools
@@ -857,6 +922,23 @@ is binary, activate `hexl-mode'."
                               (lemon-linux-network-tx)
                               (lemon-linux-network-rx)))))
 
+(use-package! bitwarden
+  ;;:config
+  ;;(bitwarden-auth-source-enable)
+
+  :init
+  (setq bitwarden-automatic-unlock
+        (lambda ()
+          (require 'auth-source)
+          (if-let* ((matches (auth-source-search :host "bitwarden.com" :max 1))
+                    (entry (nth 0 matches))
+                    (email (plist-get entry :user))
+                    (pass (plist-get entry :secret)))
+              (progn
+                (setq bitwarden-user email)
+                (if (functionp pass) (funcall pass) pass))
+            ""))))
+
 (use-package! speed-type
   :commands (speed-type-text))
 
@@ -1031,21 +1113,14 @@ is binary, activate `hexl-mode'."
                    :height 125
                    :italic t)))
 
-  :init
-  (global-blamer-mode 1)
+  :hook ((prog-mode . blamer-mode)
+         (text-mode . blamer-mode))
 
+  :config
   ;; Disable in zen (writeroom) mode
   (when (featurep! :ui zen)
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1)))
-
-  ;; Disable on EAF modes
-  (when (require 'eaf nil t)
-    (add-hook! 'eaf-mode-hook (blamer-mode -1)))
-
-  ;; Disable in PDF view mode
-  (when (featurep! :tools pdf)
-    (add-hook! 'pdf-view-mode-hook (blamer-mode -1))))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 
 (use-package bitbake-modes
   :commands (bitbake-mode
@@ -1066,29 +1141,6 @@ is binary, activate `hexl-mode'."
 
 (use-package! graphviz-dot-mode
   :commands (graphviz-dot-mode graphviz-dot-preview))
-
-(use-package! maxima
-  :init
-  (add-hook 'maxima-mode-hook #'maxima-hook-function)
-  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-  (require 'straight)
-  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
-        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
-  (setq maxima-display-maxima-buffer nil)
-  ;; (require 'org) ;; to set `org-format-latex-options'
-  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-  :commands (maxima-mode maxima)
-  :config
-  (require 'company-maxima)
-  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-  :mode ("\\.mac\\'" . maxima-mode)
-  :interpreter ("maxima" . maxima-mode))
-
-(use-package! imaxima
-  :commands (imaxima))
-
-(use-package! imath
-  :commands (imath-mode imath))
 
 (use-package! rosemacs
   :config
@@ -1303,79 +1355,99 @@ is binary, activate `hexl-mode'."
   (load! "lisp/private/+mu4e-accounts.el"))
 ;; mu4e:2 ends here
 
-;; [[file:config.org::*EMMS][EMMS:2]]
-(use-package! emms-mode-line-cycle
-  :after emms
-  :config
-  (setq emms-mode-line-cycle-max-width 15
-        emms-mode-line-cycle-additional-space-num 4
-        emms-mode-line-cycle-any-width-p nil
-        emms-mode-line-cycle-velocity 2)
+;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
+(defconst +mpd-present-p
+  (not (null (and (executable-find "mpc") (executable-find "mpd"))))
+  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
-  ;; Some music files do not have metadata, by default, the track title
-  ;; will be the full file path, so, if I detect what seems to be an absolute
-  ;; path, I trim the directory part and get only the file name.
-  (setq emms-mode-line-cycle-current-title-function
-        (lambda ()
-          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
-            (if (file-name-absolute-p name) (file-name-base name) name))))
+(unless +mpd-present-p
+  (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
 
-  ;; Mode line formatting settings
-  ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨%s⟩")  ;; 𝅘𝅥𝅮 ⏵ ⏸
+(defconst +mpv-present-p
+  (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl"))))))
 
-  (setq emms-mode-line-titlebar-function
-        (lambda ()
-          '(:eval
-            (when emms-player-playing-p
-              (format " %s %s"
-                      (format emms-mode-line-format (emms-mode-line-cycle-get-title))
-                      emms-playing-time-string)))))
+(unless +mpv-present-p
+  (warn "Missing MPV or youtube-dl."))
 
-  (defun +emms-mode-line-toggle-format-hook ()
-    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
-    (setq emms-mode-line-format
-          (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
-    ;; Trigger a forced update of mode line (useful when pausing)
-    (emms-mode-line-alter-mode-line))
+;; Not sure if it is required!
+(after! mpc
+  (setq mpc-host "localhost:6600"))
+;; MPD, MPC, and MPV:1 ends here
 
-  ;; Hook the function to the 'emms-player-paused-hook'
-  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:2]]
+(defun +mpd-daemon-start ()
+  "Start MPD, connects to it and syncs the metadata cache."
+  (interactive)
+  (let ((mpd-daemon-running-p (+mpd-daemon-running-p)))
+    (unless mpd-daemon-running-p
+      ;; Start the daemon if it is not already running.
+      (setq mpd-daemon-running-p (zerop (call-process "systemctl" nil nil nil "--user" "start" "mpd.service"))))
+    (cond ((+mpd-daemon-running-p)
+           (+mpd-mpc-update)
+           (emms-player-mpd-connect)
+           (emms-cache-set-from-mpd-all)
+           (message "Connected to MPD!"))
+          (t
+           (warn "An error occured when trying to start Systemd mpd.service.")))))
 
-  (emms-mode-line-cycle 1))
-;; EMMS:2 ends here
+(defun +mpd-daemon-stop ()
+  "Stops playback and kill the MPD daemon."
+  (interactive)
+  (emms-stop)
+  (call-process "systemctl" nil nil nil "--user" "stop" "mpd.service")
+  (message "MPD stopped!"))
 
-;; [[file:config.org::*EMMS][EMMS:3]]
-(map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :app emms)
-       :prefix-map ("m" . "emms")
-       :desc "Playlist go"             "g" #'emms-playlist-mode-go
-       :desc "Add playlist"            "D" #'emms-add-playlist
-       :desc "Toggle random playlist"  "r" #'emms-toggle-random-playlist
-       :desc "Add directory"           "d" #'emms-add-directory
-       :desc "Add file"                "f" #'emms-add-file
-       :desc "Play/Pause"              "p" #'emms-pause
-       :desc "Start"                   "S" #'emms-start
-       :desc "Stop"                    "s" #'emms-stop))
+(defun +mpd-daemon-running-p ()
+  "Check if the MPD service is running."
+  (zerop (call-process "systemctl" nil nil nil "--user" "is-active" "--quiet" "mpd.service")))
 
+(defun +mpd-mpc-update ()
+  "Updates the MPD database synchronously."
+  (interactive)
+  (if (zerop (call-process "mpc" nil nil nil "update"))
+      (message "MPD database updated!")
+    (warn "An error occured when trying to update MPD database.")))
+;; MPD, MPC, and MPV:2 ends here
+
+;; [[file:config.org::*EMMS][EMMS:1]]
 (after! emms
   ;; EMMS basic configuration
   (require 'emms-setup)
-  (require 'emms-playing-time)
+
+  (when +mpd-present-p
+    (require 'emms-player-mpd))
 
   (emms-all)
   (emms-default-players)
 
-  ;; Change to your music folder
   (setq emms-source-file-default-directory "~/Music/"
-        emms-info-functions '(emms-info-tinytag) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
         ;; Load cover images
-        emms-browser-covers 'emms-browser-cache-thumbnail-async)
+        emms-browser-covers 'emms-browser-cache-thumbnail-async
+        emms-seek-seconds 5)
+
+  (if +mpd-present-p
+      ;; If using MPD as backend
+      (setq emms-player-list '(emms-player-mpd)
+            emms-info-functions '(emms-info-mpd)
+            emms-player-mpd-server-name "localhost"
+            emms-player-mpd-server-port "6600")
+    ;; Use whatever backend EMMS is using by default (VLC in my machine)
+    (setq emms-info-functions '(emms-info-tinytag))) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
 
   ;; Keyboard shortcuts
-  (global-set-key (kbd "<XF86AudioPrev>") 'emms-previous)
-  (global-set-key (kbd "<XF86AudioNext>") 'emms-next)
-  (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+  (global-set-key (kbd "<XF86AudioPrev>")  'emms-previous)
+  (global-set-key (kbd "<XF86AudioNext>")  'emms-next)
+  (global-set-key (kbd "<XF86AudioPlay>")  'emms-pause)
+  (global-set-key (kbd "<XF86AudioPause>") 'emms-pause)
+  (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
+
+  ;; Try to start MPD or connect to it if it is already started.
+  (when +mpd-present-p
+    (emms-player-set emms-player-mpd 'regex
+                     (emms-player-simple-regexp
+                      "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
+    (add-hook 'emms-playlist-cleared-hook 'emms-player-mpd-clear)
+    (+mpd-daemon-start))
 
   ;; Activate EMMS in mode line
   (emms-mode-line 1)
@@ -1385,17 +1457,15 @@ is binary, activate `hexl-mode'."
   (defun +better-emms-track-description (track)
     "Return a somewhat nice track description."
     (let ((artist (emms-track-get track 'info-artist))
-          (year (emms-track-get track 'info-year))
           (album (emms-track-get track 'info-album))
           (tracknumber (emms-track-get track 'info-tracknumber))
           (title (emms-track-get track 'info-title)))
       (cond
        ((or artist title)
         (concat
-         (if (> (length artist) 0) artist "Unknown artist") " - "
-         (if (> (length year) 0) year "XXXX") " - "
+         (if (> (length artist) 0) artist "Unknown artist") ": "
          (if (> (length album) 0) album "Unknown album") " - "
-         (if (> (length tracknumber) 0) (format "%02d" (string-to-number tracknumber)) "XX") " - "
+         (if (> (length tracknumber) 0) (format "%02d. " (string-to-number tracknumber)) "")
          (if (> (length title) 0) title "Unknown title")))
        (t
         (emms-track-simple-description track)))))
@@ -1421,7 +1491,6 @@ is binary, activate `hexl-mode'."
 
   (defun +notify-via-kdialog (title msg icon)
     "Send notification with TITLE, MSG, and ICON via `KDialog'."
-    (emms-next-noerror)
     (call-process "kdialog"
                   nil nil nil
                   "--title" title
@@ -1440,16 +1509,183 @@ is binary, activate `hexl-mode'."
     "Send notification with TITLE, MSG to message. ICON is ignored."
     (message "%s %s" title msg))
 
-  (setq emms-player-next-function '+emms-notify-and-next)
+  (add-hook 'emms-player-started-hook
+            (lambda () (funcall +emms-notifier-function
+                                "EMMS is now playing:"
+                                (emms-track-description (emms-playlist-current-selected-track))
+                                +emms-notification-icon)))
 
-  (defun +emms-notify-and-next ()
-    "Send a notification of track and start next."
-    (emms-next-noerror)
-    (funcall +emms-notifier-function
-             "EMMS is now playing:"
-             (emms-track-description (emms-playlist-current-selected-track))
-             +emms-notification-icon)))
-;; EMMS:3 ends here
+  ;; MPV and Youtube integration
+  (when +mpv-present-p
+    (add-to-list 'emms-player-list 'emms-player-mpv t)
+    (emms-player-set
+     emms-player-mpv
+     'regex
+     (rx (or (: "https://" (* nonl) "youtube.com" (* nonl))
+             (+ (? (or "https://" "http://"))
+                (* nonl)
+                (regexp (eval (emms-player-simple-regexp
+                               "mp4" "mov" "wmv" "webm" "flv" "avi" "mkv")))))))
+
+    (setq +youtube-dl-quality-list
+          '("bestvideo[height<=720]+bestaudio/best[height<=720]"
+            "bestvideo[height<=480]+bestaudio/best[height<=480]"
+            "bestvideo[height<=1080]+bestaudio/best[height<=1080]"))
+
+    (setq +default-emms-player-mpv-parameters
+          '("--quiet" "--really-quiet" "--no-audio-display"))
+
+    (defun +set-emms-mpd-youtube-quality (quality)
+      (interactive "P")
+      (unless quality
+        (setq quality (completing-read "Quality: " +youtube-dl-quality-list nil t)))
+      (setq emms-player-mpv-parameters
+            `(,@+default-emms-player-mpv-parameters ,(format "--ytdl-format=%s" quality))))
+
+    (+set-emms-mpd-youtube-quality (car +youtube-dl-quality-list))
+
+    (defun +get-youtube-url (link)
+      (let ((watch-id (cadr
+                       (assoc "watch?v"
+                              (url-parse-query-string
+                               (substring
+                                (url-filename
+                                 (url-generic-parse-url link))
+                                1))))))
+        (concat "https://www.youtube.com/watch?v=" watch-id)))))
+
+;; Example, to be used in an EMMS Playlist
+;; (let ((track (emms-track 'url (+get-youtube-url "https://www.youtube.com/watch?v=Wh-7Kg-jVLg&list=PLBsIgVvbrncChqmejIOyA-Xp_dcywQQln"))))
+;;   (emms-track-set track 'info-title "Vid")
+;;   (emms-playlist-insert-track track))
+;; EMMS:1 ends here
+
+;; [[file:config.org::*Elfeed :heart: MPV][Elfeed :heart: MPV:2]]
+(after! (elfeed emms)
+  (when +mpv-present-p
+    ;; Integration with Elfeed
+    (define-emms-source elfeed (entry)
+      (let ((track (emms-track
+                    'url (+get-youtube-url (elfeed-entry-link entry)))))
+        (emms-track-set track 'info-title (elfeed-entry-title entry))
+        (emms-playlist-insert-track track)))
+
+    (defun +elfeed-add-emms-youtube ()
+      (interactive)
+      (emms-add-elfeed elfeed-show-entry)
+      (elfeed-tag elfeed-show-entry 'watched)
+      (elfeed-show-refresh))
+
+    (defun +elfeed-search-filter-source (entry)
+      "Filter elfeed search buffer by the feed under cursor."
+      (interactive (list (elfeed-search-selected :ignore-region)))
+      (when (elfeed-entry-p entry)
+        (elfeed-search-set-filter
+         (concat
+          "@6-months-ago "
+          "+unread "
+          "="
+          (replace-regexp-in-string
+           (rx "?" (* not-newline) eos)
+           ""
+           (elfeed-feed-url (elfeed-entry-feed entry)))))))))
+;; Elfeed :heart: MPV:2 ends here
+
+;; [[file:config.org::*Keybindings][Keybindings:1]]
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :app emms)
+       :prefix-map ("m" . "media")
+       :desc "Playlist go"                 "g" #'emms-playlist-mode-go
+       :desc "Add playlist"                "D" #'emms-add-playlist
+       :desc "Toggle random playlist"      "r" #'emms-toggle-random-playlist
+       :desc "Add directory"               "d" #'emms-add-directory
+       :desc "Add file"                    "f" #'emms-add-file
+       :desc "Smart browse"                "b" #'emms-smart-browse
+       :desc "Play/Pause"                  "p" #'emms-pause
+       :desc "Start"                       "S" #'emms-start
+       :desc "Start"                       "S" #'emms-start
+       :desc "Stop"                        "s" #'emms-stop))
+;; Keybindings:1 ends here
+
+;; [[file:config.org::*Keybindings][Keybindings:2]]
+(map! :leader
+      :prefix ("l m")
+      (:when (and (featurep! :app emms) +mpd-present-p)
+       :prefix-map ("m" . "mpd/mpc")
+       :desc "Start daemon"              "s" #'+mpd-daemon-start
+       :desc "Stop daemon"               "k" #'+mpd-daemon-stop
+       :desc "EMMS player (MPD update)"  "R" #'emms-player-mpd-update-all-reset-cache
+       :desc "Update database"           "u" #'+mpd-mpc-update))
+;; Keybindings:2 ends here
+
+;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:2]]
+(use-package! emms-mode-line-cycle
+  :after emms
+  :config
+  (setq emms-mode-line-cycle-max-width 15
+        emms-mode-line-cycle-additional-space-num 4
+        emms-mode-line-cycle-any-width-p nil
+        emms-mode-line-cycle-velocity 4)
+
+  ;; Some music files do not have metadata, by default, the track title
+  ;; will be the full file path, so, if I detect what seems to be an absolute
+  ;; path, I trim the directory part and get only the file name.
+  (setq emms-mode-line-cycle-current-title-function
+        (lambda ()
+          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
+            (if (file-name-absolute-p name) (file-name-base name) name))))
+
+  ;; Mode line formatting settings
+  ;; This format complements the 'emms-mode-line-format' one.
+  (setq emms-mode-line-format " ⟨⏵ %s⟩"  ;; 𝅘𝅥𝅮 ⏵ ⏸
+        ;; To hide the playing time without stopping the cycling.
+        emms-playing-time-display-format "")
+
+  (defun +emms-mode-line-toggle-format-hook ()
+    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
+    (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
+    ;; Force a sync to get the right song name over MPD in mode line
+    (when +mpd-present-p (emms-player-mpd-sync-from-mpd))
+    ;; Trigger a forced update of mode line (useful when pausing)
+    (emms-mode-line-alter-mode-line))
+
+      ;; Hook the function to the 'emms-player-paused-hook'
+  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
+
+  (emms-mode-line-cycle 1))
+;; Cycle song information in mode line:2 ends here
+
+;; [[file:config.org::*Maxima][Maxima:2]]
+(defconst +maxima-present-p
+  (not (null (executable-find "maxima"))))
+;; Maxima:2 ends here
+
+;; [[file:config.org::*Maxima][Maxima:3]]
+(use-package! maxima
+  :when +maxima-present-p
+  :commands (maxima-mode maxima-inferior-mode maxima)
+  :init
+  (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
+  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
+        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
+
+  ;; The `maxima-hook-function' setup `company-maxima'.
+  (add-hook 'maxima-mode-hook #'maxima-hook-function)
+  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+  (add-to-list 'auto-mode-alist '("\\.ma[cx]\\'" . maxima-mode)))
+;; Maxima:3 ends here
+
+;; [[file:config.org::*Maxima][Maxima:4]]
+(use-package! imaxima
+  :when +maxima-present-p
+  :commands (imaxima imath-mode)
+  :init
+  (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
+        imaxima-scale-factor 2.0)
+
+  ;; Hook the `maxima-inferior-mode' to get Company completion.
+  (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
+;; Maxima:4 ends here
 
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
@@ -1880,6 +2116,7 @@ is binary, activate `hexl-mode'."
      (plantuml . t)
      (C . t)
      (cpp . t)
+     (maxima . t)
      (emacs-lisp . t)))
   (setq org-babel-default-header-args
         '((:session  . "none")
@@ -2503,7 +2740,6 @@ is binary, activate `hexl-mode'."
           (0.5 . org-upcoming-deadline)
           (0.0 . org-upcoming-distant-deadline)))
   (setq org-fontify-quote-and-verse-blocks t)
-  (package! org-appear)
   (use-package! org-appear
     :hook (org-mode . org-appear-mode)
     :config

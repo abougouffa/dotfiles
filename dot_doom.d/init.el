@@ -25,12 +25,12 @@
        (popup +all +defaults)
        (emoji +ascii +unicode +github)
        (treemacs +lsp)
+       ;;tabs
+       ;;unicode
        ;;neotree
        ;;doom-quit
        ;;indent-guides
        ;;minimap
-       ;;unicode
-       ;;tabs
        ;;vi-tilde-fringe
        :editor
        (evil +everywhere)
@@ -70,13 +70,13 @@
        rgb
        tmux
        upload
-       pass
        (lsp +peek)
        (debugger +lsp)
        (docker +lsp)
        (eval +overlay)
        (lookup +docsets +dictrionary +offline)
        (magit +forge)
+       ;;pass
        ;;biblio
        ;;ansible
        ;;prodigy
