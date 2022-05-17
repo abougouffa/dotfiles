@@ -2621,50 +2621,6 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
   :commands (graphviz-dot-mode graphviz-dot-preview))
 #+end_src
 
-**** Maxima :maxima:math:
-I've been experiencing an annoying bug with the =maxima= package, when I launch
-the interpreter, it complains about a file not being found, the package searches
-in =~/.emacs-doom/.local/straight/repos-28.0.90/maxima/keywords/functions= instead
-of =~/.../build-28.0.90/...=, when I investigated this issue, it turned out that,
-the package (in the =maxima-font-lock.el= file), replaces =build= with =repos= when it
-sees =straight= in the path (as a workaround to support =straight=), however, Doom
-Emacs redefine the value of =straight-build-dir= to be =build-<emacs-version>=,, so
-the workaround is no more needed. To fix this, I set the
-=maxima-font-lock-keywords-directory= with the right path.
-
-#+begin_src emacs-lisp
-(package! imaxima)
-(package! maxima
-  :recipe (:host gitlab
-           :repo "sasanidas/maxima"
-           :files ("*.el" "keywords")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! maxima
-  :init
-  (add-hook 'maxima-mode-hook #'maxima-hook-function)
-  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-  (require 'straight)
-  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
-        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
-  (setq maxima-display-maxima-buffer nil)
-  ;; (require 'org) ;; to set `org-format-latex-options'
-  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-  :commands (maxima-mode maxima)
-  :config
-  (require 'company-maxima)
-  (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-  :mode ("\\.mac\\'" . maxima-mode)
-  :interpreter ("maxima" . maxima-mode))
-
-(use-package! imaxima
-  :commands (imaxima))
-
-(use-package! imath
-  :commands (imath-mode imath))
-#+end_src
-
 **** ROS :ros:
 ***** ROS Emacs utils
 This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
@@ -3537,6 +3493,67 @@ added some minor stuff.
 
   (emms-mode-line-cycle 1))
 #+end_src
+** Maxima :maxima:math:
+The Maxima system cames bundled with three Emacs modes: =maxima=, =imaxima= and
+=emaxima=; installed by default in ~"/usr/share/emacs/site-lisp/maxima"~.
+
+The [[https://github.com/emacsmirror/maxima][emacsmirror/maxima]] seems more up-to-date, and supports completion via
+Company, so lets install it from Github. Note that, normally, we don't need to
+specify a recipe; however, installing it directly seems to not install
+=company-maxima.el= and =poly-maxima.el=.
+
+For the =imaxima= (Maxima with image support), the [[https://github.com/emacsattic/imaxima][emacsattic/imaxima]] seems
+outdated compared to the bundled =imaxima=, so lets install =imaxima= from the
+source code of Maxima, hosted on Sourceforge [[https://git.code.sf.net/p/maxima/code][git.code.sf.net/p/maxima/code]].
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! maxima
+  :recipe (:host github
+           :repo "emacsmirror/maxima"
+           :files (:defaults
+                   "keywords"
+                   "company-maxima.el"
+                   "poly-maxima.el")))
+
+;; Use the `imaxima' package bundled with the official Maxima distribution.
+(package! imaxima
+  :recipe (:host nil
+           :repo "https://git.code.sf.net/p/maxima/code"
+           :files ("interfaces/emacs/imaxima/*")))
+#+end_src
+
+#+begin_src emacs-lisp
+(defconst +maxima-present-p
+  (not (null (executable-find "maxima"))))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! maxima
+  :when +maxima-present-p
+  :commands (maxima-mode maxima-inferior-mode maxima)
+  :init
+  (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
+  (setq maxima-font-lock-keywords-directory ;; a workaround to undo the straight workaround!
+        (expand-file-name (format "straight/%s/maxima/keywords" straight-build-dir) straight-base-dir))
+
+  ;; The `maxima-hook-function' setup `company-maxima'.
+  (add-hook 'maxima-mode-hook #'maxima-hook-function)
+  (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+  (add-to-list 'auto-mode-alist '("\\.ma[cx]\\'" . maxima-mode)))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! imaxima
+  :when +maxima-present-p
+  :commands (imaxima imath-mode)
+  :init
+  (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
+        imaxima-scale-factor 2.0)
+
+  ;; Hook the `maxima-inferior-mode' to get Company completion.
+  (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
+#+end_src
+
 
 * Programming :prog:
 ** File templates :template:
@@ -4140,6 +4157,7 @@ Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
    (plantuml . t)
    (C . t)
    (cpp . t)
+   (maxima . t)
    (emacs-lisp . t)))
    #+end_src
 
