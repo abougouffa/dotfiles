@@ -3193,19 +3193,26 @@ Regards,
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
-** Music :media:music:
+** Multimedia :media:music:
 I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music.
 
-*** MPD/MPC :mpd:mpc:
+*** MPD, MPC, and MPV :mpd:mpc:mpv:
 First, let us define a constant to check whether MPC and MPC are present in the
 system.
 
 #+begin_src emacs-lisp
-(defconst +mpd-present-p (not (null (and (executable-find "mpc") (executable-find "mpd"))))
+(defconst +mpd-present-p
+  (not (null (and (executable-find "mpc") (executable-find "mpd"))))
   "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
 (unless +mpd-present-p
   (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
+
+(defconst +mpv-present-p
+  (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl"))))))
+
+(unless +mpv-present-p
+  (warn "Missing MPV or youtube-dl."))
 
 ;; Not sure if it is required!
 (after! mpc
@@ -3287,7 +3294,12 @@ default backend EMMS is using.
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when +mpd-present-p (+mpd-daemon-start))
+  (when +mpd-present-p
+    (emms-player-set emms-player-mpd 'regex
+                     (emms-player-simple-regexp
+                      "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
+    (add-hook 'emms-playlist-cleared-hook 'emms-player-mpd-clear)
+    (+mpd-daemon-start))
 
   ;; Activate EMMS in mode line
   (emms-mode-line 1)
@@ -3353,7 +3365,95 @@ default backend EMMS is using.
             (lambda () (funcall +emms-notifier-function
                                 "EMMS is now playing:"
                                 (emms-track-description (emms-playlist-current-selected-track))
-                                +emms-notification-icon))))
+                                +emms-notification-icon)))
+
+  ;; MPV and Youtube integration
+  (when +mpv-present-p
+    (add-to-list 'emms-player-list 'emms-player-mpv t)
+    (emms-player-set
+     emms-player-mpv
+     'regex
+     (rx (or (: "https://" (* nonl) "youtube.com" (* nonl))
+             (+ (? (or "https://" "http://"))
+                (* nonl)
+                (regexp (eval (emms-player-simple-regexp
+                               "mp4" "mov" "wmv" "webm" "flv" "avi" "mkv")))))))
+
+    (setq +youtube-dl-quality-list
+          '("bestvideo[height<=720]+bestaudio/best[height<=720]"
+            "bestvideo[height<=480]+bestaudio/best[height<=480]"
+            "bestvideo[height<=1080]+bestaudio/best[height<=1080]"))
+
+    (setq +default-emms-player-mpv-parameters
+          '("--quiet" "--really-quiet" "--no-audio-display"))
+
+    (defun +set-emms-mpd-youtube-quality (quality)
+      (interactive "P")
+      (unless quality
+        (setq quality (completing-read "Quality: " +youtube-dl-quality-list nil t)))
+      (setq emms-player-mpv-parameters
+            `(,@+default-emms-player-mpv-parameters ,(format "--ytdl-format=%s" quality))))
+
+    (+set-emms-mpd-youtube-quality (car +youtube-dl-quality-list))
+
+    (defun +get-youtube-url (link)
+      (let ((watch-id (cadr
+                       (assoc "watch?v"
+                              (url-parse-query-string
+                               (substring
+                                (url-filename
+                                 (url-generic-parse-url link))
+                                1))))))
+        (concat "https://www.youtube.com/watch?v=" watch-id)))))
+
+;; Example, to be used in an EMMS Playlist
+;; (let ((track (emms-track 'url (+get-youtube-url "https://www.youtube.com/watch?v=Wh-7Kg-jVLg&list=PLBsIgVvbrncChqmejIOyA-Xp_dcywQQln"))))
+;;   (emms-track-set track 'info-title "Vid")
+;;   (emms-playlist-insert-track track))
+#+end_src
+
+*** Elfeed :heart: MPV
+https://sqrtminusone.xyz/posts/2021-09-07-emms/
+
+Install =yt-rss= from Git:
+
+#+begin_src sh :noeval
+YT_RSS_DIR=~/.local/share/yt-rss
+git clone https://github.com/SqrtMinusOne/yt-rss.git $YT_RSS_DIR
+cd $TY_RSS_DIR
+pip install -r requirements.txt
+gunicorn main:app
+#+end_src
+
+#+begin_src emacs-lisp
+(after! (elfeed emms)
+  (when +mpv-present-p
+    ;; Integration with Elfeed
+    (define-emms-source elfeed (entry)
+      (let ((track (emms-track
+                    'url (+get-youtube-url (elfeed-entry-link entry)))))
+        (emms-track-set track 'info-title (elfeed-entry-title entry))
+        (emms-playlist-insert-track track)))
+
+    (defun +elfeed-add-emms-youtube ()
+      (interactive)
+      (emms-add-elfeed elfeed-show-entry)
+      (elfeed-tag elfeed-show-entry 'watched)
+      (elfeed-show-refresh))
+
+    (defun +elfeed-search-filter-source (entry)
+      "Filter elfeed search buffer by the feed under cursor."
+      (interactive (list (elfeed-search-selected :ignore-region)))
+      (when (elfeed-entry-p entry)
+        (elfeed-search-set-filter
+         (concat
+          "@6-months-ago "
+          "+unread "
+          "="
+          (replace-regexp-in-string
+           (rx "?" (* not-newline) eos)
+           ""
+           (elfeed-feed-url (elfeed-entry-feed entry)))))))))
 #+end_src
 
 *** Keybindings
