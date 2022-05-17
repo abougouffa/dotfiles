@@ -410,7 +410,8 @@ Take new window space from all other windows (not just current).
 Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://stackoverflow.com/a/6341139/3058915][this answer]].
 
 #+begin_src emacs-lisp
-(defvar +messages-buffer-auto-tail--enabled nil)
+(defvar +messages-buffer-auto-tail--enabled nil
+  "Holds the '+message-buffer-auto-tail' state.")
 
 (defun +messages-buffer-auto-tail--advice (&rest _)
   "Make *Messages* buffer auto-scroll to the end after each message."
