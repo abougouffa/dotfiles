@@ -396,7 +396,8 @@ instead of the default 2 hours.
 Delete files by moving them to trash.
 
 #+begin_src emacs-lisp
-(setq-default delete-by-moving-to-trash t)
+(setq-default delete-by-moving-to-trash t
+              trash-directory nil) ;; Use freedesktop.org trashcan
 #+end_src
 
 *** Window :window:
