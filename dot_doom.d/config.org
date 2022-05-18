@@ -6596,9 +6596,13 @@ in a =default= session on the first time I launch a terminal, and then, attach a
 other terminal to this default session:
 
 #+begin_src shell :tangle ~/.env_stuff
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]
+# If not running inside Emacs (via vterm/eshell...)
+if [ -z $INSIDE_EMACS ]
 then
-  tmux attach -t default || tmux new -s default
+  if command -v tmux &> /dev/null && [ -z "$TMUX" ]
+  then
+    tmux attach -t default || tmux new -s default
+  fi
 fi
 #+end_src
 
