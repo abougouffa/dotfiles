@@ -1874,7 +1874,11 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(defconst +zotero-present-p
+  (not (null (executable-find "zotero"))))
+
 (use-package! zotxt
+  :when +zotero-present-p
   :commands org-zotxt-mode)
 #+end_src
 
