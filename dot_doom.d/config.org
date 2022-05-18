@@ -2598,7 +2598,11 @@ chmod a+x ${REPO_PATH}
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(defconst +repo-present-p
+  (not (null (executable-find "repo"))))
+
 (use-package! repo
+  :when +repo-present-p
   :commands repo-status)
 #+end_src
 
