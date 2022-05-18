@@ -1907,7 +1907,11 @@ pacman -S the_silver_searcher=.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(defconst +ag-present-p
+  (not (null (executable-find "ag"))))
+
 (use-package! ag
+  :when +ag-present-p
   :commands (ag
              ag-files
              ag-regexp
