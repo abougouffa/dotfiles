@@ -136,11 +136,6 @@
 
 (package! org-fragtog)
 
-(package! org-pretty-table
-  :recipe (:host github
-           :repo "Fuco1/org-pretty-table")
-  :disable t)
-
 (package! org-modern
   :recipe (:host github
            :repo "minad/org-modern"))
@@ -194,6 +189,11 @@
   :recipe (:host github
            :repo "ymarco/auto-activating-snippets"))
 
+(package! project-cmake
+  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :recipe (:host github
+           :repo "juanjosegarciaripoll/project-cmake"))
+
 (package! franca-idl
   :recipe (:host github
            :repo "zeph1e/franca-idl.el"))
@@ -239,12 +239,14 @@
                    "keywords"
                    "company-maxima.el"
                    "poly-maxima.el")))
+;; Maxima:1 ends here
 
+;; [[file:config.org::*IMaxima][IMaxima:1]]
 ;; Use the `imaxima' package bundled with the official Maxima distribution.
 (package! imaxima
-  :recipe (:host nil
+  :recipe (:host nil ;; Unsupported host, we will specify the complete repo link
            :repo "https://git.code.sf.net/p/maxima/code"
            :files ("interfaces/emacs/imaxima/*")))
-;; Maxima:1 ends here
+;; IMaxima:1 ends here
 
 (unpin! dap-mode)

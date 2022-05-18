@@ -162,6 +162,12 @@
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 ;; Custom Splash Image:1 ends here
 
+;; [[file:config.org::*Clean Screen][Clean Screen:1]]
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
+(setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
+;; Clean Screen:1 ends here
+
 ;; [[file:config.org::*Which key][Which key:1]]
 (setq which-key-idle-delay 0.5 ;; Default is 1.0
       which-key-idle-secondary-delay 0.05) ;; Default is nil
@@ -271,6 +277,221 @@ is binary, activate `hexl-mode'."
             vterm-mode
             org-mode))
 ;; Company:1 ends here
+
+;; [[file:config.org::*Tabs][Tabs:1]]
+(use-package! tab-bar
+  ;; :bind
+  ;; ("s-}" . tab-next)
+  ;; ("s-{" . tab-previous)
+  ;; (:map +workspace-map
+  ;;       ("C-n" . tab-next)
+  ;;       ("C-p" . tab-previous)
+  ;;       ("c" . tab-new)
+  ;;       ("C-c" . tab-new)
+  ;;       ("k" . tab-close)
+  ;;       ("C-k" . tab-close)
+  ;;       ("l" . tab-recent)
+  ;;       ("C-l" . tab-recent)
+  ;;       ("r" . tab-rename)
+  ;;       ("C-r" . tab-rename)
+  ;;       ("n" . +tab-bar-move-tab-right)
+  ;;       ("p" . +tab-bar-move-tab-left)
+  ;;       ("s" . +tab-bar-switch-to-or-create-tab)
+  ;;       ("C-s" . +tab-bar-switch-to-or-create-tab)
+  ;;       ("e" . tab-switcher)
+  ;;       ("C-e" . tab-switcher)
+  ;;       ("u" . tab-undo)
+  ;;       ("C-u" . tab-undo)
+  ;;       (";" . +tab-bar-echo-tab-list)
+  ;;       ("C-;" . +tab-bar-echo-tab-list)
+  ;;       ("0" . +tab-bar-switch-to-index)
+  ;;       ("1" . +tab-bar-switch-to-index)
+  ;;       ("2" . +tab-bar-switch-to-index)
+  ;;       ("3" . +tab-bar-switch-to-index)
+  ;;       ("4" . +tab-bar-switch-to-index)
+  ;;       ("5" . +tab-bar-switch-to-index)
+  ;;       ("6" . +tab-bar-switch-to-index)
+  ;;       ("7" . +tab-bar-switch-to-index)
+  ;;       ("8" . +tab-bar-switch-to-index)
+  ;;       ("9" . +tab-bar-switch-to-index)
+  ;;       ("b" . tab-bar-history-back)
+  ;;       ("C-b" . tab-bar-history-back)
+  ;;       ("f" . tab-bar-history-forward)
+  ;;       ("C-f" . tab-bar-history-forward))
+
+  :custom
+  (tab-bar-close-button-show nil)
+  (tab-bar-format '(tab-bar-format-tabs-groups tab-bar-separator))
+  (tab-bar-history-limit 25)
+  (tab-bar-new-tab-choice "*scratch*")
+  (tab-bar-show 1)
+  (tab-bar-tab-group-format-function #'+tab-bar-tab-group-format-default)
+  (tab-bar-tab-hints t)
+  (tab-bar-tab-name-format-function #'+tab-bar-tab-name-format-default)
+
+  :config
+  (+tab-bar-setup)
+
+  :preface
+  (defun +tab-bar-setup ()
+    (tab-bar-mode)
+    (tab-bar-history-mode))
+
+  (defgroup +tab-bar nil
+    "Siren specific tweaks to tar-bar-mode."
+    :group 'tab-bar)
+
+  (defcustom +tab-bar-echo-tab-list t
+    "When t and print list of tabs in echo area when changing tabs."
+    :type 'boolean
+    :group '+tab-bar)
+
+  (defface +tab-bar-echo-default
+    '((t :inherit default))
+    "Face for tab names in echo area."
+    :group '+tab-bar)
+
+  (defface +tab-bar-echo-current
+    '((t :inherit font-lock-keyword-face))
+    "Face for current tab name in echo area."
+    :group '+tab-bar)
+
+  (defface +tab-bar-echo-index
+    '((t :inherit font-lock-comment-face))
+    "Face for index numbers in echo area."
+    :group '+tab-bar)
+
+  (defface +tab-bar-tab
+    `((t :inherit 'tab-bar-tab
+         :foreground ,(face-attribute 'font-lock-keyword-face :foreground nil t)))
+    "Face for active tab in tab-bar."
+    :group '+tab-bar)
+
+  (defface +tab-bar-tab-hint
+    `((t :inherit '+tab-bar-tab
+         :foreground ,(face-attribute 'tab-bar-tab-inactive :foreground nil t)))
+    "Face for active tab hint in tab-bar."
+    :group '+tab-bar)
+
+  (defface +tab-bar-tab-inactive
+    `((t :inherit 'tab-bar-tab-inactive
+         :foreground ,(face-attribute 'font-lock-comment-face :foreground nil t)))
+    "Face for inactive tab in tab-bar."
+    :group '+tab-bar)
+
+  (defface +tab-bar-tab-hint-inactive
+    `((t :inherit '+tab-bar-tab-inactive
+         :foreground ,(face-attribute 'tab-bar-tab-inactive :foreground nil t)))
+    "Face for inactive tab hint in tab-bar."
+    :group '+tab-bar)
+
+  (defun +tab-bar-tab-name-format-default (tab i)
+    (let* ((current-p (eq (car tab) 'current-tab))
+           (tab-face (if current-p
+                         '+tab-bar-tab
+                       '+tab-bar-tab-inactive))
+           (hint-face (if current-p
+                          '+tab-bar-tab-hint
+                        '+tab-bar-tab-hint-inactive)))
+      (concat (propertize "  " 'face tab-face)
+              (if tab-bar-tab-hints (propertize
+                                     (format "%d:" (- i 1)) 'face hint-face))
+              (propertize
+               (concat
+                (alist-get 'name tab)
+                (or (and tab-bar-close-button-show
+                         (not (eq tab-bar-close-button-show
+                                  (if current-p 'non-selected 'selected)))
+                         tab-bar-close-button)
+                    "")
+                "  ")
+               'face tab-face))))
+
+  (defun +tab-bar-tab-group-format-default (tab i)
+    (propertize
+     (concat (if tab-bar-tab-hints (format "%d:" (- i 1)) "")
+             (funcall tab-bar-tab-group-function tab))
+     'face 'tab-bar-tab-group-inactive))
+
+  (defun +tab-bar-switch-to-or-create-tab (name)
+    "Switch to or create a tab by NAME."
+    (interactive
+     (let* ((recent-tabs (mapcar (lambda (tab) (alist-get 'name tab))
+                                 (tab-bar--tabs-recent))))
+       (list (completing-read "Switch to tab by name (default recent): "
+                              recent-tabs nil nil nil nil recent-tabs))))
+    (let ((tab-names (mapcar (lambda (tab) (alist-get 'name tab))
+                             (funcall tab-bar-tabs-function))))
+     (if (member name tab-names
+          (tab-bar-switch-to-tab name))
+        (+tab-bar-new-named-tab name)))
+    (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0))))
+
+  (defun +tab-bar-new-named-tab (name)
+    "Create a new tab named NAME."
+    (interactive "MName for new tab (leave blank for automatic naming): ")
+    (tab-new 99999)
+    (if (not (string= name ""))
+        (tab-rename name)))
+
+  (defun +tab-bar-switch-to-index (&optional arg)
+    "Switch to tab with index ARG.
+When this command is bound to a numeric key, calling it without
+an argument will translate its bound numeric key to the numeric
+argument.
+ARG counts from 1."
+    (interactive "P")
+    (unless (integerp arg)
+      (let ((key (event-basic-type last-command-event)))
+        (setq arg (if (and (characterp key) (>= key ?0) (<= key ?9))
+                      (- key ?0)
+                    0))))
+
+    (tab-bar-select-tab (1+ arg)))
+
+  (defun +tab-bar-move-tab-left ()
+    "Move current tab to the left."
+    (interactive)
+    (tab-move -1))
+
+  (defun +tab-bar-move-tab-right ()
+    "Move current tab to the right."
+    (interactive)
+    (tab-move 1))
+
+  (defun +tab-bar-echo-tab-list ()
+    "Echo list of tabs"
+    (interactive)
+    (let* ((tabs (funcall tab-bar-tabs-function))
+           (current-index (or (tab-bar--current-tab-index tabs) 0))
+           (output '())
+           (index 0))
+      (dolist (tab tabs)
+        (add-to-list 'output
+                     (concat (propertize (format "%d:" index)
+                                         'face '+tab-bar-echo-index)
+                             (propertize (alist-get 'name tab)
+                                         'face (if (eq index current-index)
+                                                   '+tab-bar-echo-current
+                                                 '+tab-bar-echo-default)))
+                     t)
+        (setq index (1+ index)))
+
+      (message "tabs: %s" (string-join output " "))))
+
+  (defun +tab-bar-echo-tab-list-advice (&rest _)
+    (when +tab-bar-echo-tab-list
+      (+tab-bar-echo-tab-list)))
+
+  (advice-add 'tab-bar-close-tab :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'tab-bar-move-tab-to :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'tab-bar-new-tab-to :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'tab-bar-rename-tab :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'tab-bar-select-tab :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'tab-switcher-select :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'display-buffer-in-new-tab :after #'+tab-bar-echo-tab-list-advice)
+  (advice-add 'tab-bar-change-tab-group :after #'+tab-bar-echo-tab-list-advice))
+;; Tabs:1 ends here
 
 ;; [[file:config.org::*Centaur tabs][Centaur tabs:1]]
 (after! centaur-tabs
@@ -611,14 +832,6 @@ is binary, activate `hexl-mode'."
       "Load Grammarly LSP server."
       (require 'lsp-grammarly)
       (lsp-deferred)))) ;; or (lsp)
-;;
-;; :hook (text-mode . (lambda ()
-;;                      (require 'lsp-grammarly)
-;;                      (lsp-deferred))))  ; or (lsp)
-
-;; :hook (text-mode . (lambda ()))
-;;                    (require 'eglot-grammarly)
-;;                    (call-interactively #'eglot)))
 
 (use-package! flycheck-grammalecte
   :commands (flycheck-grammalecte-correct-error-at-point
@@ -653,7 +866,11 @@ is binary, activate `hexl-mode'."
   (flycheck-grammalecte-setup)
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 
+(defconst +zotero-present-p
+  (not (null (executable-find "zotero"))))
+
 (use-package! zotxt
+  :when +zotero-present-p
   :commands org-zotxt-mode)
 
 (use-package! crdt
@@ -662,7 +879,11 @@ is binary, activate `hexl-mode'."
              crdt-visualize-author-mode
              crdt-org-sync-overlay-mode))
 
+(defconst +ag-present-p
+  (not (null (executable-find "ag"))))
+
 (use-package! ag
+  :when +ag-present-p
   :commands (ag
              ag-files
              ag-regexp
@@ -680,7 +901,11 @@ is binary, activate `hexl-mode'."
   :diminish
   :init (global-page-break-lines-mode))
 
+(defconst +eaf-present-p
+  (not (null (file-directory-p (expand-file-name "lisp/emacs-application-framework")))))
+
 (use-package! eaf
+  :when +eaf-present-p
   :load-path "lisp/emacs-application-framework"
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
@@ -779,7 +1004,7 @@ is binary, activate `hexl-mode'."
   ;; Org
   (when (member 'rss-reader +eaf-enabled-apps)
     (setq eaf-rss-reader-split-horizontally nil
-          eaf-rss-reader-web-page-other-window t) 
+          eaf-rss-reader-web-page-other-window t)
     (require 'eaf-org))
 
   ;; Org
@@ -863,7 +1088,11 @@ is binary, activate `hexl-mode'."
          (tex-mode . popweb-latex-mode)
          (ein:markdown-mode . popweb-latex-mode)))
 
+(defconst +chezmoi-present-p
+  (not (null (executable-find "chezmoi"))))
+
 (use-package! chezmoi
+  :when +chezmoi-present-p
   :commands (chezmoi-write
              chezmoi-magit-status
              chezmoi-diff
@@ -922,10 +1151,13 @@ is binary, activate `hexl-mode'."
                               (lemon-linux-network-tx)
                               (lemon-linux-network-rx)))))
 
+(defconst +bitwarden-present-p
+  (not (null (executable-find "bw"))))
+
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-
+  :when +bitwarden-present-p
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -1010,11 +1242,7 @@ is binary, activate `hexl-mode'."
 (use-package! org-fragtog
   :hook (org-mode . org-fragtog-mode))
 
-(use-package! org-pretty-table
-  :hook (org-mode . org-pretty-table-mode))
-
 (use-package! org-modern
-  ;; :hook (org-mode . org-modern-mode)
   :init
   (setq org-modern-table-vertical 1
         org-modern-table-horizontal 1)
@@ -1058,7 +1286,11 @@ is binary, activate `hexl-mode'."
   ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
   (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
 
+(defconst +repo-present-p
+  (not (null (executable-find "repo"))))
+
 (use-package! repo
+  :when +repo-present-p
   :commands repo-status)
 
 (use-package! devdocs
@@ -1071,8 +1303,8 @@ is binary, activate `hexl-mode'."
   (fmakunbound 'gdb)
   (fmakunbound 'gdb-enable-debug)
   :config
-  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
+  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
 
 (use-package! embed
   :commands (embed-openocd-start
@@ -1093,7 +1325,11 @@ is binary, activate `hexl-mode'."
 (use-package! disaster
   :commands (disaster))
 
+(defconst +delta-present-p
+  (not (null (executable-find "delta"))))
+
 (use-package! magit-delta
+  :when +delta-present-p
   :commands magit-status
   :hook (magit-mode . magit-delta-mode))
 
@@ -1117,8 +1353,7 @@ is binary, activate `hexl-mode'."
          (text-mode . blamer-mode))
 
   :config
-  ;; Disable in zen (writeroom) mode
-  (when (featurep! :ui zen)
+  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 
@@ -1132,6 +1367,12 @@ is binary, activate `hexl-mode'."
 
 (use-package! aas
   :commands aas-mode)
+
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
 
 (use-package! franca-idl
   :commands franca-idl-mode)
@@ -1260,27 +1501,36 @@ is binary, activate `hexl-mode'."
 ;; News feed =elfeed=:1 ends here
 
 ;; [[file:config.org::*Launch NetExtender session from Emacs][Launch NetExtender session from Emacs:1]]
-(setq netextender-process-name "netextender"
-      netextender-buffer-name "*netextender*"
-      netextender-command '("~/.local/bin/netextender"))
+(defconst +netextender-present-p
+  (let ((present-p (not (null (and (executable-find "netExtender")
+                                (file-exists-p "~/.local/bin/netextender")
+                                (file-exists-p "~/.ssh/netExtender-params.gpg"))))))
+    (unless present-p
+      (warn "Missing netExtender dependencies."))
+    present-p))
 
-(defun netextender-start ()
-  "Launch a NetExtender VPN session"
-  (interactive)
-  (unless (get-process netextender-process-name)
-    (if (make-process :name netextender-process-name
-                      :buffer netextender-buffer-name
-                      :command netextender-command)
-        (message "Started NetExtender VPN session")
-      (message "Cannot start NetExtender"))))
+(when +netextender-present-p
+  (defvar +netextender-process-name "netextender")
+  (defvar +netextender-buffer-name "*netextender*")
+  (defvar +netextender-command '("~/.local/bin/netextender"))
 
-(defun netextender-kill ()
-  "Kill the created NetExtender VPN session"
-  (interactive)
-  (when (get-process netextender-process-name)
-    (if (kill-buffer netextender-buffer-name)
-        (message "Killed NetExtender VPN session")
-      (message "Cannot kill NetExtender"))))
+  (defun +netextender-start ()
+    "Launch a NetExtender VPN session"
+    (interactive)
+    (unless (get-process +netextender-process-name)
+      (if (make-process :name +netextender-process-name
+                        :buffer +netextender-buffer-name
+                        :command +netextender-command)
+          (message "Started NetExtender VPN session")
+        (message "Cannot start NetExtender"))))
+
+  (defun +netextender-kill ()
+    "Kill the created NetExtender VPN session"
+    (interactive)
+    (when (get-process +netextender-process-name)
+      (if (kill-buffer +netextender-buffer-name)
+          (message "Killed NetExtender VPN session")
+        (message "Cannot kill NetExtender")))))
 ;; Launch NetExtender session from Emacs:1 ends here
 
 ;; [[file:config.org::*mu4e][mu4e:2]]
@@ -1675,7 +1925,7 @@ is binary, activate `hexl-mode'."
   (add-to-list 'auto-mode-alist '("\\.ma[cx]\\'" . maxima-mode)))
 ;; Maxima:3 ends here
 
-;; [[file:config.org::*Maxima][Maxima:4]]
+;; [[file:config.org::*IMaxima][IMaxima:2]]
 (use-package! imaxima
   :when +maxima-present-p
   :commands (imaxima imath-mode)
@@ -1685,7 +1935,7 @@ is binary, activate `hexl-mode'."
 
   ;; Hook the `maxima-inferior-mode' to get Company completion.
   (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
-;; Maxima:4 ends here
+;; IMaxima:2 ends here
 
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
@@ -2751,6 +3001,9 @@ is binary, activate `hexl-mode'."
     (run-at-time nil nil #'org-appear--set-elements))
   (setq org-inline-src-prettify-results '("⟨" . "⟩")
         doom-themes-org-fontify-special-tags nil)
+  ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/?utm_source=share&utm_medium=web2x&context=3
+  ;; Scale image previews to 60% of the window width.
+  (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
   
   (after! org-superstar
     (setq org-superstar-headline-bullets-list '("◉" "○" "◈" "◇" "✳" "✤" "✜" "◆" "▶")
