@@ -20,10 +20,10 @@ This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]
 If you want to reuse some of these configurations, you will need to modify some
 directories and add some user specific information (usernames, passwords...)
 
-This is the main config file [[dot_doom.d/config.org][.doom.d/config.org]], (available also as a [[dot_doom.d/config.pdf][PDF file]],
-it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to generate
-some other user configuration files (define aliases, environment variables, user
-tools, Git configuration...).
+This is the main configuration file [[dot_doom.d/config.org][.doom.d/config.org]], (available also as a [[dot_doom.d/config.pdf][PDF
+file]], it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to
+generate some other user configuration files (define aliases, environment
+variables, user tools, Git configuration...).
 
 ** How to install
 
@@ -118,7 +118,8 @@ This needs to be sourced in the shell session (source it in =~/.zshrc=).
 # Abdelhak BOUGOUFFA (c) 2022
 #+end_src
 
-* Doom modules (=init.el=) :module:
+* Doom configuration files
+** Doom modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
 :END:
@@ -131,7 +132,7 @@ src_org{:header-args:emacs-lisp: :tangle no}. All source blocks in this section
 inherits these headers, so they will not be tangled unless overwriting in the
 block's header.
 
-** File skeleton :init:
+*** File skeleton :init:
 This first section defines the template for the subsections, it uses the =no-web=
 syntax to include subsections specified as ~<<sub-section-name>>~.
 
@@ -142,36 +143,50 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
 ;; This file controls what Doom modules are enabled and what order they load in.
 ;; Press 'K' on a module to view its documentation, and 'gd' to browse its directory.
 
-(doom! :input
-       <<doom-input>>
-       :completion
-       <<doom-completion>>
-       :ui
-       <<doom-ui>>
-       :editor
-       <<doom-editor>>
-       :emacs
-       <<doom-emacs>>
-       :term
-       <<doom-term>>
-       :checkers
-       <<doom-checkers>>
-       :tools
-       <<doom-tools>>
-       :os
-       <<doom-os>>
-       :lang
-       <<doom-lang>>
-       :email
-       <<doom-email>>
-       :app
-       <<doom-app>>
-       :config
-       <<doom-config>>
+(doom!
+  :input
+  <<doom-input>>
+
+  :completion
+  <<doom-completion>>
+
+  :ui
+  <<doom-ui>>
+
+  :editor
+  <<doom-editor>>
+
+  :emacs
+  <<doom-emacs>>
+
+  :term
+  <<doom-term>>
+
+  :checkers
+  <<doom-checkers>>
+
+  :tools
+  <<doom-tools>>
+
+  :os
+  <<doom-os>>
+
+  :lang
+  <<doom-lang>>
+
+  :email
+  <<doom-email>>
+
+  :app
+  <<doom-app>>
+
+  :config
+  <<doom-config>>
+
 )
 #+end_src
 
-** Input (=:input=)
+*** Input (=:input=)
 Enable bidirectional languages support (=bidi=).
 
 #+name: doom-input
@@ -179,7 +194,7 @@ Enable bidirectional languages support (=bidi=).
 bidi
 #+end_src
 
-** General (=:config=)
+*** General (=:config=)
 Enable =literate= configuration (like this file!), and some defaults.
 
 #+name: doom-config
@@ -188,7 +203,7 @@ literate
 (default +bindings +smartparens)
 #+end_src
 
-** Completion (=:completion=)
+*** Completion (=:completion=)
 I'm lazy, I like Emacs to complete my writings.
 
 #+name: doom-completion
@@ -197,7 +212,7 @@ I'm lazy, I like Emacs to complete my writings.
 company
 #+end_src
 
-** User interface (=:ui=)
+*** User interface (=:ui=)
 Enables some user interface features for better user experience, the beautiful
 =modeline=, the =treemacs= project tree, better version control integration with
 =vc-gutter=... and other useful stuff.
@@ -229,7 +244,7 @@ nav-flash
 ;;vi-tilde-fringe
 #+end_src
 
-** Editor (=:editor=)
+*** Editor (=:editor=)
 Some editing modules, the most important feature is EVIL to enable Vim style
 editing in Emacs. I like also to edit with multiple cursors, enable =yasnippet=
 support, wrap long lines, auto format support.
@@ -250,7 +265,7 @@ word-wrap
 ;;rotate-text
 #+end_src
 
-** Emacs builtin stuff (=:emacs=)
+*** Emacs builtin stuff (=:emacs=)
 Beautify Emacs builtin packages.
 
 #+name: doom-emacs
@@ -262,7 +277,7 @@ vc
 ;;electric
 #+end_src
 
-** Terminals (=:term=)
+*** Terminals (=:term=)
 Run commands in terminal from Emacs. I use mainly =vterm= on my local machine,
 however, I like to have =eshell=, =shell= and =term= installed to use them for remote
 file editing (via Tramp).
@@ -275,7 +290,7 @@ shell
 term
 #+end_src
 
-** Checkers (=:checkers=)
+*** Checkers (=:checkers=)
 I like to check my documents for errors while I'm typing. The =grammar= module
 enables [[https://languagetool.org/][LanguageTool]] support.
 
@@ -286,7 +301,7 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 grammar
 #+end_src
 
-** Tools (=:tools=)
+*** Tools (=:tools=)
 I enable some useful tools which facilitate my work flow, I like to enable
 Docker support, [[https://editorconfig.org][EditorConfig]] is a good feature to have. I like to enable
 =lsp-mode= and =dap-mode= for coding and debugging by enabling the =lsp= and =debugger=
@@ -319,7 +334,7 @@ upload
 ;;terraform
 #+end_src
 
-** Operating system (=:os=)
+*** Operating system (=:os=)
 I enable =tty= for better support of terminal editing.
 
 #+name: doom-os
@@ -327,7 +342,7 @@ I enable =tty= for better support of terminal editing.
 (tty +osc)
 #+end_src
 
-** Language support (=:lang=)
+*** Language support (=:lang=)
 Most of the projects I'm working on are mainly written in C/C++, Python, Rust
 and some Lisp stuff, I edit also a lot of configuration and data files in
 several formats (=csv=, =yaml=, =xml=, =json=, =shell= scripts...). I use Org-mode to
@@ -395,7 +410,7 @@ qt
 ;;web                  ; the tubes
 #+end_src
 
-** Email (=:email=)
+*** Email (=:email=)
 I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= support and
 =+gmail= adds better management of Gmail accounts.
 
@@ -404,7 +419,7 @@ I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= su
 (mu4e +org +gmail)
 #+end_src
 
-** Apps (=:app=)
+*** Apps (=:app=)
 Emacs contains a ton of applications, some of them are supported by Doom, I like
 to use Emacs manage my calendar, chat on IRC, and receive news. I do use EMMS
 sometimes to play music without leaving Emacs, and I like to enable support for
@@ -418,6 +433,16 @@ emms
 everywhere
 (rss +org)
 ;;twitter
+#+end_src
+
+** Additional packages (=packages.el=) :package:
+This section generates Doom's =packages.el=, with the associated configurations
+(~use-package!~ blocks).
+
+This file shouldn't be byte compiled.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+;; -*- no-byte-compile: t; -*-
 #+end_src
 
 * General Emacs settings :global:
@@ -664,7 +689,7 @@ frame/terminal is deleted.
     (lambda (arg) (recentf-save-list))))
 #+end_src
 
-* Doom configuration :doom:config:
+* Package configuration :config:
 ** User Interface :ui:
 *** Font Face :font:
 Doom exposes five (optional) variables for controlling fonts in Doom. Here are
@@ -851,6 +876,132 @@ This can be used to adjust the left and right fringes.
         vertico-posframe-border-width 3))
 #+end_src
 
+*** SVG Tag Mode :svg:
+
+#+begin_src emacs-lisp :tangle "packages.el"
+(package! svg-tag-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! svg-tag-mode
+  :commands svg-tag-mode
+  :config
+  (setq svg-tag-tags
+      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+         ((lambda (tag) (svg-tag-make)
+                    tag
+                    :beg 1
+                    :font-family "Roboto Mono"
+                    :font-size 6
+                    :height 0.6
+                    :padding 0
+                    :margin 0)))
+        ("\\(:[A-Za-z0-9]+:\\)$" .
+         ((lambda (tag) (svg-tag-make)
+                    tag
+                    :beg 1
+                    :end -1
+                    :font-family "Roboto Mono"
+                    :font-size 6
+                    :height 0.6
+                    :padding 0
+                    :margin 0))))))
+#+end_src
+
+*** N Λ N O :nano:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! nano-doom
+  :disable t
+  :recipe (:host github :repo "skyler544/doom-nano-testing"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Note tangled
+(require 'load-nano)
+#+end_src
+
+*** Lambda themes/line :lambda:theme:
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! lambda-themes
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-themes"))
+
+(package! lambda-line
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-line"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(use-package! lambda-themes
+  :custom
+  (lambda-themes-set-italic-comments t)
+  (lambda-themes-set-italic-keywords t)
+  (lambda-themes-set-variable-pitch t)
+  :config
+  (load-theme 'lambda-dark))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(use-package! lambda-line
+  :custom
+  (lambda-line-position 'top) ;; Set position of status-line
+  (lambda-line-abbrev t) ;; abbreviate major modes
+  (lambda-line-hspace "  ")  ;; add some cushion
+  (lambda-line-prefix t) ;; use a prefix symbol
+  (lambda-line-prefix-padding nil) ;; no extra space for prefix
+  (lambda-line-status-invert nil)  ;; no invert colors
+  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
+  (lambda-line-gui-mod-symbol " ⬤")
+  (lambda-line-gui-rw-symbol  " ◯")
+  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom -.50)
+  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
+  :config
+  ;; activate lambda-line
+  (lambda-line-mode)
+  ;; set divider line in footer
+  (when (eq lambda-line-position 'top)
+   (setq-default mode-line-format (list "%_"))
+   (setq mode-line-format (list "%_"))))
+#+end_src
+
+*** Humanoid themes :humanoid:theme:
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! humanoid-themes
+  :recipe (:host github
+           :repo "humanoid-colors/emacs-humanoid-themes"))
+#+end_src
+
+*** Focus :focus:
+Dim the font color of text in surrounding paragraphs, focus only on the current line.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! focus)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! focus
+  :commands focus-mode)
+#+end_src
+
+*** Smooth scrolling
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(when (<= emacs-major-version 28)
+  (package! good-scroll))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(if (> emacs-major-version 28)
+    (pixel-scroll-precision-mode 1)
+  (use-package! good-scroll
+    :config (good-scroll-mode 1)))
+#+end_src
+
 ** Editor :edit:
 *** Scratch buffer :scratch:
 Tell the scratch buffer to start in =emacs-lisp-mode=.
@@ -943,7 +1094,6 @@ straightforward, I'll just redefine it to a simpler, async, function.
              +literate-config-file))))
 #+end_src
 
-* Package configuration :config:
 ** All the icons :icon:
 Set some custom icons for some file extensions, basically for =.m= files.
 
@@ -1200,7 +1350,7 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
 
 ** Treemacs
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 ;; My custom stuff (from tecosaur's config)
 (setq +treemacs-file-ignore-extensions
       '(;; LaTeX
@@ -1260,6 +1410,11 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
   #+end_src
 
 ** PDF tools
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(unpin! pdf-tools)
+#+end_src
+
 *** Dark mode
 The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
 and read PDF documents, so lets make it dark by default, this can be toggled
@@ -1536,168 +1691,10 @@ them in C/C++, Rust and Python modes.
 (setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
 #+end_src
 
-** Additional packages (=packages.el=) :package:
-:PROPERTIES:
-:header-args:emacs-lisp: :tangle "packages.el" :comments no
-:END:
-
-This section generates Doom's =packages.el=, with the associated configurations
-(~use-package!~ blocks).
-
-This file shouldn't be byte compiled.
+** Features :features:
+*** Weather :wttrin:
 
 #+begin_src emacs-lisp :tangle "packages.el" :comments no
-;; -*- no-byte-compile: t; -*-
-#+end_src
-
-*** Themes and UI :ui:theme:
-**** SVG Tag Mode :svg:
-
-#+begin_src emacs-lisp
-(package! svg-tag-mode)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! svg-tag-mode
-  :commands svg-tag-mode
-  :config
-  (setq svg-tag-tags
-      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0)))
-        ("\\(:[A-Za-z0-9]+:\\)$" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :end -1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0))))))
-#+end_src
-
-**** N Λ N O :nano:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
-
-#+begin_src emacs-lisp
-(package! nano-doom
-  :disable t
-  :recipe (:host github :repo "skyler544/doom-nano-testing"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Note tangled
-(require 'load-nano)
-#+end_src
-
-**** Lambda themes/line :lambda:theme:
-
-#+begin_src emacs-lisp
-(package! lambda-themes
-  :recipe (:host github
-           :repo "Lambda-Emacs/lambda-themes"))
-
-(package! lambda-line
-  :recipe (:host github
-           :repo "Lambda-Emacs/lambda-line"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(use-package! lambda-themes
-  :custom
-  (lambda-themes-set-italic-comments t)
-  (lambda-themes-set-italic-keywords t)
-  (lambda-themes-set-variable-pitch t)
-  :config
-  (load-theme 'lambda-dark))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(use-package! lambda-line
-  :custom
-  (lambda-line-position 'top) ;; Set position of status-line
-  (lambda-line-abbrev t) ;; abbreviate major modes
-  (lambda-line-hspace "  ")  ;; add some cushion
-  (lambda-line-prefix t) ;; use a prefix symbol
-  (lambda-line-prefix-padding nil) ;; no extra space for prefix
-  (lambda-line-status-invert nil)  ;; no invert colors
-  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
-  (lambda-line-gui-mod-symbol " ⬤")
-  (lambda-line-gui-rw-symbol  " ◯")
-  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
-  (lambda-line-space-bottom -.50)
-  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
-  :config
-  ;; activate lambda-line
-  (lambda-line-mode)
-  ;; set divider line in footer
-  (when (eq lambda-line-position 'top)
-   (setq-default mode-line-format (list "%_"))
-   (setq mode-line-format (list "%_"))))
-#+end_src
-
-**** Humanoid themes :humanoid:theme:
-
-#+begin_src emacs-lisp
-(package! humanoid-themes
-  :recipe (:host github
-           :repo "humanoid-colors/emacs-humanoid-themes"))
-#+end_src
-
-**** Focus :focus:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
-
-#+begin_src emacs-lisp
-(package! focus)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! focus
-  :commands focus-mode)
-#+end_src
-
-**** COMMENT Goggles
-DISABLED ATM: Visual feedback after kill/yank actions. ATM, it works only with undo, kill/yank
-do not give feedback.
-
-#+begin_src emacs-lisp
-(package! goggles
-  :recipe (:host github
-           :repo "minad/goggles"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! goggles
-  :hook ((prog-mode text-mode) . goggles-mode)
-  :config
-  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
-#+end_src
-
-**** Smooth scrolling
-
-#+begin_src emacs-lisp
-(when (<= emacs-major-version 28)
-  (package! good-scroll))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(if (> emacs-major-version 28)
-    (pixel-scroll-precision-mode 1)
-  (use-package! good-scroll
-    :config (good-scroll-mode 1)))
-#+end_src
-
-*** Features :features:
-**** Weather :wttrin:
-
-#+begin_src emacs-lisp
 ;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
@@ -1710,9 +1707,9 @@ do not give feedback.
   :commands wttrin)
 #+end_src
 
-**** OpenStreetMap :osm:map:
+*** OpenStreetMap :osm:map:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! osm)
 #+end_src
 
@@ -1736,9 +1733,9 @@ do not give feedback.
     (require 'osm-ol)))
 #+end_src
 
-**** Islamic prayer times :prayer:
+*** Islamic prayer times :prayer:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! awqat
   :recipe (:host github
            :repo "zkry/awqat"))
@@ -1756,23 +1753,17 @@ do not give feedback.
   (awqat-set-preset-french-muslims))
 #+end_src
 
-**** ESS :ess:
+*** ESS :ess:
 View data frames better with
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! ess-view)
 #+end_src
 
-**** PDF
-
-#+begin_src emacs-lisp
-(unpin! pdf-tools)
-#+end_src
-
-**** Very large files :large:vlf:
+*** Very large files :large:vlf:
 The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! vlf)
 #+end_src
 
@@ -1783,17 +1774,10 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
 #+end_src
 
-**** e-Book reading :ebook:
-Then for reading them, the only currently viable options seem to be [[https://depp.brause.cc/nov.el/][nov.el]].
-
-#+begin_src emacs-lisp
-(package! nov)
-#+end_src
-
-**** Info colors
+*** Info colors
 Better colors for manual pages.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! info-colors)
 #+end_src
 
@@ -1804,9 +1788,9 @@ Better colors for manual pages.
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 #+end_src
 
-**** Guess language :language:text:
+*** Guess language :language:text:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! guess-language
   :recipe (:host github
            :repo "tmalsburg/guess-language.el"))
@@ -1827,10 +1811,10 @@ Better colors for manual pages.
              guess-language-mark-lines))
 #+end_src
 
-**** Grammarly :language:grammar:
+*** Grammarly :language:grammar:
 Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly]] or [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly]].
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! grammarly
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
@@ -1868,9 +1852,9 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
       (lsp-deferred)))) ;; or (lsp)
 #+end_src
 
-**** Grammalecte :french:grammar:
+*** Grammalecte :french:grammar:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! flycheck-grammalecte
   :recipe (:host github
            :repo "milouse/flycheck-grammalecte"))
@@ -1911,9 +1895,9 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 #+end_src
 
-**** Zotero Zotxt :zotero:
+*** Zotero Zotxt :zotero:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! zotxt)
 #+end_src
 
@@ -1926,11 +1910,11 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   :commands org-zotxt-mode)
 #+end_src
 
-**** CRDT :crdt:collab:
+*** CRDT :crdt:collab:
 Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
 Replicated Data Type]]/.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! crdt)
 #+end_src
 
@@ -1942,11 +1926,11 @@ Replicated Data Type]]/.
              crdt-org-sync-overlay-mode))
 #+end_src
 
-**** Ag.el :search:
+*** Ag.el :search:
 An Emacs frontend to The Silver Searcher, first we need to install =ag= using =sudo
 pacman -S the_silver_searcher=.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! ag)
 #+end_src
 
@@ -1964,9 +1948,9 @@ pacman -S the_silver_searcher=.
              ag-project-regexp))
 #+end_src
 
-**** Disk usage :fs:
+*** Disk usage :fs:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! disk-usage)
 #+end_src
 
@@ -1975,9 +1959,9 @@ pacman -S the_silver_searcher=.
   :commands (disk-usage))
 #+end_src
 
-**** Aweshell :eshell:shell:
+*** Aweshell :eshell:shell:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! aweshell
   :recipe (:host github
            :repo "manateelazycat/aweshell"))
@@ -1988,11 +1972,11 @@ pacman -S the_silver_searcher=.
   :commands (aweshell-new aweshell-dedicated-open))
 #+end_src
 
-**** Page break lines :editor:
+*** Page break lines :editor:
 A feature that displays ugly form feed characters as tidy horizontal rules.
 Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! page-break-lines)
 #+end_src
 
@@ -2002,7 +1986,7 @@ Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]]
   :init (global-page-break-lines-mode))
 #+end_src
 
-**** Emacs Application Framework :eaf:
+*** Emacs Application Framework :eaf:
 EAF is presented as: /A free/libre and open-source extensible framework that
 revolutionizes the graphical capabilities of Emacs/. Or the key to ultimately
 /Live in Emacs/.
@@ -2188,10 +2172,10 @@ dependencies.
           (kbd "SPC"))))))
 #+end_src
 
-**** Popweb :text:
+*** Popweb :text:
 A lightweight version of EAF that provides multimedia capabilities.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! popweb
   :recipe (:host github
            :repo "manateelazycat/popweb"
@@ -2214,9 +2198,9 @@ A lightweight version of EAF that provides multimedia capabilities.
          (ein:markdown-mode . popweb-latex-mode)))
 #+end_src
 
-**** Chezmoi :dotfiles:
+*** Chezmoi :dotfiles:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! chezmoi)
 #+end_src
 
@@ -2271,9 +2255,9 @@ A lightweight version of EAF that provides multimedia capabilities.
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
 #+end_src
 
-**** Lemon :monitor:system:
+*** Lemon :monitor:system:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! lemon
   :recipe (:host gitlab
            :repo "ieure/lemon"))
@@ -2295,9 +2279,9 @@ A lightweight version of EAF that provides multimedia capabilities.
                               (lemon-linux-network-rx)))))
 #+end_src
 
-**** Bitwarden :pass:bitwarden:
+*** Bitwarden :pass:bitwarden:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! bitwarden
   :recipe (:host github
            :repo "seanfarley/emacs-bitwarden"))
@@ -2325,11 +2309,11 @@ A lightweight version of EAF that provides multimedia capabilities.
             ""))))
 #+end_src
 
-*** Fun :fun:
-**** Speed Type
+** Fun :fun:
+*** Speed Type
 A game to practice speed typing in Emacs.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! speed-type)
 #+end_src
 
@@ -2338,9 +2322,9 @@ A game to practice speed typing in Emacs.
   :commands (speed-type-text))
 #+end_src
 
-**** 2048 Game
+*** 2048 Game
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! 2048-game)
 #+end_src
 
@@ -2349,10 +2333,10 @@ A game to practice speed typing in Emacs.
   :commands (2048-game))
 #+end_src
 
-**** Snow
+*** Snow
 Let it snow in Emacs!
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! snow)
 #+end_src
 
@@ -2361,9 +2345,9 @@ Let it snow in Emacs!
   :commands (snow))
 #+end_src
 
-**** =xkcd=
+*** =xkcd=
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! xkcd
   :recipe (:host github
            :repo "vibhavp/emacs-xkcd"))
@@ -2377,233 +2361,11 @@ Let it snow in Emacs!
         xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
 #+end_src
 
-*** Org-mode related :org:
-**** Templates :template:
-
-#+begin_src emacs-lisp
-(package! doct)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! doct
-  :commands (doct))
-#+end_src
-
-**** Agenda :agenda:
-
-#+begin_src emacs-lisp
-(package! org-super-agenda)
-#+end_src
-
-Configure =org-super-agenda=
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-super-agenda
-  :after org-agenda
-  :config
-  (org-super-agenda-mode)
-  :init
-  (setq org-agenda-skip-scheduled-if-done t
-        org-agenda-skip-deadline-if-done t
-        org-agenda-include-deadlines t
-        org-agenda-block-separator nil
-        org-agenda-tags-column 100 ;; from testing this seems to be a good value
-        org-agenda-compact-blocks t)
-
-  (setq org-agenda-custom-commands
-        '(("o" "Overview"
-           ((agenda "" ((org-agenda-span 'day)
-                        (org-super-agenda-groups
-                         '((:name "Today"
-                            :time-grid t
-                            :date today
-                            :todo "TODAY"
-                            :scheduled today
-                            :order 1)))))
-            (alltodo "" ((org-agenda-overriding-header "")
-                         (org-super-agenda-groups
-                          '((:name "Next to do" :todo "NEXT" :order 1)
-                            (:name "Important" :tag "Important" :priority "A" :order 6)
-                            (:name "Due Today" :deadline today :order 2)
-                            (:name "Due Soon" :deadline future :order 8)
-                            (:name "Overdue" :deadline past :face error :order 7)
-                            (:name "Assignments" :tag "Assignment" :order 10)
-                            (:name "Issues" :tag "Issue" :order 12)
-                            (:name "Emacs" :tag "Emacs" :order 13)
-                            (:name "Projects" :tag "Project" :order 14)
-                            (:name "Research" :tag "Research" :order 15)
-                            (:name "To read" :tag "Read" :order 30)
-                            (:name "Waiting" :todo "WAIT" :order 20)
-                            (:name "University" :tag "Univ" :order 32)
-                            (:name "Trivial" :priority<= "E" :tag ("Trivial" "Unimportant") :todo ("SOMEDAY") :order 90)
-                            (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
-#+end_src
-
-**** TODO CalDAV :calendar:caldav:
-Need to be configured, see the [[https://github.com/dengste/org-caldav][github repo]].
-
-#+begin_src emacs-lisp
-(package! caldav
-  :recipe (:host github
-           :repo "dengste/org-caldav"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! caldav
-  :commands (org-caldav-sync))
-#+end_src
-
-**** Academic :academic:
-***** Academic phrases
-When writing your academic paper, you might get stuck trying to find the right
-phrase that captures your intention. This package tries to alleviate that
-problem by presenting you with a list of phrases organized by the topic or by
-the paper section that you are writing. This package has around 600 phrases so
-far.
-
-This is based on the book titled "English for Writing Research - Papers Useful
-Phrases".
-
-#+begin_src emacs-lisp
-(package! academic-phrases
-  :recipe (:host github
-           :repo "nashamri/academic-phrases"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! academic-phrases
-  :commands (academic-phrases
-             academic-phrases-by-section))
-#+end_src
-
-***** Org-bib
-A mode to work with annotated bibliography in Org-Mode. See [[https://github.com/rougier/org-bib-mode][the repo]] for an
-example.
-
-#+begin_src emacs-lisp
-(package! org-bib
-  :recipe (:host github
-           :repo "rougier/org-bib-mode" ))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-bib
-  :commands (org-bib-mode))
-#+end_src
-
-***** Org-ref
-Use Org as LaTeX!
-
-#+begin_src emacs-lisp
-(package! org-ref)
-#+end_src
-
-***** Org-Ref :heart: Org-Cite
-
-#+begin_src emacs-lisp
-(package! org-ref-cite
-  :recipe (:host github
-           :repo "jkitchin/org-ref-cite"
-           :files (:defaults "readme.org"))
-  :disable t) ;; BUG: Not working correctly!
-#+end_src
-
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
-(use-package! org-ref-cite
-  :after org-cite
-  :config
-  ;; I like green links
-  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
-  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
-  (setq org-cite-global-bibliography bibtex-completion-bibliography
-        org-cite-csl-styles-dir "~/Zotero/styles"
-        org-cite-insert-processor 'org-ref-cite
-        org-cite-follow-processor 'org-ref-cite
-        org-cite-activate-processor 'org-ref-cite
-        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
-                                        (latex org-ref-cite)
-                                        (t basic)))
-#+end_src
-
-**** Fragtog
-
-#+begin_src emacs-lisp
-(package! org-fragtog)
-#+end_src
-
-Hook =org-fragtog-mode= to =org-mode=.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-#+end_src
-
-**** Org Modern
-
-#+begin_src emacs-lisp
-(package! org-modern
-  :recipe (:host github
-           :repo "minad/org-modern"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-modern
-  :init
-  (setq org-modern-table-vertical 1
-        org-modern-table-horizontal 1)
-
-  (global-org-modern-mode))
-#+end_src
-
-**** Org Roam :roam:
-Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
-with it.
-
-#+begin_src emacs-lisp
-(unpin! org-roam) ;; To avoid problems with org-roam-ui
-(package! websocket)
-(package! org-roam-ui)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! websocket
-  :after org-roam-ui)
-
-(use-package! org-roam-ui
-  :commands org-roam-ui-open
-  :config (setq org-roam-ui-sync-theme t
-                org-roam-ui-follow t
-                org-roam-ui-update-on-save t
-                org-roam-ui-open-on-start t))
-#+end_src
-
-**** Org notifier
-Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
-
-#+begin_src emacs-lisp
-(package! org-wild-notifier)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-wild-notifier
-  :hook (org-load . org-wild-notifier-mode)
-  :config
-  (setq org-wild-notifier-alert-time '(60 30)))
-#+end_src
-
-**** Org appear
-
-#+begin_src emacs-lisp
-(package! org-appear)
-#+end_src
-
-*** Programming :programming:
-**** Assembly :asm:assembly:
+** Programming :programming:
+*** Assembly :asm:assembly:
 Add some packages for better assembly coding.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! nasm-mode)
 (package! haxor-mode)
 (package! mips-mode)
@@ -2635,7 +2397,7 @@ Add some packages for better assembly coding.
   (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
 #+end_src
 
-**** Repo :repo:git:
+*** Repo :repo:git:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
 distributions, or directly with:
 
@@ -2645,7 +2407,7 @@ curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
 chmod a+x ${REPO_PATH}
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! repo)
 #+end_src
 
@@ -2658,9 +2420,9 @@ chmod a+x ${REPO_PATH}
   :commands repo-status)
 #+end_src
 
-**** Devdocs :devdocs:
+*** Devdocs :devdocs:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! devdocs
   :recipe (:host github
            :repo "astoff/devdocs.el"
@@ -2674,33 +2436,7 @@ chmod a+x ${REPO_PATH}
   (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
 #+end_src
 
-**** Emacs GDB :gdb:
-DAP mode is great, however, it is not mature for C/C++ debugging, it does not
-support some basic features like /Run until cursor/, /Show disassembled code/...
-etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
-
-The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
-to it's C module), and it defines some easy to use UI, with Visual Studio like
-keybindings.
-
-#+begin_src emacs-lisp
-(package! gdb-mi
-  :recipe (:host github
-           :repo "weirdNox/emacs-gdb"
-           :files ("*.el" "*.c" "*.h" "Makefile")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! gdb-mi
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug)
-  :config
-  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
-#+end_src
-
-**** Embed.el :embedded:
+*** Embed.el :embedded:
 Some embedded systems development tools.
 
 TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
@@ -2708,7 +2444,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
 - [[https://github.com/Marus/cortex-debug][cortex-debug]]
 - [[https://github.com/espressif/esp-debug-adapter][esp-debug-adapter]]
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! embed
   :recipe (:host github
            :repo "sjsch/embed-el"))
@@ -2731,9 +2467,9 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
          :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
 #+end_src
 
-**** Disaster :disaster:disassemble:
+*** Disaster :disaster:disassemble:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! disaster)
 #+end_src
 
@@ -2743,11 +2479,11 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
   :commands (disaster))
 #+end_src
 
-**** Magit :heart: Delta :magit:delta:
+*** Magit :heart: Delta :magit:delta:
 Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
 specially with big change chunks.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! magit-delta
   :disable t) ;; Disabled, too slow on big chunks
 #+end_src
@@ -2762,10 +2498,10 @@ specially with big change chunks.
   :hook (magit-mode . magit-delta-mode))
 #+end_src
 
-**** Blamer :git:blame:
+*** Blamer :git:blame:
 Display Git information (author, date, message...) for current line
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! blamer
   :recipe (:host github
            :repo "artawower/blamer.el"))
@@ -2797,17 +2533,17 @@ Display Git information (author, date, message...) for current line
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 #+end_src
 
-**** Systemd :systemd:
+*** Systemd :systemd:
 For editing systemd unit files.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! systemd)
 #+end_src
 
-**** Bitbake (Yocto) :bitbake:yocto:
+*** Bitbake (Yocto) :bitbake:yocto:
 Add support for Yocto Project files.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! bitbake-modes
   :recipe (:host bitbucket
            :repo "olanilsson/bitbake-modes"))
@@ -2823,9 +2559,9 @@ Add support for Yocto Project files.
              mmm-mode))
 #+end_src
 
-**** LaTeX :latex:
+*** LaTeX :latex:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! aas
   :recipe (:host github
            :repo "ymarco/auto-activating-snippets"))
@@ -2836,11 +2572,11 @@ Add support for Yocto Project files.
   :commands aas-mode)
 #+end_src
 
-**** Project CMake :cmake:
+*** Project CMake :cmake:
 A good new package to facilitate using CMake projects with Emacs, it glues
 together =project=, =eglot=, =cmake= and =clangd=.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! project-cmake
   :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
   :recipe (:host github
@@ -2855,10 +2591,10 @@ together =project=, =eglot=, =cmake= and =clangd=.
     (project-cmake-eglot-integration))
 #+end_src
 
-**** Franca IDL
+*** Franca IDL
 Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! franca-idl
   :recipe (:host github
            :repo "zeph1e/franca-idl.el"))
@@ -2869,10 +2605,10 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
   :commands franca-idl-mode)
 #+end_src
 
-**** Flycheck :heart: Projectile
+*** Flycheck :heart: Projectile
 WIP: Not working atm!
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! flycheck-projectile
   :recipe (:host github
            :repo "nbfalcon/flycheck-projectile"))
@@ -2883,11 +2619,11 @@ WIP: Not working atm!
   :commands flycheck-projectile-list-errors)
 #+end_src
 
-**** Graphviz :graphviz:
+*** Graphviz :graphviz:
 Graphviz is a nice method of visualizing simple graphs, based on plaintext
 =.dot= / =.gv= files.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! graphviz-dot-mode)
 #+end_src
 
@@ -2896,15 +2632,15 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
   :commands (graphviz-dot-mode graphviz-dot-preview))
 #+end_src
 
-**** ROS :ros:
-***** ROS Emacs utils
+*** ROS :ros:
+**** ROS Emacs utils
 This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
 need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
 container or on a remote robot. ATM, I need just to configure =rosemacs= to use
 Emacs to develop ROS packages using C++/Python, I'm not interested now for
 ROS Common Lisp development.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! rosemacs
   :recipe (:host github
            :repo "code-iai/ros_emacs_utils"
@@ -2919,12 +2655,12 @@ ROS Common Lisp development.
   :commands (ros-core ros-topic-info))
 #+end_src
 
-***** =ros.el=
+**** =ros.el=
 I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
 facilitate working with ROS machines, supports ROS1 and ROS2, with local
 workspaces or remote ones (over Trump!).
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 ;; `ros.el' depends on `with-shell-interpreter' among other packages
 ;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
 (package! with-shell-interpreter)
@@ -2960,14 +2696,14 @@ and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][F
                :extends '("/opt/ros/foxy/")))))
 #+end_src
 
-**** Unibeautify :format:
+*** Unibeautify :format:
 The next-gen beautifier? Add initial support for [[https://github.com/Unibeautify/cli][Unibeautify]].
 
 #+begin_example shell :noeval :export no
 npm install -g @unibeautify/cli
 #+end_example
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! unibeautify
   :recipe (:host github
            :repo "Unibeautify/emacs"))
@@ -2978,9 +2714,9 @@ npm install -g @unibeautify/cli
   :commands (unibeautify))
 #+end_src
 
-**** Emacs Inspector :inspector:debug:
+*** Emacs Inspector :inspector:debug:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
 (package! inspector
   :recipe (:host github
            :repo "mmontone/emacs-inspector"))
@@ -3003,6 +2739,11 @@ npm install -g @unibeautify/cli
 #+end_src
 
 ** e-Books =nov= :ebook:epub:
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! nov)
+#+end_src
+
 Use =nov= to read EPUB e-books.
 
 #+begin_src emacs-lisp :tangle yes
@@ -4297,6 +4038,32 @@ hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing
 #+end_src
 
 ** GDB :gdb:
+*** Emacs GDB :gdb:
+DAP mode is great, however, it is not mature for C/C++ debugging, it does not
+support some basic features like /Run until cursor/, /Show disassembled code/...
+etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+
+The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
+to it's C module), and it defines some easy to use UI, with Visual Studio like
+keybindings.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! gdb-mi
+  :recipe (:host github
+           :repo "weirdNox/emacs-gdb"
+           :files ("*.el" "*.c" "*.h" "Makefile")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! gdb-mi
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug)
+  :config
+  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
+#+end_src
+
 *** Custom layout for =gdb-many-windows=
 Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
 the builtin =gdb-many-windows= layout.
@@ -4418,6 +4185,49 @@ on that.
                (ansi-color-apply-on-region (point-min) (point-max) t))))
 #+end_src
 
+* Org mode packages
+To avoid problems in the src_elisp{(after! org)} section.
+
+#+begin_src emacs-lisp :tangle "packages.el" :comments no
+(package! org-super-agenda)
+
+(package! caldav
+  :recipe (:host github
+           :repo "dengste/org-caldav"))
+
+(package! doct)
+
+(package! org-appear)
+
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+
+(package! org-wild-notifier)
+
+(package! org-modern
+  :recipe (:host github
+           :repo "minad/org-modern"))
+
+(package! org-fragtog)
+
+(package! org-bib
+  :recipe (:host github
+           :repo "rougier/org-bib-mode" ))
+
+(package! org-ref)
+
+(package! org-ref-cite
+  :recipe (:host github
+           :repo "jkitchin/org-ref-cite"
+           :files (:defaults "readme.org"))
+  :disable t) ;; BUG: Not working correctly!
+
+(package! academic-phrases
+  :recipe (:host github
+           :repo "nashamri/academic-phrases"))
+#+end_src
+
 * Org mode :org:
 :PROPERTIES:
 :CUSTOM_ID: org
@@ -4436,7 +4246,7 @@ src_elisp{(after! ...)} block.
 
 ** Behavior :behavior:
 *** Tweaking defaults
-
+**** Org directories
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/"        ; let's put files here
       org-use-property-inheritance t        ; it's convenient to have properties inherited
@@ -4450,8 +4260,9 @@ src_elisp{(after! ...)} block.
       org-auto-align-tags nil
       org-special-ctrl-a/e t
       org-insert-heading-respect-content t)
-#+end_src
+      #+end_src
 
+**** Babel
 Load Org Babel languages. I like to activate some languages, including C, C++,
 Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
 
@@ -4484,27 +4295,6 @@ default.
         (:comments . "link")))
 #+end_src
 
-By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
-However, this messes with tables in Org-mode, and other plain text files (e.g.
-markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
-specific modes as desired.
-
-#+begin_src emacs-lisp
-(remove-hook 'text-mode-hook #'visual-line-mode)
-(add-hook 'text-mode-hook #'auto-fill-mode)
-#+end_src
-
-There also seem to be a few keybindings which use =hjkl=, but miss arrow key equivalents.
-
-#+begin_src emacs-lisp
-(map! :map evil-org-mode-map
-      :after evil-org
-      :n "g <up>" #'org-backward-heading-same-level
-      :n "g <down>" #'org-forward-heading-same-level
-      :n "g <left>" #'org-up-element
-      :n "g <right>" #'org-down-element)
-#+end_src
-
 Babel is really annoying when it comes to working with Scheme (via Geiser), it
 keeps asking about which Scheme implementation to use, I tried to set this in
 file local variables (with the src_org{# -*- geiser-scheme-implementation:
@@ -4521,87 +4311,27 @@ file local variables (with the src_org{# -*- geiser-scheme-implementation:
 (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 #+end_src
 
-*** Extra functionality :extra:
-**** List bullet sequence :bullet:
-I think it makes sense to have list bullets change with depth
+**** Visual line / auto fill
+By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
+However, this messes with tables in Org-mode, and other plain text files (e.g.
+markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
+specific modes as desired.
 
 #+begin_src emacs-lisp
-(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+(remove-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'text-mode-hook #'auto-fill-mode)
 #+end_src
 
-**** Citations :ref:
-***** =org-ref=
+**** EVIL
+There also seem to be a few keybindings which use =hjkl=, but miss arrow key equivalents.
 
 #+begin_src emacs-lisp
-(use-package! org-ref
-  :after org
-  :config
-  (defadvice! org-ref-open-bibtex-pdf-a ()
-    :override #'org-ref-open-bibtex-pdf
-    (save-excursion
-      (bibtex-beginning-of-entry)
-      (let* ((bibtex-expand-strings t)
-             (entry (bibtex-parse-entry t))
-             (key (reftex-get-bib-field "=key=" entry))
-             (pdf (or
-                   (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
-                                 (split-string (reftex-get-bib-field "file" entry) ";")))
-                   (funcall 'org-ref-get-pdf-filename key))))
-        (if (file-exists-p pdf)
-            (org-open-file pdf)
-          (ding)))))
-
-  (defadvice! org-ref-open-pdf-at-point-a ()
-    "Open the pdf for bibtex key under point if it exists."
-    :override #'org-ref-open-pdf-at-point
-    (interactive)
-    (let* ((results (org-ref-get-bibtex-key-and-file))
-           (key (car results))
-           (pdf-file (funcall 'org-ref-get-pdf-filename key)))
-      (with-current-buffer (find-file-noselect (cdr results))
-        (save-excursion
-          (bibtex-search-entry (car results))
-          (org-ref-open-bibtex-pdf))))))
-#+end_src
-
-***** =org-cite=
-
-#+begin_src emacs-lisp
-(after! oc
-  (defun org-ref-to-org-cite ()
-    "Attempt to convert org-ref citations to org-cite syntax."
-    (interactive)
-    (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
-                               ("nocite" . "/n")
-                               ("citep" . "") ("citep*" . "//f")
-                               ("parencite" . "") ("Parencite" . "//c")
-                               ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
-                               ("citeyear" . "/na/b")
-                               ("Citep" . "//c") ("Citealp" . "//bc")
-                               ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
-                               ("autocite" . "") ("Autocite" . "//c")
-                               ("notecite" . "/l/b") ("Notecite" . "/l/bc")
-                               ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
-           (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
-                            ":" (group (+ (not (any "\n     ,.)]}")))))))
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward cite-regexp nil t)
-          (message (format "[cite%s:@%s]"
-                                 (cdr (assoc (match-string 1) cite-conversions))
-                                 (match-string 2)))
-          (replace-match (format "[cite%s:@%s]"
-                                 (cdr (assoc (match-string 1) cite-conversions))
-                                 (match-string 2))))))))
-#+end_src
-
-**** Spellcheck :spell:
-I turn off spell checking by default to make Org files open quickly.
-
-#+begin_src emacs-lisp
-;;(add-hook 'org-mode-hook 'turn-off-flyspell)
-;;(add-hook 'org-mode-hook 'turn-on-flyspell)
-;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
+(map! :map evil-org-mode-map
+      :after evil-org
+      :n "g <up>" #'org-backward-heading-same-level
+      :n "g <down>" #'org-forward-heading-same-level
+      :n "g <left>" #'org-up-element
+      :n "g <right>" #'org-down-element)
 #+end_src
 
 *** TODOs :todo:
@@ -4634,7 +4364,7 @@ Set files for =org-agenda=
 
 Apply some styling on the standard agenda:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 ;; Agenda styling
 (setq org-agenda-block-separator ?─
       org-agenda-time-grid
@@ -4645,7 +4375,53 @@ Apply some styling on the standard agenda:
       "⭠ now ─────────────────────────────────────────────────")
 #+end_src
 
-*** Google calendar (=org-gcal=) :calendar:google:
+*** Super Agenda :agenda:
+Configure =org-super-agenda=
+
+#+begin_src emacs-lisp
+(use-package! org-super-agenda
+  :after org-agenda
+  :config
+  (org-super-agenda-mode)
+  :init
+  (setq org-agenda-skip-scheduled-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-include-deadlines t
+        org-agenda-block-separator nil
+        org-agenda-tags-column 100 ;; from testing this seems to be a good value
+        org-agenda-compact-blocks t)
+
+  (setq org-agenda-custom-commands
+        '(("o" "Overview"
+           ((agenda "" ((org-agenda-span 'day)
+                        (org-super-agenda-groups
+                         '((:name "Today"
+                            :time-grid t
+                            :date today
+                            :todo "TODAY"
+                            :scheduled today
+                            :order 1)))))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Next to do" :todo "NEXT" :order 1)
+                            (:name "Important" :tag "Important" :priority "A" :order 6)
+                            (:name "Due Today" :deadline today :order 2)
+                            (:name "Due Soon" :deadline future :order 8)
+                            (:name "Overdue" :deadline past :face error :order 7)
+                            (:name "Assignments" :tag "Assignment" :order 10)
+                            (:name "Issues" :tag "Issue" :order 12)
+                            (:name "Emacs" :tag "Emacs" :order 13)
+                            (:name "Projects" :tag "Project" :order 14)
+                            (:name "Research" :tag "Research" :order 15)
+                            (:name "To read" :tag "Read" :order 30)
+                            (:name "Waiting" :todo "WAIT" :order 20)
+                            (:name "University" :tag "Univ" :order 32)
+                            (:name "Trivial" :priority<= "E" :tag ("Trivial" "Unimportant") :todo ("SOMEDAY") :order 90)
+                            (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
+#+end_src
+
+*** Calendar
+**** Google calendar (=org-gcal=) :calendar:google:
 I store my =org-gcal= configuration privately, it contains something like this:
 
 #+begin_example emacs-lisp :tangle no
@@ -4659,6 +4435,14 @@ I store my =org-gcal= configuration privately, it contains something like this:
 (load! "lisp/private/+org-gcal.el")
 #+end_src
 
+**** TODO CalDAV :calendar:caldav:
+Need to be configured, see the [[https://github.com/dengste/org-caldav][github repo]].
+
+#+begin_src emacs-lisp
+(use-package! caldav
+  :commands (org-caldav-sync))
+#+end_src
+
 *** Capture :capture:
 Set capture files
 
@@ -4669,6 +4453,11 @@ Set capture files
 #+end_src
 
 Lets set up some org-capture templates, and make them visually nice to access.
+
+#+begin_src emacs-lisp
+(use-package! doct
+  :commands (doct))
+#+end_src
 
 #+begin_src emacs-lisp :noweb no-export
 (after! org-capture
@@ -4952,9 +4741,24 @@ no modeline.
 #+end_src
 
 *** Roam :roam:
+Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
+with it.
+
+#+begin_src emacs-lisp
+(use-package! websocket
+  :after org-roam-ui)
+
+(use-package! org-roam-ui
+  :commands org-roam-ui-open
+  :config (setq org-roam-ui-sync-theme t
+                org-roam-ui-follow t
+                org-roam-ui-update-on-save t
+                org-roam-ui-open-on-start t))
+#+end_src
+
 **** Basic settings
 
-#+begin_src emacs-lisp :noweb-ref none :tangle yes
+#+begin_src emacs-lisp
 (setq org-roam-directory "~/Dropbox/Org/slip-box")
 (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
 #+end_src
@@ -4964,7 +4768,8 @@ Since we don't want to trigger errors (which will happen as soon as roam tries
 to initialize), let's not load roam.
 
 #+begin_src emacs-lisp :noweb-ref none :tangle (if (file-exists-p "~/Dropbox/Org/slip-box") "no" "packages.el")
-(package! org-roam :disable t)
+(package! org-roam
+  :disable t)
 #+end_src
 
 **** Mode line file name :modeline:
@@ -5136,6 +4941,16 @@ It likely misses some edge cases, but should mostly work.
       (message "Replaced %d occurances" count))))
 #+end_src
 
+*** Org notifier
+Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
+
+#+begin_src emacs-lisp
+(use-package! org-wild-notifier
+  :hook (org-load . org-wild-notifier-mode)
+  :config
+  (setq org-wild-notifier-alert-time '(60 30)))
+#+end_src
+
 *** COMMENT Fix problematic hooks
 When one of the src_elisp{org-mode-hook} functions errors, it halts the hook
 execution. This is problematic, and there are two hooks in particular which
@@ -5283,6 +5098,17 @@ sacrificing visual amenities with the =org-appear= package.
       doom-themes-org-fontify-special-tags nil)
 #+end_src
 
+*** Org Modern
+
+#+begin_src emacs-lisp
+(use-package! org-modern
+  :init
+  (setq org-modern-table-vertical 1
+        org-modern-table-horizontal 1)
+
+  (global-org-modern-mode))
+#+end_src
+
 *** Image previews
 
 #+begin_src emacs-lisp
@@ -5291,16 +5117,16 @@ sacrificing visual amenities with the =org-appear= package.
 (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
 #+end_src
 
-*** Symbols
-
-#+begin_src emacs-lisp :tangle yes
-#+end_src
+*** List bullet sequence :bullet:
+I think it makes sense to have list bullets change with depth
 
 #+begin_src emacs-lisp
-(after! org-superstar
-  (setq org-superstar-headline-bullets-list '("◉" "○" "◈" "◇" "✳" "✤" "✜" "◆" "▶")
-        org-superstar-prettify-item-bullets t))
+(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+#+end_src
 
+*** Symbols
+
+#+begin_src emacs-lisp
 ;; Org styling, hide markup etc.
 (setq org-hide-emphasis-markers t
       org-pretty-entities t
@@ -5560,6 +5386,14 @@ good. *Not working right now!*
     (message "Latex numbering disabled.")))
 #+end_src
 
+**** Fragtog
+Hook =org-fragtog-mode= to =org-mode=.
+
+#+begin_src emacs-lisp
+(use-package! org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+#+end_src
+
 *** Org plot
 We can use some variables in =org-plot= to use the current doom theme
 colors.
@@ -5662,6 +5496,117 @@ enhanced functionality:
 #+begin_src emacs-lisp
 ;; (setq! citar-library-paths '("/path/to/library/files/")
 ;;        citar-notes-paths '("/path/to/your/notes/"))
+#+end_src
+
+*** COMMENT Org-bib
+A mode to work with annotated bibliography in Org-Mode. See [[https://github.com/rougier/org-bib-mode][the repo]] for an
+example.
+
+#+begin_src emacs-lisp
+(use-package! org-bib
+  :commands (org-bib-mode))
+#+end_src
+
+*** COMMENT =org-cite=
+
+#+begin_src emacs-lisp
+(after! oc
+  (defun org-ref-to-org-cite ()
+    "Attempt to convert org-ref citations to org-cite syntax."
+    (interactive)
+    (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
+                               ("nocite" . "/n")
+                               ("citep" . "") ("citep*" . "//f")
+                               ("parencite" . "") ("Parencite" . "//c")
+                               ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
+                               ("citeyear" . "/na/b")
+                               ("Citep" . "//c") ("Citealp" . "//bc")
+                               ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
+                               ("autocite" . "") ("Autocite" . "//c")
+                               ("notecite" . "/l/b") ("Notecite" . "/l/bc")
+                               ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
+           (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
+                            ":" (group (+ (not (any "\n     ,.)]}")))))))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward cite-regexp nil t)
+          (message (format "[cite%s:@%s]"
+                                 (cdr (assoc (match-string 1) cite-conversions))
+                                 (match-string 2)))
+          (replace-match (format "[cite%s:@%s]"
+                                 (cdr (assoc (match-string 1) cite-conversions))
+                                 (match-string 2))))))))
+#+end_src
+
+*** Org-Ref
+Use Org as LaTeX!
+
+#+begin_src emacs-lisp
+(use-package! org-ref
+  :after org
+  :config
+  (defadvice! org-ref-open-bibtex-pdf-a ()
+    :override #'org-ref-open-bibtex-pdf
+    (save-excursion
+      (bibtex-beginning-of-entry)
+      (let* ((bibtex-expand-strings t)
+             (entry (bibtex-parse-entry t))
+             (key (reftex-get-bib-field "=key=" entry))
+             (pdf (or
+                   (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
+                                 (split-string (reftex-get-bib-field "file" entry) ";")))
+                   (funcall 'org-ref-get-pdf-filename key))))
+        (if (file-exists-p pdf)
+            (org-open-file pdf)
+          (ding)))))
+
+  (defadvice! org-ref-open-pdf-at-point-a ()
+    "Open the pdf for bibtex key under point if it exists."
+    :override #'org-ref-open-pdf-at-point
+    (interactive)
+    (let* ((results (org-ref-get-bibtex-key-and-file))
+           (key (car results))
+           (pdf-file (funcall 'org-ref-get-pdf-filename key)))
+      (with-current-buffer (find-file-noselect (cdr results))
+        (save-excursion
+          (bibtex-search-entry (car results))
+          (org-ref-open-bibtex-pdf))))))
+#+end_src
+
+*** COMMENT Org-Ref :heart: Org-Cite
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled
+(use-package! org-ref-cite
+  :after org-cite
+  :config
+  ;; I like green links
+  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
+  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
+  (setq org-cite-global-bibliography bibtex-completion-bibliography
+        org-cite-csl-styles-dir "~/Zotero/styles"
+        org-cite-insert-processor 'org-ref-cite
+        org-cite-follow-processor 'org-ref-cite
+        org-cite-activate-processor 'org-ref-cite
+        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
+                                        (latex org-ref-cite)
+                                        (t basic)))
+#+end_src
+
+*** Academic phrases
+When writing your academic paper, you might get stuck trying to find the right
+phrase that captures your intention. This package tries to alleviate that
+problem by presenting you with a list of phrases organized by the topic or by
+the paper section that you are writing. This package has around 600 phrases so
+far.
+
+This is based on the book titled "English for Writing Research - Papers Useful
+Phrases".
+
+#+begin_src emacs-lisp
+(use-package! academic-phrases
+  :commands (academic-phrases
+             academic-phrases-by-section))
 #+end_src
 
 ** Exporting
@@ -5910,7 +5855,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
 *** Hugo
 Update files with last modified date, when ~#+lastmod:~ is available
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (setq time-stamp-active t
       time-stamp-start "#\\+lastmod:[ \t]*"
       time-stamp-end "$"
