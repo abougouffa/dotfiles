@@ -2700,7 +2700,11 @@ specially with big change chunks.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(defconst +delta-present-p
+  (not (null (executable-find "delta"))))
+
 (use-package! magit-delta
+  :when +delta-present-p
   :commands magit-status
   :hook (magit-mode . magit-delta-mode))
 #+end_src
