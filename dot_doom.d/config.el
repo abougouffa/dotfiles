@@ -26,41 +26,7 @@
 ;; Window:1 ends here
 
 ;; [[file:config.org::*Window][Window:2]]
-(defvar +messages-buffer-auto-tail--enabled nil
-  "Holds the '+message-buffer-auto-tail' state.")
-
-(defun +messages-buffer-auto-tail--advice (&rest _)
-  "Make *Messages* buffer auto-scroll to the end after each message."
-  (let* ((buf-name (buffer-name (messages-buffer)))
-         ;; Create *Messages* buffer if it does not exist
-         (buf (get-buffer-create buf-name)))
-    ;; Activate this advice only if the point is _not_ in the *Messages* buffer
-    ;; to begin with. This condition is required; otherwise you will not be
-    ;; able to use `isearch' and other stuff within the *Messages* buffer as
-    ;; the point will keep moving to the end of buffer :P
-    (when (not (string= buf-name (buffer-name)))
-      ;; Go to the end of buffer in all *Messages* buffer windows that are
-      ;; *live* (`get-buffer-window-list' returns a list of only live windows).
-      (dolist (win (get-buffer-window-list buf-name nil :all-frames))
-        (with-selected-window win
-          (goto-char (point-max))))
-      ;; Go to the end of the *Messages* buffer even if it is not in one of
-      ;; the live windows.
-      (with-current-buffer buf
-        (goto-char (point-max))))))
-
-(defun +messages-buffer-toggle-auto-tail ()
-  "Auto tail the '*Messages*' buffer."
-  (interactive)
-  ;; Add/remove an advice from the 'message' function.
-  (cond (+messages-buffer-auto-tail--enabled
-         (advice-remove 'message '+messages-buffer-auto-tail--advice)
-         (setq +messages-buffer-auto-tail--enabled nil)
-         (message "+messages-buffer-auto-tail: Disabled."))
-        (t
-         (advice-add 'message :after '+messages-buffer-auto-tail--advice)
-         (setq +messages-buffer-auto-tail--enabled t)
-         (message "+messages-buffer-auto-tail: Enabled."))))
+(load! "lisp/messages-buffer-auto-tail.el")
 ;; Window:2 ends here
 
 ;; [[file:config.org::*Split defaults][Split defaults:1]]
@@ -212,6 +178,44 @@
         vertico-posframe-border-width 3))
 ;; Vertico:1 ends here
 
+;; [[file:config.org::*SVG Tag Mode][SVG Tag Mode:2]]
+(use-package! svg-tag-mode
+  :commands svg-tag-mode
+  :config
+  (setq svg-tag-tags
+      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+         ((lambda (tag) (svg-tag-make)
+                    tag
+                    :beg 1
+                    :font-family "Roboto Mono"
+                    :font-size 6
+                    :height 0.6
+                    :padding 0
+                    :margin 0)))
+        ("\\(:[A-Za-z0-9]+:\\)$" .
+         ((lambda (tag) (svg-tag-make)
+                    tag
+                    :beg 1
+                    :end -1
+                    :font-family "Roboto Mono"
+                    :font-size 6
+                    :height 0.6
+                    :padding 0
+                    :margin 0))))))
+;; SVG Tag Mode:2 ends here
+
+;; [[file:config.org::*Focus][Focus:2]]
+(use-package! focus
+  :commands focus-mode)
+;; Focus:2 ends here
+
+;; [[file:config.org::*Smooth scrolling][Smooth scrolling:2]]
+(if (> emacs-major-version 28)
+    (pixel-scroll-precision-mode 1)
+  (use-package! good-scroll
+    :config (good-scroll-mode 1)))
+;; Smooth scrolling:2 ends here
+
 ;; [[file:config.org::*Scratch buffer][Scratch buffer:1]]
 (setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
 ;; Scratch buffer:1 ends here
@@ -247,6 +251,43 @@ is binary, activate `hexl-mode'."
 (after! evil
   (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
 ;; Evil:2 ends here
+
+;; [[file:config.org::*Aggressive indent][Aggressive indent:2]]
+(use-package! aggressive-indent
+  :commands (aggressive-indent-mode))
+;; Aggressive indent:2 ends here
+
+;; [[file:config.org::*Parinfer][Parinfer:1]]
+(setq parinfer-rust-check-before-enable 'defer
+      parinfer-rust-auto-download nil
+      ;; Use locally compiled module
+      parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
+      parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
+      parinfer-rust-preferred-mode "smart"
+      parinfer-rust-troublesome-modes '(electric-pair-mode
+                                        hungry-delete-mode
+                                        global-hungry-delete-mode))
+
+;; (after! parinfer-rust-mode
+;;   (defvar +parinfer-rust-disable-in-modes-list '(org-mode))
+
+;;   (defun +parinfer-rust-disable-in-modes (orig-fun &rest args)
+;;     "Disable parinfer for a list of modes."
+;;     (message "ADVICE CALLED ON FUNCTION %s, CURRENT MAJOR MODE %s" orig-fun major-mode)
+;;     (unless
+;;         (or (member major-mode +parinfer-rust-disable-in-modes-list)
+;;             (catch 'parinfer-disabled
+;;               (dolist (mode +parinfer-rust-disable-in-modes-list)
+;;                 (when (parinfer-rust--is-active-minor-mode mode)
+;;                   (message "parinfer-rust-mode disabled because of minor mode %s" mode)
+;;                   ;;(parinfer-rust-mode-disable)
+;;                   (throw 'parinfer-disabled t))
+;;                 nil)))
+;;       (apply orig-fun args)))
+
+;;   (advice-add 'parinfer-rust-mode-enable :around #'+parinfer-rust-disable-in-modes)
+;;   (advice-add 'parinfer-rust-mode :around #'+parinfer-rust-disable-in-modes))
+;; Parinfer:1 ends here
 
 ;; [[file:config.org::*Asynchronous tangling][Asynchronous tangling:1]]
 (defadvice! +literate-tangle-async-h ()
@@ -728,41 +769,12 @@ ARG counts from 1."
 (setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
 ;; Ligatures:1 ends here
 
-(use-package! svg-tag-mode
-  :commands svg-tag-mode
-  :config
-  (setq svg-tag-tags
-      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0)))
-        ("\\(:[A-Za-z0-9]+:\\)$" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :end -1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0))))))
-
-(use-package! focus
-  :commands focus-mode)
-
-(if (> emacs-major-version 28)
-    (pixel-scroll-precision-mode 1)
-  (use-package! good-scroll
-    :config (good-scroll-mode 1)))
-
+;; [[file:config.org::*Weather][Weather:2]]
 (use-package! wttrin
   :commands wttrin)
+;; Weather:2 ends here
 
+;; [[file:config.org::*OpenStreetMap][OpenStreetMap:2]]
 (use-package! osm
   :commands (osm-home
              osm-search
@@ -780,7 +792,9 @@ ARG counts from 1."
   ;; Load Org link support
   (with-eval-after-load 'org
     (require 'osm-ol)))
+;; OpenStreetMap:2 ends here
 
+;; [[file:config.org::*Islamic prayer times][Islamic prayer times:2]]
 (use-package! awqat
   :load-path "~/Projects/foss_projects/awqat"
   :commands (awqat-display-prayer-time-mode awqat-times-for-day)
@@ -790,15 +804,21 @@ ARG counts from 1."
   (setq awqat-asr-hanafi nil
         awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) ")
   (awqat-set-preset-french-muslims))
+;; Islamic prayer times:2 ends here
 
+;; [[file:config.org::*Very large files][Very large files:2]]
 (use-package! vlf-setup
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+;; Very large files:2 ends here
 
+;; [[file:config.org::*Info colors][Info colors:2]]
 (use-package! info-colors
   :commands (info-colors-fontify-node))
 
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
+;; Info colors:2 ends here
 
+;; [[file:config.org::*Guess language][Guess language:2]]
 (use-package! guess-language
   :config
   (setq guess-language-languages '(en fr ar)
@@ -811,7 +831,9 @@ ARG counts from 1."
              guess-language-mode
              guess-language-region
              guess-language-mark-lines))
+;; Guess language:2 ends here
 
+;; [[file:config.org::*Grammarly][Grammarly:2]]
 (use-package! grammarly
   :config
   (grammarly-load-from-authinfo))
@@ -832,7 +854,9 @@ ARG counts from 1."
       "Load Grammarly LSP server."
       (require 'lsp-grammarly)
       (lsp-deferred)))) ;; or (lsp)
+;; Grammarly:2 ends here
 
+;; [[file:config.org::*Grammalecte][Grammalecte:2]]
 (use-package! flycheck-grammalecte
   :commands (flycheck-grammalecte-correct-error-at-point
              grammalecte-conjugate-verb
@@ -865,20 +889,26 @@ ARG counts from 1."
   (grammalecte-download-grammalecte)
   (flycheck-grammalecte-setup)
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
+;; Grammalecte:2 ends here
 
+;; [[file:config.org::*Zotero Zotxt][Zotero Zotxt:2]]
 (defconst +zotero-present-p
   (not (null (executable-find "zotero"))))
 
 (use-package! zotxt
   :when +zotero-present-p
   :commands org-zotxt-mode)
+;; Zotero Zotxt:2 ends here
 
+;; [[file:config.org::*CRDT][CRDT:2]]
 (use-package! crdt
   :commands (crdt-share-buffer
              crdt-connect
              crdt-visualize-author-mode
              crdt-org-sync-overlay-mode))
+;; CRDT:2 ends here
 
+;; [[file:config.org::*Ag.el][Ag.el:2]]
 (defconst +ag-present-p
   (not (null (executable-find "ag"))))
 
@@ -890,17 +920,25 @@ ARG counts from 1."
              ag-project
              ag-project-files
              ag-project-regexp))
+;; Ag.el:2 ends here
 
+;; [[file:config.org::*Disk usage][Disk usage:2]]
 (use-package! disk-usage
   :commands (disk-usage))
+;; Disk usage:2 ends here
 
+;; [[file:config.org::*Aweshell][Aweshell:2]]
 (use-package! aweshell
   :commands (aweshell-new aweshell-dedicated-open))
+;; Aweshell:2 ends here
 
+;; [[file:config.org::*Page break lines][Page break lines:2]]
 (use-package! page-break-lines
   :diminish
   :init (global-page-break-lines-mode))
+;; Page break lines:2 ends here
 
+;; [[file:config.org::*Emacs Application Framework][Emacs Application Framework:1]]
 (defconst +eaf-present-p
   (not (null (file-directory-p (expand-file-name "lisp/emacs-application-framework")))))
 
@@ -1074,7 +1112,9 @@ ARG counts from 1."
               ("video-player" (kbd eaf-evil-leader-key))
               (_  (kbd "SPC")))
           (kbd "SPC"))))))
+;; Emacs Application Framework:1 ends here
 
+;; [[file:config.org::*Popweb][Popweb:2]]
 (use-package! popweb
   :init
   (require 'straight)
@@ -1087,7 +1127,9 @@ ARG counts from 1."
   :hook ((org-mode . popweb-latex-mode)
          (tex-mode . popweb-latex-mode)
          (ein:markdown-mode . popweb-latex-mode)))
+;; Popweb:2 ends here
 
+;; [[file:config.org::*Chezmoi][Chezmoi:2]]
 (defconst +chezmoi-present-p
   (not (null (executable-find "chezmoi"))))
 
@@ -1136,7 +1178,9 @@ ARG counts from 1."
           (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
 
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
+;; Chezmoi:2 ends here
 
+;; [[file:config.org::*Lemon][Lemon:2]]
 (use-package! lemon
   :commands (lemon-mode lemon-display)
   :config
@@ -1150,7 +1194,9 @@ ARG counts from 1."
                               (lemon-memory-linux)
                               (lemon-linux-network-tx)
                               (lemon-linux-network-rx)))))
+;; Lemon:2 ends here
 
+;; [[file:config.org::*Bitwarden][Bitwarden:2]]
 (defconst +bitwarden-present-p
   (not (null (executable-find "bw"))))
 
@@ -1170,100 +1216,32 @@ ARG counts from 1."
                 (setq bitwarden-user email)
                 (if (functionp pass) (funcall pass) pass))
             ""))))
+;; Bitwarden:2 ends here
 
+;; [[file:config.org::*Speed Type][Speed Type:2]]
 (use-package! speed-type
   :commands (speed-type-text))
+;; Speed Type:2 ends here
 
+;; [[file:config.org::*2048 Game][2048 Game:2]]
 (use-package! 2048-game
   :commands (2048-game))
+;; 2048 Game:2 ends here
 
+;; [[file:config.org::*Snow][Snow:2]]
 (use-package! snow
   :commands (snow))
+;; Snow:2 ends here
 
+;; [[file:config.org::*=xkcd=][=xkcd=:2]]
 (use-package! xkcd
   :commands (xkcd-get xkcd)
   :config
   (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
         xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
+;; =xkcd=:2 ends here
 
-(use-package! doct
-  :commands (doct))
-
-(use-package! org-super-agenda
-  :after org-agenda
-  :config
-  (org-super-agenda-mode)
-  :init
-  (setq org-agenda-skip-scheduled-if-done t
-        org-agenda-skip-deadline-if-done t
-        org-agenda-include-deadlines t
-        org-agenda-block-separator nil
-        org-agenda-tags-column 100 ;; from testing this seems to be a good value
-        org-agenda-compact-blocks t)
-
-  (setq org-agenda-custom-commands
-        '(("o" "Overview"
-           ((agenda "" ((org-agenda-span 'day)
-                        (org-super-agenda-groups
-                         '((:name "Today"
-                            :time-grid t
-                            :date today
-                            :todo "TODAY"
-                            :scheduled today
-                            :order 1)))))
-            (alltodo "" ((org-agenda-overriding-header "")
-                         (org-super-agenda-groups
-                          '((:name "Next to do" :todo "NEXT" :order 1)
-                            (:name "Important" :tag "Important" :priority "A" :order 6)
-                            (:name "Due Today" :deadline today :order 2)
-                            (:name "Due Soon" :deadline future :order 8)
-                            (:name "Overdue" :deadline past :face error :order 7)
-                            (:name "Assignments" :tag "Assignment" :order 10)
-                            (:name "Issues" :tag "Issue" :order 12)
-                            (:name "Emacs" :tag "Emacs" :order 13)
-                            (:name "Projects" :tag "Project" :order 14)
-                            (:name "Research" :tag "Research" :order 15)
-                            (:name "To read" :tag "Read" :order 30)
-                            (:name "Waiting" :todo "WAIT" :order 20)
-                            (:name "University" :tag "Univ" :order 32)
-                            (:name "Trivial" :priority<= "E" :tag ("Trivial" "Unimportant") :todo ("SOMEDAY") :order 90)
-                            (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
-
-(use-package! caldav
-  :commands (org-caldav-sync))
-
-(use-package! academic-phrases
-  :commands (academic-phrases
-             academic-phrases-by-section))
-
-(use-package! org-bib
-  :commands (org-bib-mode))
-
-(use-package! org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-
-(use-package! org-modern
-  :init
-  (setq org-modern-table-vertical 1
-        org-modern-table-horizontal 1)
-
-  (global-org-modern-mode))
-
-(use-package! websocket
-  :after org-roam-ui)
-
-(use-package! org-roam-ui
-  :commands org-roam-ui-open
-  :config (setq org-roam-ui-sync-theme t
-                org-roam-ui-follow t
-                org-roam-ui-update-on-save t
-                org-roam-ui-open-on-start t))
-
-(use-package! org-wild-notifier
-  :hook (org-load . org-wild-notifier-mode)
-  :config
-  (setq org-wild-notifier-alert-time '(60 30)))
-
+;; [[file:config.org::*Assembly][Assembly:2]]
 (use-package! nasm-mode
   :mode "\\.[n]*\\(asm\\|s\\)\\'")
 
@@ -1285,27 +1263,25 @@ ARG counts from 1."
      (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
   ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
   (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
+;; Assembly:2 ends here
 
+;; [[file:config.org::*Repo][Repo:3]]
 (defconst +repo-present-p
   (not (null (executable-find "repo"))))
 
 (use-package! repo
   :when +repo-present-p
   :commands repo-status)
+;; Repo:3 ends here
 
+;; [[file:config.org::*Devdocs][Devdocs:2]]
 (use-package! devdocs
   :commands (devdocs-lookup devdocs-install)
   :config
   (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+;; Devdocs:2 ends here
 
-(use-package! gdb-mi
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug)
-  :config
-  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
-
+;; [[file:config.org::*Embed.el][Embed.el:2]]
 (use-package! embed
   :commands (embed-openocd-start
              embed-openocd-stop
@@ -1320,11 +1296,15 @@ ARG counts from 1."
          :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
          :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
          :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
+;; Embed.el:2 ends here
 
+;; [[file:config.org::*Disaster][Disaster:2]]
 ;; TODO: Configure to take into account "compile_commands.json"
 (use-package! disaster
   :commands (disaster))
+;; Disaster:2 ends here
 
+;; [[file:config.org::*Magit :heart: Delta][Magit :heart: Delta:2]]
 (defconst +delta-present-p
   (not (null (executable-find "delta"))))
 
@@ -1332,7 +1312,9 @@ ARG counts from 1."
   :when +delta-present-p
   :commands magit-status
   :hook (magit-mode . magit-delta-mode))
+;; Magit :heart: Delta:2 ends here
 
+;; [[file:config.org::*Blamer][Blamer:2]]
 (use-package! blamer
   :custom
   (blamer-idle-time 0.3)
@@ -1356,7 +1338,9 @@ ARG counts from 1."
   (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
+;; Blamer:2 ends here
 
+;; [[file:config.org::*Bitbake (Yocto)][Bitbake (Yocto):2]]
 (use-package bitbake-modes
   :commands (bitbake-mode
              conf-bitbake-mode
@@ -1364,30 +1348,44 @@ ARG counts from 1."
              bitbake-task-log-mode
              bb-sh-mode
              mmm-mode))
+;; Bitbake (Yocto):2 ends here
 
+;; [[file:config.org::*LaTeX][LaTeX:2]]
 (use-package! aas
   :commands aas-mode)
+;; LaTeX:2 ends here
 
+;; [[file:config.org::*Project CMake][Project CMake:2]]
 (use-package! project-cmake
     :config
     (require 'eglot)
     (project-cmake-scan-kits)
     (project-cmake-eglot-integration))
+;; Project CMake:2 ends here
 
+;; [[file:config.org::*Franca IDL][Franca IDL:2]]
 (use-package! franca-idl
   :commands franca-idl-mode)
+;; Franca IDL:2 ends here
 
+;; [[file:config.org::*Flycheck :heart: Projectile][Flycheck :heart: Projectile:2]]
 (use-package! flycheck-projectile
   :commands flycheck-projectile-list-errors)
+;; Flycheck :heart: Projectile:2 ends here
 
+;; [[file:config.org::*Graphviz][Graphviz:2]]
 (use-package! graphviz-dot-mode
   :commands (graphviz-dot-mode graphviz-dot-preview))
+;; Graphviz:2 ends here
 
+;; [[file:config.org::*ROS Emacs utils][ROS Emacs utils:2]]
 (use-package! rosemacs
   :config
   (require 'rosemacs-config)
   :commands (ros-core ros-topic-info))
+;; ROS Emacs utils:2 ends here
 
+;; [[file:config.org::*=ros.el=][=ros.el=:2]]
 (use-package! ros
   :init (map! :leader
               :prefix ("l" . "custom")
@@ -1407,12 +1405,17 @@ ARG counts from 1."
                :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
                :workspace "~/ros2_ws"
                :extends '("/opt/ros/foxy/")))))
+;; =ros.el=:2 ends here
 
+;; [[file:config.org::*Unibeautify][Unibeautify:2]]
 (use-package! unibeautify
   :commands (unibeautify))
+;; Unibeautify:2 ends here
 
+;; [[file:config.org::*Emacs Inspector][Emacs Inspector:2]]
 (use-package! inspector
   :commands (inspect-expression inspect-last-sexp))
+;; Emacs Inspector:2 ends here
 
 ;; [[file:config.org::*Calendar][Calendar:1]]
 (setq calendar-latitude 48.7
@@ -1422,7 +1425,7 @@ ARG counts from 1."
                                             (if time-zone " (") time-zone (if time-zone ")")))
 ;; Calendar:1 ends here
 
-;; [[file:config.org::*e-Books =nov=][e-Books =nov=:1]]
+;; [[file:config.org::*e-Books =nov=][e-Books =nov=:2]]
 (use-package! nov
   :mode ("\\.epub\\'" . nov-mode)
   :config
@@ -1484,7 +1487,7 @@ ARG counts from 1."
                   (:eval (doom-modeline-segment--major-mode)))))
 
   (add-hook 'nov-mode-hook #'+nov-mode-setup))
-;; e-Books =nov=:1 ends here
+;; e-Books =nov=:2 ends here
 
 ;; [[file:config.org::*News feed =elfeed=][News feed =elfeed=:1]]
 (setq elfeed-feeds
@@ -2062,6 +2065,19 @@ ARG counts from 1."
      :server-id 'clangd-remote)))
 ;; C/C++ with =clangd=:1 ends here
 
+;; [[file:config.org::*VHDL][VHDL:1]]
+(use-package! vhdl-mode
+  ;; Required unless vhdl_ls is on the $PATH
+  :config
+  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
+        lsp-vhdl-server 'vhdl-ls
+        lsp-vhdl--params nil)
+  (require 'lsp-vhdl)
+  :hook (vhdl-mode . (lambda ()
+                       (lsp t)
+                       (flycheck-mode t))))
+;; VHDL:1 ends here
+
 ;; [[file:config.org::*DAP][DAP:2]]
 (after! dap-mode
   (require 'dap-cpptools)
@@ -2239,6 +2255,16 @@ ARG counts from 1."
          :desc "rr replay"  "R" #'+debugger/rr-replay)))
 ;; Record and replay =rr=:1 ends here
 
+;; [[file:config.org::*Emacs GDB][Emacs GDB:2]]
+(use-package! gdb-mi
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug)
+  :config
+  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
+;; Emacs GDB:2 ends here
+
 ;; [[file:config.org::*Custom layout for =gdb-many-windows=][Custom layout for =gdb-many-windows=:1]]
 (setq gdb-many-windows nil)
 
@@ -2377,14 +2403,6 @@ ARG counts from 1."
           (:hlines   . "no")
           (:tangle   . "no")
           (:comments . "link")))
-  (remove-hook 'text-mode-hook #'visual-line-mode)
-  (add-hook 'text-mode-hook #'auto-fill-mode)
-  (map! :map evil-org-mode-map
-        :after evil-org
-        :n "g <up>" #'org-backward-heading-same-level
-        :n "g <down>" #'org-forward-heading-same-level
-        :n "g <left>" #'org-up-element
-        :n "g <right>" #'org-down-element)
   (after! geiser
     (setq geiser-default-implementation 'guile))
   
@@ -2393,65 +2411,14 @@ ARG counts from 1."
     (not (string= lang "scheme"))) ;; don't ask for scheme
   
   (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
-  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
-  (use-package! org-ref
-    :after org
-    :config
-    (defadvice! org-ref-open-bibtex-pdf-a ()
-      :override #'org-ref-open-bibtex-pdf
-      (save-excursion
-        (bibtex-beginning-of-entry)
-        (let* ((bibtex-expand-strings t)
-               (entry (bibtex-parse-entry t))
-               (key (reftex-get-bib-field "=key=" entry))
-               (pdf (or
-                     (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
-                                   (split-string (reftex-get-bib-field "file" entry) ";")))
-                     (funcall 'org-ref-get-pdf-filename key))))
-          (if (file-exists-p pdf)
-              (org-open-file pdf)
-            (ding)))))
-  
-    (defadvice! org-ref-open-pdf-at-point-a ()
-      "Open the pdf for bibtex key under point if it exists."
-      :override #'org-ref-open-pdf-at-point
-      (interactive)
-      (let* ((results (org-ref-get-bibtex-key-and-file))
-             (key (car results))
-             (pdf-file (funcall 'org-ref-get-pdf-filename key)))
-        (with-current-buffer (find-file-noselect (cdr results))
-          (save-excursion
-            (bibtex-search-entry (car results))
-            (org-ref-open-bibtex-pdf))))))
-  (after! oc
-    (defun org-ref-to-org-cite ()
-      "Attempt to convert org-ref citations to org-cite syntax."
-      (interactive)
-      (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
-                                 ("nocite" . "/n")
-                                 ("citep" . "") ("citep*" . "//f")
-                                 ("parencite" . "") ("Parencite" . "//c")
-                                 ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
-                                 ("citeyear" . "/na/b")
-                                 ("Citep" . "//c") ("Citealp" . "//bc")
-                                 ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
-                                 ("autocite" . "") ("Autocite" . "//c")
-                                 ("notecite" . "/l/b") ("Notecite" . "/l/bc")
-                                 ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
-             (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
-                              ":" (group (+ (not (any "\n     ,.)]}")))))))
-        (save-excursion
-          (goto-char (point-min))
-          (while (re-search-forward cite-regexp nil t)
-            (message (format "[cite%s:@%s]"
-                                   (cdr (assoc (match-string 1) cite-conversions))
-                                   (match-string 2)))
-            (replace-match (format "[cite%s:@%s]"
-                                   (cdr (assoc (match-string 1) cite-conversions))
-                                   (match-string 2))))))))
-  ;;(add-hook 'org-mode-hook 'turn-off-flyspell)
-  ;;(add-hook 'org-mode-hook 'turn-on-flyspell)
-  ;;(add-hook 'org-mode-hook 'spell-fu-mode-disable)
+  (remove-hook 'text-mode-hook #'visual-line-mode)
+  (add-hook 'text-mode-hook #'auto-fill-mode)
+  (map! :map evil-org-mode-map
+        :after evil-org
+        :n "g <up>" #'org-backward-heading-same-level
+        :n "g <down>" #'org-forward-heading-same-level
+        :n "g <left>" #'org-up-element
+        :n "g <right>" #'org-down-element)
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "|" "DONE(d)" "KILL(k)")
           (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
@@ -2477,10 +2444,53 @@ ARG counts from 1."
           " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
         org-agenda-current-time-string
         "⭠ now ─────────────────────────────────────────────────")
+  (use-package! org-super-agenda
+    :after org-agenda
+    :config
+    (org-super-agenda-mode)
+    :init
+    (setq org-agenda-skip-scheduled-if-done t
+          org-agenda-skip-deadline-if-done t
+          org-agenda-include-deadlines t
+          org-agenda-block-separator nil
+          org-agenda-tags-column 100 ;; from testing this seems to be a good value
+          org-agenda-compact-blocks t)
+  
+    (setq org-agenda-custom-commands
+          '(("o" "Overview"
+             ((agenda "" ((org-agenda-span 'day)
+                          (org-super-agenda-groups
+                           '((:name "Today"
+                              :time-grid t
+                              :date today
+                              :todo "TODAY"
+                              :scheduled today
+                              :order 1)))))
+              (alltodo "" ((org-agenda-overriding-header "")
+                           (org-super-agenda-groups
+                            '((:name "Next to do" :todo "NEXT" :order 1)
+                              (:name "Important" :tag "Important" :priority "A" :order 6)
+                              (:name "Due Today" :deadline today :order 2)
+                              (:name "Due Soon" :deadline future :order 8)
+                              (:name "Overdue" :deadline past :face error :order 7)
+                              (:name "Assignments" :tag "Assignment" :order 10)
+                              (:name "Issues" :tag "Issue" :order 12)
+                              (:name "Emacs" :tag "Emacs" :order 13)
+                              (:name "Projects" :tag "Project" :order 14)
+                              (:name "Research" :tag "Research" :order 15)
+                              (:name "To read" :tag "Read" :order 30)
+                              (:name "Waiting" :todo "WAIT" :order 20)
+                              (:name "University" :tag "Univ" :order 32)
+                              (:name "Trivial" :priority<= "E" :tag ("Trivial" "Unimportant") :todo ("SOMEDAY") :order 90)
+                              (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
   (load! "lisp/private/+org-gcal.el")
+  (use-package! caldav
+    :commands (org-caldav-sync))
   (setq +org-capture-emails-file (expand-file-name "inbox.org" org-directory)
         +org-capture-todo-file (expand-file-name "inbox.org" org-directory)
         +org-capture-projects-file (expand-file-name "projects.org" org-directory))
+  (use-package! doct
+    :commands (doct))
   (after! org-capture
     (defun org-capture-select-template-prettier (&optional keys)
       "Select a capture template, in a prettier way than default
@@ -2854,6 +2864,17 @@ ARG counts from 1."
           (interactive)
           (set-window-parameter nil 'mode-line-format 'none)
           (org-capture)))
+  (use-package! websocket
+    :after org-roam-ui)
+  
+  (use-package! org-roam-ui
+    :commands org-roam-ui-open
+    :config (setq org-roam-ui-sync-theme t
+                  org-roam-ui-follow t
+                  org-roam-ui-update-on-save t
+                  org-roam-ui-open-on-start t))
+  (setq org-roam-directory "~/Dropbox/Org/slip-box")
+  (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
   (defadvice! doom-modeline--buffer-file-name-roam-aware-a (orig-fun)
     :around #'doom-modeline-buffer-file-name ; takes no args
     (if (s-contains-p org-roam-directory (or buffer-file-name ""))
@@ -2959,6 +2980,10 @@ ARG counts from 1."
             (replace-match (downcase (match-string 0)) t)
             (setq count (1+ count))))
         (message "Replaced %d occurances" count))))
+  (use-package! org-wild-notifier
+    :hook (org-load . org-wild-notifier-mode)
+    :config
+    (setq org-wild-notifier-alert-time '(60 30)))
   (org-link-set-parameters
    "subfig"
    :follow (lambda (file) (find-file file))
@@ -3001,14 +3026,16 @@ ARG counts from 1."
     (run-at-time nil nil #'org-appear--set-elements))
   (setq org-inline-src-prettify-results '("⟨" . "⟩")
         doom-themes-org-fontify-special-tags nil)
+  (use-package! org-modern
+    :init
+    (setq org-modern-table-vertical 1
+          org-modern-table-horizontal 1)
+  
+    (global-org-modern-mode))
   ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/?utm_source=share&utm_medium=web2x&context=3
   ;; Scale image previews to 60% of the window width.
   (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
-  
-  (after! org-superstar
-    (setq org-superstar-headline-bullets-list '("◉" "○" "◈" "◇" "✳" "✤" "✜" "◆" "▶")
-          org-superstar-prettify-item-bullets t))
-  
+  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
   ;; Org styling, hide markup etc.
   (setq org-hide-emphasis-markers t
         org-pretty-entities t
@@ -3219,6 +3246,8 @@ ARG counts from 1."
       (advice-remove 'org-create-formula-image #'scimax-org-renumber-environment)
       (put 'scimax-org-renumber-environment 'enabled nil)
       (message "Latex numbering disabled.")))
+  (use-package! org-fragtog
+    :hook (org-mode . org-fragtog-mode))
   (after! org-plot
     (defun org-plot/generate-theme (_type)
       "Use the current Doom theme colours to generate a GnuPlot preamble."
@@ -3297,6 +3326,38 @@ ARG counts from 1."
   ;;        bibtex-completion-notes-path "/path/to/your/notes/")
   ;; (setq! citar-library-paths '("/path/to/library/files/")
   ;;        citar-notes-paths '("/path/to/your/notes/"))
+  (use-package! org-ref
+    :after org
+    :config
+    (defadvice! org-ref-open-bibtex-pdf-a ()
+      :override #'org-ref-open-bibtex-pdf
+      (save-excursion
+        (bibtex-beginning-of-entry)
+        (let* ((bibtex-expand-strings t)
+               (entry (bibtex-parse-entry t))
+               (key (reftex-get-bib-field "=key=" entry))
+               (pdf (or
+                     (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
+                                   (split-string (reftex-get-bib-field "file" entry) ";")))
+                     (funcall 'org-ref-get-pdf-filename key))))
+          (if (file-exists-p pdf)
+              (org-open-file pdf)
+            (ding)))))
+  
+    (defadvice! org-ref-open-pdf-at-point-a ()
+      "Open the pdf for bibtex key under point if it exists."
+      :override #'org-ref-open-pdf-at-point
+      (interactive)
+      (let* ((results (org-ref-get-bibtex-key-and-file))
+             (key (car results))
+             (pdf-file (funcall 'org-ref-get-pdf-filename key)))
+        (with-current-buffer (find-file-noselect (cdr results))
+          (save-excursion
+            (bibtex-search-entry (car results))
+            (org-ref-open-bibtex-pdf))))))
+  (use-package! academic-phrases
+    :commands (academic-phrases
+               academic-phrases-by-section))
   (setq org-export-headline-levels 5) ;; I like nesting
   (require 'ox-extra)
   (ox-extras-activate '(ignore-headlines))
@@ -3387,24 +3448,3 @@ ARG counts from 1."
   
   (add-hook 'before-save-hook 'time-stamp nil)
 )
-
-;; Agenda styling
-(setq org-agenda-block-separator ?─
-      org-agenda-time-grid
-      '((daily today require-timed)
-        (800 1000 1200 1400 1600 1800 2000)
-        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-      org-agenda-current-time-string
-      "⭠ now ─────────────────────────────────────────────────")
-
-(setq org-roam-directory "~/Dropbox/Org/slip-box")
-(setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
-
-
-
-(setq time-stamp-active t
-      time-stamp-start "#\\+lastmod:[ \t]*"
-      time-stamp-end "$"
-      time-stamp-format "%04Y-%02m-%02d")
-
-(add-hook 'before-save-hook 'time-stamp nil)

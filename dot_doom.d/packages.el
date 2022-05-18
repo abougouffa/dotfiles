@@ -1,10 +1,8 @@
-;; [[file:config.org::*Evil][Evil:1]]
-(package! evil-escape :disable t)
-;; Evil:1 ends here
-
 ;; -*- no-byte-compile: t; -*-
 
+;; [[file:config.org::*SVG Tag Mode][SVG Tag Mode:1]]
 (package! svg-tag-mode)
+;; SVG Tag Mode:1 ends here
 
 (package! nano-doom
   :disable t
@@ -27,6 +25,14 @@
 (when (<= emacs-major-version 28)
   (package! good-scroll))
 
+;; [[file:config.org::*Evil][Evil:1]]
+(package! evil-escape :disable t)
+;; Evil:1 ends here
+
+(package! aggressive-indent)
+
+(unpin! pdf-tools)
+
 ;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
@@ -41,11 +47,7 @@
 
 (package! ess-view)
 
-(unpin! pdf-tools)
-
 (package! vlf)
-
-(package! nov)
 
 (package! info-colors)
 
@@ -110,44 +112,6 @@
   :recipe (:host github
            :repo "vibhavp/emacs-xkcd"))
 
-(package! doct)
-
-(package! org-super-agenda)
-
-(package! caldav
-  :recipe (:host github
-           :repo "dengste/org-caldav"))
-
-(package! academic-phrases
-  :recipe (:host github
-           :repo "nashamri/academic-phrases"))
-
-(package! org-bib
-  :recipe (:host github
-           :repo "rougier/org-bib-mode" ))
-
-(package! org-ref)
-
-(package! org-ref-cite
-  :recipe (:host github
-           :repo "jkitchin/org-ref-cite"
-           :files (:defaults "readme.org"))
-  :disable t) ;; BUG: Not working correctly!
-
-(package! org-fragtog)
-
-(package! org-modern
-  :recipe (:host github
-           :repo "minad/org-modern"))
-
-(unpin! org-roam) ;; To avoid problems with org-roam-ui
-(package! websocket)
-(package! org-roam-ui)
-
-(package! org-wild-notifier)
-
-(package! org-appear)
-
 (package! nasm-mode)
 (package! haxor-mode)
 (package! mips-mode)
@@ -160,11 +124,6 @@
   :recipe (:host github
            :repo "astoff/devdocs.el"
            :files ("*.el")))
-
-(package! gdb-mi
-  :recipe (:host github
-           :repo "weirdNox/emacs-gdb"
-           :files ("*.el" "*.c" "*.h" "Makefile")))
 
 (package! embed
   :recipe (:host github
@@ -225,6 +184,8 @@
   :recipe (:host github
            :repo "mmontone/emacs-inspector"))
 
+(package! nov)
+
 ;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:1]]
 (package! emms-mode-line-cycle
   :recipe (:host github
@@ -250,3 +211,46 @@
 ;; IMaxima:1 ends here
 
 (unpin! dap-mode)
+
+(package! gdb-mi
+  :recipe (:host github
+           :repo "weirdNox/emacs-gdb"
+           :files ("*.el" "*.c" "*.h" "Makefile")))
+
+(package! org-super-agenda)
+
+(package! caldav
+  :recipe (:host github
+           :repo "dengste/org-caldav"))
+
+(package! doct)
+
+(package! org-appear)
+
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+
+(package! org-wild-notifier)
+
+(package! org-modern
+  :recipe (:host github
+           :repo "minad/org-modern"))
+
+(package! org-fragtog)
+
+(package! org-bib
+  :recipe (:host github
+           :repo "rougier/org-bib-mode" ))
+
+(package! org-ref)
+
+(package! org-ref-cite
+  :recipe (:host github
+           :repo "jkitchin/org-ref-cite"
+           :files (:defaults "readme.org"))
+  :disable t) ;; BUG: Not working correctly!
+
+(package! academic-phrases
+  :recipe (:host github
+           :repo "nashamri/academic-phrases"))
