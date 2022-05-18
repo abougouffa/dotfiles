@@ -728,7 +728,7 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 #+end_src
 
-**** COMMENT Clean Screen :clean:
+**** Clean Screen :clean:
 Let's disable the dashboard commands, for a particularly /clean/ look disable the
 mode-line and ~hl-line-mode~, then also hide the cursor.
 
