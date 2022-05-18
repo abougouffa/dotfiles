@@ -1032,6 +1032,41 @@ I'm not using =evil-escape=, lets disable it.
   :commands (aggressive-indent-mode))
 #+end_src
 
+*** Parinfer
+Disable =parinfer= on background buffers.
+
+#+begin_src emacs-lisp :tangle yes
+(setq parinfer-rust-check-before-enable 'defer
+      parinfer-rust-auto-download nil
+      ;; Use locally compiled module
+      parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
+      parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
+      parinfer-rust-preferred-mode "smart"
+      parinfer-rust-troublesome-modes '(electric-pair-mode
+                                        hungry-delete-mode
+                                        global-hungry-delete-mode))
+
+;; (after! parinfer-rust-mode
+;;   (defvar +parinfer-rust-disable-in-modes-list '(org-mode))
+
+;;   (defun +parinfer-rust-disable-in-modes (orig-fun &rest args)
+;;     "Disable parinfer for a list of modes."
+;;     (message "ADVICE CALLED ON FUNCTION %s, CURRENT MAJOR MODE %s" orig-fun major-mode)
+;;     (unless
+;;         (or (member major-mode +parinfer-rust-disable-in-modes-list)
+;;             (catch 'parinfer-disabled
+;;               (dolist (mode +parinfer-rust-disable-in-modes-list)
+;;                 (when (parinfer-rust--is-active-minor-mode mode)
+;;                   (message "parinfer-rust-mode disabled because of minor mode %s" mode)
+;;                   ;;(parinfer-rust-mode-disable)
+;;                   (throw 'parinfer-disabled t))
+;;                 nil)))
+;;       (apply orig-fun args)))
+
+;;   (advice-add 'parinfer-rust-mode-enable :around #'+parinfer-rust-disable-in-modes)
+;;   (advice-add 'parinfer-rust-mode :around #'+parinfer-rust-disable-in-modes))
+#+end_src
+
 ** Allow babel execution in =doom= CLI actions :babel:cli:
 This file generates all my Doom config files, it works nicely, but for it to
 work with =doom sync= et al. I need to make sure that Org doesn't try to confirm
