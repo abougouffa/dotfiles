@@ -1969,7 +1969,11 @@ eaf-install-and-update)= in Emacs. This updates EAF, applications and their
 dependencies.
 
 #+begin_src emacs-lisp :tangle yes
+(defconst +eaf-present-p
+  (not (null (file-directory-p (expand-file-name "lisp/emacs-application-framework")))))
+
 (use-package! eaf
+  :when +eaf-present-p
   :load-path "lisp/emacs-application-framework"
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
@@ -2068,7 +2072,7 @@ dependencies.
   ;; Org
   (when (member 'rss-reader +eaf-enabled-apps)
     (setq eaf-rss-reader-split-horizontally nil
-          eaf-rss-reader-web-page-other-window t) 
+          eaf-rss-reader-web-page-other-window t)
     (require 'eaf-org))
 
   ;; Org
