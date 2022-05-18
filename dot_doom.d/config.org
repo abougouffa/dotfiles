@@ -5212,6 +5212,14 @@ sacrificing visual amenities with the =org-appear= package.
       doom-themes-org-fontify-special-tags nil)
 #+end_src
 
+*** Image previews
+
+#+begin_src emacs-lisp
+;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/?utm_source=share&utm_medium=web2x&context=3
+;; Scale image previews to 60% of the window width.
+(setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
+#+end_src
+
 *** Symbols
 
 #+begin_src emacs-lisp :tangle yes
