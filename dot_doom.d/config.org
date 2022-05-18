@@ -4041,6 +4041,25 @@ stuff.
      :server-id 'clangd-remote)))
 #+end_src
 
+**** VHDL
+By default, LSP uses the proprietary VHDL-Tool to provide LSP features; however,
+there is free and open source alternatives: =ghdl-ls= and =rust_hdl=. I have some
+issues running =ghdl-ls= installed form =pip= through the =pyghdl= package, so lets
+use =rust_hdl= instead.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! vhdl-mode
+  ;; Required unless vhdl_ls is on the $PATH
+  :config
+  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
+        lsp-vhdl-server 'vhdl-ls
+        lsp-vhdl--params nil)
+  (require 'lsp-vhdl)
+  :hook (vhdl-mode . (lambda ()
+                       (lsp t)
+                       (flycheck-mode t))))
+#+end_src
+
 ** DAP :dap:debug:ide:
 I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
 =dap-mode=. I like also to have a mode minimal UI. And I like to trigger =dap-hydra=
