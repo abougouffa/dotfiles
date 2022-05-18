@@ -1814,14 +1814,6 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
       "Load Grammarly LSP server."
       (require 'lsp-grammarly)
       (lsp-deferred)))) ;; or (lsp)
-;;
-;; :hook (text-mode . (lambda ()
-;;                      (require 'lsp-grammarly)
-;;                      (lsp-deferred))))  ; or (lsp)
-
-;; :hook (text-mode . (lambda ()))
-;;                    (require 'eglot-grammarly)
-;;                    (call-interactively #'eglot)))
 #+end_src
 
 **** Grammalecte :french:grammar:
@@ -2548,6 +2540,7 @@ Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-no
   :config
   (setq org-wild-notifier-alert-time '(60 30)))
 #+end_src
+
 **** Org appear
 
 #+begin_src emacs-lisp
@@ -2647,8 +2640,8 @@ keybindings.
   (fmakunbound 'gdb)
   (fmakunbound 'gdb-enable-debug)
   :config
-  (setq ;; gdb-window-setup-function #'gdb--setup-windows ; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ; I use gdbinit to define some useful stuff
+  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
 #+end_src
 
 **** Embed.el :embedded:
@@ -2743,8 +2736,7 @@ Display Git information (author, date, message...) for current line
          (text-mode . blamer-mode))
 
   :config
-  ;; Disable in zen (writeroom) mode
-  (when (featurep! :ui zen)
+  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 #+end_src
@@ -2788,7 +2780,7 @@ Add support for Yocto Project files.
   :commands aas-mode)
 #+end_src
 
-**** COMMENT Project CMake :cmake:
+**** Project CMake :cmake:
 A good new package to facilitate using CMake projects with Emacs, it glues
 together =project=, =eglot=, =cmake= and =clangd=.
 
@@ -3724,23 +3716,20 @@ added some minor stuff.
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
-  ;; Hook the function to the 'emms-player-paused-hook'
+      ;; Hook the function to the 'emms-player-paused-hook'
   (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
 
   (emms-mode-line-cycle 1))
 #+end_src
-** Maxima :maxima:math:
-The Maxima system cames bundled with three Emacs modes: =maxima=, =imaxima= and
+** Maxima :math:cas:algebra:
+The Maxima CAS cames bundled with three Emacs modes: =maxima=, =imaxima= and
 =emaxima=; installed by default in ~"/usr/share/emacs/site-lisp/maxima"~.
 
+*** Maxima :maxima:
 The [[https://github.com/emacsmirror/maxima][emacsmirror/maxima]] seems more up-to-date, and supports completion via
 Company, so lets install it from Github. Note that, normally, we don't need to
 specify a recipe; however, installing it directly seems to not install
 =company-maxima.el= and =poly-maxima.el=.
-
-For the =imaxima= (Maxima with image support), the [[https://github.com/emacsattic/imaxima][emacsattic/imaxima]] seems
-outdated compared to the bundled =imaxima=, so lets install =imaxima= from the
-source code of Maxima, hosted on Sourceforge [[https://git.code.sf.net/p/maxima/code][git.code.sf.net/p/maxima/code]].
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! maxima
