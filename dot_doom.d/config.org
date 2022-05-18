@@ -1694,7 +1694,7 @@ do not give feedback.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! awqat
-  ;; :load-path "~/Projects/foss_projects/awqat"
+  :load-path "~/Projects/foss_projects/awqat"
   :commands (awqat-display-prayer-time-mode awqat-times-for-day)
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
