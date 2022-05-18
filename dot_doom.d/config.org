@@ -2260,10 +2260,13 @@ A lightweight version of EAF that provides multimedia capabilities.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
+(defconst +bitwarden-present-p
+  (not (null (executable-find "bw"))))
+
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-
+  :when +bitwarden-present-p
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
