@@ -2496,20 +2496,6 @@ Hook =org-fragtog-mode= to =org-mode=.
   :hook (org-mode . org-fragtog-mode))
 #+end_src
 
-**** Pretty table
-
-#+begin_src emacs-lisp
-(package! org-pretty-table
-  :recipe (:host github
-           :repo "Fuco1/org-pretty-table")
-  :disable t)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! org-pretty-table
-  :hook (org-mode . org-pretty-table-mode))
-#+end_src
-
 **** Org Modern
 
 #+begin_src emacs-lisp
@@ -2520,7 +2506,6 @@ Hook =org-fragtog-mode= to =org-mode=.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! org-modern
-  ;; :hook (org-mode . org-modern-mode)
   :init
   (setq org-modern-table-vertical 1
         org-modern-table-horizontal 1)
