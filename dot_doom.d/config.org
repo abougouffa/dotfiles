@@ -3061,27 +3061,36 @@ echo "Y\n" | netExtender --auto-reconnect \
 *** Launch NetExtender session from Emacs
 
 #+begin_src emacs-lisp
-(setq netextender-process-name "netextender"
-      netextender-buffer-name "*netextender*"
-      netextender-command '("~/.local/bin/netextender"))
+(defconst +netextender-present-p
+  (let ((present-p (not (null (and (executable-find "netExtender")
+                                (file-exists-p "~/.local/bin/netextender")
+                                (file-exists-p "~/.ssh/netExtender-params.gpg"))))))
+    (unless present-p
+      (warn "Missing netExtender dependencies."))
+    present-p))
 
-(defun netextender-start ()
-  "Launch a NetExtender VPN session"
-  (interactive)
-  (unless (get-process netextender-process-name)
-    (if (make-process :name netextender-process-name
-                      :buffer netextender-buffer-name
-                      :command netextender-command)
-        (message "Started NetExtender VPN session")
-      (message "Cannot start NetExtender"))))
+(when +netextender-present-p
+  (defvar +netextender-process-name "netextender")
+  (defvar +netextender-buffer-name "*netextender*")
+  (defvar +netextender-command '("~/.local/bin/netextender"))
 
-(defun netextender-kill ()
-  "Kill the created NetExtender VPN session"
-  (interactive)
-  (when (get-process netextender-process-name)
-    (if (kill-buffer netextender-buffer-name)
-        (message "Killed NetExtender VPN session")
-      (message "Cannot kill NetExtender"))))
+  (defun +netextender-start ()
+    "Launch a NetExtender VPN session"
+    (interactive)
+    (unless (get-process +netextender-process-name)
+      (if (make-process :name +netextender-process-name
+                        :buffer +netextender-buffer-name
+                        :command +netextender-command)
+          (message "Started NetExtender VPN session")
+        (message "Cannot start NetExtender"))))
+
+  (defun +netextender-kill ()
+    "Kill the created NetExtender VPN session"
+    (interactive)
+    (when (get-process +netextender-process-name)
+      (if (kill-buffer +netextender-buffer-name)
+          (message "Killed NetExtender VPN session")
+        (message "Cannot kill NetExtender")))))
 #+end_src
 
 ** Email =mu4e= :mail:mu4e:
