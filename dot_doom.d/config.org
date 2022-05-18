@@ -3743,12 +3743,6 @@ specify a recipe; however, installing it directly seems to not install
                    "keywords"
                    "company-maxima.el"
                    "poly-maxima.el")))
-
-;; Use the `imaxima' package bundled with the official Maxima distribution.
-(package! imaxima
-  :recipe (:host nil
-           :repo "https://git.code.sf.net/p/maxima/code"
-           :files ("interfaces/emacs/imaxima/*")))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3771,6 +3765,21 @@ specify a recipe; however, installing it directly seems to not install
   (add-to-list 'auto-mode-alist '("\\.ma[cx]\\'" . maxima-mode)))
 #+end_src
 
+*** IMaxima :imaxima:imath:
+For the =imaxima= (Maxima with image support), the [[https://github.com/emacsattic/imaxima][emacsattic/imaxima]] seems
+outdated compared to the =imaxima= package of the official Maxima distribution, so
+lets install =imaxima= from the source code of Maxima, hosted on Sourceforge
+[[https://git.code.sf.net/p/maxima/code][git.code.sf.net/p/maxima/code]]. The package files are stored in the repository's
+sub-directory ~interfaces/emacs/imaxima~.
+
+#+begin_src emacs-lisp :tangle packages.el
+;; Use the `imaxima' package bundled with the official Maxima distribution.
+(package! imaxima
+  :recipe (:host nil ;; Unsupported host, we will specify the complete repo link
+           :repo "https://git.code.sf.net/p/maxima/code"
+           :files ("interfaces/emacs/imaxima/*")))
+#+end_src
+
 #+begin_src emacs-lisp
 (use-package! imaxima
   :when +maxima-present-p
@@ -3782,7 +3791,6 @@ specify a recipe; however, installing it directly seems to not install
   ;; Hook the `maxima-inferior-mode' to get Company completion.
   (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
 #+end_src
-
 
 * Programming :prog:
 ** File templates :template:
