@@ -13,6 +13,58 @@
 #+startup: fold
 #+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo/
 
+* This repository
+This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Zsh*,
+*Emacs*, *Vim*, *Alacritty* and other Linux related stuff.
+
+If you want to reuse some of these configurations, you will need to modify some
+directories and add some user specific information (usernames, passwords...)
+
+This is the main config file [[dot_doom.d/config.org][.doom.d/config.org]], (available also as a [[dot_doom.d/config.pdf][PDF file]],
+it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to generate
+some other user configuration files (define aliases, environment variables, user
+tools, Git configuration...).
+
+** How to install
+
+Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][*chezmoi*]] to manage my Dotfiles.
+
+Now the Dotfiles can be installed using:
+
+#+begin_src sh
+sudo pacman -S chezmoi
+chezmoi init --apply abougouffa
+#+end_src
+
+** Emacs stuff
+- You will need to install [[https://github.com/plexus/chemacs2][Chemacs2]] to ~.emacs.d~:
+
+#+begin_src sh
+[ -f ~/.emacs ] && mv ~/.emacs ~/.emacs.bak
+[ -d ~/.emacs.d ] && mv ~/.emacs.d ~/.emacs.default
+
+git clone https://github.com/plexus/chemacs2.git ~/.emacs.d
+#+end_src
+
+- Install [[https://github.com/hlissner/doom-emacs][Doom Emacs]] to =~/.config/emacs.doom= instead of =.emacs.d=:
+
+#+begin_src sh
+git clone https://github.com/hlissner/doom-emacs.git ~/.config/emacs.doom
+
+~/.config/emacs.doom/bin/doom install
+#+end_src
+
+- You can install other Emacs distributions like [[https://github.com/syl20bnr/spacemacs][Spacemacs]]; lets clone it to
+  =~/.config/emacs.spacemacs=, however, I'm not using it anymore, it can just be
+  a fall back solution if I mess up my Doom config and I want to do something
+  quickly:
+
+  #+begin_src
+git clone https://github.com/syl20bnr/spacemacs.git ~/.config/emacs.spacemacs
+#+end_src
+
+- You can now customize =~/.emacs-profiles.el= if you want to.
+
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
 my machine, but I didn't discover the *real* Emacs until 2020, in the beginning, I
