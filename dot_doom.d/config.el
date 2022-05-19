@@ -89,6 +89,39 @@
     (lambda (arg) (recentf-save-list))))
 ;; Save recent files:1 ends here
 
+;; [[file:config.org::*Check for external tools][Check for external tools:1]]
+(defun bool (val) (not (null val))) ;; Convert a value to boolean
+
+(defconst +zotero-present-p (bool (executable-find "zotero")))
+(defconst +ag-present-p (bool (executable-find "ag")))
+(defconst +eaf-present-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
+(defconst +chezmoi-present-p (bool (executable-find "chezmoi")))
+(defconst +bitwarden-present-p (bool (executable-find "bw")))
+(defconst +repo-present-p (bool (executable-find "repo")))
+(defconst +delta-present-p (bool (executable-find "delta")))
+(defconst +maxima-present-p (bool (executable-find "maxima")))
+(defconst +netextender-present-p
+  (let ((present-p (bool (and (executable-find "netExtender")
+                           (file-exists-p "~/.local/bin/netextender")
+                           (file-exists-p "~/.ssh/netExtender-params.gpg")))))
+    (unless present-p
+      (warn "Missing netExtender dependencies."))
+    present-p))
+
+(defconst +mpd-present-p
+  (let ((present-p (bool (and (executable-find "mpc") (executable-find "mpd")))))
+    (unless present-p
+      (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
+    present-p)
+  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
+
+(defconst +mpv-present-p
+  (let ((present-p (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl")))))))
+    (unless present-p
+       (warn "Missing MPV or youtube-dl."))
+    present-p))
+;; Check for external tools:1 ends here
+
 ;; [[file:config.org::*Font Face][Font Face:1]]
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
       doom-variable-pitch-font (font-spec :family "FantasqueSansMono Nerd Font Mono") ; inherits the :size from doom-font
@@ -892,9 +925,6 @@ ARG counts from 1."
 ;; Grammalecte:2 ends here
 
 ;; [[file:config.org::*Zotero Zotxt][Zotero Zotxt:2]]
-(defconst +zotero-present-p
-  (not (null (executable-find "zotero"))))
-
 (use-package! zotxt
   :when +zotero-present-p
   :commands org-zotxt-mode)
@@ -909,9 +939,6 @@ ARG counts from 1."
 ;; CRDT:2 ends here
 
 ;; [[file:config.org::*Ag.el][Ag.el:2]]
-(defconst +ag-present-p
-  (not (null (executable-find "ag"))))
-
 (use-package! ag
   :when +ag-present-p
   :commands (ag
@@ -939,9 +966,6 @@ ARG counts from 1."
 ;; Page break lines:2 ends here
 
 ;; [[file:config.org::*Emacs Application Framework][Emacs Application Framework:1]]
-(defconst +eaf-present-p
-  (not (null (file-directory-p (expand-file-name "lisp/emacs-application-framework")))))
-
 (use-package! eaf
   :when +eaf-present-p
   :load-path "lisp/emacs-application-framework"
@@ -1130,9 +1154,6 @@ ARG counts from 1."
 ;; Popweb:2 ends here
 
 ;; [[file:config.org::*Chezmoi][Chezmoi:2]]
-(defconst +chezmoi-present-p
-  (not (null (executable-find "chezmoi"))))
-
 (use-package! chezmoi
   :when +chezmoi-present-p
   :commands (chezmoi-write
@@ -1197,9 +1218,6 @@ ARG counts from 1."
 ;; Lemon:2 ends here
 
 ;; [[file:config.org::*Bitwarden][Bitwarden:2]]
-(defconst +bitwarden-present-p
-  (not (null (executable-find "bw"))))
-
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
@@ -1266,9 +1284,6 @@ ARG counts from 1."
 ;; Assembly:2 ends here
 
 ;; [[file:config.org::*Repo][Repo:3]]
-(defconst +repo-present-p
-  (not (null (executable-find "repo"))))
-
 (use-package! repo
   :when +repo-present-p
   :commands repo-status)
@@ -1305,9 +1320,6 @@ ARG counts from 1."
 ;; Disaster:2 ends here
 
 ;; [[file:config.org::*Magit :heart: Delta][Magit :heart: Delta:2]]
-(defconst +delta-present-p
-  (not (null (executable-find "delta"))))
-
 (use-package! magit-delta
   :when +delta-present-p
   :commands magit-status
@@ -1504,14 +1516,6 @@ ARG counts from 1."
 ;; News feed =elfeed=:1 ends here
 
 ;; [[file:config.org::*Launch NetExtender session from Emacs][Launch NetExtender session from Emacs:1]]
-(defconst +netextender-present-p
-  (let ((present-p (not (null (and (executable-find "netExtender")
-                                (file-exists-p "~/.local/bin/netextender")
-                                (file-exists-p "~/.ssh/netExtender-params.gpg"))))))
-    (unless present-p
-      (warn "Missing netExtender dependencies."))
-    present-p))
-
 (when +netextender-present-p
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
@@ -1609,19 +1613,6 @@ ARG counts from 1."
 ;; mu4e:2 ends here
 
 ;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
-(defconst +mpd-present-p
-  (not (null (and (executable-find "mpc") (executable-find "mpd"))))
-  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
-
-(unless +mpd-present-p
-  (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-
-(defconst +mpv-present-p
-  (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl"))))))
-
-(unless +mpv-present-p
-  (warn "Missing MPV or youtube-dl."))
-
 ;; Not sure if it is required!
 (after! mpc
   (setq mpc-host "localhost:6600"))
@@ -1909,11 +1900,6 @@ ARG counts from 1."
 ;; Cycle song information in mode line:2 ends here
 
 ;; [[file:config.org::*Maxima][Maxima:2]]
-(defconst +maxima-present-p
-  (not (null (executable-find "maxima"))))
-;; Maxima:2 ends here
-
-;; [[file:config.org::*Maxima][Maxima:3]]
 (use-package! maxima
   :when +maxima-present-p
   :commands (maxima-mode maxima-inferior-mode maxima)
@@ -1926,7 +1912,7 @@ ARG counts from 1."
   (add-hook 'maxima-mode-hook #'maxima-hook-function)
   (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
   (add-to-list 'auto-mode-alist '("\\.ma[cx]\\'" . maxima-mode)))
-;; Maxima:3 ends here
+;; Maxima:2 ends here
 
 ;; [[file:config.org::*IMaxima][IMaxima:2]]
 (use-package! imaxima
@@ -2378,16 +2364,17 @@ ARG counts from 1."
         org-export-in-background t            ; run export processes in external emacs process
   ;;    org-export-async-debug t
         org-tags-column 0
-        org-catch-invisible-edits 'smart      ; try not to accidently do weird stuff in invisible regions
-        org-export-with-sub-superscripts '{}  ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+        org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
+        org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
         org-auto-align-tags nil
         org-special-ctrl-a/e t
+        org-startup-indented nil ;; Do not enable 'org-indent-mode' globally, makes loading files faster.
         org-insert-heading-respect-content t)
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((R . t)
      (python . t)
-     (ipython . t)
+     (jupyter . t)
      (octave . t)
      (plantuml . t)
      (C . t)
