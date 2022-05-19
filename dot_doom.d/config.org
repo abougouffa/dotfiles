@@ -4245,7 +4245,7 @@ src_elisp{(after! ...)} block.
 
 ** Behavior :behavior:
 *** Tweaking defaults
-**** Org directories
+**** Org basics
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/"        ; let's put files here
       org-use-property-inheritance t        ; it's convenient to have properties inherited
@@ -4254,8 +4254,8 @@ src_elisp{(after! ...)} block.
       org-export-in-background t            ; run export processes in external emacs process
 ;;    org-export-async-debug t
       org-tags-column 0
-      org-catch-invisible-edits 'smart      ; try not to accidently do weird stuff in invisible regions
-      org-export-with-sub-superscripts '{}  ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+      org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
+      org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
       org-auto-align-tags nil
       org-special-ctrl-a/e t
       org-insert-heading-respect-content t)
