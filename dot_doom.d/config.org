@@ -653,6 +653,43 @@ frame/terminal is deleted.
 #+end_src
 
 * Package configuration :config:
+** Check for external tools
+Some of the added packages require external tools, I like to check for these
+tools and store the result in global constants.
+
+#+begin_src emacs-lisp
+(defun bool (val) (not (null val))) ;; Convert a value to boolean
+
+(defconst +zotero-present-p (bool (executable-find "zotero")))
+(defconst +ag-present-p (bool (executable-find "ag")))
+(defconst +eaf-present-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
+(defconst +chezmoi-present-p (bool (executable-find "chezmoi")))
+(defconst +bitwarden-present-p (bool (executable-find "bw")))
+(defconst +repo-present-p (bool (executable-find "repo")))
+(defconst +delta-present-p (bool (executable-find "delta")))
+(defconst +maxima-present-p (bool (executable-find "maxima")))
+(defconst +netextender-present-p
+  (let ((present-p (bool (and (executable-find "netExtender")
+                           (file-exists-p "~/.local/bin/netextender")
+                           (file-exists-p "~/.ssh/netExtender-params.gpg")))))
+    (unless present-p
+      (warn "Missing netExtender dependencies."))
+    present-p))
+
+(defconst +mpd-present-p
+  (let ((present-p (bool (and (executable-find "mpc") (executable-find "mpd")))))
+    (unless present-p
+      (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
+    present-p)
+  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
+
+(defconst +mpv-present-p
+  (let ((present-p (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl")))))))
+    (unless present-p
+       (warn "Missing MPV or youtube-dl."))
+    present-p))
+#+end_src
+
 ** User Interface :ui:
 *** Font Face :font:
 Doom exposes five (optional) variables for controlling fonts in Doom. Here are
@@ -1911,9 +1948,6 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +zotero-present-p
-  (not (null (executable-find "zotero"))))
-
 (use-package! zotxt
   :when +zotero-present-p
   :commands org-zotxt-mode)
@@ -1944,9 +1978,6 @@ pacman -S the_silver_searcher=.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +ag-present-p
-  (not (null (executable-find "ag"))))
-
 (use-package! ag
   :when +ag-present-p
   :commands (ag
@@ -2006,9 +2037,6 @@ eaf-install-and-update)= in Emacs. This updates EAF, applications and their
 dependencies.
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +eaf-present-p
-  (not (null (file-directory-p (expand-file-name "lisp/emacs-application-framework")))))
-
 (use-package! eaf
   :when +eaf-present-p
   :load-path "lisp/emacs-application-framework"
@@ -2214,9 +2242,6 @@ A lightweight version of EAF that provides multimedia capabilities.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +chezmoi-present-p
-  (not (null (executable-find "chezmoi"))))
-
 (use-package! chezmoi
   :when +chezmoi-present-p
   :commands (chezmoi-write
@@ -2297,9 +2322,6 @@ A lightweight version of EAF that provides multimedia capabilities.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +bitwarden-present-p
-  (not (null (executable-find "bw"))))
-
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
@@ -2421,9 +2443,6 @@ chmod a+x ${REPO_PATH}
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +repo-present-p
-  (not (null (executable-find "repo"))))
-
 (use-package! repo
   :when +repo-present-p
   :commands repo-status)
@@ -2498,9 +2517,6 @@ specially with big change chunks.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-(defconst +delta-present-p
-  (not (null (executable-find "delta"))))
-
 (use-package! magit-delta
   :when +delta-present-p
   :commands magit-status
@@ -2867,14 +2883,6 @@ echo "Y\n" | netExtender --auto-reconnect \
 *** Launch NetExtender session from Emacs
 
 #+begin_src emacs-lisp
-(defconst +netextender-present-p
-  (let ((present-p (not (null (and (executable-find "netExtender")
-                                (file-exists-p "~/.local/bin/netextender")
-                                (file-exists-p "~/.ssh/netExtender-params.gpg"))))))
-    (unless present-p
-      (warn "Missing netExtender dependencies."))
-    present-p))
-
 (when +netextender-present-p
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
@@ -3191,19 +3199,6 @@ First, let us define a constant to check whether MPC and MPC are present in the
 system.
 
 #+begin_src emacs-lisp
-(defconst +mpd-present-p
-  (not (null (and (executable-find "mpc") (executable-find "mpd"))))
-  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
-
-(unless +mpd-present-p
-  (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-
-(defconst +mpv-present-p
-  (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl"))))))
-
-(unless +mpv-present-p
-  (warn "Missing MPV or youtube-dl."))
-
 ;; Not sure if it is required!
 (after! mpc
   (setq mpc-host "localhost:6600"))
@@ -3545,11 +3540,6 @@ specify a recipe; however, installing it directly seems to not install
                    "keywords"
                    "company-maxima.el"
                    "poly-maxima.el")))
-#+end_src
-
-#+begin_src emacs-lisp
-(defconst +maxima-present-p
-  (not (null (executable-find "maxima"))))
 #+end_src
 
 #+begin_src emacs-lisp
