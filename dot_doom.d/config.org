@@ -4270,7 +4270,7 @@ Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
  'org-babel-load-languages
  '((R . t)
    (python . t)
-   (ipython . t)
+   (jupyter . t)
    (octave . t)
    (plantuml . t)
    (C . t)
