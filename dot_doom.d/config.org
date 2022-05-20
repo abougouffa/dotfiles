@@ -3322,7 +3322,8 @@ default backend EMMS is using.
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
             emms-player-mpd-server-name "localhost"
-            emms-player-mpd-server-port "6600")
+            emms-player-mpd-server-port "6600"
+            emms-player-mpd-music-directory (expand-file-name "~/Music"))
     ;; Use whatever backend EMMS is using by default (VLC in my machine)
     (setq emms-info-functions '(emms-info-tinytag))) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
 
