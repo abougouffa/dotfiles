@@ -3335,7 +3335,7 @@ default backend EMMS is using.
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when +mpd-present-p
+  (when +mpd-ok-p
     (emms-player-set emms-player-mpd 'regex
                      (emms-player-simple-regexp
                       "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
