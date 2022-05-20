@@ -4319,6 +4319,7 @@ src_elisp{(after! ...)} block.
       org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
       org-auto-align-tags nil
       org-special-ctrl-a/e t
+      org-startup-indented t ;; Enable 'org-indent-mode' by default, override with '+#startup: noindent' for big files
       org-insert-heading-respect-content t)
       #+end_src
 
@@ -5354,8 +5355,7 @@ passed, and so we can override the background as discussed above.
 #+end_src
 
 **** Prettier rendering
-It's nice to customize the look of LaTeX fragments, so they fit better in the
-text --- like this \(\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}\).
+It's nice to customize the look of LaTeX fragments.
 
 #+begin_src emacs-lisp
 ;; (setq org-format-latex-header "\\documentclass{article}
@@ -5800,11 +5800,10 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
 #+begin_src emacs-lisp
 ;; this is for code syntax highlighting in export. you need to use
 ;; -shell-escape with latex, and install pygments.
-(setq org-latex-listings 'minted)
-(setq org-latex-minted-options
-      '(("frame" "lines")
-        ("fontsize" "\\scriptsize")
-        ("linenos" "")))
+(setq org-latex-listings 'minted
+      org-latex-minted-options '(("frame" "lines")
+                                 ("fontsize" "\\scriptsize")
+                                 ("linenos" "")))
 #+end_src
 
 **** Class templates
