@@ -256,7 +256,7 @@ file-templates
 fold
 format
 multiple-cursors
-parinfer
+;;parinfer
 snippets
 word-wrap
 ;;lispy
@@ -1068,16 +1068,31 @@ I'm not using =evil-escape=, lets disable it.
 *** Parinfer
 Disable =parinfer= on background buffers.
 
+#+begin_src emacs-lisp :tangle packages.el
+(package! parinfer-rust-mode)
+#+end_src
+
 #+begin_src emacs-lisp :tangle yes
-(setq parinfer-rust-check-before-enable 'defer
-      parinfer-rust-auto-download nil
-      ;; Use locally compiled module
-      parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
-      parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
-      parinfer-rust-preferred-mode "smart"
-      parinfer-rust-troublesome-modes '(electric-pair-mode
-                                        hungry-delete-mode
-                                        global-hungry-delete-mode))
+(use-package! parinfer-rust-mode
+  :when (bound-and-true-p module-file-suffix)
+  ;; Don't hook, causing annoying problem when openning Org file
+  ;; with lisp blocks.
+  ;; :hook ((emacs-lisp-mode clojure-mode scheme-mode lisp-mode racket-mode hy-mode) . parinfer-rust-mode)
+  :init
+  (setq parinfer-rust-check-before-enable 'defer
+        parinfer-rust-auto-download nil
+        ;; Use locally compiled module
+        parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
+        parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
+        parinfer-rust-preferred-mode "smart"
+        parinfer-rust-troublesome-modes '(electric-pair-mode
+                                          hungry-delete-mode
+                                          global-hungry-delete-mode))
+  :config
+  (map! :map parinfer-rust-mode-map
+        :localleader
+        "p" #'parinfer-rust-switch-mode
+        "P" #'parinfer-rust-toggle-disable))
 
 ;; (after! parinfer-rust-mode
 ;;   (defvar +parinfer-rust-disable-in-modes-list '(org-mode))
