@@ -1410,37 +1410,47 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
 
 ** Treemacs
 
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! treemacs)
+(unpin! lsp-treemacs)
+#+end_src
+
 #+begin_src emacs-lisp
-;; My custom stuff (from tecosaur's config)
-(setq +treemacs-file-ignore-extensions
-      '(;; LaTeX
-        "aux" "ptc" "fdb_latexmk" "fls" "synctex.gz" "toc"
-        ;; LaTeX - bibliography
-        "bbl"
-        ;; LaTeX - glossary
-        "glg" "glo" "gls" "glsdefs" "ist" "acn" "acr" "alg"
-        ;; LaTeX - pgfplots
-        "mw"
-        ;; LaTeX - pdfx
-        "pdfa.xmpi"
-        ;; Python
-        "pyc"))
-
-(setq +treemacs-file-ignore-globs
-      '(;; LaTeX
-        "*/_minted-*"
-        ;; AucTeX
-        "*/.auctex-auto"
-        "*/_region_.log"
-        "*/_region_.tex"
-        ;; Python
-        "*/__pycache__"))
-
 (after! treemacs
-  ;; Reload the Treemacs theme
   (require 'dired)
 
+  ;; My custom stuff (from tecosaur's config)
+  (setq +treemacs-file-ignore-extensions
+        '(;; LaTeX
+          "aux" "ptc" "fdb_latexmk" "fls" "synctex.gz" "toc"
+          ;; LaTeX - bibliography
+          "bbl"
+          ;; LaTeX - glossary
+          "glg" "glo" "gls" "glsdefs" "ist" "acn" "acr" "alg"
+          ;; LaTeX - pgfplots
+          "mw"
+          ;; LaTeX - pdfx
+          "pdfa.xmpi"
+          ;; Python
+          "pyc"))
+
+  (setq +treemacs-file-ignore-globs
+        '(;; LaTeX
+          "*/_minted-*"
+          ;; AucTeX
+          "*/.auctex-auto"
+          "*/_region_.log"
+          "*/_region_.tex"
+          ;; Python
+          "*/__pycache__"))
+
+  ;; Reload treemacs theme
+  (setq doom-themes-treemacs-enable-variable-pitch nil
+        doom-themes-treemacs-theme "doom-colors")
+  (doom-themes-treemacs-config)
+
   (setq treemacs-show-hidden-files nil
+        treemacs-hide-dot-git-directory t
         treemacs-width 30)
 
   (defvar +treemacs-file-ignore-extensions '()
