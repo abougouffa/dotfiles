@@ -5164,7 +5164,8 @@ sacrificing visual amenities with the =org-appear= package.
 (use-package! org-modern
   :init
   (setq org-modern-table-vertical 1
-        org-modern-table-horizontal 1)
+        org-modern-table-horizontal 1
+        org-modern-keyword nil) ;; I like to fontify them using ligatures
 
   (global-org-modern-mode))
 #+end_src
@@ -5228,12 +5229,14 @@ commands.
             :property                "☸"
             :options                 "⌥"
             :startup                 "⏻"
+            :hugo_base_dir           "𝐇"
             :macro                   "𝓜"
             :html_head               "🅷"
             :html                    "🅗"
             :latex_class             "🄻"
             :latex_class_options     "🄻"
             :latex_header            "🅻"
+            :latex_header_extra      "🅻"
             :beamer_header           "🅑"
             :latex                   "🅛"
             :attr_latex              "🄛"
@@ -5247,6 +5250,7 @@ commands.
             :name                    "⁍"
             :header                  "›"
             :results                 "🠶"
+            :results_small           "🠶"
             :begin_export            "⏩"
             :end_export              "⏪"
             :filetags                "#"
@@ -5254,8 +5258,12 @@ commands.
             :include                 "⇩"
             :setupfile               "⇩"
             :export_file_name        "⇧"
+            :export_select_tags      "✔"
+            :export_exclude_tags     "❌"
             :properties              "⚙"
             :end                     "᛫"
+            :properties_small        "⚙"
+            :end_small               "᛫"
             :priority_a              ,(propertize "⚑" 'face 'all-the-icons-red)
             :priority_b              ,(propertize "⬆" 'face 'all-the-icons-orange)
             :priority_c              ,(propertize "■" 'face 'all-the-icons-yellow)
@@ -5281,12 +5289,14 @@ commands.
   :property                "#+property:"
   :options                 "#+options:"
   :startup                 "#+startup:"
+  :hugo_base_dir           "#+hugo_base_dir:"
   :macro                   "#+macro:"
   :html_head               "#+html_head:"
   :html                    "#+html:"
   :latex_class             "#+latex_class:"
-  :latex_class_options     "#+latex_class_options"
+  :latex_class_options     "#+latex_class_options:"
   :latex_header            "#+latex_header:"
+  :latex_header_extra      "#+latex_header_extra:"
   :beamer_header           "#+beamer_header:"
   :latex                   "#+latex:"
   :attr_latex              "#+attr_latex:"
@@ -5305,9 +5315,14 @@ commands.
   :include                 "#+include:"
   :setupfile               "#+setupfile:"
   :export_file_name        "#+export_file_name:"
+  :export_select_tags      "#+export_select_tags:"
+  :export_exclude_tags     "#+export_exclude_tags:"
   :results                 "#+RESULTS:"
+  :results_small           "#+results:"
   :property                ":PROPERTIES:"
   :end                     ":END:"
+  :property_small          ":properties:"
+  :end_small               ":end:"
   :priority_a              "[#A]"
   :priority_b              "[#B]"
   :priority_c              "[#C]"
