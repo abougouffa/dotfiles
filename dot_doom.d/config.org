@@ -660,34 +660,39 @@ tools and store the result in global constants.
 #+begin_src emacs-lisp
 (defun bool (val) (not (null val))) ;; Convert a value to boolean
 
-(defconst +zotero-present-p (bool (executable-find "zotero")))
-(defconst +ag-present-p (bool (executable-find "ag")))
-(defconst +eaf-present-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
-(defconst +chezmoi-present-p (bool (executable-find "chezmoi")))
-(defconst +bitwarden-present-p (bool (executable-find "bw")))
-(defconst +repo-present-p (bool (executable-find "repo")))
-(defconst +delta-present-p (bool (executable-find "delta")))
-(defconst +maxima-present-p (bool (executable-find "maxima")))
-(defconst +netextender-present-p
-  (let ((present-p (bool (and (executable-find "netExtender")
-                           (file-exists-p "~/.local/bin/netextender")
-                           (file-exists-p "~/.ssh/netExtender-params.gpg")))))
-    (unless present-p
+(defconst +zotero-ok-p (bool (executable-find "zotero")))
+(defconst +ag-ok-p (bool (executable-find "ag")))
+(defconst +chezmoi-ok-p (bool (executable-find "chezmoi")))
+(defconst +bitwarden-ok-p (bool (executable-find "bw")))
+(defconst +repo-ok-p (bool (executable-find "repo")))
+(defconst +delta-ok-p (bool (executable-find "delta")))
+(defconst +maxima-ok-p (bool (executable-find "maxima")))
+(defconst +eaf-ok-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
+
+(defconst +netextender-ok-p
+  (let ((ok (bool (and (executable-find "netExtender")
+                       (file-exists-p "~/.local/bin/netextender")
+                       (file-exists-p "~/.ssh/netExtender-params.gpg")))))
+    (unless ok
       (warn "Missing netExtender dependencies."))
-    present-p))
+    ok)
+  "Evaluates to 't' when a valid netExtender configuration is present, 'nil' otherwise.")
 
-(defconst +mpd-present-p
-  (let ((present-p (bool (and (executable-find "mpc") (executable-find "mpd")))))
-    (unless present-p
+(defconst +mpd-ok-p
+  (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
+    (unless ok
       (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-    present-p)
-  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
+    ok)
+  "Evaluates to 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
-(defconst +mpv-present-p
-  (let ((present-p (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl")))))))
-    (unless present-p
-       (warn "Missing MPV or youtube-dl."))
-    present-p))
+(defconst +mpv-ok-p
+  (let ((ok (bool (and +mpd-ok-p
+                       (executable-find "mpv")
+                       (executable-find "youtube-dl")))))
+    (unless ok
+      (warn "Missing MPV or youtube-dl."))
+    ok)
+  "Evaluates to 't' when MPV and youtube-dl commands are present, 'nil' otherwise.")
 #+end_src
 
 ** User interface :ui:
@@ -1973,7 +1978,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! zotxt
-  :when +zotero-present-p
+  :when +zotero-ok-p
   :commands org-zotxt-mode)
 #+end_src
 
@@ -2003,7 +2008,7 @@ pacman -S the_silver_searcher=.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! ag
-  :when +ag-present-p
+  :when +ag-ok-p
   :commands (ag
              ag-files
              ag-regexp
@@ -2062,7 +2067,7 @@ dependencies.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! eaf
-  :when +eaf-present-p
+  :when +eaf-ok-p
   :load-path "lisp/emacs-application-framework"
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
@@ -2267,7 +2272,7 @@ A lightweight version of EAF that provides multimedia capabilities.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! chezmoi
-  :when +chezmoi-present-p
+  :when +chezmoi-ok-p
   :commands (chezmoi-write
              chezmoi-magit-status
              chezmoi-diff
@@ -2349,7 +2354,7 @@ A lightweight version of EAF that provides multimedia capabilities.
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-  :when +bitwarden-present-p
+  :when +bitwarden-ok-p
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -2468,7 +2473,7 @@ chmod a+x ${REPO_PATH}
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! repo
-  :when +repo-present-p
+  :when +repo-ok-p
   :commands repo-status)
 #+end_src
 
@@ -2542,7 +2547,7 @@ specially with big change chunks.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! magit-delta
-  :when +delta-present-p
+  :when +delta-ok-p
   :commands magit-status
   :hook (magit-mode . magit-delta-mode))
 #+end_src
@@ -2935,7 +2940,7 @@ echo "Y\n" | netExtender --auto-reconnect \
 *** Launch NetExtender session from Emacs
 
 #+begin_src emacs-lisp
-(when +netextender-present-p
+(when +netextender-ok-p
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
@@ -3301,7 +3306,7 @@ default backend EMMS is using.
   ;; EMMS basic configuration
   (require 'emms-setup)
 
-  (when +mpd-present-p
+  (when +mpd-ok-p
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -3312,7 +3317,7 @@ default backend EMMS is using.
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if +mpd-present-p
+  (if +mpd-ok-p
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
@@ -3403,7 +3408,7 @@ default backend EMMS is using.
                                 +emms-notification-icon)))
 
   ;; MPV and Youtube integration
-  (when +mpv-present-p
+  (when +mpv-ok-p
     (add-to-list 'emms-player-list 'emms-player-mpv t)
     (emms-player-set
      emms-player-mpv
@@ -3462,7 +3467,7 @@ gunicorn main:app
 
 #+begin_src emacs-lisp
 (after! (elfeed emms)
-  (when +mpv-present-p
+  (when +mpv-ok-p
     ;; Integration with Elfeed
     (define-emms-source elfeed (entry)
       (let ((track (emms-track
@@ -3516,7 +3521,7 @@ Then we add MPD related keybindings if MPD is used.
 #+begin_src emacs-lisp
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) +mpd-present-p)
+      (:when (and (featurep! :app emms) +mpd-ok-p)
        :prefix-map ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -3563,7 +3568,7 @@ added some minor stuff.
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
     (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
     ;; Force a sync to get the right song name over MPD in mode line
-    (when +mpd-present-p (emms-player-mpd-sync-from-mpd))
+    (when +mpd-ok-p (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
@@ -3594,7 +3599,7 @@ specify a recipe; however, installing it directly seems to not install
 
 #+begin_src emacs-lisp
 (use-package! maxima
-  :when +maxima-present-p
+  :when +maxima-ok-p
   :commands (maxima-mode maxima-inferior-mode maxima)
   :init
   (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
@@ -3624,7 +3629,7 @@ sub-directory ~interfaces/emacs/imaxima~.
 
 #+begin_src emacs-lisp
 (use-package! imaxima
-  :when +maxima-present-p
+  :when +maxima-ok-p
   :commands (imaxima imath-mode)
   :init
   (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
