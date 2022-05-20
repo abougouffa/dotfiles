@@ -4283,12 +4283,6 @@ To avoid problems in the src_elisp{(after! org)} section.
 
 (package! org-ref)
 
-(package! org-ref-cite
-  :recipe (:host github
-           :repo "jkitchin/org-ref-cite"
-           :files (:defaults "readme.org"))
-  :disable t) ;; BUG: Not working correctly!
-
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
@@ -5544,31 +5538,23 @@ set palette defined ( 0 '%s',\
 ** Bibliography
 
 #+begin_src emacs-lisp
-(setq org-cite-csl-styles-dir "~/Zotero/styles")
+(setq bibtex-completion-bibliography '("~/Zotero/library.bib")
+      bibtex-completion-library-path '("~/Zotero/storage/")
+      bibtex-completion-notes-path "~/PhD/bibliography/notes/"
+      bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+      bibtex-completion-additional-search-fields '(keywords)
+      bibtex-completion-display-formats
+      '((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+        (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+        (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+        (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+        (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+      bibtex-completion-pdf-open-function
+      (lambda (fpath)
+        (call-process "open" nil 0 nil fpath)))
 #+end_src
 
-#+begin_src emacs-lisp
-(setq! bibtex-completion-bibliography '("~/Zotero/library.bib"))
-#+end_src
-
-#+begin_src emacs-lisp
-(setq! citar-bibliography '("~/Zotero/library.bib"))
-#+end_src
-
-You may also set the respective note and library path variables as well for
-enhanced functionality:
-
-#+begin_src emacs-lisp
-;; (setq! bibtex-completion-library-path '("~/Zotero/storage")
-;;        bibtex-completion-notes-path "/path/to/your/notes/")
-#+end_src
-
-#+begin_src emacs-lisp
-;; (setq! citar-library-paths '("/path/to/library/files/")
-;;        citar-notes-paths '("/path/to/your/notes/"))
-#+end_src
-
-*** COMMENT Org-bib
+*** Org-bib
 A mode to work with annotated bibliography in Org-Mode. See [[https://github.com/rougier/org-bib-mode][the repo]] for an
 example.
 
@@ -5577,10 +5563,12 @@ example.
   :commands (org-bib-mode))
 #+end_src
 
-*** COMMENT =org-cite=
+*** COMMENT Org-cite
 
 #+begin_src emacs-lisp
 (after! oc
+  (setq org-cite-csl-styles-dir "~/Zotero/styles")
+
   (defun org-ref-to-org-cite ()
     "Attempt to convert org-ref citations to org-cite syntax."
     (interactive)
@@ -5601,14 +5589,14 @@ example.
         (goto-char (point-min))
         (while (re-search-forward cite-regexp nil t)
           (message (format "[cite%s:@%s]"
-                                 (cdr (assoc (match-string 1) cite-conversions))
-                                 (match-string 2)))
+                           (cdr (assoc (match-string 1) cite-conversions))
+                           (match-string 2)))
           (replace-match (format "[cite%s:@%s]"
                                  (cdr (assoc (match-string 1) cite-conversions))
                                  (match-string 2))))))))
 #+end_src
 
-*** Org-Ref
+*** Org-ref
 Use Org as LaTeX!
 
 #+begin_src emacs-lisp
@@ -5643,24 +5631,12 @@ Use Org as LaTeX!
           (org-ref-open-bibtex-pdf))))))
 #+end_src
 
-*** COMMENT Org-Ref :heart: Org-Cite
+*** Citar
 
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled
-(use-package! org-ref-cite
-  :after org-cite
-  :config
-  ;; I like green links
-  ;; (set-face-attribute 'org-cite nil :foreground "DarkSeaGreen4")
-  ;; (set-face-attribute 'org-cite-key nil :foreground "forest green")
-  (setq org-cite-global-bibliography bibtex-completion-bibliography
-        org-cite-csl-styles-dir "~/Zotero/styles"
-        org-cite-insert-processor 'org-ref-cite
-        org-cite-follow-processor 'org-ref-cite
-        org-cite-activate-processor 'org-ref-cite
-        org-cite-export-processors '((html csl "elsevier-with-titles.csl")
-                                        (latex org-ref-cite)
-                                        (t basic)))
+#+begin_src emacs-lisp
+(setq citar-library-paths '("~/Zotero/storage")
+      citar-notes-paths '("~/PhD/bibliography/notes/")
+      citar-bibliography '("~/Zotero/library.bib"))
 #+end_src
 
 *** Academic phrases
