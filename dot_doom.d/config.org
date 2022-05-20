@@ -10,10 +10,10 @@
 #+property: header-args:shell :tangle "setup.sh"
 #+property: header-args :tangle no :results silent :eval no-export
 #+setupfile: assets/template.org
-#+startup: fold
-#+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo/
+#+startup: fold noindent
+#+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo
 
-* This repository
+* This repository :preamble:
 This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Zsh*,
 *Emacs*, *Vim*, *Alacritty* and other Linux related stuff.
 
@@ -118,7 +118,7 @@ This needs to be sourced in the shell session (source it in =~/.zshrc=).
 # Abdelhak BOUGOUFFA (c) 2022
 #+end_src
 
-* Doom configuration files
+* Doom configuration files :doom:
 ** Doom modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
@@ -441,7 +441,7 @@ This section generates Doom's =packages.el=, with the associated configurations
 
 This file shouldn't be byte compiled.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 ;; -*- no-byte-compile: t; -*-
 #+end_src
 
@@ -652,7 +652,7 @@ frame/terminal is deleted.
     (lambda (arg) (recentf-save-list))))
 #+end_src
 
-* Package configuration :config:
+* Package configuration :package:
 ** Check for external tools
 Some of the added packages require external tools, I like to check for these
 tools and store the result in global constants.
@@ -690,8 +690,8 @@ tools and store the result in global constants.
     present-p))
 #+end_src
 
-** User Interface :ui:
-*** Font Face :font:
+** User interface :ui:
+*** Font :font:
 Doom exposes five (optional) variables for controlling fonts in Doom. Here are
 the three important ones: =doom-font=, =doom-unicode-font= and
 =doom-variable-pitch-font=. The =doom-big-font= is used for =doom-big-font-mode=; use
@@ -718,8 +718,7 @@ Some good fonts:
 
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      doom-variable-pitch-font (font-spec :family "FantasqueSansMono Nerd Font Mono") ; inherits the :size from doom-font
-      ;;doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
 #+end_src
@@ -780,7 +779,7 @@ Show battery level unless battery is not present or battery information is unkno
 (add-to-list 'default-frame-alist '(alpha 98 100))
 #+end_src
 
-*** Splash Screen :splash:
+*** Splash screen :splash:
 **** Custom Splash Image :image:banner:
 Change the logo to an image, a set of beautiful images can be found in =assets=.
 
@@ -876,7 +875,7 @@ This can be used to adjust the left and right fringes.
         vertico-posframe-border-width 3))
 #+end_src
 
-*** SVG Tag Mode :svg:
+*** SVG Tag mode :svg:
 
 #+begin_src emacs-lisp :tangle "packages.el"
 (package! svg-tag-mode)
@@ -911,7 +910,7 @@ This can be used to adjust the left and right fringes.
 *** N Λ N O :nano:
 Dim the font color of text in surrounding paragraphs, focus only on the current line.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! nano-doom
   :disable t
   :recipe (:host github :repo "skyler544/doom-nano-testing"))
@@ -924,7 +923,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 
 *** Lambda themes/line :lambda:theme:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! lambda-themes
   :recipe (:host github
            :repo "Lambda-Emacs/lambda-themes"))
@@ -970,7 +969,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 
 *** Humanoid themes :humanoid:theme:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! humanoid-themes
   :recipe (:host github
            :repo "humanoid-colors/emacs-humanoid-themes"))
@@ -979,7 +978,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 *** Focus :focus:
 Dim the font color of text in surrounding paragraphs, focus only on the current line.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! focus)
 #+end_src
 
@@ -990,7 +989,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 
 *** Smooth scrolling
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (when (<= emacs-major-version 28)
   (package! good-scroll))
 #+end_src
@@ -1057,7 +1056,7 @@ I'm not using =evil-escape=, lets disable it.
 
 *** Aggressive indent
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! aggressive-indent)
 #+end_src
 
@@ -1457,7 +1456,7 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
 
 ** PDF tools
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (unpin! pdf-tools)
 #+end_src
 
@@ -1740,7 +1739,7 @@ them in C/C++, Rust and Python modes.
 ** Features :features:
 *** Weather :wttrin:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 ;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
@@ -1755,7 +1754,7 @@ them in C/C++, Rust and Python modes.
 
 *** OpenStreetMap :osm:map:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! osm)
 #+end_src
 
@@ -1781,7 +1780,7 @@ them in C/C++, Rust and Python modes.
 
 *** Islamic prayer times :prayer:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! awqat
   :recipe (:host github
            :repo "zkry/awqat"))
@@ -1802,14 +1801,14 @@ them in C/C++, Rust and Python modes.
 *** ESS :ess:
 View data frames better with
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! ess-view)
 #+end_src
 
 *** Very large files :large:vlf:
 The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! vlf)
 #+end_src
 
@@ -1823,7 +1822,7 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
 *** Info colors
 Better colors for manual pages.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! info-colors)
 #+end_src
 
@@ -1836,7 +1835,7 @@ Better colors for manual pages.
 
 *** Guess language :language:text:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! guess-language
   :recipe (:host github
            :repo "tmalsburg/guess-language.el"))
@@ -1860,7 +1859,7 @@ Better colors for manual pages.
 *** Grammarly :language:grammar:
 Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly]] or [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly]].
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! grammarly
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
@@ -1900,7 +1899,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
 *** Grammalecte :french:grammar:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! flycheck-grammalecte
   :recipe (:host github
            :repo "milouse/flycheck-grammalecte"))
@@ -1943,7 +1942,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
 *** Zotero Zotxt :zotero:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! zotxt)
 #+end_src
 
@@ -1957,7 +1956,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 Collaborative editing for geeks! =crdt.el= adds support for /[[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type][Conflict-free
 Replicated Data Type]]/.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! crdt)
 #+end_src
 
@@ -1970,10 +1969,10 @@ Replicated Data Type]]/.
 #+end_src
 
 *** Ag.el :search:
-An Emacs frontend to The Silver Searcher, first we need to install =ag= using =sudo
+An Emacs front-end to /The Silver Searcher/, first we need to install =ag= using =sudo
 pacman -S the_silver_searcher=.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! ag)
 #+end_src
 
@@ -1990,7 +1989,7 @@ pacman -S the_silver_searcher=.
 
 *** Disk usage :fs:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! disk-usage)
 #+end_src
 
@@ -2001,7 +2000,7 @@ pacman -S the_silver_searcher=.
 
 *** Aweshell :eshell:shell:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! aweshell
   :recipe (:host github
            :repo "manateelazycat/aweshell"))
@@ -2016,7 +2015,7 @@ pacman -S the_silver_searcher=.
 A feature that displays ugly form feed characters as tidy horizontal rules.
 Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! page-break-lines)
 #+end_src
 
@@ -2212,7 +2211,7 @@ dependencies.
 *** Popweb :text:
 A lightweight version of EAF that provides multimedia capabilities.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! popweb
   :recipe (:host github
            :repo "manateelazycat/popweb"
@@ -2237,7 +2236,7 @@ A lightweight version of EAF that provides multimedia capabilities.
 
 *** Chezmoi :dotfiles:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! chezmoi)
 #+end_src
 
@@ -2291,7 +2290,7 @@ A lightweight version of EAF that provides multimedia capabilities.
 
 *** Lemon :monitor:system:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! lemon
   :recipe (:host gitlab
            :repo "ieure/lemon"))
@@ -2315,7 +2314,7 @@ A lightweight version of EAF that provides multimedia capabilities.
 
 *** Bitwarden :pass:bitwarden:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! bitwarden
   :recipe (:host github
            :repo "seanfarley/emacs-bitwarden"))
@@ -2344,7 +2343,7 @@ A lightweight version of EAF that provides multimedia capabilities.
 *** Speed Type
 A game to practice speed typing in Emacs.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! speed-type)
 #+end_src
 
@@ -2355,7 +2354,7 @@ A game to practice speed typing in Emacs.
 
 *** 2048 Game
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! 2048-game)
 #+end_src
 
@@ -2367,7 +2366,7 @@ A game to practice speed typing in Emacs.
 *** Snow
 Let it snow in Emacs!
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! snow)
 #+end_src
 
@@ -2378,7 +2377,7 @@ Let it snow in Emacs!
 
 *** =xkcd=
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! xkcd
   :recipe (:host github
            :repo "vibhavp/emacs-xkcd"))
@@ -2396,7 +2395,7 @@ Let it snow in Emacs!
 *** Assembly :asm:assembly:
 Add some packages for better assembly coding.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! nasm-mode)
 (package! haxor-mode)
 (package! mips-mode)
@@ -2438,7 +2437,7 @@ curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
 chmod a+x ${REPO_PATH}
 #+end_src
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! repo)
 #+end_src
 
@@ -2450,7 +2449,7 @@ chmod a+x ${REPO_PATH}
 
 *** Devdocs :devdocs:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! devdocs
   :recipe (:host github
            :repo "astoff/devdocs.el"
@@ -2472,7 +2471,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
 - [[https://github.com/Marus/cortex-debug][cortex-debug]]
 - [[https://github.com/espressif/esp-debug-adapter][esp-debug-adapter]]
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! embed
   :recipe (:host github
            :repo "sjsch/embed-el"))
@@ -2497,7 +2496,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
 
 *** Disaster :disaster:disassemble:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! disaster)
 #+end_src
 
@@ -2511,7 +2510,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
 Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
 specially with big change chunks.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! magit-delta
   :disable t) ;; Disabled, too slow on big chunks
 #+end_src
@@ -2526,7 +2525,7 @@ specially with big change chunks.
 *** Blamer :git:blame:
 Display Git information (author, date, message...) for current line
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! blamer
   :recipe (:host github
            :repo "artawower/blamer.el"))
@@ -2561,14 +2560,14 @@ Display Git information (author, date, message...) for current line
 *** Systemd :systemd:
 For editing systemd unit files.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! systemd)
 #+end_src
 
 *** Bitbake (Yocto) :bitbake:yocto:
 Add support for Yocto Project files.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! bitbake-modes
   :recipe (:host bitbucket
            :repo "olanilsson/bitbake-modes"))
@@ -2586,7 +2585,7 @@ Add support for Yocto Project files.
 
 *** LaTeX :latex:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! aas
   :recipe (:host github
            :repo "ymarco/auto-activating-snippets"))
@@ -2601,7 +2600,7 @@ Add support for Yocto Project files.
 A good new package to facilitate using CMake projects with Emacs, it glues
 together =project=, =eglot=, =cmake= and =clangd=.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! project-cmake
   :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
   :recipe (:host github
@@ -2619,7 +2618,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
 *** Franca IDL
 Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! franca-idl
   :recipe (:host github
            :repo "zeph1e/franca-idl.el"))
@@ -2633,7 +2632,7 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
 *** Flycheck :heart: Projectile
 WIP: Not working atm!
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! flycheck-projectile
   :recipe (:host github
            :repo "nbfalcon/flycheck-projectile"))
@@ -2648,7 +2647,7 @@ WIP: Not working atm!
 Graphviz is a nice method of visualizing simple graphs, based on plaintext
 =.dot= / =.gv= files.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! graphviz-dot-mode)
 #+end_src
 
@@ -2665,7 +2664,7 @@ container or on a remote robot. ATM, I need just to configure =rosemacs= to use
 Emacs to develop ROS packages using C++/Python, I'm not interested now for
 ROS Common Lisp development.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! rosemacs
   :recipe (:host github
            :repo "code-iai/ros_emacs_utils"
@@ -2685,7 +2684,7 @@ I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package 
 facilitate working with ROS machines, supports ROS1 and ROS2, with local
 workspaces or remote ones (over Trump!).
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 ;; `ros.el' depends on `with-shell-interpreter' among other packages
 ;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
 (package! with-shell-interpreter)
@@ -2728,7 +2727,7 @@ The next-gen beautifier? Add initial support for [[https://github.com/Unibeautif
 npm install -g @unibeautify/cli
 #+end_example
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! unibeautify
   :recipe (:host github
            :repo "Unibeautify/emacs"))
@@ -2739,9 +2738,9 @@ npm install -g @unibeautify/cli
   :commands (unibeautify))
 #+end_src
 
-*** Emacs Inspector :inspector:debug:
+*** Inspector :inspector:debug:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! inspector
   :recipe (:host github
            :repo "mmontone/emacs-inspector"))
@@ -2765,7 +2764,7 @@ npm install -g @unibeautify/cli
 
 ** e-Books =nov= :ebook:epub:
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! nov)
 #+end_src
 
@@ -3195,8 +3194,6 @@ Regards,
 I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music.
 
 *** MPD, MPC, and MPV :mpd:mpc:mpv:
-First, let us define a constant to check whether MPC and MPC are present in the
-system.
 
 #+begin_src emacs-lisp
 ;; Not sure if it is required!
@@ -3584,7 +3581,7 @@ sub-directory ~interfaces/emacs/imaxima~.
   (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
 #+end_src
 
-* Programming :prog:
+* Programming :programming:
 ** File templates :template:
 For some file types, we overwrite defaults in the [[file:./snippets][snippets]] directory, others
 need to have a template assigned.
@@ -3595,7 +3592,7 @@ need to have a template assigned.
 (set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
 #+end_src
 
-** CSV Rainbow :csv:
+** CSV rainbow :csv:
 Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?utm_source=reddit&utm_medium=web2x&context=3][here]].
 
 #+begin_src emacs-lisp
@@ -3806,7 +3803,7 @@ I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over 
 when the program hits a break point, and automatically delete the session and
 close Hydra when DAP is terminated.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (unpin! dap-mode)
 #+end_src
 
@@ -4046,7 +4043,7 @@ The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (than
 to it's C module), and it defines some easy to use UI, with Visual Studio like
 keybindings.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! gdb-mi
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
@@ -4184,10 +4181,10 @@ on that.
                (ansi-color-apply-on-region (point-min) (point-max) t))))
 #+end_src
 
-* Org mode packages
+* Org mode additional packages
 To avoid problems in the src_elisp{(after! org)} section.
 
-#+begin_src emacs-lisp :tangle "packages.el" :comments no
+#+begin_src emacs-lisp :tangle packages.el
 (package! org-super-agenda)
 
 (package! caldav
@@ -4198,7 +4195,8 @@ To avoid problems in the src_elisp{(after! org)} section.
 
 (package! org-appear)
 
-(unpin! org-roam) ;; To avoid problems with org-roam-ui
+;; To avoid problems with org-roam-ui
+(unpin! org-roam)
 (package! websocket)
 (package! org-roam-ui)
 
@@ -4212,7 +4210,7 @@ To avoid problems in the src_elisp{(after! org)} section.
 
 (package! org-bib
   :recipe (:host github
-           :repo "rougier/org-bib-mode" ))
+           :repo "rougier/org-bib-mode"))
 
 (package! org-ref)
 
@@ -5062,9 +5060,9 @@ It seems reasonable to have deadlines in the error face when they're passed.
 #+begin_src emacs-lisp
 (setq org-agenda-deadline-faces
       '((1.001 . error)
-        (1.0 . org-warning)
-        (0.5 . org-upcoming-deadline)
-        (0.0 . org-upcoming-distant-deadline)))
+        (1.000 . org-warning)
+        (0.500 . org-upcoming-deadline)
+        (0.000 . org-upcoming-distant-deadline)))
 #+end_src
 
 **** Font styling
@@ -5111,7 +5109,7 @@ sacrificing visual amenities with the =org-appear= package.
 *** Image previews
 
 #+begin_src emacs-lisp
-;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/?utm_source=share&utm_medium=web2x&context=3
+;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
 ;; Scale image previews to 60% of the window width.
 (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
 #+end_src
@@ -5120,7 +5118,11 @@ sacrificing visual amenities with the =org-appear= package.
 I think it makes sense to have list bullets change with depth
 
 #+begin_src emacs-lisp
-(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+(setq org-list-demote-modify-bullet
+      '(("+" . "-")
+        ("-" . "+")
+        ("*" . "+")
+        ("1." . "a.")))
 #+end_src
 
 *** Symbols
@@ -5129,7 +5131,7 @@ I think it makes sense to have list bullets change with depth
 ;; Org styling, hide markup etc.
 (setq org-hide-emphasis-markers t
       org-pretty-entities t
-      org-ellipsis "↩"
+      org-ellipsis " ↩"
       org-hide-leading-stars t
       org-priority-highest ?A
       org-priority-lowest ?E
@@ -5319,7 +5321,7 @@ let's make it transparent.
 ;; Set the default scale
 (ab/set-org-latex-scale 1.4)
 
-;; Change scale in Zen mode
+;; Increase scale in Zen mode
 (when (featurep! :ui zen)
   (add-hook! 'writeroom-mode-enable-hook (ab/set-org-latex-scale 2.0))
   (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
@@ -5678,45 +5680,6 @@ This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example
 it should still work.
 
 **** COMMENT Default packages
-
-#+begin_src emacs-lisp
-(setq org-latex-default-packages-alist
-      '(("AUTO" "inputenc" t ("pdflatex"))
-
-        ("T1" "fontenc" t ("pdflatex"))
-
-        ("" "graphicx" t)
-        ;; ("" "longtable" nil)
-        ("" "wrapfig" nil)
-        ("" "float" nil)
-        ("" "rotating" nil)
-        ("normalem" "ulem" t)
-
-        ("" "siunitx" t)
-        ("" "amsmath" t)
-        ("" "amssymb" t)
-        ("" "capt-of" nil)
-        ("" "url" nil)
-        ("" "hyperref" nil)
-
-        ;; ("" "theorems,skins" "tcolorbox" t)
-        ;; ("numbers,square,sort&compress" "natbib" nil)
-        ;; ("" "natmove" nil)
-
-        ;; enables you to embed files in pdfs
-        ;; ("" "attachfile" nil)
-
-        ;; this allows you to use underscores in places like filenames. I still
-        ;; wouldn't do it.
-        ;; ("strings" "underscore" nil)
-        ;; ("linktocpage,pdfstartview=FitH,colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
-        ;;  "hyperref" nil)
-
-        ;; set default spacing
-        ("" "setspace" nil)))
-#+end_src
-
-**** COMMENT Default packages
 I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-latex.el][scimax]].
 
 #+begin_src emacs-lisp
@@ -5865,7 +5828,7 @@ Update files with last modified date, when ~#+lastmod:~ is available
 
 * System configuration :linux:system:
 ** Mime types :mime:
-*** Org Mode files :org:
+*** Org mode files :org:
 Org mode isn't recognized as its own mime type by default, but that can easily
 be changed with the following file. For system-wide changes try
 ~/usr/share/mime/packages/org.xml~.
@@ -6232,7 +6195,7 @@ daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
 part of the =ExecStart= value.
 
 ** Emacs Client :emacsclient:
-*** Desktop Integration :desktop:
+*** Desktop integration :desktop:
 It can now be nice to use this as a 'default app' for opening files. If we add
 an appropriate desktop entry, and enable it in the desktop environment.
 
@@ -6252,7 +6215,7 @@ Keywords=Text;Editor;
 X-KDE-StartupNotify=false
 #+end_src
 
-*** Command-line Wrapper :wrapper:cli:
+*** Command-line wrapper :wrapper:cli:
 A wrapper around =emacsclient=:
 + Accepting =stdin= by putting it in a temporary file and immediately opening it.
 + Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
