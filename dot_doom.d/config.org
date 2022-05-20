@@ -3856,6 +3856,16 @@ use =rust_hdl= instead.
                        (flycheck-mode t))))
 #+end_src
 
+**** SonarLint
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lsp-sonarlint)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
+#+end_src
+
 ** DAP :dap:debug:ide:
 I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
 =dap-mode=. I like also to have a mode minimal UI. And I like to trigger =dap-hydra=
