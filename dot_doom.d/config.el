@@ -26,7 +26,40 @@
 ;; Window:1 ends here
 
 ;; [[file:config.org::*Window][Window:2]]
-(load! "lisp/messages-buffer-auto-tail.el")
+(defvar +messages-buffer-auto-tail--enabled nil)
+
+(defun +messages-buffer-auto-tail--advice (&rest arg)
+  "Make *Messages* buffer auto-scroll to the end after each message."
+  (let* ((buf-name (buffer-name (messages-buffer)))
+         ;; Create *Messages* buffer if it does not exist
+         (buf (get-buffer-create buf-name)))
+    ;; Activate this advice only if the point is _not_ in the *Messages* buffer
+    ;; to begin with. This condition is required; otherwise you will not be
+    ;; able to use `isearch' and other stuff within the *Messages* buffer as
+    ;; the point will keep moving to the end of buffer :P
+    (when (not (string= buf-name (buffer-name)))
+      ;; Go to the end of buffer in all *Messages* buffer windows that are
+      ;; *live* (`get-buffer-window-list' returns a list of only live windows).
+      (dolist (win (get-buffer-window-list buf-name nil :all-frames))
+        (with-selected-window win
+          (goto-char (point-max))))
+      ;; Go to the end of the *Messages* buffer even if it is not in one of
+      ;; the live windows.
+      (with-current-buffer buf
+        (goto-char (point-max))))))
+
+(defun +messages-buffer-toggle-auto-tail ()
+  "Auto tail the '*Messages*' buffer."
+  (interactive)
+  ;; Add/remove an advice from the 'message' function.
+  (cond (+messages-buffer-auto-tail--enabled
+         (advice-remove 'message '+messages-buffer-auto-tail--advice)
+         (setq +messages-buffer-auto-tail--enabled nil)
+         (message "+messages-buffer-auto-tail: Disabled."))
+        (t
+         (advice-add 'message :after '+messages-buffer-auto-tail--advice)
+         (setq +messages-buffer-auto-tail--enabled t)
+         (message "+messages-buffer-auto-tail: Enabled."))))
 ;; Window:2 ends here
 
 ;; [[file:config.org::*Split defaults][Split defaults:1]]
@@ -41,11 +74,11 @@
 ;; Split defaults:2 ends here
 
 ;; [[file:config.org::*Undo and auto-save][Undo and auto-save:1]]
-(setq undo-limit 80000000   ; Raise undo-limit to 80Mb
-      evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
-      auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      scroll-preserve-screen-position 'always ; Don't have `point' jump around
-      scroll-margin 2)      ; It's nice to maintain a little margin
+(setq undo-limit 80000000   ;; Raise undo-limit to 80Mb
+      evil-want-fine-undo t ;; By default while in insert all changes are one big blob. Be more granular
+      auto-save-default t   ;; Nobody likes to lose work, I certainly don't
+      scroll-preserve-screen-position 'always ;; Don't have `point' jump around
+      scroll-margin 2)      ;; It's nice to maintain a little margin
 ;; Undo and auto-save:1 ends here
 
 ;; [[file:config.org::*Editing][Editing:1]]
@@ -92,43 +125,46 @@
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
 (defun bool (val) (not (null val))) ;; Convert a value to boolean
 
-(defconst +zotero-present-p (bool (executable-find "zotero")))
-(defconst +ag-present-p (bool (executable-find "ag")))
-(defconst +eaf-present-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
-(defconst +chezmoi-present-p (bool (executable-find "chezmoi")))
-(defconst +bitwarden-present-p (bool (executable-find "bw")))
-(defconst +repo-present-p (bool (executable-find "repo")))
-(defconst +delta-present-p (bool (executable-find "delta")))
-(defconst +maxima-present-p (bool (executable-find "maxima")))
-(defconst +netextender-present-p
-  (let ((present-p (bool (and (executable-find "netExtender")
-                           (file-exists-p "~/.local/bin/netextender")
-                           (file-exists-p "~/.ssh/netExtender-params.gpg")))))
-    (unless present-p
-      (warn "Missing netExtender dependencies."))
-    present-p))
+(defconst +zotero-ok-p (bool (executable-find "zotero")))
+(defconst +ag-ok-p (bool (executable-find "ag")))
+(defconst +chezmoi-ok-p (bool (executable-find "chezmoi")))
+(defconst +bitwarden-ok-p (bool (executable-find "bw")))
+(defconst +repo-ok-p (bool (executable-find "repo")))
+(defconst +delta-ok-p (bool (executable-find "delta")))
+(defconst +maxima-ok-p (bool (executable-find "maxima")))
+(defconst +eaf-ok-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
+(defconst +quarto-ok-p (bool (executable-find "quarto")))
+(defconst +clang-format-ok-p (bool (executable-find "clang-format")))
 
-(defconst +mpd-present-p
-  (let ((present-p (bool (and (executable-find "mpc") (executable-find "mpd")))))
-    (unless present-p
-      (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-    present-p)
-  "Return 't' when MPD and MPC commands are present, 'nil' otherwise.")
+(defconst +netextender-ok-p
+  (let ((ok (bool (and (executable-find "netExtender")
+                       (file-exists-p "~/.local/bin/netextender")
+                       (file-exists-p "~/.ssh/netExtender-params.gpg")))))
+    (unless ok (warn "Missing netExtender dependencies."))
+    ok)
+  "Evaluates to 't' when a valid netExtender configuration is present, 'nil' otherwise.")
 
-(defconst +mpv-present-p
-  (let ((present-p (and +mpd-present-p (not (null (and (executable-find "mpv") (executable-find "youtube-dl")))))))
-    (unless present-p
-       (warn "Missing MPV or youtube-dl."))
-    present-p))
+(defconst +mpd-ok-p
+  (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
+    (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
+    ok)
+  "Evaluates to 't' when MPD and MPC commands are present, 'nil' otherwise.")
+
+(defconst +mpv-ok-p
+  (let ((ok (bool (and +mpd-ok-p
+                       (executable-find "mpv")
+                       (executable-find "youtube-dl")))))
+    (unless ok (warn "Missing MPV or youtube-dl."))
+    (and nil ok)) ;; NOTE: disabled
+  "Evaluates to 't' when MPV and youtube-dl commands are present, 'nil' otherwise.")
 ;; Check for external tools:1 ends here
 
-;; [[file:config.org::*Font Face][Font Face:1]]
+;; [[file:config.org::*Font][Font:1]]
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      doom-variable-pitch-font (font-spec :family "FantasqueSansMono Nerd Font Mono") ; inherits the :size from doom-font
-      ;;doom-variable-pitch-font (font-spec :family "Andika") ; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
-;; Font Face:1 ends here
+;; Font:1 ends here
 
 ;; [[file:config.org::*Theme][Theme:1]]
 (setq doom-theme 'doom-vibrant)
@@ -150,12 +186,12 @@
       (display-battery-mode 1))))
 ;; Battery:1 ends here
 
-;; [[file:config.org::*Modeline customization][Modeline customization:1]]
+;; [[file:config.org::*Mode line customization][Mode line customization:1]]
 (setq doom-modeline-major-mode-icon t
       doom-modeline-major-mode-color-icon t
-      doom-modeline-buffer-state-icon t)
-(setq doom-modeline-github t)
-;; Modeline customization:1 ends here
+      doom-modeline-buffer-state-icon t
+      doom-modeline-github t)
+;; Mode line customization:1 ends here
 
 ;; [[file:config.org::*Custom Splash Image][Custom Splash Image:1]]
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
@@ -211,7 +247,18 @@
         vertico-posframe-border-width 3))
 ;; Vertico:1 ends here
 
-;; [[file:config.org::*SVG Tag Mode][SVG Tag Mode:2]]
+;; [[file:config.org::*Company][Company:1]]
+(setq company-global-modes
+      '(not erc-mode
+            circe-mode
+            message-mode
+            help-mode
+            gud-mode
+            vterm-mode
+            org-mode))
+;; Company:1 ends here
+
+;; [[file:config.org::*SVG Tag mode][SVG Tag mode:2]]
 (use-package! svg-tag-mode
   :commands svg-tag-mode
   :config
@@ -235,7 +282,7 @@
                     :height 0.6
                     :padding 0
                     :margin 0))))))
-;; SVG Tag Mode:2 ends here
+;; SVG Tag mode:2 ends here
 
 ;; [[file:config.org::*Focus][Focus:2]]
 (use-package! focus
@@ -249,6 +296,12 @@
     :config (good-scroll-mode 1)))
 ;; Smooth scrolling:2 ends here
 
+;; [[file:config.org::*All the icons][All the icons:1]]
+(after! all-the-icons
+  (setcdr (assoc "m" all-the-icons-extension-icon-alist)
+          (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
+;; All the icons:1 ends here
+
 ;; [[file:config.org::*Scratch buffer][Scratch buffer:1]]
 (setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
 ;; Scratch buffer:1 ends here
@@ -257,6 +310,12 @@
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
 ;; Mouse buttons:1 ends here
+
+;; [[file:config.org::*Page break lines][Page break lines:2]]
+(use-package! page-break-lines
+  :diminish
+  :init (global-page-break-lines-mode))
+;; Page break lines:2 ends here
 
 ;; [[file:config.org::*Binary files][Binary files:1]]
 (defun +hexl/buffer-binary-p (&optional buffer)
@@ -280,6 +339,11 @@ is binary, activate `hexl-mode'."
 (add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
 ;; Binary files:1 ends here
 
+;; [[file:config.org::*Very large files][Very large files:2]]
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+;; Very large files:2 ends here
+
 ;; [[file:config.org::*Evil][Evil:2]]
 (after! evil
   (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
@@ -290,16 +354,27 @@ is binary, activate `hexl-mode'."
   :commands (aggressive-indent-mode))
 ;; Aggressive indent:2 ends here
 
-;; [[file:config.org::*Parinfer][Parinfer:1]]
-(setq parinfer-rust-check-before-enable 'defer
-      parinfer-rust-auto-download nil
-      ;; Use locally compiled module
-      parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
-      parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
-      parinfer-rust-preferred-mode "smart"
-      parinfer-rust-troublesome-modes '(electric-pair-mode
-                                        hungry-delete-mode
-                                        global-hungry-delete-mode))
+;; [[file:config.org::*Parinfer][Parinfer:2]]
+(use-package! parinfer-rust-mode
+  :when (bound-and-true-p module-file-suffix)
+  ;; Don't hook, causing annoying problem when openning Org file
+  ;; with lisp blocks.
+  ;; :hook ((emacs-lisp-mode clojure-mode scheme-mode lisp-mode racket-mode hy-mode) . parinfer-rust-mode)
+  :init
+  (setq parinfer-rust-check-before-enable 'defer
+        parinfer-rust-auto-download nil
+        ;; Use locally compiled module
+        parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
+        parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
+        parinfer-rust-preferred-mode "smart"
+        parinfer-rust-troublesome-modes '(electric-pair-mode
+                                          hungry-delete-mode
+                                          global-hungry-delete-mode))
+  :config
+  (map! :map parinfer-rust-mode-map
+        :localleader
+        "p" #'parinfer-rust-switch-mode
+        "P" #'parinfer-rust-toggle-disable))
 
 ;; (after! parinfer-rust-mode
 ;;   (defvar +parinfer-rust-disable-in-modes-list '(org-mode))
@@ -320,7 +395,11 @@ is binary, activate `hexl-mode'."
 
 ;;   (advice-add 'parinfer-rust-mode-enable :around #'+parinfer-rust-disable-in-modes)
 ;;   (advice-add 'parinfer-rust-mode :around #'+parinfer-rust-disable-in-modes))
-;; Parinfer:1 ends here
+;; Parinfer:2 ends here
+
+;; [[file:config.org::*YASnippet][YASnippet:1]]
+(setq yas-triggers-in-field t)
+;; YASnippet:1 ends here
 
 ;; [[file:config.org::*Asynchronous tangling][Asynchronous tangling:1]]
 (defadvice! +literate-tangle-async-h ()
@@ -333,24 +412,6 @@ is binary, activate `hexl-mode'."
 (org-babel-tangle-file \\\"%s\\\"))\""
              +literate-config-file))))
 ;; Asynchronous tangling:1 ends here
-
-;; [[file:config.org::*All the icons][All the icons:1]]
-(after! all-the-icons
-  (setcdr (assoc "m" all-the-icons-extension-icon-alist)
-          (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
-;; All the icons:1 ends here
-
-;; [[file:config.org::*Company][Company:1]]
-;; (add-hook 'org-mode-hook (lambda () (company-mode -1)))
-(setq company-global-modes
-      '(not erc-mode
-            circe-mode
-            message-mode
-            help-mode
-            gud-mode
-            vterm-mode
-            org-mode))
-;; Company:1 ends here
 
 ;; [[file:config.org::*Tabs][Tabs:1]]
 (use-package! tab-bar
@@ -576,37 +637,42 @@ ARG counts from 1."
         centaur-tabs-gray-out-icons 'buffer))
 ;; Centaur tabs:1 ends here
 
-;; [[file:config.org::*Treemacs][Treemacs:1]]
-;; My custom stuff (from tecosaur's config)
-(setq +treemacs-file-ignore-extensions
-      '(;; LaTeX
-        "aux" "ptc" "fdb_latexmk" "fls" "synctex.gz" "toc"
-        ;; LaTeX - bibliography
-        "bbl"
-        ;; LaTeX - glossary
-        "glg" "glo" "gls" "glsdefs" "ist" "acn" "acr" "alg"
-        ;; LaTeX - pgfplots
-        "mw"
-        ;; LaTeX - pdfx
-        "pdfa.xmpi"
-        ;; Python
-        "pyc"))
-
-(setq +treemacs-file-ignore-globs
-      '(;; LaTeX
-        "*/_minted-*"
-        ;; AucTeX
-        "*/.auctex-auto"
-        "*/_region_.log"
-        "*/_region_.tex"
-        ;; Python
-        "*/__pycache__"))
-
+;; [[file:config.org::*Treemacs][Treemacs:2]]
 (after! treemacs
-  ;; Reload the Treemacs theme
   (require 'dired)
 
+  ;; My custom stuff (from tecosaur's config)
+  (setq +treemacs-file-ignore-extensions
+        '(;; LaTeX
+          "aux" "ptc" "fdb_latexmk" "fls" "synctex.gz" "toc"
+          ;; LaTeX - bibliography
+          "bbl"
+          ;; LaTeX - glossary
+          "glg" "glo" "gls" "glsdefs" "ist" "acn" "acr" "alg"
+          ;; LaTeX - pgfplots
+          "mw"
+          ;; LaTeX - pdfx
+          "pdfa.xmpi"
+          ;; Python
+          "pyc"))
+
+  (setq +treemacs-file-ignore-globs
+        '(;; LaTeX
+          "*/_minted-*"
+          ;; AucTeX
+          "*/.auctex-auto"
+          "*/_region_.log"
+          "*/_region_.tex"
+          ;; Python
+          "*/__pycache__"))
+
+  ;; Reload treemacs theme
+  (setq doom-themes-treemacs-enable-variable-pitch nil
+        doom-themes-treemacs-theme "doom-colors")
+  (doom-themes-treemacs-config)
+
   (setq treemacs-show-hidden-files nil
+        treemacs-hide-dot-git-directory t
         treemacs-width 30)
 
   (defvar +treemacs-file-ignore-extensions '()
@@ -633,52 +699,36 @@ ARG counts from 1."
             (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
 
   (add-to-list 'treemacs-ignored-file-predicates #'+treemacs-ignore-filter))
-;; Treemacs:1 ends here
+;; Treemacs:2 ends here
 
-;; [[file:config.org::*Dark mode][Dark mode:1]]
-(after! pdf-tools
-  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
-;; Dark mode:1 ends here
+;; [[file:config.org::*Projectile][Projectile:1]]
+;; Run `M-x projectile-project-search-path' to reload paths from this variable
+(setq projectile-project-search-path
+      '("~/PhD/workspace"
+        "~/PhD/workspace-no"
+        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
+        "~/Projects/foss_projects"))
 
-;; [[file:config.org::*Better PDFs in mode line][Better PDFs in mode line:1]]
-(after! doom-modeline
-  (doom-modeline-def-segment buffer-name
-    "Display the current buffer's name, without any other information."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline--buffer-name)))
+(setq projectile-ignored-projects
+      '("~/"
+        "/tmp"
+        "~/.cache"
+        "~/.emacs.d/.local/straight/repos/"))
 
-  (doom-modeline-def-segment pdf-icon
-    "PDF icon from all-the-icons."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline-icon 'octicon "file-pdf" nil nil
-                         :face (if (doom-modeline--active)
-                                   'all-the-icons-red
-                                   'mode-line-inactive)
-                         :v-adjust 0.02)))
+(defun projectile-ignored-project-function (filepath)
+  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
+  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+;; Projectile:1 ends here
 
-  (defun doom-modeline-update-pdf-pages ()
-    "Update PDF pages."
-    (setq doom-modeline--pdf-pages
-          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
-                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
-            (concat
-             (propertize
-              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
-                      " P" current-page-str)
-              'face 'mode-line)
-             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
+;; [[file:config.org::*Tramp][Tramp:1]]
+(after! tramp
+  (setenv "SHELL" "/bin/bash")
+  (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
+;; Tramp:1 ends here
 
-  (doom-modeline-def-segment pdf-pages
-    "Display PDF pages."
-    (if (doom-modeline--active) doom-modeline--pdf-pages
-      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
-
-  (doom-modeline-def-modeline 'pdf
-    '(bar window-number pdf-pages pdf-icon buffer-name)
-    '(misc-info matches major-mode process vcs)))
-;; Better PDFs in mode line:1 ends here
+;; [[file:config.org::*Eros-eval][Eros-eval:1]]
+(setq eros-eval-result-prefix "⟹ ")
+;; Eros-eval:1 ends here
 
 ;; [[file:config.org::*Emojify][Emojify:1]]
 (setq emojify-emoji-set "twemoji-v2")
@@ -687,7 +737,7 @@ ARG counts from 1."
 ;; [[file:config.org::*Emojify][Emojify:2]]
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱" "®" "™"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱" "®" "™" "🔚"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -727,9 +777,9 @@ ARG counts from 1."
 (add-hook! '(mu4e-compose-mode org-msg-edit-mode circe-channel-mode) (emoticon-to-emoji 1))
 ;; Emojify:4 ends here
 
-;; [[file:config.org::*Eros-eval][Eros-eval:1]]
-(setq eros-eval-result-prefix "⟹ ")
-;; Eros-eval:1 ends here
+;; [[file:config.org::*Ligatures][Ligatures:1]]
+(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
+;; Ligatures:1 ends here
 
 ;; [[file:config.org::*Spell-Fu][Spell-Fu:1]]
 (after! spell-fu
@@ -748,108 +798,6 @@ ARG counts from 1."
               (spell-fu-register-dictionary "en")
               (spell-fu-register-dictionary "fr"))))
 ;; Spell-Fu:1 ends here
-
-;; [[file:config.org::*Lazy flyspell][Lazy flyspell:1]]
-(after! flyspell
-  (setq flyspell-lazy-idle-seconds 2
-        flyspell-lazy-window-idle-seconds 5))
-;; Lazy flyspell:1 ends here
-
-;; [[file:config.org::*LanguageTool][LanguageTool:1]]
-(map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :checkers grammar)
-       :prefix-map ("l" . "langtool")
-       :desc "Check"                   "l" #'langtool-check
-       :desc "Correct buffer"          "b" #'langtool-correct-buffer
-       :desc "Stop server"             "s" #'langtool-server-stop
-       :desc "Done checking"           "d" #'langtool-check-done
-       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
-       :desc "Next error"              "n" #'langtool-goto-next-error
-       :desc "Previous error"          "p" #'langtool-goto-previous-error
-       :desc "Switch default language" "L" #'langtool-switch-default-language))
-;; LanguageTool:1 ends here
-
-;; [[file:config.org::*Projectile][Projectile:1]]
-;; Run `M-x projectile-project-search-path' to reload paths from this variable
-(setq projectile-project-search-path
-      '("~/PhD/workspace"
-        "~/PhD/workspace-no"
-        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-        "~/Projects/foss_projects"))
-
-(setq projectile-ignored-projects
-      '("~/"
-        "/tmp"
-        "~/.cache"
-        "~/.emacs.d/.local/straight/repos/"))
-
-(defun projectile-ignored-project-function (filepath)
-  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
-  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
-;; Projectile:1 ends here
-
-;; [[file:config.org::*Tramp][Tramp:1]]
-(after! tramp
-  (setenv "SHELL" "/bin/bash")
-  (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
-;; Tramp:1 ends here
-
-;; [[file:config.org::*YASnippet][YASnippet:1]]
-(setq yas-triggers-in-field t)
-;; YASnippet:1 ends here
-
-;; [[file:config.org::*Ligatures][Ligatures:1]]
-(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
-;; Ligatures:1 ends here
-
-;; [[file:config.org::*Weather][Weather:2]]
-(use-package! wttrin
-  :commands wttrin)
-;; Weather:2 ends here
-
-;; [[file:config.org::*OpenStreetMap][OpenStreetMap:2]]
-(use-package! osm
-  :commands (osm-home
-             osm-search
-             osm-server
-             osm-goto
-             osm-gpx-show
-             osm-bookmark-jump)
-
-  :custom
-  ;; Take a look at the customization group `osm' for more options.
-  (osm-server 'default) ;; Configure the tile server
-  (osm-copyright t)     ;; Display the copyright information
-
-  :init
-  ;; Load Org link support
-  (with-eval-after-load 'org
-    (require 'osm-ol)))
-;; OpenStreetMap:2 ends here
-
-;; [[file:config.org::*Islamic prayer times][Islamic prayer times:2]]
-(use-package! awqat
-  :load-path "~/Projects/foss_projects/awqat"
-  :commands (awqat-display-prayer-time-mode awqat-times-for-day)
-  :config
-  ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
-  ;; otherwise, set them here.
-  (setq awqat-asr-hanafi nil
-        awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) ")
-  (awqat-set-preset-french-muslims))
-;; Islamic prayer times:2 ends here
-
-;; [[file:config.org::*Very large files][Very large files:2]]
-(use-package! vlf-setup
-  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
-;; Very large files:2 ends here
-
-;; [[file:config.org::*Info colors][Info colors:2]]
-(use-package! info-colors
-  :commands (info-colors-fontify-node))
-
-(add-hook 'Info-selection-hook 'info-colors-fontify-node)
-;; Info colors:2 ends here
 
 ;; [[file:config.org::*Guess language][Guess language:2]]
 (use-package! guess-language
@@ -924,9 +872,147 @@ ARG counts from 1."
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 ;; Grammalecte:2 ends here
 
+;; [[file:config.org::*Lazy flyspell][Lazy flyspell:1]]
+(after! flyspell
+  (setq flyspell-lazy-idle-seconds 2
+        flyspell-lazy-window-idle-seconds 5))
+;; Lazy flyspell:1 ends here
+
+;; [[file:config.org::*LanguageTool][LanguageTool:1]]
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :checkers grammar)
+       :prefix-map ("l" . "langtool")
+       :desc "Check"                   "l" #'langtool-check
+       :desc "Correct buffer"          "b" #'langtool-correct-buffer
+       :desc "Stop server"             "s" #'langtool-server-stop
+       :desc "Done checking"           "d" #'langtool-check-done
+       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
+       :desc "Next error"              "n" #'langtool-goto-next-error
+       :desc "Previous error"          "p" #'langtool-goto-previous-error
+       :desc "Switch default language" "L" #'langtool-switch-default-language))
+;; LanguageTool:1 ends here
+
+;; [[file:config.org::*Disk usage][Disk usage:2]]
+(use-package! disk-usage
+  :commands (disk-usage))
+;; Disk usage:2 ends here
+
+;; [[file:config.org::*Chezmoi][Chezmoi:2]]
+(use-package! chezmoi
+  :when +chezmoi-ok-p
+  :commands (chezmoi-write
+             chezmoi-magit-status
+             chezmoi-diff
+             chezmoi-ediff
+             chezmoi-find
+             chezmoi-write-files
+             chezmoi-open-other
+             chezmoi-template-buffer-display
+             chezmoi-mode)
+  :config
+  ;; Company integration
+  (when (featurep! :completion company)
+    (defun +chezmoi--company-backend-h ()
+      (require 'chezmoi-company)
+      (if chezmoi-mode
+          (add-to-list 'company-backends 'chezmoi-company-backend)
+        (delete 'chezmoi-company-backend 'company-backends)))
+
+    (add-hook 'chezmoi-mode-hook #'+chezmoi--company-backend-h))
+
+  ;; Integrate with evil mode by toggling template display when entering insert mode.
+  (when (featurep! :editor evil)
+    (defun +chezmoi--evil-insert-state-enter-h ()
+      "Run after evil-insert-state-entry."
+      (chezmoi-template-buffer-display nil (point))
+      (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
+
+    (defun +chezmoi--evil-insert-state-exit-h ()
+      "Run after evil-insert-state-exit."
+      (chezmoi-template-buffer-display nil)
+      (chezmoi-template-buffer-display t)
+      (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
+
+    (defun +chezmoi--evil-h ()
+      (if chezmoi-mode
+          (progn
+            (add-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h nil 1)
+            (add-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h nil 1))
+        (progn
+          (remove-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h 1)
+          (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
+
+    (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
+;; Chezmoi:2 ends here
+
+;; [[file:config.org::*Aweshell][Aweshell:2]]
+(use-package! aweshell
+  :commands (aweshell-new aweshell-dedicated-open))
+;; Aweshell:2 ends here
+
+;; [[file:config.org::*Lemon][Lemon:2]]
+(use-package! lemon
+  :commands (lemon-mode lemon-display)
+  :config
+  (require 'lemon-cpu)
+  (require 'lemon-memory)
+  (require 'lemon-network)
+  (setq lemon-delay 5
+        lemon-refresh-rate 2
+        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
+                              (lemon-cpu-linux)
+                              (lemon-memory-linux)
+                              (lemon-linux-network-tx)
+                              (lemon-linux-network-rx)))))
+;; Lemon:2 ends here
+
+;; [[file:config.org::*Weather][Weather:2]]
+(use-package! wttrin
+  :commands wttrin)
+;; Weather:2 ends here
+
+;; [[file:config.org::*OpenStreetMap][OpenStreetMap:2]]
+(use-package! osm
+  :commands (osm-home
+             osm-search
+             osm-server
+             osm-goto
+             osm-gpx-show
+             osm-bookmark-jump)
+
+  :custom
+  ;; Take a look at the customization group `osm' for more options.
+  (osm-server 'default) ;; Configure the tile server
+  (osm-copyright t)     ;; Display the copyright information
+
+  :init
+  ;; Load Org link support
+  (with-eval-after-load 'org
+    (require 'osm-ol)))
+;; OpenStreetMap:2 ends here
+
+;; [[file:config.org::*Islamic prayer times][Islamic prayer times:2]]
+(use-package! awqat
+  :load-path "~/Projects/foss_projects/awqat"
+  :commands (awqat-display-prayer-time-mode awqat-times-for-day)
+  :config
+  ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
+  ;; otherwise, set them here.
+  (setq awqat-asr-hanafi nil
+        awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) ")
+  (awqat-set-preset-french-muslims))
+;; Islamic prayer times:2 ends here
+
+;; [[file:config.org::*Info colors][Info colors:2]]
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+;; Info colors:2 ends here
+
 ;; [[file:config.org::*Zotero Zotxt][Zotero Zotxt:2]]
 (use-package! zotxt
-  :when +zotero-present-p
+  :when +zotero-ok-p
   :commands org-zotxt-mode)
 ;; Zotero Zotxt:2 ends here
 
@@ -938,36 +1024,20 @@ ARG counts from 1."
              crdt-org-sync-overlay-mode))
 ;; CRDT:2 ends here
 
-;; [[file:config.org::*Ag.el][Ag.el:2]]
+;; [[file:config.org::*The Silver Searcher][The Silver Searcher:2]]
 (use-package! ag
-  :when +ag-present-p
+  :when +ag-ok-p
   :commands (ag
              ag-files
              ag-regexp
              ag-project
              ag-project-files
              ag-project-regexp))
-;; Ag.el:2 ends here
-
-;; [[file:config.org::*Disk usage][Disk usage:2]]
-(use-package! disk-usage
-  :commands (disk-usage))
-;; Disk usage:2 ends here
-
-;; [[file:config.org::*Aweshell][Aweshell:2]]
-(use-package! aweshell
-  :commands (aweshell-new aweshell-dedicated-open))
-;; Aweshell:2 ends here
-
-;; [[file:config.org::*Page break lines][Page break lines:2]]
-(use-package! page-break-lines
-  :diminish
-  :init (global-page-break-lines-mode))
-;; Page break lines:2 ends here
+;; The Silver Searcher:2 ends here
 
 ;; [[file:config.org::*Emacs Application Framework][Emacs Application Framework:1]]
 (use-package! eaf
-  :when +eaf-present-p
+  :when +eaf-ok-p
   :load-path "lisp/emacs-application-framework"
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
@@ -1138,90 +1208,11 @@ ARG counts from 1."
           (kbd "SPC"))))))
 ;; Emacs Application Framework:1 ends here
 
-;; [[file:config.org::*Popweb][Popweb:2]]
-(use-package! popweb
-  :init
-  (require 'straight)
-  (add-to-list 'load-path (expand-file-name (format "straight/%s/popweb/extension/latex" straight-build-dir) straight-base-dir))
-  (add-to-list 'load-path (expand-file-name (format "straight/%s/popweb/extension/dict" straight-build-dir) straight-base-dir))
-  (require 'popweb-latex)
-  (require 'popweb-dict-bing)
-  :custom
-  (popweb-popup-pos "point-bottom")
-  :hook ((org-mode . popweb-latex-mode)
-         (tex-mode . popweb-latex-mode)
-         (ein:markdown-mode . popweb-latex-mode)))
-;; Popweb:2 ends here
-
-;; [[file:config.org::*Chezmoi][Chezmoi:2]]
-(use-package! chezmoi
-  :when +chezmoi-present-p
-  :commands (chezmoi-write
-             chezmoi-magit-status
-             chezmoi-diff
-             chezmoi-ediff
-             chezmoi-find
-             chezmoi-write-files
-             chezmoi-open-other
-             chezmoi-template-buffer-display
-             chezmoi-mode)
-  :config
-  ;; Company integration
-  (when (featurep! :completion company)
-    (defun +chezmoi--company-backend-h ()
-      (require 'chezmoi-company)
-      (if chezmoi-mode
-          (add-to-list 'company-backends 'chezmoi-company-backend)
-        (delete 'chezmoi-company-backend 'company-backends)))
-
-    (add-hook 'chezmoi-mode-hook #'+chezmoi--company-backend-h))
-
-  ;; Integrate with evil mode by toggling template display when entering insert mode.
-  (when (featurep! :editor evil)
-    (defun +chezmoi--evil-insert-state-enter-h ()
-      "Run after evil-insert-state-entry."
-      (chezmoi-template-buffer-display nil (point))
-      (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
-
-    (defun +chezmoi--evil-insert-state-exit-h ()
-      "Run after evil-insert-state-exit."
-      (chezmoi-template-buffer-display nil)
-      (chezmoi-template-buffer-display t)
-      (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
-
-    (defun +chezmoi--evil-h ()
-      (if chezmoi-mode
-          (progn
-            (add-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h nil 1)
-            (add-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h nil 1))
-        (progn
-          (remove-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h 1)
-          (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
-
-    (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
-;; Chezmoi:2 ends here
-
-;; [[file:config.org::*Lemon][Lemon:2]]
-(use-package! lemon
-  :commands (lemon-mode lemon-display)
-  :config
-  (require 'lemon-cpu)
-  (require 'lemon-memory)
-  (require 'lemon-network)
-  (setq lemon-delay 5
-        lemon-refresh-rate 2
-        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
-                              (lemon-cpu-linux)
-                              (lemon-memory-linux)
-                              (lemon-linux-network-tx)
-                              (lemon-linux-network-rx)))))
-;; Lemon:2 ends here
-
 ;; [[file:config.org::*Bitwarden][Bitwarden:2]]
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-  :when +bitwarden-present-p
+  :when +bitwarden-ok-p
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -1235,6 +1226,51 @@ ARG counts from 1."
                 (if (functionp pass) (funcall pass) pass))
             ""))))
 ;; Bitwarden:2 ends here
+
+;; [[file:config.org::*Dark mode][Dark mode:1]]
+(after! pdf-tools
+  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
+;; Dark mode:1 ends here
+
+;; [[file:config.org::*Better PDFs in mode line][Better PDFs in mode line:1]]
+(after! doom-modeline
+  (doom-modeline-def-segment buffer-name
+    "Display the current buffer's name, without any other information."
+    (concat
+     (doom-modeline-spc)
+     (doom-modeline--buffer-name)))
+
+  (doom-modeline-def-segment pdf-icon
+    "PDF icon from all-the-icons."
+    (concat
+     (doom-modeline-spc)
+     (doom-modeline-icon 'octicon "file-pdf" nil nil
+                         :face (if (doom-modeline--active)
+                                   'all-the-icons-red
+                                   'mode-line-inactive)
+                         :v-adjust 0.02)))
+
+  (defun doom-modeline-update-pdf-pages ()
+    "Update PDF pages."
+    (setq doom-modeline--pdf-pages
+          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
+                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
+            (concat
+             (propertize
+              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
+                      " P" current-page-str)
+              'face 'mode-line)
+             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
+
+  (doom-modeline-def-segment pdf-pages
+    "Display PDF pages."
+    (if (doom-modeline--active) doom-modeline--pdf-pages
+      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
+
+  (doom-modeline-def-modeline 'pdf
+    '(bar window-number pdf-pages pdf-icon buffer-name)
+    '(misc-info matches major-mode process vcs)))
+;; Better PDFs in mode line:1 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:2]]
 (use-package! speed-type
@@ -1259,176 +1295,6 @@ ARG counts from 1."
         xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
 ;; =xkcd=:2 ends here
 
-;; [[file:config.org::*Assembly][Assembly:2]]
-(use-package! nasm-mode
-  :mode "\\.[n]*\\(asm\\|s\\)\\'")
-
-;; Get Haxor VM from https://github.com/krzysztof-magosa/haxor
-(use-package! haxor-mode
-  :mode "\\.hax\\'")
-
-(use-package! mips-mode
-  :mode "\\.mips$")
-
-(use-package! riscv-mode
-  :commands (riscv-mode)
-  :mode "\\.riscv$")
-
-(use-package! x86-lookup
-  :commands (x86-lookup)
-  :config
-  (when (featurep! :tools pdf)
-     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
-  ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
-;; Assembly:2 ends here
-
-;; [[file:config.org::*Repo][Repo:3]]
-(use-package! repo
-  :when +repo-present-p
-  :commands repo-status)
-;; Repo:3 ends here
-
-;; [[file:config.org::*Devdocs][Devdocs:2]]
-(use-package! devdocs
-  :commands (devdocs-lookup devdocs-install)
-  :config
-  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
-;; Devdocs:2 ends here
-
-;; [[file:config.org::*Embed.el][Embed.el:2]]
-(use-package! embed
-  :commands (embed-openocd-start
-             embed-openocd-stop
-             embed-openocd-gdb
-             embed-openocd-flash)
-
-  :init
-  (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger +lsp)
-         :prefix-map ("e" . "embedded")
-         :desc "Start OpenOCD"    "o" #'embed-openocd-start
-         :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
-         :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
-         :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
-;; Embed.el:2 ends here
-
-;; [[file:config.org::*Disaster][Disaster:2]]
-;; TODO: Configure to take into account "compile_commands.json"
-(use-package! disaster
-  :commands (disaster))
-;; Disaster:2 ends here
-
-;; [[file:config.org::*Magit :heart: Delta][Magit :heart: Delta:2]]
-(use-package! magit-delta
-  :when +delta-present-p
-  :commands magit-status
-  :hook (magit-mode . magit-delta-mode))
-;; Magit :heart: Delta:2 ends here
-
-;; [[file:config.org::*Blamer][Blamer:2]]
-(use-package! blamer
-  :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 60)
-  (blamer-prettify-time-p t)
-  (blamer-entire-formatter "    %s")
-  (blamer-author-formatter " %s ")
-  (blamer-datetime-formatter "[%s], ")
-  (blamer-commit-formatter "“%s”")
-
-  :custom-face
-  (blamer-face ((t :foreground "#7a88cf"
-                   :background nil
-                   :height 125
-                   :italic t)))
-
-  :hook ((prog-mode . blamer-mode)
-         (text-mode . blamer-mode))
-
-  :config
-  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
-    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
-;; Blamer:2 ends here
-
-;; [[file:config.org::*Bitbake (Yocto)][Bitbake (Yocto):2]]
-(use-package bitbake-modes
-  :commands (bitbake-mode
-             conf-bitbake-mode
-             bb-scc-mode wks-mode
-             bitbake-task-log-mode
-             bb-sh-mode
-             mmm-mode))
-;; Bitbake (Yocto):2 ends here
-
-;; [[file:config.org::*LaTeX][LaTeX:2]]
-(use-package! aas
-  :commands aas-mode)
-;; LaTeX:2 ends here
-
-;; [[file:config.org::*Project CMake][Project CMake:2]]
-(use-package! project-cmake
-    :config
-    (require 'eglot)
-    (project-cmake-scan-kits)
-    (project-cmake-eglot-integration))
-;; Project CMake:2 ends here
-
-;; [[file:config.org::*Franca IDL][Franca IDL:2]]
-(use-package! franca-idl
-  :commands franca-idl-mode)
-;; Franca IDL:2 ends here
-
-;; [[file:config.org::*Flycheck :heart: Projectile][Flycheck :heart: Projectile:2]]
-(use-package! flycheck-projectile
-  :commands flycheck-projectile-list-errors)
-;; Flycheck :heart: Projectile:2 ends here
-
-;; [[file:config.org::*Graphviz][Graphviz:2]]
-(use-package! graphviz-dot-mode
-  :commands (graphviz-dot-mode graphviz-dot-preview))
-;; Graphviz:2 ends here
-
-;; [[file:config.org::*ROS Emacs utils][ROS Emacs utils:2]]
-(use-package! rosemacs
-  :config
-  (require 'rosemacs-config)
-  :commands (ros-core ros-topic-info))
-;; ROS Emacs utils:2 ends here
-
-;; [[file:config.org::*=ros.el=][=ros.el=:2]]
-(use-package! ros
-  :init (map! :leader
-              :prefix ("l" . "custom")
-              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
-  :commands (hydra-ros-main/body ros-set-workspace)
-  :config
-  (setq ros-workspaces
-        (list (ros-dump-workspace
-               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros2_ws"
-               :extends '("/opt/ros/foxy/")))))
-;; =ros.el=:2 ends here
-
-;; [[file:config.org::*Unibeautify][Unibeautify:2]]
-(use-package! unibeautify
-  :commands (unibeautify))
-;; Unibeautify:2 ends here
-
-;; [[file:config.org::*Emacs Inspector][Emacs Inspector:2]]
-(use-package! inspector
-  :commands (inspect-expression inspect-last-sexp))
-;; Emacs Inspector:2 ends here
-
 ;; [[file:config.org::*Calendar][Calendar:1]]
 (setq calendar-latitude 48.7
       calendar-longitude 2.17
@@ -1436,6 +1302,26 @@ ARG counts from 1."
       calendar-time-display-form '(24-hours ":" minutes
                                             (if time-zone " (") time-zone (if time-zone ")")))
 ;; Calendar:1 ends here
+
+;; [[file:config.org::*Dirvish :heart: Dired][Dirvish :heart: Dired:2]]
+(use-package! dirvish
+  :after dired
+  :init (dirvish-override-dired-mode)
+  :hook (dired-mode . dired-omit-mode)
+  :config
+  (setq dirvish-cache-dir (concat doom-cache-dir "dirvish/")
+        dirvish-hide-details nil
+        dired-omit-files (concat dired-omit-files "\\|^\\..*$"))
+  (map! :map dirvish-mode-map
+        :n "b" #'dirvish-goto-bookmark
+        :n "z" #'dirvish-show-history
+        :n "f" #'dirvish-file-info-menu
+        :n "F" #'dirvish-toggle-fullscreen
+        :n "l" #'dired-find-file
+        :n "h" #'dired-up-directory
+        :localleader
+        "h" #'dired-omit-mode))
+;; Dirvish :heart: Dired:2 ends here
 
 ;; [[file:config.org::*e-Books =nov=][e-Books =nov=:2]]
 (use-package! nov
@@ -1516,7 +1402,7 @@ ARG counts from 1."
 ;; News feed =elfeed=:1 ends here
 
 ;; [[file:config.org::*Launch NetExtender session from Emacs][Launch NetExtender session from Emacs:1]]
-(when +netextender-present-p
+(when +netextender-ok-p
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
@@ -1548,6 +1434,7 @@ ARG counts from 1."
   ;; Common parameters
   (setq mu4e-update-interval (* 3 60) ;; Every 3 min
         +mu4e-backend 'mbsync
+        mu4e-index-update-error-warning nil ;; Do not show warning after update
         ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
         mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
@@ -1658,7 +1545,7 @@ ARG counts from 1."
   ;; EMMS basic configuration
   (require 'emms-setup)
 
-  (when +mpd-present-p
+  (when +mpd-ok-p
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -1669,12 +1556,13 @@ ARG counts from 1."
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if +mpd-present-p
+  (if +mpd-ok-p
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
             emms-player-mpd-server-name "localhost"
-            emms-player-mpd-server-port "6600")
+            emms-player-mpd-server-port "6600"
+            emms-player-mpd-music-directory (expand-file-name "~/Music"))
     ;; Use whatever backend EMMS is using by default (VLC in my machine)
     (setq emms-info-functions '(emms-info-tinytag))) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
 
@@ -1686,7 +1574,7 @@ ARG counts from 1."
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when +mpd-present-p
+  (when +mpd-ok-p
     (emms-player-set emms-player-mpd 'regex
                      (emms-player-simple-regexp
                       "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
@@ -1760,7 +1648,7 @@ ARG counts from 1."
                                 +emms-notification-icon)))
 
   ;; MPV and Youtube integration
-  (when +mpv-present-p
+  (when +mpv-ok-p
     (add-to-list 'emms-player-list 'emms-player-mpv t)
     (emms-player-set
      emms-player-mpv
@@ -1806,7 +1694,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Elfeed :heart: MPV][Elfeed :heart: MPV:2]]
 (after! (elfeed emms)
-  (when +mpv-present-p
+  (when +mpv-ok-p
     ;; Integration with Elfeed
     (define-emms-source elfeed (entry)
       (let ((track (emms-track
@@ -1854,7 +1742,7 @@ ARG counts from 1."
 ;; [[file:config.org::*Keybindings][Keybindings:2]]
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) +mpd-present-p)
+      (:when (and (featurep! :app emms) +mpd-ok-p)
        :prefix-map ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -1889,7 +1777,7 @@ ARG counts from 1."
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
     (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
     ;; Force a sync to get the right song name over MPD in mode line
-    (when +mpd-present-p (emms-player-mpd-sync-from-mpd))
+    (when +mpd-ok-p (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
@@ -1901,7 +1789,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Maxima][Maxima:2]]
 (use-package! maxima
-  :when +maxima-present-p
+  :when +maxima-ok-p
   :commands (maxima-mode maxima-inferior-mode maxima)
   :init
   (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
@@ -1916,7 +1804,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*IMaxima][IMaxima:2]]
 (use-package! imaxima
-  :when +maxima-present-p
+  :when +maxima-ok-p
   :commands (imaxima imath-mode)
   :init
   (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
@@ -1932,7 +1820,7 @@ ARG counts from 1."
 (set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
 ;; File templates:1 ends here
 
-;; [[file:config.org::*CSV Rainbow][CSV Rainbow:1]]
+;; [[file:config.org::*CSV rainbow][CSV rainbow:1]]
 (after! csv-mode
   ;; TODO: Need to fix the case of two commas, example "a,b,,c,d"
   (require 'cl-lib)
@@ -1957,7 +1845,7 @@ ARG counts from 1."
 
 ;; provide CSV mode setup
 ;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
-;; CSV Rainbow:1 ends here
+;; CSV rainbow:1 ends here
 
 ;; [[file:config.org::*GNU Octave][GNU Octave:1]]
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
@@ -1970,99 +1858,61 @@ ARG counts from 1."
 (add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 ;; ROS:1 ends here
 
-;; [[file:config.org::*Eglot][Eglot:1]]
-(after! eglot
-  ;; A hack to make it works with projectile
-  (defun projectile-project-find-function (dir)
-    (let* ((root (projectile-project-root dir)))
-      (and root (cons 'transient root))))
-
-  (with-eval-after-load 'project
-    (add-to-list 'project-find-functions 'projectile-project-find-function))
-
-  ;; Use clangd with some options
-  (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
-;; Eglot:1 ends here
-
-;; [[file:config.org::*Enable some useful UI stuff][Enable some useful UI stuff:1]]
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover nil
-        lsp-log-io nil
-        lsp-lens-enable t ; not working properly with ccls!
-        lsp-diagnostics-provider :auto
-        lsp-enable-symbol-highlighting t
-        lsp-headerline-breadcrumb-enable nil
-        lsp-headerline-breadcrumb-segments '(symbols)))
-;; Enable some useful UI stuff:1 ends here
-
-;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
-(after! lsp-clangd
-  (setq lsp-clients-clangd-args
-        '("-j=4"
-          "--background-index"
-          "--clang-tidy"
-          "--completion-style=detailed"
-          "--header-insertion=never"
-          "--header-insertion-decorators=0"))
-  (set-lsp-priority! 'clangd 2))
-;; LSP mode with =clangd=:1 ends here
-
-;; [[file:config.org::*Python][Python:1]]
-(after! tramp
-  (require 'lsp-mode)
-  ;; (require 'lsp-pyright)
-
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
-
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
-;; Python:1 ends here
-
-;; [[file:config.org::*C/C++ with =clangd=][C/C++ with =clangd=:1]]
-(after! tramp
-  (require 'lsp-mode)
-
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
-
-  (lsp-register-client
-    (make-lsp-client
-     :new-connection
-     (lsp-tramp-connection
-      (lambda ()
-        (cons "clangd-12" ; executable name on remote machine 'ccls'
-              lsp-clients-clangd-args)))
-     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-     :remote? t
-     :server-id 'clangd-remote)))
-;; C/C++ with =clangd=:1 ends here
-
-;; [[file:config.org::*VHDL][VHDL:1]]
-(use-package! vhdl-mode
-  ;; Required unless vhdl_ls is on the $PATH
+;; [[file:config.org::*ROS Emacs utils][ROS Emacs utils:2]]
+(use-package! rosemacs
   :config
-  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
-        lsp-vhdl-server 'vhdl-ls
-        lsp-vhdl--params nil)
-  (require 'lsp-vhdl)
-  :hook (vhdl-mode . (lambda ()
-                       (lsp t)
-                       (flycheck-mode t))))
-;; VHDL:1 ends here
+  (require 'rosemacs-config)
+  :commands (ros-core ros-topic-info))
+;; ROS Emacs utils:2 ends here
+
+;; [[file:config.org::*=ros.el=][=ros.el=:2]]
+(use-package! ros
+  :init (map! :leader
+              :prefix ("l" . "custom")
+              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :commands (hydra-ros-main/body ros-set-workspace)
+  :config
+  (setq ros-workspaces
+        (list (ros-dump-workspace
+               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros2_ws"
+               :extends '("/opt/ros/foxy/")))))
+;; =ros.el=:2 ends here
+
+;; [[file:config.org::*Embed.el][Embed.el:2]]
+(use-package! embed
+  :commands (embed-openocd-start
+             embed-openocd-stop
+             embed-openocd-gdb
+             embed-openocd-flash)
+
+  :init
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger +lsp)
+         :prefix-map ("e" . "embedded")
+         :desc "Start OpenOCD"    "o" #'embed-openocd-start
+         :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
+         :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
+         :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
+;; Embed.el:2 ends here
+
+;; [[file:config.org::*Bitbake (Yocto)][Bitbake (Yocto):2]]
+(use-package bitbake-modes
+  :commands (bitbake-mode
+             conf-bitbake-mode
+             bb-scc-mode wks-mode
+             bitbake-task-log-mode
+             bb-sh-mode
+             mmm-mode))
+;; Bitbake (Yocto):2 ends here
 
 ;; [[file:config.org::*DAP][DAP:2]]
 (after! dap-mode
@@ -2337,6 +2187,104 @@ ARG counts from 1."
   (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
 ;; History:1 ends here
 
+;; [[file:config.org::*Eglot][Eglot:1]]
+(after! eglot
+  ;; A hack to make it works with projectile
+  (defun projectile-project-find-function (dir)
+    (let* ((root (projectile-project-root dir)))
+      (and root (cons 'transient root))))
+
+  (with-eval-after-load 'project
+    (add-to-list 'project-find-functions 'projectile-project-find-function))
+
+  ;; Use clangd with some options
+  (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
+;; Eglot:1 ends here
+
+;; [[file:config.org::*Enable some useful UI stuff][Enable some useful UI stuff:1]]
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil
+        lsp-log-io nil
+        lsp-lens-enable t ; not working properly with ccls!
+        lsp-diagnostics-provider :auto
+        lsp-enable-symbol-highlighting t
+        lsp-headerline-breadcrumb-enable nil
+        lsp-headerline-breadcrumb-segments '(symbols)))
+;; Enable some useful UI stuff:1 ends here
+
+;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
+(after! lsp-clangd
+  (setq lsp-clients-clangd-args
+        '("-j=4"
+          "--background-index"
+          "--clang-tidy"
+          "--completion-style=detailed"
+          "--header-insertion=never"
+          "--header-insertion-decorators=0"))
+  (set-lsp-priority! 'clangd 2))
+;; LSP mode with =clangd=:1 ends here
+
+;; [[file:config.org::*Python][Python:1]]
+(after! tramp
+  (require 'lsp-mode)
+  ;; (require 'lsp-pyright)
+
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        ;; To bypass the "lsp--document-highlight fails if
+        ;; textDocument/documentHighlight is not supported" error
+        lsp-enable-symbol-highlighting nil)
+
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection "pyls")
+    :major-modes '(python-mode)
+    :remote? t
+    :server-id 'pyls-remote)))
+;; Python:1 ends here
+
+;; [[file:config.org::*C/C++ with =clangd=][C/C++ with =clangd=:1]]
+(after! tramp
+  (require 'lsp-mode)
+
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        ;; To bypass the "lsp--document-highlight fails if
+        ;; textDocument/documentHighlight is not supported" error
+        lsp-enable-symbol-highlighting nil)
+
+  (lsp-register-client
+    (make-lsp-client
+     :new-connection
+     (lsp-tramp-connection
+      (lambda ()
+        (cons "clangd-12" ; executable name on remote machine 'ccls'
+              lsp-clients-clangd-args)))
+     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+     :remote? t
+     :server-id 'clangd-remote)))
+;; C/C++ with =clangd=:1 ends here
+
+;; [[file:config.org::*VHDL][VHDL:1]]
+(use-package! vhdl-mode
+  ;; Required unless vhdl_ls is on the $PATH
+  :config
+  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
+        lsp-vhdl-server 'vhdl-ls
+        lsp-vhdl--params nil)
+  (require 'lsp-vhdl)
+  :hook (vhdl-mode . (lambda ()
+                       (lsp t)
+                       (flycheck-mode t))))
+;; VHDL:1 ends here
+
+;; [[file:config.org::*SonarLint][SonarLint:2]]
+;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
+;; SonarLint:2 ends here
+
 ;; [[file:config.org::*Cppcheck][Cppcheck:1]]
 (after! flycheck
   (setq flycheck-cppcheck-checks '("information"
@@ -2348,13 +2296,125 @@ ARG counts from 1."
                                    "warning"))) ;; Actually, we can use "all"
 ;; Cppcheck:1 ends here
 
-;; [[file:config.org::*Plain text][Plain text:1]]
-(after! text-mode
-  (add-hook! 'text-mode-hook
-             ;; Apply ANSI color codes
-             (with-silent-modifications
-               (ansi-color-apply-on-region (point-min) (point-max) t))))
-;; Plain text:1 ends here
+;; [[file:config.org::*Project CMake][Project CMake:2]]
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
+;; Project CMake:2 ends here
+
+;; [[file:config.org::*Unibeautify][Unibeautify:2]]
+(use-package! unibeautify
+  :commands (unibeautify))
+;; Unibeautify:2 ends here
+
+;; [[file:config.org::*Repo][Repo:3]]
+(use-package! repo
+  :when +repo-ok-p
+  :commands repo-status)
+;; Repo:3 ends here
+
+;; [[file:config.org::*Magit :heart: Delta][Magit :heart: Delta:2]]
+(use-package! magit-delta
+  :when +delta-ok-p
+  :commands magit-status
+  :hook (magit-mode . magit-delta-mode))
+;; Magit :heart: Delta:2 ends here
+
+;; [[file:config.org::*Blamer][Blamer:2]]
+(use-package! blamer
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 60)
+  (blamer-prettify-time-p t)
+  (blamer-entire-formatter "    %s")
+  (blamer-author-formatter " %s ")
+  (blamer-datetime-formatter "[%s], ")
+  (blamer-commit-formatter "“%s”")
+
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                   :background nil
+                   :height 125
+                   :italic t)))
+
+  :hook ((prog-mode . blamer-mode)
+         (text-mode . blamer-mode))
+
+  :config
+  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
+    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
+;; Blamer:2 ends here
+
+;; [[file:config.org::*Clang-format][Clang-format:2]]
+(use-package! clang-format
+  :when +clang-format-ok-p
+  :commands (clang-format-region))
+;; Clang-format:2 ends here
+
+;; [[file:config.org::*Assembly][Assembly:2]]
+(use-package! nasm-mode
+  :mode "\\.[n]*\\(asm\\|s\\)\\'")
+
+;; Get Haxor VM from https://github.com/krzysztof-magosa/haxor
+(use-package! haxor-mode
+  :mode "\\.hax\\'")
+
+(use-package! mips-mode
+  :mode "\\.mips$")
+
+(use-package! riscv-mode
+  :commands (riscv-mode)
+  :mode "\\.riscv$")
+
+(use-package! x86-lookup
+  :commands (x86-lookup)
+  :config
+  (when (featurep! :tools pdf)
+     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
+  ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
+;; Assembly:2 ends here
+
+;; [[file:config.org::*Disaster][Disaster:2]]
+;; TODO: Configure to take into account "compile_commands.json"
+(use-package! disaster
+  :commands (disaster))
+;; Disaster:2 ends here
+
+;; [[file:config.org::*Devdocs][Devdocs:2]]
+(use-package! devdocs
+  :commands (devdocs-lookup devdocs-install)
+  :config
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+;; Devdocs:2 ends here
+
+;; [[file:config.org::*Franca IDL][Franca IDL:2]]
+(use-package! franca-idl
+  :commands franca-idl-mode)
+;; Franca IDL:2 ends here
+
+;; [[file:config.org::*LaTeX][LaTeX:2]]
+(use-package! aas
+  :commands aas-mode)
+;; LaTeX:2 ends here
+
+;; [[file:config.org::*Flycheck :heart: Projectile][Flycheck :heart: Projectile:2]]
+(use-package! flycheck-projectile
+  :commands flycheck-projectile-list-errors)
+;; Flycheck :heart: Projectile:2 ends here
+
+;; [[file:config.org::*Graphviz][Graphviz:2]]
+(use-package! graphviz-dot-mode
+  :commands (graphviz-dot-mode graphviz-dot-preview))
+;; Graphviz:2 ends here
+
+;; [[file:config.org::*Inspector][Inspector:2]]
+(use-package! inspector
+  :commands (inspect-expression inspect-last-sexp))
+;; Inspector:2 ends here
 
 (after! org
   (setq org-directory "~/Dropbox/Org/"        ; let's put files here
@@ -2368,7 +2428,7 @@ ARG counts from 1."
         org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
         org-auto-align-tags nil
         org-special-ctrl-a/e t
-        org-startup-indented nil ;; Do not enable 'org-indent-mode' globally, makes loading files faster.
+        org-startup-indented t ;; Enable 'org-indent-mode' by default, override with '+#startup: noindent' for big files
         org-insert-heading-respect-content t)
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -2380,6 +2440,7 @@ ARG counts from 1."
      (C . t)
      (cpp . t)
      (maxima . t)
+     (dot . t)
      (emacs-lisp . t)))
   (setq org-babel-default-header-args
         '((:session  . "none")
@@ -2998,9 +3059,9 @@ ARG counts from 1."
     '(outline-9 :weight semi-bold))
   (setq org-agenda-deadline-faces
         '((1.001 . error)
-          (1.0 . org-warning)
-          (0.5 . org-upcoming-deadline)
-          (0.0 . org-upcoming-distant-deadline)))
+          (1.000 . org-warning)
+          (0.500 . org-upcoming-deadline)
+          (0.000 . org-upcoming-distant-deadline)))
   (setq org-fontify-quote-and-verse-blocks t)
   (use-package! org-appear
     :hook (org-mode . org-appear-mode)
@@ -3016,17 +3077,22 @@ ARG counts from 1."
   (use-package! org-modern
     :init
     (setq org-modern-table-vertical 1
-          org-modern-table-horizontal 1)
+          org-modern-table-horizontal 1
+          org-modern-keyword nil) ;; I like to fontify them using ligatures
   
     (global-org-modern-mode))
-  ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/?utm_source=share&utm_medium=web2x&context=3
+  ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
   ;; Scale image previews to 60% of the window width.
   (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
-  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+  (setq org-list-demote-modify-bullet
+        '(("+" . "-")
+          ("-" . "+")
+          ("*" . "+")
+          ("1." . "a.")))
   ;; Org styling, hide markup etc.
   (setq org-hide-emphasis-markers t
         org-pretty-entities t
-        org-ellipsis "↩"
+        org-ellipsis " ↩"
         org-hide-leading-stars t
         org-priority-highest ?A
         org-priority-lowest ?E
@@ -3054,12 +3120,14 @@ ARG counts from 1."
               :property                "☸"
               :options                 "⌥"
               :startup                 "⏻"
+              :hugo_base_dir           "𝐇"
               :macro                   "𝓜"
               :html_head               "🅷"
               :html                    "🅗"
               :latex_class             "🄻"
               :latex_class_options     "🄻"
               :latex_header            "🅻"
+              :latex_header_extra      "🅻"
               :beamer_header           "🅑"
               :latex                   "🅛"
               :attr_latex              "🄛"
@@ -3073,6 +3141,7 @@ ARG counts from 1."
               :name                    "⁍"
               :header                  "›"
               :results                 "🠶"
+              :results_small           "🠶"
               :begin_export            "⏩"
               :end_export              "⏪"
               :filetags                "#"
@@ -3080,8 +3149,12 @@ ARG counts from 1."
               :include                 "⇩"
               :setupfile               "⇩"
               :export_file_name        "⇧"
+              :export_select_tags      "✔"
+              :export_exclude_tags     "❌"
               :properties              "⚙"
               :end                     "᛫"
+              :properties_small        "⚙"
+              :end_small               "᛫"
               :priority_a              ,(propertize "⚑" 'face 'all-the-icons-red)
               :priority_b              ,(propertize "⬆" 'face 'all-the-icons-orange)
               :priority_c              ,(propertize "■" 'face 'all-the-icons-yellow)
@@ -3107,12 +3180,14 @@ ARG counts from 1."
     :property                "#+property:"
     :options                 "#+options:"
     :startup                 "#+startup:"
+    :hugo_base_dir           "#+hugo_base_dir:"
     :macro                   "#+macro:"
     :html_head               "#+html_head:"
     :html                    "#+html:"
     :latex_class             "#+latex_class:"
-    :latex_class_options     "#+latex_class_options"
+    :latex_class_options     "#+latex_class_options:"
     :latex_header            "#+latex_header:"
+    :latex_header_extra      "#+latex_header_extra:"
     :beamer_header           "#+beamer_header:"
     :latex                   "#+latex:"
     :attr_latex              "#+attr_latex:"
@@ -3131,9 +3206,14 @@ ARG counts from 1."
     :include                 "#+include:"
     :setupfile               "#+setupfile:"
     :export_file_name        "#+export_file_name:"
+    :export_select_tags      "#+export_select_tags:"
+    :export_exclude_tags     "#+export_exclude_tags:"
     :results                 "#+RESULTS:"
+    :results_small           "#+results:"
     :property                ":PROPERTIES:"
     :end                     ":END:"
+    :property_small          ":properties:"
+    :end_small               ":end:"
     :priority_a              "[#A]"
     :priority_b              "[#B]"
     :priority_c              "[#C]"
@@ -3177,7 +3257,7 @@ ARG counts from 1."
   ;; Set the default scale
   (ab/set-org-latex-scale 1.4)
   
-  ;; Change scale in Zen mode
+  ;; Increase scale in Zen mode
   (when (featurep! :ui zen)
     (add-hook! 'writeroom-mode-enable-hook (ab/set-org-latex-scale 2.0))
     (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
@@ -3306,13 +3386,22 @@ ARG counts from 1."
               (doom-color 'bg)))
     (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
     (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
-  (setq org-cite-csl-styles-dir "~/Zotero/styles")
-  (setq! bibtex-completion-bibliography '("~/Zotero/library.bib"))
-  (setq! citar-bibliography '("~/Zotero/library.bib"))
-  ;; (setq! bibtex-completion-library-path '("~/Zotero/storage")
-  ;;        bibtex-completion-notes-path "/path/to/your/notes/")
-  ;; (setq! citar-library-paths '("/path/to/library/files/")
-  ;;        citar-notes-paths '("/path/to/your/notes/"))
+  (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
+        bibtex-completion-library-path '("~/Zotero/storage/")
+        bibtex-completion-notes-path "~/PhD/bibliography/notes/"
+        bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+        bibtex-completion-additional-search-fields '(keywords)
+        bibtex-completion-display-formats
+        '((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+        bibtex-completion-pdf-open-function
+        (lambda (fpath)
+          (call-process "open" nil 0 nil fpath)))
+  (use-package! org-bib
+    :commands (org-bib-mode))
   (use-package! org-ref
     :after org
     :config
@@ -3342,9 +3431,9 @@ ARG counts from 1."
           (save-excursion
             (bibtex-search-entry (car results))
             (org-ref-open-bibtex-pdf))))))
-  (use-package! academic-phrases
-    :commands (academic-phrases
-               academic-phrases-by-section))
+  (setq citar-library-paths '("~/Zotero/storage")
+        citar-notes-paths '("~/PhD/bibliography/notes/")
+        citar-bibliography '("~/Zotero/library.bib"))
   (setq org-export-headline-levels 5) ;; I like nesting
   (require 'ox-extra)
   (ox-extras-activate '(ignore-headlines))
@@ -3361,11 +3450,10 @@ ARG counts from 1."
           "pdflatex -interaction nonstopmode -output-directory %o %f"))
   ;; this is for code syntax highlighting in export. you need to use
   ;; -shell-escape with latex, and install pygments.
-  (setq org-latex-listings 'minted)
-  (setq org-latex-minted-options
-        '(("frame" "lines")
-          ("fontsize" "\\scriptsize")
-          ("linenos" "")))
+  (setq org-latex-listings 'minted
+        org-latex-minted-options '(("frame" "lines")
+                                   ("fontsize" "\\scriptsize")
+                                   ("linenos" "")))
   (after! ox-latex
     (add-to-list 'org-latex-classes
                  '("scr-article"
@@ -3435,3 +3523,22 @@ ARG counts from 1."
   
   (add-hook 'before-save-hook 'time-stamp nil)
 )
+
+;; [[file:config.org::*Plain text][Plain text:1]]
+(after! text-mode
+  (add-hook! 'text-mode-hook
+             ;; Apply ANSI color codes
+             (with-silent-modifications
+               (ansi-color-apply-on-region (point-min) (point-max) t))))
+;; Plain text:1 ends here
+
+;; [[file:config.org::*Academic phrases][Academic phrases:1]]
+(use-package! academic-phrases
+  :commands (academic-phrases
+             academic-phrases-by-section))
+;; Academic phrases:1 ends here
+
+;; [[file:config.org::*Quarto][Quarto:2]]
+(use-package! quarto-mode
+  :when +quarto-ok-p)
+;; Quarto:2 ends here

@@ -3,13 +3,16 @@
 ;; This file controls what Doom modules are enabled and what order they load in.
 ;; Press 'K' on a module to view its documentation, and 'gd' to browse its directory.
 
+;; I add some special stuff wich I want to load very early.
+(load! "pseudo-early-init.el")
+
 (doom!
   :input
   bidi
 
   :completion
   (vertico +icons)
-  company
+  (company +childframe)
 
   :ui
   deft
@@ -42,7 +45,7 @@
   fold
   format
   multiple-cursors
-  parinfer
+  ;;parinfer
   snippets
   word-wrap
   ;;lispy
@@ -51,7 +54,7 @@
   ;;rotate-text
 
   :emacs
-  (dired +icons +ranger)
+  (dired +icons)
   (ibuffer +icons)
   (undo +tree)
   vc
