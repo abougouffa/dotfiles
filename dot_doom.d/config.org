@@ -119,6 +119,20 @@ This needs to be sourced in the shell session (source it in =~/.zshrc=).
 #+end_src
 
 * Doom configuration files :doom:
+** Pseudo early-init :early:
+This file will be loaded before the content of Doom's private =init.el=, I add
+some special stuff which I want to load very early.
+
+#+begin_src emacs-lisp :tangle pseudo-early-init.el
+;;; pseudo-early-init.el -*- lexical-binding: t; -*-
+
+;; Fix for #2386 until further investigation
+;; From https://git.sr.ht/~gagbo/doom-config
+(when noninteractive
+  (after! undo-tree
+    (global-undo-tree-mode -1)))
+#+end_src
+
 ** Doom modules (=init.el=) :module:
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle no
@@ -142,6 +156,9 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
 
 ;; This file controls what Doom modules are enabled and what order they load in.
 ;; Press 'K' on a module to view its documentation, and 'gd' to browse its directory.
+
+;; I add some special stuff wich I want to load very early.
+(load! "pseudo-early-init.el")
 
 (doom!
   :input
