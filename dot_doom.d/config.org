@@ -793,7 +793,15 @@ Set Doom's theme, some good choices:
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-vibrant)
-#+end_src
+(remove-hook 'window-setup-hook #'doom-init-theme-h)
+(add-hook 'after-init-hook #'doom-init-theme-h 'append)
+(delq! t custom-theme-load-path)
+
+;; By default 'doom-vibrant' uses red faces to mark modified file in modeline,
+;; lets change it to orange.
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
+  #+end_src
 
 *** Mode line :modeline:
 **** Clock
