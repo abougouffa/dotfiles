@@ -722,6 +722,7 @@ tools and store the result in global constants.
 (defconst +eaf-ok-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
 (defconst +quarto-ok-p (bool (executable-find "quarto")))
 (defconst +clang-format-ok-p (bool (executable-find "clang-format")))
+(defconst +inkscape-ok-p (bool (executable-find "inkscape")))
 
 (defconst +netextender-ok-p
   (let ((ok (bool (and (executable-find "netExtender")
@@ -847,22 +848,21 @@ Show battery level unless battery is not present or battery information is unkno
 **** Custom Splash Image :image:banner:
 Change the logo to an image, a set of beautiful images can be found in =assets=.
 
-
-|----------------------+-------------------------------|
-| File                 | Preview                       |
-|----------------------+-------------------------------|
-| =emacs-e.svg=          | [[./assets/emacs-e.svg]]          |
-|----------------------+-------------------------------|
-| =gnu-emacs-white.svg=  | [[./assets/gnu-emacs-white.svg]]  |
-|----------------------+-------------------------------|
-| =gnu-emacs-flat.svg=   | [[./assets/gnu-emacs-light.svg]]  |
-|----------------------+-------------------------------|
-| =blackhole-lines.svg=  | [[./assets/blackhole-lines.svg]]  |
-|----------------------+-------------------------------|
-| =doom-emacs-white.svg= | [[./assets/doom-emacs-white.svg]] |
-|----------------------+-------------------------------|
-| =doom-emacs-dark.svg=  | [[./assets/doom-emacs-dark.svg]]  |
-|----------------------+-------------------------------|
+|----------------------|
+| File                 |
+|----------------------|
+| =emacs-e.svg=          |
+|----------------------|
+| =gnu-emacs-white.svg=  |
+|----------------------|
+| =gnu-emacs-flat.svg=   |
+|----------------------|
+| =blackhole-lines.svg=  |
+|----------------------|
+| =doom-emacs-white.svg= |
+|----------------------|
+| =doom-emacs-dark.svg=  |
+|----------------------|
 
 #+begin_src emacs-lisp
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
@@ -5743,6 +5743,9 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
         ("" "setspace" nil)
 
     ))
+;; Add 'svg' package to display SVG pictures (uses inkscape, imagemagik and ghostscript)
+(when +inkscape-ok-p
+  (add-to-list 'org-latex-packages-alist '("" "svg")))
 #+end_src
 
 ***** Export PDFs with syntax highlighting
