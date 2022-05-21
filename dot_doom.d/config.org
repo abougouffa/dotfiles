@@ -931,6 +931,20 @@ This can be used to adjust the left and right fringes.
         vertico-posframe-border-width 3))
 #+end_src
 
+*** Company
+I do not find =company= useful in Org files.
+
+#+begin_src emacs-lisp
+(setq company-global-modes
+      '(not erc-mode
+            circe-mode
+            message-mode
+            help-mode
+            gud-mode
+            vterm-mode
+            org-mode))
+#+end_src
+
 *** SVG Tag mode :svg:
 
 #+begin_src emacs-lisp :tangle "packages.el"
@@ -963,74 +977,6 @@ This can be used to adjust the left and right fringes.
                     :margin 0))))))
 #+end_src
 
-*** N Λ N O :nano:
-Dim the font color of text in surrounding paragraphs, focus only on the current line.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! nano-doom
-  :disable t
-  :recipe (:host github :repo "skyler544/doom-nano-testing"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Note tangled
-(require 'load-nano)
-#+end_src
-
-*** Lambda themes/line :lambda:theme:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! lambda-themes
-  :recipe (:host github
-           :repo "Lambda-Emacs/lambda-themes"))
-
-(package! lambda-line
-  :recipe (:host github
-           :repo "Lambda-Emacs/lambda-line"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(use-package! lambda-themes
-  :custom
-  (lambda-themes-set-italic-comments t)
-  (lambda-themes-set-italic-keywords t)
-  (lambda-themes-set-variable-pitch t)
-  :config
-  (load-theme 'lambda-dark))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(use-package! lambda-line
-  :custom
-  (lambda-line-position 'top) ;; Set position of status-line
-  (lambda-line-abbrev t) ;; abbreviate major modes
-  (lambda-line-hspace "  ")  ;; add some cushion
-  (lambda-line-prefix t) ;; use a prefix symbol
-  (lambda-line-prefix-padding nil) ;; no extra space for prefix
-  (lambda-line-status-invert nil)  ;; no invert colors
-  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
-  (lambda-line-gui-mod-symbol " ⬤")
-  (lambda-line-gui-rw-symbol  " ◯")
-  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
-  (lambda-line-space-bottom -.50)
-  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
-  :config
-  ;; activate lambda-line
-  (lambda-line-mode)
-  ;; set divider line in footer
-  (when (eq lambda-line-position 'top)
-   (setq-default mode-line-format (list "%_"))
-   (setq mode-line-format (list "%_"))))
-#+end_src
-
-*** Humanoid themes :humanoid:theme:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! humanoid-themes
-  :recipe (:host github
-           :repo "humanoid-colors/emacs-humanoid-themes"))
-#+end_src
-
 *** Focus :focus:
 Dim the font color of text in surrounding paragraphs, focus only on the current line.
 
@@ -1057,7 +1003,16 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
     :config (good-scroll-mode 1)))
 #+end_src
 
-** Editor :edit:
+*** All the icons :icon:
+Set some custom icons for some file extensions, basically for =.m= files.
+
+#+begin_src emacs-lisp
+(after! all-the-icons
+  (setcdr (assoc "m" all-the-icons-extension-icon-alist)
+          (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
+#+end_src
+
+** Editing :edit:
 *** Scratch buffer :scratch:
 Tell the scratch buffer to start in =emacs-lisp-mode=.
 
@@ -1071,6 +1026,20 @@ Map extra mouse buttons to jump between buffers
 #+begin_src emacs-lisp
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
+#+end_src
+
+*** Page break lines :editor:
+A feature that displays ugly form feed characters as tidy horizontal rules.
+Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! page-break-lines)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! page-break-lines
+  :diminish
+  :init (global-page-break-lines-mode))
 #+end_src
 
 *** Binary files :binary:hexl:
@@ -1096,6 +1065,20 @@ is binary, activate `hexl-mode'."
       (hexl-mode))))
 
 (add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
+#+end_src
+
+*** Very large files :large:vlf:
+The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! vlf)
+#+end_src
+
+To make VLF available without delaying startup, we'll just load it in quiet moments.
+
+#+begin_src emacs-lisp
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
 #+end_src
 
 *** Evil :evil:
@@ -1171,7 +1154,15 @@ Disable =parinfer= on background buffers.
 ;;   (advice-add 'parinfer-rust-mode :around #'+parinfer-rust-disable-in-modes))
 #+end_src
 
-** Allow babel execution in =doom= CLI actions :babel:cli:
+*** YASnippet :snippet:
+Nested snippets are good, enable that.
+
+#+begin_src emacs-lisp
+(setq yas-triggers-in-field t)
+#+end_src
+
+** Literate configuration :babel:literate:
+*** Allow babel execution in =doom= CLI actions :babel:cli:
 This file generates all my Doom config files, it works nicely, but for it to
 work with =doom sync= et al. I need to make sure that Org doesn't try to confirm
 that I want to allow evaluation (I do!).
@@ -1193,7 +1184,7 @@ avoid polluting the output.
 (advice-add 'org-babel-execute-src-block :around #'doom-shut-up-a)
 #+end_src
 
-** Asynchronous tangling :async:babel:tangle:
+*** Asynchronous tangling :async:babel:tangle:
 Doom adds an =org-mode= hook ~+literate-enable-recompile-h~. This is a nice idea,
 but it's too blocking for my taste. Since I trust my tangling to be fairly
 straightforward, I'll just redefine it to a simpler, async, function.
@@ -1210,31 +1201,8 @@ straightforward, I'll just redefine it to a simpler, async, function.
              +literate-config-file))))
 #+end_src
 
-** All the icons :icon:
-Set some custom icons for some file extensions, basically for =.m= files.
-
-#+begin_src emacs-lisp
-(after! all-the-icons
-  (setcdr (assoc "m" all-the-icons-extension-icon-alist)
-          (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
-#+end_src
-
-** Company
-I do not find =company= useful in Org files.
-
-#+begin_src emacs-lisp :tangle yes
-;; (add-hook 'org-mode-hook (lambda () (company-mode -1)))
-(setq company-global-modes
-      '(not erc-mode
-            circe-mode
-            message-mode
-            help-mode
-            gud-mode
-            vterm-mode
-            org-mode))
-#+end_src
-
-** Tabs
+** IDE :ide:
+*** Tabs :tab:
 Stolen from [[https://github.com/jimeh/.emacs.d/blob/master/modules/workspaces/siren-tab-bar.el][siren-tab-bar.el]].
 
 #+begin_src emacs-lisp
@@ -1452,7 +1420,7 @@ ARG counts from 1."
   (advice-add 'tab-bar-change-tab-group :after #'+tab-bar-echo-tab-list-advice))
   #+end_src
 
-** Centaur tabs :tab:
+*** Centaur tabs :tab:
 Disabled, not working correctly with Emacs Daemon + EmacsClient.
 
 #+begin_src emacs-lisp
@@ -1464,7 +1432,7 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
         centaur-tabs-gray-out-icons 'buffer))
 #+end_src
 
-** Treemacs
+*** Treemacs
 
 #+begin_src emacs-lisp :tangle packages.el
 (unpin! treemacs)
@@ -1535,67 +1503,45 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
   (add-to-list 'treemacs-ignored-file-predicates #'+treemacs-ignore-filter))
   #+end_src
 
-** PDF tools
-
-#+begin_src emacs-lisp :tangle packages.el
-(unpin! pdf-tools)
-#+end_src
-
-*** Dark mode
-The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
-and read PDF documents, so lets make it dark by default, this can be toggled
-using the =m z=.
+*** Projectile :projectile:
 
 #+begin_src emacs-lisp
-(after! pdf-tools
-  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
+;; Run `M-x projectile-project-search-path' to reload paths from this variable
+(setq projectile-project-search-path
+      '("~/PhD/workspace"
+        "~/PhD/workspace-no"
+        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
+        "~/Projects/foss_projects"))
+
+(setq projectile-ignored-projects
+      '("~/"
+        "/tmp"
+        "~/.cache"
+        "~/.emacs.d/.local/straight/repos/"))
+
+(defun projectile-ignored-project-function (filepath)
+  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
+  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
 #+end_src
 
-*** Better PDFs in mode line :modeline:pdf:
-First up I'm going to want a segment for just the buffer file name, and a PDF
-icon. Then we'll redefine two functions used to generate the modeline.
+*** Tramp :tramp:
+Let's try to make tramp handle prompts better
 
 #+begin_src emacs-lisp
-(after! doom-modeline
-  (doom-modeline-def-segment buffer-name
-    "Display the current buffer's name, without any other information."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline--buffer-name)))
-
-  (doom-modeline-def-segment pdf-icon
-    "PDF icon from all-the-icons."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline-icon 'octicon "file-pdf" nil nil
-                         :face (if (doom-modeline--active)
-                                   'all-the-icons-red
-                                   'mode-line-inactive)
-                         :v-adjust 0.02)))
-
-  (defun doom-modeline-update-pdf-pages ()
-    "Update PDF pages."
-    (setq doom-modeline--pdf-pages
-          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
-                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
-            (concat
-             (propertize
-              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
-                      " P" current-page-str)
-              'face 'mode-line)
-             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
-
-  (doom-modeline-def-segment pdf-pages
-    "Display PDF pages."
-    (if (doom-modeline--active) doom-modeline--pdf-pages
-      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
-
-  (doom-modeline-def-modeline 'pdf
-    '(bar window-number pdf-pages pdf-icon buffer-name)
-    '(misc-info matches major-mode process vcs)))
+(after! tramp
+  (setenv "SHELL" "/bin/bash")
+  (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
 #+end_src
 
-** Emojify :emoji:
+*** Eros-eval :eval:
+This makes the result of evals slightly prettier.
+
+#+begin_src emacs-lisp
+(setq eros-eval-result-prefix "⟹ ")
+#+end_src
+
+** Symbols :symbol:
+*** Emojify :emoji:
 For starters, twitter's emojis look nicer than emoji-one.
 Other than that, this is pretty great OOTB 😀.
 
@@ -1659,11 +1605,12 @@ Email and IRC.
 (add-hook! '(mu4e-compose-mode org-msg-edit-mode circe-channel-mode) (emoticon-to-emoji 1))
 #+end_src
 
-** Eros-eval :eval:
-This makes the result of evals slightly prettier.
+*** Ligatures :ligatures:
+Extra ligatures are good, however, I'd like to see my keywords! Lets disable
+them in C/C++, Rust and Python modes.
 
 #+begin_src emacs-lisp
-(setq eros-eval-result-prefix "⟹ ")
+(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
@@ -1700,6 +1647,113 @@ So I can "mélanger les langues sans avoir de problèmes!".
             (lambda ()
               (spell-fu-register-dictionary "en")
               (spell-fu-register-dictionary "fr"))))
+#+end_src
+
+*** Guess language :language:text:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! guess-language
+  :recipe (:host github
+           :repo "tmalsburg/guess-language.el"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! guess-language
+  :config
+  (setq guess-language-languages '(en fr ar)
+        guess-language-min-paragraph-length 35
+        guess-language-langcodes '((en . ("en_US" "English" "🇺🇸" "English"))
+                                   (fr . ("francais" "French" "🇫🇷" "Français"))
+                                   (ar . ("arabic" "Arabic" "🇩🇿" "Arabic"))))
+  ;; :hook (text-mode . guess-language-mode)
+  :commands (guess-language
+             guess-language-mode
+             guess-language-region
+             guess-language-mark-lines))
+#+end_src
+
+*** Grammarly :language:grammar:
+Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly]] or [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly]].
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/grammarly"))
+
+;; Install the suitable LSP frontend
+(if (featurep! :tools lsp +eglot)
+  (package! eglot-grammarly
+    :recipe (:host github
+             :repo "emacs-grammarly/eglot-grammarly"))
+  (package! lsp-grammarly
+    :recipe (:host github
+             :repo "emacs-grammarly/lsp-grammarly")))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! grammarly
+  :config
+  (grammarly-load-from-authinfo))
+
+(if (featurep! :tools lsp +eglot)
+    (use-package! eglot-grammarly
+      :commands (+lsp-grammarly-load)
+      :init
+      (defun +lsp-grammarly-load ()
+        "Load Grammarly LSP server."
+        (interactive)
+        (require 'eglot-grammarly)
+        (call-interactively #'eglot)))
+  (use-package! lsp-grammarly
+    :commands (+lsp-grammarly-load)
+    :init
+    (defun +lsp-grammarly-load ()
+      "Load Grammarly LSP server."
+      (require 'lsp-grammarly)
+      (lsp-deferred)))) ;; or (lsp)
+#+end_src
+
+*** Grammalecte :french:grammar:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! flycheck-grammalecte
+  :recipe (:host github
+           :repo "milouse/flycheck-grammalecte"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! flycheck-grammalecte
+  :commands (flycheck-grammalecte-correct-error-at-point
+             grammalecte-conjugate-verb
+             grammalecte-define
+             grammalecte-define-at-point
+             grammalecte-find-synonyms
+             grammalecte-find-synonyms-at-point)
+  :init
+  (setq flycheck-grammalecte-report-spellcheck t
+        flycheck-grammalecte-report-grammar t
+        flycheck-grammalecte-report-apos nil
+        flycheck-grammalecte-report-esp nil
+        flycheck-grammalecte-report-nbsp nil
+        flycheck-grammalecte-filters
+        '("(?m)^# ?-*-.+$"
+          ;; Ignore LaTeX equations (inline and block)
+          "\\$.*?\\$"
+          "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:prefix-map ("g" . "grammalecte")
+         :desc "Correct error at point"     "p" #'flycheck-grammalecte-correct-error-at-point
+         :desc "Conjugate a verb"           "V" #'grammalecte-conjugate-verb
+         :desc "Define a word"              "W" #'grammalecte-define
+         :desc "Conjugate a verb at point"  "w" #'grammalecte-define-at-point
+         :desc "Find synonyms"              "S" #'grammalecte-find-synonyms
+         :desc "Find synonyms at point"     "s" #'grammalecte-find-synonyms-at-point))
+
+  :config
+  (grammalecte-download-grammalecte)
+  (flycheck-grammalecte-setup)
+  (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 #+end_src
 
 *** Flyspell :flyspell:
@@ -1772,49 +1826,107 @@ shortcuts to check the grammar.
        :desc "Switch default language" "L" #'langtool-switch-default-language))
 #+end_src
 
-** Projectile :projectile:
+** System tools :system:
+*** Disk usage :fs:
 
-#+begin_src emacs-lisp
-;; Run `M-x projectile-project-search-path' to reload paths from this variable
-(setq projectile-project-search-path
-      '("~/PhD/workspace"
-        "~/PhD/workspace-no"
-        "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-        "~/Projects/foss_projects"))
-
-(setq projectile-ignored-projects
-      '("~/"
-        "/tmp"
-        "~/.cache"
-        "~/.emacs.d/.local/straight/repos/"))
-
-(defun projectile-ignored-project-function (filepath)
-  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
-  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+#+begin_src emacs-lisp :tangle packages.el
+(package! disk-usage)
 #+end_src
 
-** Tramp :tramp:
-Let's try to make tramp handle prompts better
-
 #+begin_src emacs-lisp
-(after! tramp
-  (setenv "SHELL" "/bin/bash")
-  (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")) ;; default + 
+(use-package! disk-usage
+  :commands (disk-usage))
 #+end_src
 
-** YASnippet :snippet:
-Nested snippets are good, enable that.
+*** Chezmoi :dotfiles:
 
-#+begin_src emacs-lisp
-(setq yas-triggers-in-field t)
+#+begin_src emacs-lisp :tangle packages.el
+(package! chezmoi)
 #+end_src
 
-** Ligatures :ligatures:
-Extra ligatures are good, however, I'd like to see my keywords! Lets disable
-them in C/C++, Rust and Python modes.
+#+begin_src emacs-lisp
+(use-package! chezmoi
+  :when +chezmoi-ok-p
+  :commands (chezmoi-write
+             chezmoi-magit-status
+             chezmoi-diff
+             chezmoi-ediff
+             chezmoi-find
+             chezmoi-write-files
+             chezmoi-open-other
+             chezmoi-template-buffer-display
+             chezmoi-mode)
+  :config
+  ;; Company integration
+  (when (featurep! :completion company)
+    (defun +chezmoi--company-backend-h ()
+      (require 'chezmoi-company)
+      (if chezmoi-mode
+          (add-to-list 'company-backends 'chezmoi-company-backend)
+        (delete 'chezmoi-company-backend 'company-backends)))
+
+    (add-hook 'chezmoi-mode-hook #'+chezmoi--company-backend-h))
+
+  ;; Integrate with evil mode by toggling template display when entering insert mode.
+  (when (featurep! :editor evil)
+    (defun +chezmoi--evil-insert-state-enter-h ()
+      "Run after evil-insert-state-entry."
+      (chezmoi-template-buffer-display nil (point))
+      (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
+
+    (defun +chezmoi--evil-insert-state-exit-h ()
+      "Run after evil-insert-state-exit."
+      (chezmoi-template-buffer-display nil)
+      (chezmoi-template-buffer-display t)
+      (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
+
+    (defun +chezmoi--evil-h ()
+      (if chezmoi-mode
+          (progn
+            (add-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h nil 1)
+            (add-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h nil 1))
+        (progn
+          (remove-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h 1)
+          (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
+
+    (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
+#+end_src
+
+*** Aweshell :eshell:shell:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! aweshell
+  :recipe (:host github
+           :repo "manateelazycat/aweshell"))
+#+end_src
 
 #+begin_src emacs-lisp
-(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
+(use-package! aweshell
+  :commands (aweshell-new aweshell-dedicated-open))
+#+end_src
+
+*** Lemon :monitor:system:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lemon
+  :recipe (:host gitlab
+           :repo "ieure/lemon"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lemon
+  :commands (lemon-mode lemon-display)
+  :config
+  (require 'lemon-cpu)
+  (require 'lemon-memory)
+  (require 'lemon-network)
+  (setq lemon-delay 5
+        lemon-refresh-rate 2
+        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
+                              (lemon-cpu-linux)
+                              (lemon-memory-linux)
+                              (lemon-linux-network-tx)
+                              (lemon-linux-network-rx)))))
 #+end_src
 
 ** Features :features:
@@ -1878,27 +1990,6 @@ them in C/C++, Rust and Python modes.
   (awqat-set-preset-french-muslims))
 #+end_src
 
-*** ESS :ess:
-View data frames better with
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! ess-view)
-#+end_src
-
-*** Very large files :large:vlf:
-The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! vlf)
-#+end_src
-
-To make VLF available without delaying startup, we'll just load it in quiet moments.
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! vlf-setup
-  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
-#+end_src
-
 *** Info colors
 Better colors for manual pages.
 
@@ -1911,113 +2002,6 @@ Better colors for manual pages.
   :commands (info-colors-fontify-node))
 
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
-#+end_src
-
-*** Guess language :language:text:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! guess-language
-  :recipe (:host github
-           :repo "tmalsburg/guess-language.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! guess-language
-  :config
-  (setq guess-language-languages '(en fr ar)
-        guess-language-min-paragraph-length 35
-        guess-language-langcodes '((en . ("en_US" "English" "🇺🇸" "English"))
-                                   (fr . ("francais" "French" "🇫🇷" "Français"))
-                                   (ar . ("arabic" "Arabic" "🇩🇿" "Arabic"))))
-  ;; :hook (text-mode . guess-language-mode)
-  :commands (guess-language
-             guess-language-mode
-             guess-language-region
-             guess-language-mark-lines))
-#+end_src
-
-*** Grammarly :language:grammar:
-Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly]] or [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly]].
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/grammarly"))
-
-;; Install the suitable LSP frontend
-(if (featurep! :tools lsp +eglot)
-  (package! eglot-grammarly
-    :recipe (:host github
-             :repo "emacs-grammarly/eglot-grammarly"))
-  (package! lsp-grammarly
-    :recipe (:host github
-             :repo "emacs-grammarly/lsp-grammarly")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! grammarly
-  :config
-  (grammarly-load-from-authinfo))
-
-(if (featurep! :tools lsp +eglot)
-    (use-package! eglot-grammarly
-      :commands (+lsp-grammarly-load)
-      :init
-      (defun +lsp-grammarly-load ()
-        "Load Grammarly LSP server."
-        (interactive)
-        (require 'eglot-grammarly)
-        (call-interactively #'eglot)))
-  (use-package! lsp-grammarly
-    :commands (+lsp-grammarly-load)
-    :init
-    (defun +lsp-grammarly-load ()
-      "Load Grammarly LSP server."
-      (require 'lsp-grammarly)
-      (lsp-deferred)))) ;; or (lsp)
-#+end_src
-
-*** Grammalecte :french:grammar:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! flycheck-grammalecte
-  :recipe (:host github
-           :repo "milouse/flycheck-grammalecte"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-grammalecte
-  :commands (flycheck-grammalecte-correct-error-at-point
-             grammalecte-conjugate-verb
-             grammalecte-define
-             grammalecte-define-at-point
-             grammalecte-find-synonyms
-             grammalecte-find-synonyms-at-point)
-  :init
-  (setq flycheck-grammalecte-report-spellcheck t
-        flycheck-grammalecte-report-grammar t
-        flycheck-grammalecte-report-apos nil
-        flycheck-grammalecte-report-esp nil
-        flycheck-grammalecte-report-nbsp nil
-        flycheck-grammalecte-filters
-        '("(?m)^# ?-*-.+$"
-          ;; Ignore LaTeX equations (inline and block)
-          "\\$.*?\\$"
-          "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
-
-  (map! :leader :prefix ("l" . "custom")
-        (:prefix-map ("g" . "grammalecte")
-         :desc "Correct error at point"     "p" #'flycheck-grammalecte-correct-error-at-point
-         :desc "Conjugate a verb"           "V" #'grammalecte-conjugate-verb
-         :desc "Define a word"              "W" #'grammalecte-define
-         :desc "Conjugate a verb at point"  "w" #'grammalecte-define-at-point
-         :desc "Find synonyms"              "S" #'grammalecte-find-synonyms
-         :desc "Find synonyms at point"     "s" #'grammalecte-find-synonyms-at-point))
-
-  :config
-  (grammalecte-download-grammalecte)
-  (flycheck-grammalecte-setup)
-  (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 #+end_src
 
 *** Zotero Zotxt :zotero:
@@ -2065,44 +2049,6 @@ pacman -S the_silver_searcher=.
              ag-project
              ag-project-files
              ag-project-regexp))
-#+end_src
-
-*** Disk usage :fs:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! disk-usage)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! disk-usage
-  :commands (disk-usage))
-#+end_src
-
-*** Aweshell :eshell:shell:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! aweshell
-  :recipe (:host github
-           :repo "manateelazycat/aweshell"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! aweshell
-  :commands (aweshell-new aweshell-dedicated-open))
-#+end_src
-
-*** Page break lines :editor:
-A feature that displays ugly form feed characters as tidy horizontal rules.
-Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! page-break-lines)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! page-break-lines
-  :diminish
-  :init (global-page-break-lines-mode))
 #+end_src
 
 *** Emacs Application Framework :eaf:
@@ -2288,110 +2234,6 @@ dependencies.
           (kbd "SPC"))))))
 #+end_src
 
-*** Popweb :text:
-A lightweight version of EAF that provides multimedia capabilities.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! popweb
-  :recipe (:host github
-           :repo "manateelazycat/popweb"
-           :files ("*.el" "*.js" "*.py" "extension"))
-  :disable t) ; It works, but I'm not using it ATM
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! popweb
-  :init
-  (require 'straight)
-  (add-to-list 'load-path (expand-file-name (format "straight/%s/popweb/extension/latex" straight-build-dir) straight-base-dir))
-  (add-to-list 'load-path (expand-file-name (format "straight/%s/popweb/extension/dict" straight-build-dir) straight-base-dir))
-  (require 'popweb-latex)
-  (require 'popweb-dict-bing)
-  :custom
-  (popweb-popup-pos "point-bottom")
-  :hook ((org-mode . popweb-latex-mode)
-         (tex-mode . popweb-latex-mode)
-         (ein:markdown-mode . popweb-latex-mode)))
-#+end_src
-
-*** Chezmoi :dotfiles:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! chezmoi)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! chezmoi
-  :when +chezmoi-ok-p
-  :commands (chezmoi-write
-             chezmoi-magit-status
-             chezmoi-diff
-             chezmoi-ediff
-             chezmoi-find
-             chezmoi-write-files
-             chezmoi-open-other
-             chezmoi-template-buffer-display
-             chezmoi-mode)
-  :config
-  ;; Company integration
-  (when (featurep! :completion company)
-    (defun +chezmoi--company-backend-h ()
-      (require 'chezmoi-company)
-      (if chezmoi-mode
-          (add-to-list 'company-backends 'chezmoi-company-backend)
-        (delete 'chezmoi-company-backend 'company-backends)))
-
-    (add-hook 'chezmoi-mode-hook #'+chezmoi--company-backend-h))
-
-  ;; Integrate with evil mode by toggling template display when entering insert mode.
-  (when (featurep! :editor evil)
-    (defun +chezmoi--evil-insert-state-enter-h ()
-      "Run after evil-insert-state-entry."
-      (chezmoi-template-buffer-display nil (point))
-      (remove-hook 'after-change-functions #'chezmoi-template--after-change 1))
-
-    (defun +chezmoi--evil-insert-state-exit-h ()
-      "Run after evil-insert-state-exit."
-      (chezmoi-template-buffer-display nil)
-      (chezmoi-template-buffer-display t)
-      (add-hook 'after-change-functions #'chezmoi-template--after-change nil 1))
-
-    (defun +chezmoi--evil-h ()
-      (if chezmoi-mode
-          (progn
-            (add-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h nil 1)
-            (add-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h nil 1))
-        (progn
-          (remove-hook 'evil-insert-state-entry-hook #'+chezmoi--evil-insert-state-enter-h 1)
-          (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
-
-    (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
-#+end_src
-
-*** Lemon :monitor:system:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! lemon
-  :recipe (:host gitlab
-           :repo "ieure/lemon"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! lemon
-  :commands (lemon-mode lemon-display)
-  :config
-  (require 'lemon-cpu)
-  (require 'lemon-memory)
-  (require 'lemon-network)
-  (setq lemon-delay 5
-        lemon-refresh-rate 2
-        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
-                              (lemon-cpu-linux)
-                              (lemon-memory-linux)
-                              (lemon-linux-network-tx)
-                              (lemon-linux-network-rx)))))
-#+end_src
-
 *** Bitwarden :pass:bitwarden:
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2419,6 +2261,66 @@ A lightweight version of EAF that provides multimedia capabilities.
             ""))))
 #+end_src
 
+*** PDF tools
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! pdf-tools)
+#+end_src
+
+**** Dark mode
+The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
+and read PDF documents, so lets make it dark by default, this can be toggled
+using the =m z=.
+
+#+begin_src emacs-lisp
+(after! pdf-tools
+  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
+#+end_src
+
+**** Better PDFs in mode line :modeline:pdf:
+First up I'm going to want a segment for just the buffer file name, and a PDF
+icon. Then we'll redefine two functions used to generate the modeline.
+
+#+begin_src emacs-lisp
+(after! doom-modeline
+  (doom-modeline-def-segment buffer-name
+    "Display the current buffer's name, without any other information."
+    (concat
+     (doom-modeline-spc)
+     (doom-modeline--buffer-name)))
+
+  (doom-modeline-def-segment pdf-icon
+    "PDF icon from all-the-icons."
+    (concat
+     (doom-modeline-spc)
+     (doom-modeline-icon 'octicon "file-pdf" nil nil
+                         :face (if (doom-modeline--active)
+                                   'all-the-icons-red
+                                   'mode-line-inactive)
+                         :v-adjust 0.02)))
+
+  (defun doom-modeline-update-pdf-pages ()
+    "Update PDF pages."
+    (setq doom-modeline--pdf-pages
+          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
+                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
+            (concat
+             (propertize
+              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
+                      " P" current-page-str)
+              'face 'mode-line)
+             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
+
+  (doom-modeline-def-segment pdf-pages
+    "Display PDF pages."
+    (if (doom-modeline--active) doom-modeline--pdf-pages
+      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
+
+  (doom-modeline-def-modeline 'pdf
+    '(bar window-number pdf-pages pdf-icon buffer-name)
+    '(misc-info matches major-mode process vcs)))
+#+end_src
+
 ** Fun :fun:
 *** Speed Type
 A game to practice speed typing in Emacs.
@@ -2427,7 +2329,7 @@ A game to practice speed typing in Emacs.
 (package! speed-type)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! speed-type
   :commands (speed-type-text))
 #+end_src
@@ -2438,7 +2340,7 @@ A game to practice speed typing in Emacs.
 (package! 2048-game)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! 2048-game
   :commands (2048-game))
 #+end_src
@@ -2469,366 +2371,6 @@ Let it snow in Emacs!
   :config
   (setq xkcd-cache-dir (expand-file-name "xkcd/" doom-cache-dir)
         xkcd-cache-latest (expand-file-name "xkcd/latest" doom-cache-dir)))
-#+end_src
-
-** Programming :programming:
-*** Assembly :asm:assembly:
-Add some packages for better assembly coding.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! nasm-mode)
-(package! haxor-mode)
-(package! mips-mode)
-(package! riscv-mode)
-(package! x86-lookup)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! nasm-mode
-  :mode "\\.[n]*\\(asm\\|s\\)\\'")
-
-;; Get Haxor VM from https://github.com/krzysztof-magosa/haxor
-(use-package! haxor-mode
-  :mode "\\.hax\\'")
-
-(use-package! mips-mode
-  :mode "\\.mips$")
-
-(use-package! riscv-mode
-  :commands (riscv-mode)
-  :mode "\\.riscv$")
-
-(use-package! x86-lookup
-  :commands (x86-lookup)
-  :config
-  (when (featurep! :tools pdf)
-     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
-  ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
-#+end_src
-
-*** Repo :repo:git:
-Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
-distributions, or directly with:
-
-#+begin_src shell :tangle no :eval no
-REPO_PATH="$HOME/.local/bin/repo"
-curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
-chmod a+x ${REPO_PATH}
-#+end_src
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! repo)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! repo
-  :when +repo-ok-p
-  :commands repo-status)
-#+end_src
-
-*** Devdocs :devdocs:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! devdocs
-  :recipe (:host github
-           :repo "astoff/devdocs.el"
-           :files ("*.el")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! devdocs
-  :commands (devdocs-lookup devdocs-install)
-  :config
-  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
-#+end_src
-
-*** Embed.el :embedded:
-Some embedded systems development tools.
-
-TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
-- [[https://github.com/probe-rs/vscode][probe-rs-debugger]]
-- [[https://github.com/Marus/cortex-debug][cortex-debug]]
-- [[https://github.com/espressif/esp-debug-adapter][esp-debug-adapter]]
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! embed
-  :recipe (:host github
-           :repo "sjsch/embed-el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! embed
-  :commands (embed-openocd-start
-             embed-openocd-stop
-             embed-openocd-gdb
-             embed-openocd-flash)
-
-  :init
-  (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger +lsp)
-         :prefix-map ("e" . "embedded")
-         :desc "Start OpenOCD"    "o" #'embed-openocd-start
-         :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
-         :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
-         :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
-#+end_src
-
-*** Disaster :disaster:disassemble:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! disaster)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-;; TODO: Configure to take into account "compile_commands.json"
-(use-package! disaster
-  :commands (disaster))
-#+end_src
-
-*** Magit :heart: Delta :magit:delta:
-Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
-specially with big change chunks.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! magit-delta
-  :disable t) ;; Disabled, too slow on big chunks
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! magit-delta
-  :when +delta-ok-p
-  :commands magit-status
-  :hook (magit-mode . magit-delta-mode))
-#+end_src
-
-*** Blamer :git:blame:
-Display Git information (author, date, message...) for current line
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! blamer
-  :recipe (:host github
-           :repo "artawower/blamer.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! blamer
-  :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 60)
-  (blamer-prettify-time-p t)
-  (blamer-entire-formatter "    %s")
-  (blamer-author-formatter " %s ")
-  (blamer-datetime-formatter "[%s], ")
-  (blamer-commit-formatter "“%s”")
-
-  :custom-face
-  (blamer-face ((t :foreground "#7a88cf"
-                   :background nil
-                   :height 125
-                   :italic t)))
-
-  :hook ((prog-mode . blamer-mode)
-         (text-mode . blamer-mode))
-
-  :config
-  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
-    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
-#+end_src
-
-*** Systemd :systemd:
-For editing systemd unit files.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! systemd)
-#+end_src
-
-*** Bitbake (Yocto) :bitbake:yocto:
-Add support for Yocto Project files.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! bitbake-modes
-  :recipe (:host bitbucket
-           :repo "olanilsson/bitbake-modes"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package bitbake-modes
-  :commands (bitbake-mode
-             conf-bitbake-mode
-             bb-scc-mode wks-mode
-             bitbake-task-log-mode
-             bb-sh-mode
-             mmm-mode))
-#+end_src
-
-*** LaTeX :latex:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! aas
-  :recipe (:host github
-           :repo "ymarco/auto-activating-snippets"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! aas
-  :commands aas-mode)
-#+end_src
-
-*** Project CMake :cmake:
-A good new package to facilitate using CMake projects with Emacs, it glues
-together =project=, =eglot=, =cmake= and =clangd=.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! project-cmake
-  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :recipe (:host github
-           :repo "juanjosegarciaripoll/project-cmake"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! project-cmake
-    :config
-    (require 'eglot)
-    (project-cmake-scan-kits)
-    (project-cmake-eglot-integration))
-#+end_src
-
-*** Franca IDL
-Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! franca-idl
-  :recipe (:host github
-           :repo "zeph1e/franca-idl.el"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! franca-idl
-  :commands franca-idl-mode)
-#+end_src
-
-*** Flycheck :heart: Projectile
-WIP: Not working atm!
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! flycheck-projectile
-  :recipe (:host github
-           :repo "nbfalcon/flycheck-projectile"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! flycheck-projectile
-  :commands flycheck-projectile-list-errors)
-#+end_src
-
-*** Graphviz :graphviz:
-Graphviz is a nice method of visualizing simple graphs, based on plaintext
-=.dot= / =.gv= files.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! graphviz-dot-mode)
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! graphviz-dot-mode
-  :commands (graphviz-dot-mode graphviz-dot-preview))
-#+end_src
-
-*** ROS :ros:
-**** ROS Emacs utils
-This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
-need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
-container or on a remote robot. ATM, I need just to configure =rosemacs= to use
-Emacs to develop ROS packages using C++/Python, I'm not interested now for
-ROS Common Lisp development.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! rosemacs
-  :recipe (:host github
-           :repo "code-iai/ros_emacs_utils"
-           :files ("rosemacs/*"))
-  :disable t) ;; No clear way to make it work on a remote machine
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! rosemacs
-  :config
-  (require 'rosemacs-config)
-  :commands (ros-core ros-topic-info))
-#+end_src
-
-**** =ros.el=
-I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
-facilitate working with ROS machines, supports ROS1 and ROS2, with local
-workspaces or remote ones (over Trump!).
-
-#+begin_src emacs-lisp :tangle packages.el
-;; `ros.el' depends on `with-shell-interpreter' among other packages
-;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
-(package! with-shell-interpreter)
-(package! ros
-  :recipe (:host github
-           :repo "DerBeutlin/ros.el"))
-#+end_src
-
-Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
-to install some tools on the ROS machine, and build the workspace for the first
-time using =colcon build=, the repository contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]]
-and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! ros
-  :init (map! :leader
-              :prefix ("l" . "custom")
-              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
-  :commands (hydra-ros-main/body ros-set-workspace)
-  :config
-  (setq ros-workspaces
-        (list (ros-dump-workspace
-               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros2_ws"
-               :extends '("/opt/ros/foxy/")))))
-#+end_src
-
-*** Unibeautify :format:
-The next-gen beautifier? Add initial support for [[https://github.com/Unibeautify/cli][Unibeautify]].
-
-#+begin_example shell :noeval :export no
-npm install -g @unibeautify/cli
-#+end_example
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! unibeautify
-  :recipe (:host github
-           :repo "Unibeautify/emacs"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! unibeautify
-  :commands (unibeautify))
-#+end_src
-
-*** Inspector :inspector:debug:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! inspector
-  :recipe (:host github
-           :repo "mmontone/emacs-inspector"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! inspector
-  :commands (inspect-expression inspect-last-sexp))
 #+end_src
 
 * Applications :apps:
@@ -3176,6 +2718,7 @@ I configure my email accounts in a private file in
   ;; Common parameters
   (setq mu4e-update-interval (* 3 60) ;; Every 3 min
         +mu4e-backend 'mbsync
+        mu4e-index-update-error-warning nil ;; Do not show warning after update
         ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
         mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
@@ -3739,6 +3282,13 @@ change this to be recognized as Octave/Matlab files.
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 #+end_src
 
+** ESS :ess:
+View data frames better with
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ess-view)
+#+end_src
+
 ** ROS :ros:
 Add ROS specific file formats:
 
@@ -3749,7 +3299,479 @@ Add ROS specific file formats:
 (add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 #+end_src
 
-** LSP :lsp:ide:
+*** ROS Emacs utils
+This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
+need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
+container or on a remote robot. ATM, I need just to configure =rosemacs= to use
+Emacs to develop ROS packages using C++/Python, I'm not interested now for
+ROS Common Lisp development.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! rosemacs
+  :recipe (:host github
+           :repo "code-iai/ros_emacs_utils"
+           :files ("rosemacs/*"))
+  :disable t) ;; No clear way to make it work on a remote machine
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! rosemacs
+  :config
+  (require 'rosemacs-config)
+  :commands (ros-core ros-topic-info))
+#+end_src
+
+*** =ros.el=
+I found this awesome [[https://github.com/DerBeutlin/ros.el][=ros.el=]] package made by [[https://github.com/DerBeutlin][Max Beutelspacher]], which
+facilitate working with ROS machines, supports ROS1 and ROS2, with local
+workspaces or remote ones (over Trump!).
+
+#+begin_src emacs-lisp :tangle packages.el
+;; `ros.el' depends on `with-shell-interpreter' among other packages
+;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
+(package! with-shell-interpreter)
+(package! ros
+  :recipe (:host github
+           :repo "DerBeutlin/ros.el"))
+#+end_src
+
+Now, we configure the ROS1/ROS2 workspaces to work on. But before that, we need
+to install some tools on the ROS machine, and build the workspace for the first
+time using =colcon build=, the repository contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]]
+and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! ros
+  :init (map! :leader
+              :prefix ("l" . "custom")
+              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :commands (hydra-ros-main/body ros-set-workspace)
+  :config
+  (setq ros-workspaces
+        (list (ros-dump-workspace
+               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros_ws"
+               :extends '("/opt/ros/noetic/"))
+              (ros-dump-workspace
+               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+               :workspace "~/ros2_ws"
+               :extends '("/opt/ros/foxy/")))))
+#+end_src
+
+** Embedded systems :embedded:
+*** Embed.el
+Some embedded systems development tools.
+
+TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
+- [[https://github.com/probe-rs/vscode][probe-rs-debugger]]
+- [[https://github.com/Marus/cortex-debug][cortex-debug]]
+- [[https://github.com/espressif/esp-debug-adapter][esp-debug-adapter]]
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! embed
+  :recipe (:host github
+           :repo "sjsch/embed-el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! embed
+  :commands (embed-openocd-start
+             embed-openocd-stop
+             embed-openocd-gdb
+             embed-openocd-flash)
+
+  :init
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger +lsp)
+         :prefix-map ("e" . "embedded")
+         :desc "Start OpenOCD"    "o" #'embed-openocd-start
+         :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
+         :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
+         :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
+#+end_src
+
+*** Bitbake (Yocto) :bitbake:yocto:
+Add support for Yocto Project files.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! bitbake-modes
+  :recipe (:host bitbucket
+           :repo "olanilsson/bitbake-modes"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package bitbake-modes
+  :commands (bitbake-mode
+             conf-bitbake-mode
+             bb-scc-mode wks-mode
+             bitbake-task-log-mode
+             bb-sh-mode
+             mmm-mode))
+#+end_src
+
+** Debugging :debug:
+*** DAP :dap:ide:
+I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
+=dap-mode=. I like also to have a mode minimal UI. And I like to trigger =dap-hydra=
+when the program hits a break point, and automatically delete the session and
+close Hydra when DAP is terminated.
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! dap-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! dap-mode
+  (require 'dap-cpptools)
+
+  ;; More minimal UI
+  (setq dap-auto-configure-features '(locals tooltip)
+        dap-auto-show-output nil ;; Hide the annoying server output
+        lsp-enable-dap-auto-configure t)
+
+  ;; Automatically trigger dap-hydra when a program hits a breakpoint.
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+
+  ;; Automatically delete session and close dap-hydra when DAP is terminated.
+  (add-hook 'dap-terminated-hook
+            (lambda (arg)
+              (call-interactively #'dap-delete-session)
+              (dap-hydra/nil))))
+#+end_src
+
+**** Doom store
+Doom Emacs stores session information persistently using the core =store=
+mechanism. However, relaunching a new session doesn't overwrite the last stored
+session, to do so, I define a helper function to clear data stored in the
+="+debugger"= location. (see src_elisp{+debugger--get-last-config} function.)
+
+#+begin_src emacs-lisp
+(defun +debugger/clear-last-session ()
+  "Clear the last stored session"
+  (interactive)
+  (doom-store-clear "+debugger"))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :tools debugger +lsp)
+       :prefix-map ("d" . "debugger")
+       :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
+#+end_src
+
+*** The Grand "Cathedral" Debugger :realgud:debug:
+For C/C++, DAP mode is missing so much features.
+In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it stops
+and disconnect while debugging, making it a double pain.
+
+**** Additional commands
+There is no best than using pure GDB, it makes debugging more flexible. Lets
+define some missing GDB commands, add them to Hydra keys, and define some
+reverse debugging commands for usage with [[https://rr-project.org][rr]] (which we can use by substituting
+=gdb= by =rr replay= when starting the session).
+
+#+begin_src emacs-lisp
+(after! realgud
+  (require 'hydra)
+
+  ;; Add some missing gdb/rr commands
+  (defun ab/realgud:cmd-start (arg)
+    "start = break main + run"
+    (interactive "p")
+    (realgud-command "start"))
+
+  (defun ab/realgud:cmd-reverse-next (arg)
+    "Reverse next"
+    (interactive "p")
+    (realgud-command "reverse-next"))
+
+  (defun ab/realgud:cmd-reverse-step (arg)
+    "Reverse step"
+    (interactive "p")
+    (realgud-command "reverse-step"))
+
+  (defun ab/realgud:cmd-reverse-continue (arg)
+    "Reverse continue"
+    (interactive "p")
+    (realgud-command "reverse-continue"))
+
+  (defun ab/realgud:cmd-reverse-finish (arg)
+    "Reverse finish"
+    (interactive "p")
+    (realgud-command "reverse-finish"))
+
+  ;; Define a hydra binding
+  (defhydra realgud-hydra (:color pink :hint nil :foreign-keys run)
+    "
+ Stepping  |  _n_: next      |  _i_: step    |  _o_: finish  |  _c_: continue  |  _R_: restart  |  _u_: until-here
+ Revese    | _rn_: next      | _ri_: step    | _ro_: finish  | _rc_: continue  |
+ Breakpts  | _ba_: break     | _bD_: delete  | _bt_: tbreak  | _bd_: disable   | _be_: enable   | _tr_: backtrace
+ Eval      | _ee_: at-point  | _er_: region  | _eE_: eval    |
+           |  _!_: shell     | _Qk_: kill    | _Qq_: quit    | _Sg_: gdb       | _Ss_: start
+"
+    ("n"  realgud:cmd-next)
+    ("i"  realgud:cmd-step)
+    ("o"  realgud:cmd-finish)
+    ("c"  realgud:cmd-continue)
+    ("R"  realgud:cmd-restart)
+    ("u"  realgud:cmd-until-here)
+    ("rn" ab/realgud:cmd-reverse-next)
+    ("ri" ab/realgud:cmd-reverse-step)
+    ("ro" ab/realgud:cmd-reverse-finish)
+    ("rc" ab/realgud:cmd-reverse-continue)
+    ("ba" realgud:cmd-break)
+    ("bt" realgud:cmd-tbreak)
+    ("bD" realgud:cmd-delete)
+    ("be" realgud:cmd-enable)
+    ("bd" realgud:cmd-disable)
+    ("ee" realgud:cmd-eval-at-point)
+    ("er" realgud:cmd-eval-region)
+    ("tr" realgud:cmd-backtrace)
+    ("eE" realgud:cmd-eval)
+    ("!"  realgud:cmd-shell)
+    ("Qk" realgud:cmd-kill)
+    ("Sg" realgud:gdb)
+    ("Ss" ab/realgud:cmd-start)
+    ("q"  nil "quit" :color blue) ;; :exit
+    ("Qq" realgud:cmd-quit :color blue)) ;; :exit
+
+  (defun +debugger/realgud:gdb-hydra ()
+    "Run `realgud-hydra'."
+    (interactive)
+    (realgud-hydra/body))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger)
+         :prefix-map ("d" . "debugger")
+         :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
+#+end_src
+
+**** RealGUD =.dir-locals.el= support (only for GDB) :locals:
+I do a lot of development on C/C++ apps that gets data from command line
+arguments, which means I have to type my arguments manually after calling
+=realgud:gdb=, which is very annoying.
+
+For DAP mode, there is a support for either =dap-debug-edit-template=, or
+=launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
+this. So I define a parameter list named =ab/realgud:launch-plist=, which supports
+=:program= and =:args=. The first is a string of the program path, and the second is
+a list of string arguments to pass to the program.
+
+#+begin_src emacs-lisp
+;; A variable which to be used in .dir-locals.el, formatted as a property list;
+;; '(:program "..." :args ("args1" "arg2" ...))
+;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
+;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
+(defvar ab/realgud:launch-plist nil)
+#+end_src
+
+This variable is set in a per-project basis thanks to =.dir-locals.el=, some thing
+like this:
+
+#+begin_src lisp-data :tangle no
+;; Example entry in .dir-locals.el
+((nil . ((ab/realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
+                                      :args ("--in_file=${workspaceFolder}/some/file.csv"
+                                             "--out_file=/tmp/some_randome_file"
+                                             "-a"))))))
+#+end_src
+
+The special variables =${workspaceFolder}= and =${workspaceFolderBasename}= are
+defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]], the actual values are filled from
+=projectile-project-root=.
+
+#+begin_src emacs-lisp
+(cl-defun ab/realgud:get-launch-debugger-args (&key program args)
+  (let ((debugger--args ""))
+    (when program
+      (setq debugger--args program)
+      (when args
+        (setq debugger--args (concat debugger--args " " (s-join " " args)))))
+    ;; Replace special variables
+    (let* ((ws--root (expand-file-name (or (projectile-project-root) ".")))
+           (ws--basename (file-name-nondirectory
+                          (if (s-ends-with-p "/" ws--root)
+                              (substring ws--root 0 -1)
+                            ws--root))))
+      (s-replace-all
+       (list (cons "${workspaceFolder}" ws--root)
+             (cons "${workspaceFolderBasename}" ws--basename))
+       debugger--args))))
+
+(defun +debugger/realgud:gdb-launch ()
+  "Launch RealGUD with parameters from `ab/realgud:launch-plist'"
+  (interactive)
+  (require 'realgud)
+  (if ab/realgud:launch-plist
+      (realgud:gdb
+       (concat realgud:gdb-command-name
+               " --args "
+               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+    (progn
+      (message "Variable `ab/realgud:launch-plist' is `nil'")
+      (realgud:gdb))))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :tools debugger)
+       :prefix-map ("d" . "debugger")
+       :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
+#+end_src
+
+**** Record and replay =rr=
+We then add some shortcuts to run =rr= from Emacs, the =rr record= takes the program
+name and arguments from my local =ab/realgud:gdb-launch-plist=, when =rr replay=
+respects the arguments configured in RealGUD's GDB command name. Some useful
+hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
+
+#+begin_src emacs-lisp
+(after! realgud
+  (require 's)
+
+  (defun +debugger/rr-replay ()
+    "Launch `rr replay'"
+    (interactive)
+    (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
+
+  (defun +debugger/rr-record ()
+    "Launch `rr record' with parameters from `ab/realgud:launch-plist'"
+    (interactive)
+    (let ((debugger--args (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+      (unless (make-process :name "*rr record*"
+                            :buffer "*rr record*"
+                            :command (append '("rr" "record") (s-split " " debugger--args)))
+        (message "Cannot make process 'rr record'"))))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:when (featurep! :tools debugger)
+         :prefix-map ("d" . "debugger")
+         :desc "rr record"  "r" #'+debugger/rr-record
+         :desc "rr replay"  "R" #'+debugger/rr-replay)))
+#+end_src
+
+*** GDB :gdb:
+**** Emacs GDB :gdb:
+DAP mode is great, however, it is not mature for C/C++ debugging, it does not
+support some basic features like /Run until cursor/, /Show disassembled code/...
+etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+
+The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
+to it's C module), and it defines some easy to use UI, with Visual Studio like
+keybindings.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! gdb-mi
+  :recipe (:host github
+           :repo "weirdNox/emacs-gdb"
+           :files ("*.el" "*.c" "*.h" "Makefile")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! gdb-mi
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug)
+  :config
+  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
+        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
+#+end_src
+
+**** Custom layout for =gdb-many-windows=
+Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
+the builtin =gdb-many-windows= layout.
+
+#+begin_src emacs-lisp
+(setq gdb-many-windows nil)
+
+(defun set-gdb-layout(&optional c-buffer)
+  (if (not c-buffer)
+      (setq c-buffer (window-buffer (selected-window)))) ;; save current buffer
+
+  ;; from http://stackoverflow.com/q/39762833/846686
+  (set-window-dedicated-p (selected-window) nil) ;; unset dedicate state if needed
+  (switch-to-buffer gud-comint-buffer)
+  (delete-other-windows) ;; clean all
+
+  (let* ((w-source (selected-window)) ;; left top
+         (w-gdb (split-window w-source nil 'right)) ;; right bottom
+         (w-locals (split-window w-gdb nil 'above)) ;; right middle bottom
+         (w-stack (split-window w-locals nil 'above)) ;; right middle top
+         (w-breakpoints (split-window w-stack nil 'above)) ;; right top
+         (w-io (split-window w-source (floor(* 0.9 (window-body-height))) 'below))) ;; left bottom
+    (set-window-buffer w-io (gdb-get-buffer-create 'gdb-inferior-io))
+    (set-window-dedicated-p w-io t)
+    (set-window-buffer w-breakpoints (gdb-get-buffer-create 'gdb-breakpoints-buffer))
+    (set-window-dedicated-p w-breakpoints t)
+    (set-window-buffer w-locals (gdb-get-buffer-create 'gdb-locals-buffer))
+    (set-window-dedicated-p w-locals t)
+    (set-window-buffer w-stack (gdb-get-buffer-create 'gdb-stack-buffer))
+    (set-window-dedicated-p w-stack t)
+
+    (set-window-buffer w-gdb gud-comint-buffer)
+
+    (select-window w-source)
+    (set-window-buffer w-source c-buffer)))
+
+(defadvice gdb (around args activate)
+  "Change the way to gdb works."
+  (setq global-config-editing (current-window-configuration)) ;; to restore: (set-window-configuration c-editing)
+  (let ((c-buffer (window-buffer (selected-window)))) ;; save current buffer
+    ad-do-it
+    (set-gdb-layout c-buffer)))
+
+(defadvice gdb-reset (around args activate)
+  "Change the way to gdb exit."
+  ad-do-it
+  (set-window-configuration global-config-editing))
+#+end_src
+
+**** Highlight current line
+
+#+begin_src emacs-lisp :tangle yes
+(defvar gud-overlay
+  (let* ((ov (make-overlay (point-min) (point-min))))
+    (overlay-put ov 'face 'secondary-selection)
+    ov)
+  "Overlay variable for GUD highlighting.")
+
+(defadvice gud-display-line (after my-gud-highlight act)
+  "Highlight current line."
+  (let* ((ov gud-overlay)
+         (bf (gud-find-file true-file)))
+    (with-current-buffer bf
+      (move-overlay ov (line-beginning-position) (line-beginning-position 2)
+                    ;; (move-overlay ov (line-beginning-position) (line-end-position)
+                    (current-buffer)))))
+
+(defun gud-kill-buffer ()
+  (if (derived-mode-p 'gud-mode)
+      (delete-overlay gud-overlay)))
+
+(add-hook 'kill-buffer-hook 'gud-kill-buffer)
+#+end_src
+
+**** History
+
+#+begin_src emacs-lisp
+(after! gdb-mi
+  (defvar ab/gdb-history-file "~/.gdb_history")
+  (defun ab/gud-gdb-mode-hook-setup ()
+    "GDB setup."
+
+    ;; Suposes "~/.gdbinit" contains:
+    ;; set history save on
+    ;; set history filename ~/.gdb_history
+    ;; set history remove-duplicates 2048
+    (when (and (ring-empty-p comint-input-ring)
+               (file-exists-p ab/gdb-history-file))
+      (setq comint-input-ring-file-name ab/gdb-history-file)
+      (comint-read-input-ring t)))
+
+  (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
+#+end_src
+
+** Completion & IDE :lsp:ide:
 *** Eglot :eglot:
 Eglot uses =project.el= to detect the project root. This is [[https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367][a workaround]] to make
 it work with =projectile=:
@@ -3916,364 +3938,7 @@ use =rust_hdl= instead.
 ;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
 #+end_src
 
-** DAP :dap:debug:ide:
-I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
-=dap-mode=. I like also to have a mode minimal UI. And I like to trigger =dap-hydra=
-when the program hits a break point, and automatically delete the session and
-close Hydra when DAP is terminated.
-
-#+begin_src emacs-lisp :tangle packages.el
-(unpin! dap-mode)
-#+end_src
-
-#+begin_src emacs-lisp
-(after! dap-mode
-  (require 'dap-cpptools)
-
-  ;; More minimal UI
-  (setq dap-auto-configure-features '(locals tooltip)
-        dap-auto-show-output nil ;; Hide the annoying server output
-        lsp-enable-dap-auto-configure t)
-
-  ;; Automatically trigger dap-hydra when a program hits a breakpoint.
-  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
-
-  ;; Automatically delete session and close dap-hydra when DAP is terminated.
-  (add-hook 'dap-terminated-hook
-            (lambda (arg)
-              (call-interactively #'dap-delete-session)
-              (dap-hydra/nil))))
-#+end_src
-
-*** Doom store
-Doom Emacs stores session information persistently using the core =store=
-mechanism. However, relaunching a new session doesn't overwrite the last stored
-session, to do so, I define a helper function to clear data stored in the
-="+debugger"= location. (see src_elisp{+debugger--get-last-config} function.)
-
-#+begin_src emacs-lisp
-(defun +debugger/clear-last-session ()
-  "Clear the last stored session"
-  (interactive)
-  (doom-store-clear "+debugger"))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :tools debugger +lsp)
-       :prefix-map ("d" . "debugger")
-       :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
-#+end_src
-
-** The Grand "Cathedral" Debugger :realgud:debug:
-For C/C++, DAP mode is missing so much features.
-In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it stops
-and disconnect while debugging, making it a double pain. 
-
-*** Additional commands
-There is no best than using pure GDB, it makes debugging more flexible. Lets
-define some missing GDB commands, add them to Hydra keys, and define some
-reverse debugging commands for usage with [[https://rr-project.org][rr]] (which we can use by substituting
-=gdb= by =rr replay= when starting the session).
-
-#+begin_src emacs-lisp
-(after! realgud
-  (require 'hydra)
-
-  ;; Add some missing gdb/rr commands
-  (defun ab/realgud:cmd-start (arg)
-    "start = break main + run"
-    (interactive "p")
-    (realgud-command "start"))
-
-  (defun ab/realgud:cmd-reverse-next (arg)
-    "Reverse next"
-    (interactive "p")
-    (realgud-command "reverse-next"))
-
-  (defun ab/realgud:cmd-reverse-step (arg)
-    "Reverse step"
-    (interactive "p")
-    (realgud-command "reverse-step"))
-
-  (defun ab/realgud:cmd-reverse-continue (arg)
-    "Reverse continue"
-    (interactive "p")
-    (realgud-command "reverse-continue"))
-
-  (defun ab/realgud:cmd-reverse-finish (arg)
-    "Reverse finish"
-    (interactive "p")
-    (realgud-command "reverse-finish"))
-
-  ;; Define a hydra binding
-  (defhydra realgud-hydra (:color pink :hint nil :foreign-keys run)
-    "
- Stepping  |  _n_: next      |  _i_: step    |  _o_: finish  |  _c_: continue  |  _R_: restart  |  _u_: until-here
- Revese    | _rn_: next      | _ri_: step    | _ro_: finish  | _rc_: continue  |
- Breakpts  | _ba_: break     | _bD_: delete  | _bt_: tbreak  | _bd_: disable   | _be_: enable   | _tr_: backtrace
- Eval      | _ee_: at-point  | _er_: region  | _eE_: eval    |
-           |  _!_: shell     | _Qk_: kill    | _Qq_: quit    | _Sg_: gdb       | _Ss_: start
-"
-    ("n"  realgud:cmd-next)
-    ("i"  realgud:cmd-step)
-    ("o"  realgud:cmd-finish)
-    ("c"  realgud:cmd-continue)
-    ("R"  realgud:cmd-restart)
-    ("u"  realgud:cmd-until-here)
-    ("rn" ab/realgud:cmd-reverse-next)
-    ("ri" ab/realgud:cmd-reverse-step)
-    ("ro" ab/realgud:cmd-reverse-finish)
-    ("rc" ab/realgud:cmd-reverse-continue)
-    ("ba" realgud:cmd-break)
-    ("bt" realgud:cmd-tbreak)
-    ("bD" realgud:cmd-delete)
-    ("be" realgud:cmd-enable)
-    ("bd" realgud:cmd-disable)
-    ("ee" realgud:cmd-eval-at-point)
-    ("er" realgud:cmd-eval-region)
-    ("tr" realgud:cmd-backtrace)
-    ("eE" realgud:cmd-eval)
-    ("!"  realgud:cmd-shell)
-    ("Qk" realgud:cmd-kill)
-    ("Sg" realgud:gdb)
-    ("Ss" ab/realgud:cmd-start)
-    ("q"  nil "quit" :color blue) ;; :exit
-    ("Qq" realgud:cmd-quit :color blue)) ;; :exit
-
-  (defun +debugger/realgud:gdb-hydra ()
-    "Run `realgud-hydra'."
-    (interactive)
-    (realgud-hydra/body))
-
-  (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger)
-         :prefix-map ("d" . "debugger")
-         :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
-#+end_src
-
-*** RealGUD =.dir-locals.el= support (only for GDB) :locals:
-I do a lot of development on C/C++ apps that gets data from command line
-arguments, which means I have to type my arguments manually after calling
-=realgud:gdb=, which is very annoying.
-
-For DAP mode, there is a support for either =dap-debug-edit-template=, or
-=launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
-this. So I define a parameter list named =ab/realgud:launch-plist=, which supports
-=:program= and =:args=. The first is a string of the program path, and the second is
-a list of string arguments to pass to the program.
-
-#+begin_src emacs-lisp
-;; A variable which to be used in .dir-locals.el, formatted as a property list;
-;; '(:program "..." :args ("args1" "arg2" ...))
-;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
-;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
-(defvar ab/realgud:launch-plist nil)
-#+end_src
-
-This variable is set in a per-project basis thanks to =.dir-locals.el=, some thing
-like this:
-
-#+begin_src lisp-data :tangle no
-;; Example entry in .dir-locals.el
-((nil . ((ab/realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
-                                      :args ("--in_file=${workspaceFolder}/some/file.csv"
-                                             "--out_file=/tmp/some_randome_file"
-                                             "-a"))))))
-#+end_src
-
-The special variables =${workspaceFolder}= and =${workspaceFolderBasename}= are
-defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]], the actual values are filled from
-=projectile-project-root=.
-
-#+begin_src emacs-lisp
-(cl-defun ab/realgud:get-launch-debugger-args (&key program args)
-  (let ((debugger--args ""))
-    (when program
-      (setq debugger--args program)
-      (when args
-        (setq debugger--args (concat debugger--args " " (s-join " " args)))))
-    ;; Replace special variables
-    (let* ((ws--root (expand-file-name (or (projectile-project-root) ".")))
-           (ws--basename (file-name-nondirectory
-                          (if (s-ends-with-p "/" ws--root)
-                              (substring ws--root 0 -1)
-                            ws--root))))
-      (s-replace-all
-       (list (cons "${workspaceFolder}" ws--root)
-             (cons "${workspaceFolderBasename}" ws--basename))
-       debugger--args))))
-
-(defun +debugger/realgud:gdb-launch ()
-  "Launch RealGUD with parameters from `ab/realgud:launch-plist'"
-  (interactive)
-  (require 'realgud)
-  (if ab/realgud:launch-plist
-      (realgud:gdb
-       (concat realgud:gdb-command-name
-               " --args "
-               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
-    (progn
-      (message "Variable `ab/realgud:launch-plist' is `nil'")
-      (realgud:gdb))))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :tools debugger)
-       :prefix-map ("d" . "debugger")
-       :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
-#+end_src
-
-*** Record and replay =rr=
-We then add some shortcuts to run =rr= from Emacs, the =rr record= takes the program
-name and arguments from my local =ab/realgud:gdb-launch-plist=, when =rr replay=
-respects the arguments configured in RealGUD's GDB command name. Some useful
-hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
-
-#+begin_src emacs-lisp
-(after! realgud
-  (require 's)
-
-  (defun +debugger/rr-replay ()
-    "Launch `rr replay'"
-    (interactive)
-    (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
-
-  (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `ab/realgud:launch-plist'"
-    (interactive)
-    (let ((debugger--args (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
-      (unless (make-process :name "*rr record*"
-                            :buffer "*rr record*"
-                            :command (append '("rr" "record") (s-split " " debugger--args)))
-        (message "Cannot make process 'rr record'"))))
-
-  (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger)
-         :prefix-map ("d" . "debugger")
-         :desc "rr record"  "r" #'+debugger/rr-record
-         :desc "rr replay"  "R" #'+debugger/rr-replay)))
-#+end_src
-
-** GDB :gdb:
-*** Emacs GDB :gdb:
-DAP mode is great, however, it is not mature for C/C++ debugging, it does not
-support some basic features like /Run until cursor/, /Show disassembled code/...
-etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
-
-The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
-to it's C module), and it defines some easy to use UI, with Visual Studio like
-keybindings.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! gdb-mi
-  :recipe (:host github
-           :repo "weirdNox/emacs-gdb"
-           :files ("*.el" "*.c" "*.h" "Makefile")))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! gdb-mi
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug)
-  :config
-  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
-#+end_src
-
-*** Custom layout for =gdb-many-windows=
-Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
-the builtin =gdb-many-windows= layout.
-
-#+begin_src emacs-lisp
-(setq gdb-many-windows nil)
-
-(defun set-gdb-layout(&optional c-buffer)
-  (if (not c-buffer)
-      (setq c-buffer (window-buffer (selected-window)))) ;; save current buffer
-
-  ;; from http://stackoverflow.com/q/39762833/846686
-  (set-window-dedicated-p (selected-window) nil) ;; unset dedicate state if needed
-  (switch-to-buffer gud-comint-buffer)
-  (delete-other-windows) ;; clean all
-
-  (let* ((w-source (selected-window)) ;; left top
-         (w-gdb (split-window w-source nil 'right)) ;; right bottom
-         (w-locals (split-window w-gdb nil 'above)) ;; right middle bottom
-         (w-stack (split-window w-locals nil 'above)) ;; right middle top
-         (w-breakpoints (split-window w-stack nil 'above)) ;; right top
-         (w-io (split-window w-source (floor(* 0.9 (window-body-height))) 'below))) ;; left bottom
-    (set-window-buffer w-io (gdb-get-buffer-create 'gdb-inferior-io))
-    (set-window-dedicated-p w-io t)
-    (set-window-buffer w-breakpoints (gdb-get-buffer-create 'gdb-breakpoints-buffer))
-    (set-window-dedicated-p w-breakpoints t)
-    (set-window-buffer w-locals (gdb-get-buffer-create 'gdb-locals-buffer))
-    (set-window-dedicated-p w-locals t)
-    (set-window-buffer w-stack (gdb-get-buffer-create 'gdb-stack-buffer))
-    (set-window-dedicated-p w-stack t)
-
-    (set-window-buffer w-gdb gud-comint-buffer)
-
-    (select-window w-source)
-    (set-window-buffer w-source c-buffer)))
-
-(defadvice gdb (around args activate)
-  "Change the way to gdb works."
-  (setq global-config-editing (current-window-configuration)) ;; to restore: (set-window-configuration c-editing)
-  (let ((c-buffer (window-buffer (selected-window)))) ;; save current buffer
-    ad-do-it
-    (set-gdb-layout c-buffer)))
-
-(defadvice gdb-reset (around args activate)
-  "Change the way to gdb exit."
-  ad-do-it
-  (set-window-configuration global-config-editing))
-#+end_src
-
-*** Highlight current line
-
-#+begin_src emacs-lisp :tangle yes
-(defvar gud-overlay
-  (let* ((ov (make-overlay (point-min) (point-min))))
-    (overlay-put ov 'face 'secondary-selection)
-    ov)
-  "Overlay variable for GUD highlighting.")
-
-(defadvice gud-display-line (after my-gud-highlight act)
-  "Highlight current line."
-  (let* ((ov gud-overlay)
-         (bf (gud-find-file true-file)))
-    (with-current-buffer bf
-      (move-overlay ov (line-beginning-position) (line-beginning-position 2)
-                    ;; (move-overlay ov (line-beginning-position) (line-end-position)
-                    (current-buffer)))))
-
-(defun gud-kill-buffer ()
-  (if (derived-mode-p 'gud-mode)
-      (delete-overlay gud-overlay)))
-
-(add-hook 'kill-buffer-hook 'gud-kill-buffer)
-#+end_src
-
-*** History
-
-#+begin_src emacs-lisp
-(after! gdb-mi
-  (defvar ab/gdb-history-file "~/.gdb_history")
-  (defun ab/gud-gdb-mode-hook-setup ()
-    "GDB setup."
-
-    ;; Suposes "~/.gdbinit" contains:
-    ;; set history save on
-    ;; set history filename ~/.gdb_history
-    ;; set history remove-duplicates 2048
-    (when (and (ring-empty-p comint-input-ring)
-               (file-exists-p ab/gdb-history-file))
-      (setq comint-input-ring-file-name ab/gdb-history-file)
-      (comint-read-input-ring t)))
-
-  (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
-#+end_src
-
-** Cppcheck :flycheck:cppcheck:
+*** Cppcheck :flycheck:cppcheck:
 Check for everything!
 
 #+begin_src emacs-lisp
@@ -4287,20 +3952,266 @@ Check for everything!
                                    "warning"))) ;; Actually, we can use "all"
 #+end_src
 
-** Plain text :text:
-It's nice to see ANSI color codes displayed. However, until Emacs 28 it's not
-possible to do this without modifying the buffer, so let's condition this block
-on that.
+*** Project CMake :cmake:
+A good new package to facilitate using CMake projects with Emacs, it glues
+together =project=, =eglot=, =cmake= and =clangd=.
 
-#+begin_src emacs-lisp :tangle (if (>= emacs-major-version 28) "yes" "no")
-(after! text-mode
-  (add-hook! 'text-mode-hook
-             ;; Apply ANSI color codes
-             (with-silent-modifications
-               (ansi-color-apply-on-region (point-min) (point-max) t))))
+#+begin_src emacs-lisp :tangle packages.el
+(package! project-cmake
+  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :recipe (:host github
+           :repo "juanjosegarciaripoll/project-cmake"))
 #+end_src
 
-* Org mode additional packages
+#+begin_src emacs-lisp :tangle yes
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
+#+end_src
+
+*** Unibeautify :format:
+The next-gen beautifier? Add initial support for [[https://github.com/Unibeautify/cli][Unibeautify]].
+
+#+begin_example shell :noeval :export no
+npm install -g @unibeautify/cli
+#+end_example
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! unibeautify
+  :recipe (:host github
+           :repo "Unibeautify/emacs"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! unibeautify
+  :commands (unibeautify))
+#+end_src
+
+** Git & VC
+*** Repo :repo:git:
+Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
+distributions, or directly with:
+
+#+begin_src shell :tangle no :eval no
+REPO_PATH="$HOME/.local/bin/repo"
+curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
+chmod a+x ${REPO_PATH}
+#+end_src
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! repo)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! repo
+  :when +repo-ok-p
+  :commands repo-status)
+#+end_src
+
+*** Magit :heart: Delta :magit:delta:
+Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
+specially with big change chunks.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! magit-delta
+  :disable t) ;; Disabled, too slow on big chunks
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! magit-delta
+  :when +delta-ok-p
+  :commands magit-status
+  :hook (magit-mode . magit-delta-mode))
+#+end_src
+
+*** Blamer :git:blame:
+Display Git information (author, date, message...) for current line
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! blamer
+  :recipe (:host github
+           :repo "artawower/blamer.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! blamer
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 60)
+  (blamer-prettify-time-p t)
+  (blamer-entire-formatter "    %s")
+  (blamer-author-formatter " %s ")
+  (blamer-datetime-formatter "[%s], ")
+  (blamer-commit-formatter "“%s”")
+
+  :custom-face
+  (blamer-face ((t :foreground "#7a88cf"
+                   :background nil
+                   :height 125
+                   :italic t)))
+
+  :hook ((prog-mode . blamer-mode)
+         (text-mode . blamer-mode))
+
+  :config
+  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
+    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
+    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
+#+end_src
+
+** Clang-format
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! clang-format)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! clang-format
+  :when +clang-format-ok-p
+  :commands (clang-format-region))
+#+end_src
+
+** Assembly :asm:assembly:
+Add some packages for better assembly coding.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! nasm-mode)
+(package! haxor-mode)
+(package! mips-mode)
+(package! riscv-mode)
+(package! x86-lookup)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! nasm-mode
+  :mode "\\.[n]*\\(asm\\|s\\)\\'")
+
+;; Get Haxor VM from https://github.com/krzysztof-magosa/haxor
+(use-package! haxor-mode
+  :mode "\\.hax\\'")
+
+(use-package! mips-mode
+  :mode "\\.mips$")
+
+(use-package! riscv-mode
+  :commands (riscv-mode)
+  :mode "\\.riscv$")
+
+(use-package! x86-lookup
+  :commands (x86-lookup)
+  :config
+  (when (featurep! :tools pdf)
+     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
+  ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
+#+end_src
+
+** Disaster :disaster:disassemble:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! disaster)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; TODO: Configure to take into account "compile_commands.json"
+(use-package! disaster
+  :commands (disaster))
+#+end_src
+
+** Devdocs :devdocs:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! devdocs
+  :recipe (:host github
+           :repo "astoff/devdocs.el"
+           :files ("*.el")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! devdocs
+  :commands (devdocs-lookup devdocs-install)
+  :config
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+#+end_src
+
+** Systemd :systemd:
+For editing systemd unit files.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! systemd)
+#+end_src
+
+** Franca IDL
+Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! franca-idl
+  :recipe (:host github
+           :repo "zeph1e/franca-idl.el"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! franca-idl
+  :commands franca-idl-mode)
+#+end_src
+
+** LaTeX :latex:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! aas
+  :recipe (:host github
+           :repo "ymarco/auto-activating-snippets"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! aas
+  :commands aas-mode)
+#+end_src
+
+** Flycheck :heart: Projectile
+WIP: Not working atm!
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! flycheck-projectile
+  :recipe (:host github
+           :repo "nbfalcon/flycheck-projectile"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! flycheck-projectile
+  :commands flycheck-projectile-list-errors)
+#+end_src
+
+** Graphviz :graphviz:
+Graphviz is a nice method of visualizing simple graphs, based on plaintext
+=.dot= / =.gv= files.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! graphviz-dot-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! graphviz-dot-mode
+  :commands (graphviz-dot-mode graphviz-dot-preview))
+#+end_src
+
+** Inspector :inspector:debug:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! inspector
+  :recipe (:host github
+           :repo "mmontone/emacs-inspector"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! inspector
+  :commands (inspect-expression inspect-last-sexp))
+#+end_src
+
+* Office :office:organize:edit:
+** Org mode additional packages :package:
 To avoid problems in the src_elisp{(after! org)} section.
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -4338,13 +4249,13 @@ To avoid problems in the src_elisp{(after! org)} section.
            :repo "nashamri/academic-phrases"))
 #+end_src
 
-* Org mode :org:
+** Org mode :org:
 :PROPERTIES:
 :CUSTOM_ID: org
 :header-args:emacs-lisp: :tangle no :noweb-ref org-conf
 :END:
 
-** Intro
+*** Intro
 Because this section is fairly expensive to initialize, we'll wrap it in a
 src_elisp{(after! ...)} block.
 
@@ -4354,9 +4265,9 @@ src_elisp{(after! ...)} block.
 )
 #+end_src
 
-** Behavior :behavior:
-*** Tweaking defaults
-**** Org basics
+*** Behavior :behavior:
+**** Tweaking defaults
+***** Org basics
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/"        ; let's put files here
       org-use-property-inheritance t        ; it's convenient to have properties inherited
@@ -4373,7 +4284,7 @@ src_elisp{(after! ...)} block.
       org-insert-heading-respect-content t)
       #+end_src
 
-**** Babel
+***** Babel
 Load Org Babel languages. I like to activate some languages, including C, C++,
 Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
 
@@ -4388,6 +4299,7 @@ Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
    (C . t)
    (cpp . t)
    (maxima . t)
+   (dot . t)
    (emacs-lisp . t)))
    #+end_src
 
@@ -4422,7 +4334,7 @@ file local variables (with the src_org{# -*- geiser-scheme-implementation:
 (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 #+end_src
 
-**** Visual line / auto fill
+***** Visual line / auto fill
 By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
 However, this messes with tables in Org-mode, and other plain text files (e.g.
 markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
@@ -4433,7 +4345,7 @@ specific modes as desired.
 (add-hook 'text-mode-hook #'auto-fill-mode)
 #+end_src
 
-**** EVIL
+***** EVIL
 There also seem to be a few keybindings which use =hjkl=, but miss arrow key equivalents.
 
 #+begin_src emacs-lisp
@@ -4445,7 +4357,7 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
       :n "g <right>" #'org-down-element)
 #+end_src
 
-*** TODOs :todo:
+**** TODOs :todo:
 
 #+begin_src emacs-lisp
 (setq org-todo-keywords
@@ -4462,7 +4374,7 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
 (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
-*** Agenda :agenda:
+**** Agenda :agenda:
 Set files for =org-agenda=
 
 #+begin_src emacs-lisp
@@ -4486,7 +4398,7 @@ Apply some styling on the standard agenda:
       "⭠ now ─────────────────────────────────────────────────")
 #+end_src
 
-*** Super Agenda :agenda:
+**** Super Agenda :agenda:
 Configure =org-super-agenda=
 
 #+begin_src emacs-lisp
@@ -4531,8 +4443,8 @@ Configure =org-super-agenda=
                             (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
 #+end_src
 
-*** Calendar
-**** Google calendar (=org-gcal=) :calendar:google:
+**** Calendar
+***** Google calendar (=org-gcal=) :calendar:google:
 I store my =org-gcal= configuration privately, it contains something like this:
 
 #+begin_example emacs-lisp :tangle no
@@ -4546,7 +4458,7 @@ I store my =org-gcal= configuration privately, it contains something like this:
 (load! "lisp/private/+org-gcal.el")
 #+end_src
 
-**** TODO CalDAV :calendar:caldav:
+***** TODO CalDAV :calendar:caldav:
 Need to be configured, see the [[https://github.com/dengste/org-caldav][github repo]].
 
 #+begin_src emacs-lisp
@@ -4554,7 +4466,7 @@ Need to be configured, see the [[https://github.com/dengste/org-caldav][github r
   :commands (org-caldav-sync))
 #+end_src
 
-*** Capture :capture:
+**** Capture :capture:
 Set capture files
 
 #+begin_src emacs-lisp
@@ -4851,7 +4763,7 @@ no modeline.
         (org-capture)))
 #+end_src
 
-*** Roam :roam:
+**** Roam :roam:
 Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
 with it.
 
@@ -4867,7 +4779,7 @@ with it.
                 org-roam-ui-open-on-start t))
 #+end_src
 
-**** Basic settings
+***** Basic settings
 
 #+begin_src emacs-lisp
 (setq org-roam-directory "~/Dropbox/Org/slip-box")
@@ -4883,7 +4795,7 @@ to initialize), let's not load roam.
   :disable t)
 #+end_src
 
-**** Mode line file name :modeline:
+***** Mode line file name :modeline:
 All those numbers! It's messy. Let's adjust this similarly that I have in
 the window title
 
@@ -4898,7 +4810,7 @@ the window title
     (funcall orig-fun)))
 #+end_src
 
-**** Org Roam Capture template :template:
+***** Org Roam Capture template :template:
 
 #+begin_src emacs-lisp
 (after! org-roam
@@ -4908,7 +4820,7 @@ the window title
            :unnarrowed t))))
 #+end_src
 
-*** Snippet Helpers
+**** Snippet Helpers
 I often want to set =src-block= headers, and it's a pain to:
 + type them out
 + remember what the accepted values are
@@ -5024,7 +4936,7 @@ Return nil otherwise."
     (car (cl-set-difference src-langs header-langs :test #'string=))))
 #+end_src
 
-*** Translate capital keywords (old) to lower case (new)
+**** Translate capital keywords (old) to lower case (new)
 Everyone used to use ~#+CAPITAL~ keywords. Then people realised that ~#+lowercase~
 is actually both marginally easier and visually nicer, so now the capital
 version is just used in the manual.
@@ -5052,7 +4964,7 @@ It likely misses some edge cases, but should mostly work.
       (message "Replaced %d occurances" count))))
 #+end_src
 
-*** Org notifier
+**** Org notifier
 Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-notifier~]].
 
 #+begin_src emacs-lisp
@@ -5062,7 +4974,7 @@ Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-no
   (setq org-wild-notifier-alert-time '(60 30)))
 #+end_src
 
-*** COMMENT Fix problematic hooks
+**** COMMENT Fix problematic hooks
 When one of the src_elisp{org-mode-hook} functions errors, it halts the hook
 execution. This is problematic, and there are two hooks in particular which
 cause issues. Let's make their failure less eventful.
@@ -5075,7 +4987,7 @@ cause issues. Let's make their failure less eventful.
   (ignore-errors (apply orig-fn args)))
 #+end_src
 
-*** COMMENT LSP support for babel blocks
+**** COMMENT LSP support for babel blocks
 
 #+begin_src emacs-lisp
 (cl-defmacro lsp-org-babel-enable (lang)
@@ -5110,8 +5022,8 @@ cause issues. Let's make their failure less eventful.
   (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 
-** Custom links
-*** Sub-figures
+*** Custom links
+**** Sub-figures
 This defines a new link type =subfig= to enable exporting sub-figures to LaTeX,
 taken form [[https://orgmode.org/list/87mty1an66.fsf@posteo.net/]["Export subfigures to LaTeX (and HTML)"]].
 
@@ -5145,12 +5057,12 @@ Example of usage:
 ,#+end_figure
 #+end_example
 
-** Visuals
+*** Visuals
 Here I try to do two things: improve the styling of the various documents, via
 font changes etc., and also propagate colours from the current theme.
 
-*** Font display
-**** Headings
+**** Font display
+***** Headings
 Let's make the title and the headings a bit bigger:
 
 #+begin_src emacs-lisp
@@ -5168,7 +5080,7 @@ Let's make the title and the headings a bit bigger:
   '(outline-9 :weight semi-bold))
 #+end_src
 
-**** Deadlines
+***** Deadlines
 It seems reasonable to have deadlines in the error face when they're passed.
 
 #+begin_src emacs-lisp
@@ -5179,7 +5091,7 @@ It seems reasonable to have deadlines in the error face when they're passed.
         (0.000 . org-upcoming-distant-deadline)))
 #+end_src
 
-**** Font styling
+***** Font styling
 We can then have quote blocks stand out a bit more by making them /italic/.
 
 #+begin_src emacs-lisp
@@ -5202,14 +5114,14 @@ sacrificing visual amenities with the =org-appear= package.
   (run-at-time nil nil #'org-appear--set-elements))
 #+end_src
 
-**** Inline blocks
+***** Inline blocks
 
 #+begin_src emacs-lisp
 (setq org-inline-src-prettify-results '("⟨" . "⟩")
       doom-themes-org-fontify-special-tags nil)
 #+end_src
 
-*** Org Modern
+**** Org Modern
 
 #+begin_src emacs-lisp
 (use-package! org-modern
@@ -5221,7 +5133,7 @@ sacrificing visual amenities with the =org-appear= package.
   (global-org-modern-mode))
 #+end_src
 
-*** Image previews
+**** Image previews
 
 #+begin_src emacs-lisp
 ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
@@ -5229,7 +5141,7 @@ sacrificing visual amenities with the =org-appear= package.
 (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
 #+end_src
 
-*** List bullet sequence :bullet:
+**** List bullet sequence :bullet:
 I think it makes sense to have list bullets change with depth
 
 #+begin_src emacs-lisp
@@ -5240,7 +5152,7 @@ I think it makes sense to have list bullets change with depth
         ("1." . "a.")))
 #+end_src
 
-*** Symbols
+**** Symbols
 
 #+begin_src emacs-lisp
 ;; Org styling, hide markup etc.
@@ -5381,8 +5293,8 @@ commands.
   :priority_e              "[#E]")
 #+end_src
 
-*** LaTeX fragments
-**** Prettier highlighting
+**** LaTeX fragments
+***** Prettier highlighting
 First off, we want those fragments to look good.
 
 #+begin_src emacs-lisp
@@ -5404,7 +5316,7 @@ passed, and so we can override the background as discussed above.
 (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
 #+end_src
 
-**** Prettier rendering
+***** Prettier rendering
 It's nice to customize the look of LaTeX fragments.
 
 #+begin_src emacs-lisp
@@ -5455,7 +5367,7 @@ let's make it transparent.
   (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
 #+end_src
 
-**** Better equation numbering
+***** Better equation numbering
 Numbered equations all have (1) as the number for fragments with vanilla
 org-mode. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews so they look
 good. *Not working right now!*
@@ -5515,7 +5427,7 @@ good. *Not working right now!*
     (message "Latex numbering disabled.")))
 #+end_src
 
-**** Fragtog
+***** Fragtog
 Hook =org-fragtog-mode= to =org-mode=.
 
 #+begin_src emacs-lisp
@@ -5523,7 +5435,7 @@ Hook =org-fragtog-mode= to =org-mode=.
   :hook (org-mode . org-fragtog-mode))
 #+end_src
 
-*** Org plot
+**** Org plot
 We can use some variables in =org-plot= to use the current doom theme
 colors.
 
@@ -5600,7 +5512,7 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
-** Bibliography
+*** Bibliography
 
 #+begin_src emacs-lisp
 (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
@@ -5619,7 +5531,7 @@ set palette defined ( 0 '%s',\
         (call-process "open" nil 0 nil fpath)))
 #+end_src
 
-*** Org-bib
+**** Org-bib
 A mode to work with annotated bibliography in Org-Mode. See [[https://github.com/rougier/org-bib-mode][the repo]] for an
 example.
 
@@ -5628,7 +5540,7 @@ example.
   :commands (org-bib-mode))
 #+end_src
 
-*** COMMENT Org-cite
+**** COMMENT Org-cite
 
 #+begin_src emacs-lisp
 (after! oc
@@ -5661,7 +5573,7 @@ example.
                                  (match-string 2))))))))
 #+end_src
 
-*** Org-ref
+**** Org-ref
 Use Org as LaTeX!
 
 #+begin_src emacs-lisp
@@ -5696,7 +5608,7 @@ Use Org as LaTeX!
           (org-ref-open-bibtex-pdf))))))
 #+end_src
 
-*** Citar
+**** Citar
 
 #+begin_src emacs-lisp
 (setq citar-library-paths '("~/Zotero/storage")
@@ -5704,24 +5616,8 @@ Use Org as LaTeX!
       citar-bibliography '("~/Zotero/library.bib"))
 #+end_src
 
-*** Academic phrases
-When writing your academic paper, you might get stuck trying to find the right
-phrase that captures your intention. This package tries to alleviate that
-problem by presenting you with a list of phrases organized by the topic or by
-the paper section that you are writing. This package has around 600 phrases so
-far.
-
-This is based on the book titled "English for Writing Research - Papers Useful
-Phrases".
-
-#+begin_src emacs-lisp
-(use-package! academic-phrases
-  :commands (academic-phrases
-             academic-phrases-by-section))
-#+end_src
-
-** Exporting
-*** General settings
+*** Exporting
+**** General settings
 By default Org only exports the first three levels of headings as ... headings.
 This is rather unfortunate as my documents frequently stray far beyond three
 levels of depth. The two main formats I care about exporting to are LaTeX and
@@ -5756,8 +5652,8 @@ the creator string.
       (format "Emacs %s (Org mode %s)" emacs-version (org-release)))
 #+end_src
 
-*** LaTeX export
-**** Compiling
+**** LaTeX export
+***** Compiling
 By default Org uses ~pdflatex~ \times 3 + ~bibtex~. This simply won't do in our
 modern world. ~latexmk~ + ~biber~ (which is used automatically with ~latexmk~) is a
 simply superior combination.
@@ -5789,7 +5685,7 @@ value) it allows us to leave ~org-latex-compilers~ unmodified.
 This is nice in case I open an org file that uses =#+LATEX_COMPILER= for example,
 it should still work.
 
-**** COMMENT Default packages
+***** COMMENT Default packages
 I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-latex.el][scimax]].
 
 #+begin_src emacs-lisp
@@ -5845,7 +5741,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
     ))
 #+end_src
 
-**** Export PDFs with syntax highlighting
+***** Export PDFs with syntax highlighting
 
 #+begin_src emacs-lisp
 ;; this is for code syntax highlighting in export. you need to use
@@ -5856,7 +5752,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
                                  ("linenos" "")))
 #+end_src
 
-**** Class templates
+***** Class templates
 
 #+begin_src emacs-lisp :noweb no-export
 (after! ox-latex
@@ -5923,7 +5819,7 @@ I stolen this from [[https://github.com/jkitchin/scimax/blob/master/scimax-org-l
 ;; org-latex-reference-command "\\cref{%s}")
 #+end_src
 
-*** Hugo
+**** Hugo
 Update files with last modified date, when ~#+lastmod:~ is available
 
 #+begin_src emacs-lisp
@@ -5933,6 +5829,47 @@ Update files with last modified date, when ~#+lastmod:~ is available
       time-stamp-format "%04Y-%02m-%02d")
 
 (add-hook 'before-save-hook 'time-stamp nil)
+#+end_src
+** Text editing :text:
+*** Plain text :text:
+It's nice to see ANSI color codes displayed. However, until Emacs 28 it's not
+possible to do this without modifying the buffer, so let's condition this block
+on that.
+
+#+begin_src emacs-lisp :tangle (if (>= emacs-major-version 28) "yes" "no")
+(after! text-mode
+  (add-hook! 'text-mode-hook
+             ;; Apply ANSI color codes
+             (with-silent-modifications
+               (ansi-color-apply-on-region (point-min) (point-max) t))))
+#+end_src
+
+*** Academic phrases
+When writing your academic paper, you might get stuck trying to find the right
+phrase that captures your intention. This package tries to alleviate that
+problem by presenting you with a list of phrases organized by the topic or by
+the paper section that you are writing. This package has around 600 phrases so
+far.
+
+This is based on the book titled "English for Writing Research - Papers Useful
+Phrases".
+
+#+begin_src emacs-lisp
+(use-package! academic-phrases
+  :commands (academic-phrases
+             academic-phrases-by-section))
+#+end_src
+
+*** Quarto
+Integration of [[https://quarto.org/][Quarto]] in Emacs.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! quarto-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! quarto-mode
+  :when +quarto-ok-p)
 #+end_src
 
 * System configuration :linux:system:
