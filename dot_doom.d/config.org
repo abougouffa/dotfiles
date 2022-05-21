@@ -4357,24 +4357,6 @@ src_elisp{(after! ...)} block.
       #+end_src
 
 ***** Babel
-Load Org Babel languages. I like to activate some languages, including C, C++,
-Python, IPython, Octave, R, PlantUML, Emacs Lisp, and others.
-
-#+begin_src emacs-lisp
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((R . t)
-   (python . t)
-   (jupyter . t)
-   (octave . t)
-   (plantuml . t)
-   (C . t)
-   (cpp . t)
-   (maxima . t)
-   (dot . t)
-   (emacs-lisp . t)))
-   #+end_src
-
 I also like the src_elisp{:comments} header-argument, so let's make that a
 default.
 
