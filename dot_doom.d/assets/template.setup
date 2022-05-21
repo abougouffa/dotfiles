@@ -1,3 +1,5 @@
+# -*- mode: org; -*-
+
 #+latex_class: article
 #+latex_class_options: [10pt]
 #+latex_header: \usepackage[paper=a4paper, left=2cm, right=2cm, top=3cm, bottom=3cm]{geometry}
@@ -7,6 +9,7 @@
 #+latex_header: \emergencystretch 5em%
 #+latex_header: \usepackage{caption}
 #+latex_header: \usepackage{float}
+#+latex_header: \usepackage{fontspec}
 #+latex_header: \usepackage{subcaption}
 #+latex_header: \usepackage{tikz}
 #+latex_header: \usepackage[numbers,square,sort&compress]{natbib}
@@ -14,3 +17,9 @@
 #+latex_header: \setlength{\bibsep}{0pt plus 0.5ex}
 #+latex_header: \rfoot{\small{Abdelhak Bougouffa~\textcopyright~2022}}
 #+latex: \newpage
+
+# ;; (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+# ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+
+# ;; (setq org-latex-listings 'minted) ;; Per document, in local variables
+# ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex

@@ -1,17 +1,17 @@
-# -*- geiser-scheme-implementation: 'guile; -*-
+# -*- geiser-scheme-implementation: 'guile; org-export-in-background: nil; org-latex-listings: 'minted; eval: (add-to-list 'org-latex-packages-alist '("" "minted")); -*-
 #+title: Doom Emacs Configuration
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+date: <2022-04-24 Sun>
-#+options: title:t author:t email:t toc:nil tags:nil
+#+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
 #+property: header-args:shell :tangle "setup.sh"
 #+property: header-args :tangle no :results silent :eval no-export
-#+setupfile: assets/template.org
+#+setupfile: assets/template.setup
 #+startup: fold noindent
 #+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo
+#+latex_compiler: xelatex
 
 
 
