@@ -5667,7 +5667,7 @@ simply superior combination.
 #+begin_src emacs-lisp
 ;; `org-latex-compilers' contains a list of possible values ("pdflatex" "xelatex" "lualatex")
 ;; for the `%latex' argument.
-(setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+(setq org-latex-pdf-process '("latexmk -shell-escape -pdf -quiet -f -%latex -interaction=nonstopmode -output-directory=%o %f"))
 #+end_src
 
 ***** Org LaTeX packages
@@ -5685,10 +5685,32 @@ simply superior combination.
 #+begin_src emacs-lisp
 ;; this is for code syntax highlighting in export. you need to use
 ;; -shell-escape with latex, and install pygments.
-(setq org-latex-listings 'minted
-      org-latex-minted-options '(("frame" "lines")
-                                 ("fontsize" "\\scriptsize")
+;; (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+
+;; (setq org-latex-listings 'minted) ;; Per document, in local variables
+(setq org-latex-minted-options '(("frame" "lines")
+                                 ("fontsize" "\\footnotesize")
+                                 ("tabsize" "2")
+                                 ("breaklines" "")
+                                 ("breakanywhere" "") ;; break anywhere, no just on spaces
+                                 ("style" "default")
+                                 ("bgcolor" "GhostWhite")
                                  ("linenos" "")))
+
+(dolist (pair '((ipython    "python")
+                (jupyter    "python")
+                (scheme     "scheme")
+                (lisp-data  "lisp")
+                (conf       "ini")
+                (conf-unix  "unixconfig")
+                (conf-space "unixconfig")
+                (conf-toml  "yaml")
+                (gitconfig  "ini")
+                (systemd    "ini")
+                (gdb-script "text")))
+  (unless (member pair org-latex-minted-langs)
+    (add-to-list 'org-latex-minted-langs pair)))
 #+end_src
 
 ***** Class templates
@@ -5903,7 +5925,7 @@ javascript:location.href =
 *** Git diffs :diff:
 Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
 
-#+begin_src fundamental :tangle ~/.config/git/attributes :mkdirp yes
+#+begin_src conf-space :tangle ~/.config/git/attributes :mkdirp yes
 ,*.tex                                       diff=tex
 ,*.bib                                       diff=bibtex
 ,*.{c,h,c++,h++,cc,hh,cpp,hpp}               diff=cpp
