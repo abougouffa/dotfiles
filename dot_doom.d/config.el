@@ -98,7 +98,7 @@
 ;; Emacs sources:1 ends here
 
 ;; [[file:config.org::*Initialization][Initialization:1]]
-(defun greedily-do-daemon-setup ()
+(defun +greedily-do-daemon-setup ()
   (require 'org)
   (when (require 'mu4e nil t)
     (setq mu4e-confirm-quit t
@@ -109,8 +109,8 @@
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
-  (add-hook 'emacs-startup-hook #'greedily-do-daemon-setup)
-  (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
+  (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
+  ;; (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
   (add-hook! 'server-after-make-frame-hook
     (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
       (switch-to-buffer +doom-dashboard-name))))
@@ -168,6 +168,14 @@
 
 ;; [[file:config.org::*Theme][Theme:1]]
 (setq doom-theme 'doom-vibrant)
+(remove-hook 'window-setup-hook #'doom-init-theme-h)
+(add-hook 'after-init-hook #'doom-init-theme-h 'append)
+(delq! t custom-theme-load-path)
+
+;; By default 'doom-vibrant' uses red faces to mark modified file in modeline,
+;; lets change it to orange.
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
 ;; Theme:1 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
@@ -197,11 +205,69 @@
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
 ;; Custom Splash Image:1 ends here
 
-;; [[file:config.org::*Clean Screen][Clean Screen:1]]
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+;; [[file:config.org::*Dashboard][Dashboard:1]]
+;; (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
-;; Clean Screen:1 ends here
+
+(defun +doom/open-private-config-org ()
+  (interactive)
+  (when (file-directory-p doom-private-dir)
+    (find-file (expand-file-name "config.org" doom-private-dir))))
+
+(setq +doom-dashboard-menu-sections
+  '(("Reload last session"
+     :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
+     :when (cond ((featurep! :ui workspaces)
+                  (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
+                 ((require 'desktop nil t)
+                  (file-exists-p (desktop-full-file-name))))
+     :face (:inherit (doom-dashboard-menu-title bold))
+     :action doom/quickload-session)
+    ("Open mailbox"
+     :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
+     :action =mu4e)
+    ("Open org-agenda"
+     :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
+     :when (fboundp 'org-agenda)
+     :action org-agenda)
+    ("Recently opened files"
+     :icon (all-the-icons-octicon "file-text" :face 'doom-dashboard-menu-title)
+     :action recentf-open-files)
+    ("Open project"
+     :icon (all-the-icons-octicon "briefcase" :face 'doom-dashboard-menu-title)
+     :action projectile-switch-project)
+    ("Jump to bookmark"
+     :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
+     :action bookmark-jump)
+    ("Open config.org"
+     :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
+     :when (file-directory-p doom-private-dir)
+     :action +doom/open-private-config-org)))
+
+(defun +doom-dashboard-setup-modified-keymap ()
+  (setq +doom-dashboard-mode-map (make-sparse-keymap))
+  (map! :map +doom-dashboard-mode-map
+        :desc "Find file" :ne "f" #'find-file
+        :desc "Recent files" :ne "r" #'consult-recent-file
+        :desc "Config dir" :ne "C" #'doom/open-private-config
+        :desc "Open config.org" :ne "c" #'+doom/open-private-config-org
+        :desc "Open dotfile" :ne "." (cmd! (doom-project-find-file "~/.config/"))
+        :desc "Notes (roam)" :ne "n" #'org-roam-node-find
+        :desc "Switch buffer" :ne "b" #'+vertico/switch-workspace-buffer
+        :desc "Switch buffers (all)" :ne "B" #'consult-buffer
+        :desc "IBuffer" :ne "i" #'ibuffer
+        :desc "Previous buffer" :ne "p" #'previous-buffer
+        :desc "Email" :ne "m" #'=mu4e
+        :desc "Quit" :ne "Q" #'save-buffers-kill-terminal
+        :desc "Show keybindings" :ne "h" (cmd! (which-key-show-keymap '+doom-dashboard-mode-map))))
+
+(add-transient-hook! #'+doom-dashboard-mode (+doom-dashboard-setup-modified-keymap))
+(add-transient-hook! #'+doom-dashboard-mode :append (+doom-dashboard-setup-modified-keymap))
+(add-hook! 'doom-init-ui-hook :append (+doom-dashboard-setup-modified-keymap))
+
+(map! :leader :desc "Dashboard" "d" #'+doom-dashboard/open)
+;; Dashboard:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
 (setq which-key-idle-delay 0.5 ;; Default is 1.0
@@ -236,9 +302,8 @@
 ;; (after! lsp-mode
 ;;   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
 
-
-(setq-default left-fringe-width 15)
-; (set-fringe-mode '(15 . 15))
+(setq-default left-fringe-width 25
+              right-fringe-width 25)
 ;; Fringe:1 ends here
 
 ;; [[file:config.org::*Vertico][Vertico:1]]
@@ -354,106 +419,72 @@ is binary, activate `hexl-mode'."
   :commands (aggressive-indent-mode))
 ;; Aggressive indent:2 ends here
 
-;; [[file:config.org::*Parinfer][Parinfer:2]]
-(use-package! parinfer-rust-mode
-  :when (bound-and-true-p module-file-suffix)
-  ;; Don't hook, causing annoying problem when openning Org file
-  ;; with lisp blocks.
-  ;; :hook ((emacs-lisp-mode clojure-mode scheme-mode lisp-mode racket-mode hy-mode) . parinfer-rust-mode)
-  :init
-  (setq parinfer-rust-check-before-enable 'defer
-        parinfer-rust-auto-download nil
-        ;; Use locally compiled module
-        parinfer-rust-library-directory (expand-file-name "parinfer-rust/repo/target/release" doom-etc-dir)
-        parinfer-rust-library (expand-file-name "libparinfer_rust.so" parinfer-rust-library-directory)
-        parinfer-rust-preferred-mode "smart"
-        parinfer-rust-troublesome-modes '(electric-pair-mode
-                                          hungry-delete-mode
-                                          global-hungry-delete-mode))
-  :config
-  (map! :map parinfer-rust-mode-map
-        :localleader
-        "p" #'parinfer-rust-switch-mode
-        "P" #'parinfer-rust-toggle-disable))
-
-;; (after! parinfer-rust-mode
-;;   (defvar +parinfer-rust-disable-in-modes-list '(org-mode))
-
-;;   (defun +parinfer-rust-disable-in-modes (orig-fun &rest args)
-;;     "Disable parinfer for a list of modes."
-;;     (message "ADVICE CALLED ON FUNCTION %s, CURRENT MAJOR MODE %s" orig-fun major-mode)
-;;     (unless
-;;         (or (member major-mode +parinfer-rust-disable-in-modes-list)
-;;             (catch 'parinfer-disabled
-;;               (dolist (mode +parinfer-rust-disable-in-modes-list)
-;;                 (when (parinfer-rust--is-active-minor-mode mode)
-;;                   (message "parinfer-rust-mode disabled because of minor mode %s" mode)
-;;                   ;;(parinfer-rust-mode-disable)
-;;                   (throw 'parinfer-disabled t))
-;;                 nil)))
-;;       (apply orig-fun args)))
-
-;;   (advice-add 'parinfer-rust-mode-enable :around #'+parinfer-rust-disable-in-modes)
-;;   (advice-add 'parinfer-rust-mode :around #'+parinfer-rust-disable-in-modes))
-;; Parinfer:2 ends here
-
 ;; [[file:config.org::*YASnippet][YASnippet:1]]
 (setq yas-triggers-in-field t)
 ;; YASnippet:1 ends here
 
 ;; [[file:config.org::*Asynchronous tangling][Asynchronous tangling:1]]
+(defvar +literate-tangle--proc nil)
+(defvar +literate-tangle--proc-start-time nil)
+
 (defadvice! +literate-tangle-async-h ()
   "A very simplified version of `+literate-tangle-h', but async."
   :override #'+literate-tangle-h
-  (let ((default-directory doom-private-dir))
-    (async-shell-command
-     (format "emacs --batch --eval \"(progn \
-(require 'org) (setq org-confirm-babel-evaluate nil) \
-(org-babel-tangle-file \\\"%s\\\"))\""
-             +literate-config-file))))
+  (unless (getenv "__NOTANGLE")
+    (let ((default-directory doom-private-dir))
+      (when +literate-tangle--proc
+        (message "Killing outdated tangle process...")
+        (set-process-sentinel +literate-tangle--proc #'ignore)
+        (kill-process +literate-tangle--proc)
+        (sit-for 0.3)) ; ensure the message is seen for a bit
+      (setq +literate-tangle--proc-start-time (float-time)
+            +literate-tangle--proc
+            (start-process "tangle-config"
+                           (get-buffer-create " *tangle config*")
+                           "emacs" "--batch" "--eval"
+                           (format "(progn \
+(require 'ox) \
+(require 'ob-tangle) \
+(setq org-confirm-babel-evaluate nil \
+      org-inhibit-startup t \
+      org-mode-hook nil \
+      write-file-functions nil \
+      before-save-hook nil \
+      after-save-hook nil \
+      vc-handled-backends nil \
+      org-startup-folded nil \
+      org-startup-indented nil) \
+(org-babel-tangle-file \"%s\" \"%s\"))"
+                                   +literate-config-file
+                                   (expand-file-name (concat doom-module-config-file ".el")))))
+      (set-process-sentinel +literate-tangle--proc #'+literate-tangle--sentinel)
+      (run-at-time nil nil (lambda () (message "Tangling config.org"))) ; ensure shown after a save message
+      "Tangling config.org...")))
+
+(defun +literate-tangle--sentinel (process signal)
+  (cond
+   ((and (eq 'exit (process-status process))
+         (= 0 (process-exit-status process)))
+    (message "Tangled config.org sucessfully (took %.1fs)"
+             (- (float-time) +literate-tangle--proc-start-time))
+    (setq +literate-tangle--proc nil))
+   ((memq (process-status process) (list 'exit 'signal))
+    (pop-to-buffer (get-buffer " *tangle config*"))
+    (message "Failed to tangle config.org (after %.1fs)"
+             (- (float-time) +literate-tangle--proc-start-time))
+    (setq +literate-tangle--proc nil))))
+
+(defun +literate-tangle-check-finished ()
+  (when (and (process-live-p +literate-tangle--proc)
+             (yes-or-no-p "Config is currently retangling, would you please wait a few seconds?"))
+    (switch-to-buffer " *tangle config*")
+    (signal 'quit nil)))
+
+(add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
 ;; Asynchronous tangling:1 ends here
 
 ;; [[file:config.org::*Tabs][Tabs:1]]
 (use-package! tab-bar
-  ;; :bind
-  ;; ("s-}" . tab-next)
-  ;; ("s-{" . tab-previous)
-  ;; (:map +workspace-map
-  ;;       ("C-n" . tab-next)
-  ;;       ("C-p" . tab-previous)
-  ;;       ("c" . tab-new)
-  ;;       ("C-c" . tab-new)
-  ;;       ("k" . tab-close)
-  ;;       ("C-k" . tab-close)
-  ;;       ("l" . tab-recent)
-  ;;       ("C-l" . tab-recent)
-  ;;       ("r" . tab-rename)
-  ;;       ("C-r" . tab-rename)
-  ;;       ("n" . +tab-bar-move-tab-right)
-  ;;       ("p" . +tab-bar-move-tab-left)
-  ;;       ("s" . +tab-bar-switch-to-or-create-tab)
-  ;;       ("C-s" . +tab-bar-switch-to-or-create-tab)
-  ;;       ("e" . tab-switcher)
-  ;;       ("C-e" . tab-switcher)
-  ;;       ("u" . tab-undo)
-  ;;       ("C-u" . tab-undo)
-  ;;       (";" . +tab-bar-echo-tab-list)
-  ;;       ("C-;" . +tab-bar-echo-tab-list)
-  ;;       ("0" . +tab-bar-switch-to-index)
-  ;;       ("1" . +tab-bar-switch-to-index)
-  ;;       ("2" . +tab-bar-switch-to-index)
-  ;;       ("3" . +tab-bar-switch-to-index)
-  ;;       ("4" . +tab-bar-switch-to-index)
-  ;;       ("5" . +tab-bar-switch-to-index)
-  ;;       ("6" . +tab-bar-switch-to-index)
-  ;;       ("7" . +tab-bar-switch-to-index)
-  ;;       ("8" . +tab-bar-switch-to-index)
-  ;;       ("9" . +tab-bar-switch-to-index)
-  ;;       ("b" . tab-bar-history-back)
-  ;;       ("C-b" . tab-bar-history-back)
-  ;;       ("f" . tab-bar-history-forward)
-  ;;       ("C-f" . tab-bar-history-forward))
-
   :custom
   (tab-bar-close-button-show nil)
   (tab-bar-format '(tab-bar-format-tabs-groups tab-bar-separator))
@@ -2430,18 +2461,18 @@ ARG counts from 1."
         org-special-ctrl-a/e t
         org-startup-indented t ;; Enable 'org-indent-mode' by default, override with '+#startup: noindent' for big files
         org-insert-heading-respect-content t)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((R . t)
-     (python . t)
-     (jupyter . t)
-     (octave . t)
-     (plantuml . t)
-     (C . t)
-     (cpp . t)
-     (maxima . t)
-     (dot . t)
-     (emacs-lisp . t)))
+  ;; (org-babel-do-load-languages
+  ;;  'org-babel-load-languages
+  ;;  '((R . t)
+  ;;    (python . t)
+  ;;    (jupyter . t)
+  ;;    (octave . t)
+  ;;    (plantuml . t)
+  ;;    (C . t)
+  ;;    (cpp . t)
+  ;;    (maxima . t)
+  ;;    (dot . t)
+  ;;    (emacs-lisp . t)))
   (setq org-babel-default-header-args
         '((:session  . "none")
           (:results  . "replace")

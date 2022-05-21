@@ -31,10 +31,6 @@
 (package! aggressive-indent)
 ;; Aggressive indent:1 ends here
 
-;; [[file:config.org::*Parinfer][Parinfer:1]]
-(package! parinfer-rust-mode)
-;; Parinfer:1 ends here
-
 ;; [[file:config.org::*Treemacs][Treemacs:1]]
 (unpin! treemacs)
 (unpin! lsp-treemacs)

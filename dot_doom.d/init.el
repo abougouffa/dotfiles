@@ -45,7 +45,7 @@
   fold
   format
   multiple-cursors
-  ;;parinfer
+  parinfer
   snippets
   word-wrap
   ;;lispy
