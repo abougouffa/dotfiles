@@ -955,7 +955,7 @@ with a unicode char, making =which-key='s candidate list less verbose.
 #+end_src
 
 *** Window title :title:
-I’d like to have just the buffer name, then if applicable the project folder
+I’d like to have just the buffer name, then if applicable the project folder.
 
 #+begin_src emacs-lisp
 (setq frame-title-format
@@ -1270,45 +1270,6 @@ Stolen from [[https://github.com/jimeh/.emacs.d/blob/master/modules/workspaces/s
 
 #+begin_src emacs-lisp
 (use-package! tab-bar
-  ;; :bind
-  ;; ("s-}" . tab-next)
-  ;; ("s-{" . tab-previous)
-  ;; (:map +workspace-map
-  ;;       ("C-n" . tab-next)
-  ;;       ("C-p" . tab-previous)
-  ;;       ("c" . tab-new)
-  ;;       ("C-c" . tab-new)
-  ;;       ("k" . tab-close)
-  ;;       ("C-k" . tab-close)
-  ;;       ("l" . tab-recent)
-  ;;       ("C-l" . tab-recent)
-  ;;       ("r" . tab-rename)
-  ;;       ("C-r" . tab-rename)
-  ;;       ("n" . +tab-bar-move-tab-right)
-  ;;       ("p" . +tab-bar-move-tab-left)
-  ;;       ("s" . +tab-bar-switch-to-or-create-tab)
-  ;;       ("C-s" . +tab-bar-switch-to-or-create-tab)
-  ;;       ("e" . tab-switcher)
-  ;;       ("C-e" . tab-switcher)
-  ;;       ("u" . tab-undo)
-  ;;       ("C-u" . tab-undo)
-  ;;       (";" . +tab-bar-echo-tab-list)
-  ;;       ("C-;" . +tab-bar-echo-tab-list)
-  ;;       ("0" . +tab-bar-switch-to-index)
-  ;;       ("1" . +tab-bar-switch-to-index)
-  ;;       ("2" . +tab-bar-switch-to-index)
-  ;;       ("3" . +tab-bar-switch-to-index)
-  ;;       ("4" . +tab-bar-switch-to-index)
-  ;;       ("5" . +tab-bar-switch-to-index)
-  ;;       ("6" . +tab-bar-switch-to-index)
-  ;;       ("7" . +tab-bar-switch-to-index)
-  ;;       ("8" . +tab-bar-switch-to-index)
-  ;;       ("9" . +tab-bar-switch-to-index)
-  ;;       ("b" . tab-bar-history-back)
-  ;;       ("C-b" . tab-bar-history-back)
-  ;;       ("f" . tab-bar-history-forward)
-  ;;       ("C-f" . tab-bar-history-forward))
-
   :custom
   (tab-bar-close-button-show nil)
   (tab-bar-format '(tab-bar-format-tabs-groups tab-bar-separator))
