@@ -13,6 +13,8 @@
 #+startup: fold noindent
 #+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo
 
+
+
 * This repository :preamble:
 This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Zsh*,
 *Emacs*, *Vim*, *Alacritty* and other Linux related stuff.
@@ -561,11 +563,11 @@ There is a package [[https://github.com/bbatsov/super-save]], maybe better than 
 default =auto-save-mode=.
 
 #+begin_src emacs-lisp
-(setq undo-limit 80000000   ; Raise undo-limit to 80Mb
-      evil-want-fine-undo t ; By default while in insert all changes are one big blob. Be more granular
-      auto-save-default t   ; Nobody likes to lose work, I certainly don't
-      scroll-preserve-screen-position 'always ; Don't have `point' jump around
-      scroll-margin 2)      ; It's nice to maintain a little margin
+(setq undo-limit 80000000   ;; Raise undo-limit to 80Mb
+      evil-want-fine-undo t ;; By default while in insert all changes are one big blob. Be more granular
+      auto-save-default t   ;; Nobody likes to lose work, I certainly don't
+      scroll-preserve-screen-position 'always ;; Don't have `point' jump around
+      scroll-margin 2)      ;; It's nice to maintain a little margin
 #+end_src
 
 *** Editing :edit:cursor:
@@ -603,9 +605,9 @@ default =auto-save-mode=.
 To avoid conflict when launching Emacs in =emacs-everywhere= mode. I'm using it in
 command line when calling =emacsclient=, by adding this:
 
-#+begin_src shell :tangle no
+#+begin_example shell :tangle no
 --frame-parameters="'(fullscreen . maximized)"
-#+end_src
+#+end_example
 
 **** Focus created frame :focus:
 The problem is, every time I launch an Emacs frame (from KDE), Emacs starts
@@ -644,7 +646,7 @@ stealing prevention* to /None/ in the KDE Settings.
 Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
 however, I like to try other configs to get inspired!
 
-#+begin_src emacs-lisp :tangle "~/.emacs-profiles.el"
+#+begin_src emacs-lisp :tangle ~/.emacs-profiles.el
 (("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
                  (env . (("DOOMDIR" . "~/.doom.d")))))
  ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")
@@ -655,7 +657,7 @@ however, I like to try other configs to get inspired!
 
 Make =doom= the default profile.
 
-#+begin_src text :tangle "~/.emacs-profile"
+#+begin_src text :tangle ~/.emacs-profile
 doom
 #+end_src
 
@@ -703,7 +705,7 @@ frame/terminal is deleted.
 #+end_src
 
 * Package configuration :package:
-** Check for external tools
+** Check for external tools :external:
 Some of the added packages require external tools, I like to check for these
 tools and store the result in global constants.
 
@@ -718,20 +720,20 @@ tools and store the result in global constants.
 (defconst +delta-ok-p (bool (executable-find "delta")))
 (defconst +maxima-ok-p (bool (executable-find "maxima")))
 (defconst +eaf-ok-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
+(defconst +quarto-ok-p (bool (executable-find "quarto")))
+(defconst +clang-format-ok-p (bool (executable-find "clang-format")))
 
 (defconst +netextender-ok-p
   (let ((ok (bool (and (executable-find "netExtender")
                        (file-exists-p "~/.local/bin/netextender")
                        (file-exists-p "~/.ssh/netExtender-params.gpg")))))
-    (unless ok
-      (warn "Missing netExtender dependencies."))
+    (unless ok (warn "Missing netExtender dependencies."))
     ok)
   "Evaluates to 't' when a valid netExtender configuration is present, 'nil' otherwise.")
 
 (defconst +mpd-ok-p
   (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
-    (unless ok
-      (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
+    (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
     ok)
   "Evaluates to 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
@@ -739,9 +741,8 @@ tools and store the result in global constants.
   (let ((ok (bool (and +mpd-ok-p
                        (executable-find "mpv")
                        (executable-find "youtube-dl")))))
-    (unless ok
-      (warn "Missing MPV or youtube-dl."))
-    ok)
+    (unless ok (warn "Missing MPV or youtube-dl."))
+    (and nil ok)) ;; NOTE: disabled
   "Evaluates to 't' when MPV and youtube-dl commands are present, 'nil' otherwise.")
 #+end_src
 
@@ -817,13 +818,13 @@ Show battery level unless battery is not present or battery information is unkno
       (display-battery-mode 1))))
 #+end_src
 
-**** Modeline customization
+**** Mode line customization
 
 #+begin_src emacs-lisp
 (setq doom-modeline-major-mode-icon t
       doom-modeline-major-mode-color-icon t
-      doom-modeline-buffer-state-icon t)
-(setq doom-modeline-github t)
+      doom-modeline-buffer-state-icon t
+      doom-modeline-github t)
 #+end_src
 
 *** Set transparency :transparent:
@@ -936,7 +937,7 @@ This can be used to adjust the left and right fringes.
 (package! svg-tag-mode)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! svg-tag-mode
   :commands svg-tag-mode
   :config
@@ -1037,7 +1038,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 (package! focus)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! focus
   :commands focus-mode)
 #+end_src
@@ -1049,7 +1050,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   (package! good-scroll))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (if (> emacs-major-version 28)
     (pixel-scroll-precision-mode 1)
   (use-package! good-scroll
@@ -1127,7 +1128,7 @@ Disable =parinfer= on background buffers.
 (package! parinfer-rust-mode)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! parinfer-rust-mode
   :when (bound-and-true-p module-file-suffix)
   ;; Don't hook, causing annoying problem when openning Org file
@@ -1612,7 +1613,7 @@ table
 #+begin_src emacs-lisp
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱" "®" "™"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱" "®" "™" "🔚"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -1823,11 +1824,10 @@ them in C/C++, Rust and Python modes.
 ;; lisp/wttrin/wttrin.el taken from:
 ;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
-  :recipe (:local-repo "lisp/wttrin")
-  :ignore t)
+  :recipe (:local-repo "lisp/wttrin"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! wttrin
   :commands wttrin)
 #+end_src
@@ -1838,7 +1838,7 @@ them in C/C++, Rust and Python modes.
 (package! osm)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! osm
   :commands (osm-home
              osm-search
@@ -1866,7 +1866,7 @@ them in C/C++, Rust and Python modes.
            :repo "zkry/awqat"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! awqat
   :load-path "~/Projects/foss_projects/awqat"
   :commands (awqat-display-prayer-time-mode awqat-times-for-day)
@@ -1906,7 +1906,7 @@ Better colors for manual pages.
 (package! info-colors)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! info-colors
   :commands (info-colors-fontify-node))
 
@@ -2026,7 +2026,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 (package! zotxt)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! zotxt
   :when +zotero-ok-p
   :commands org-zotxt-mode)
@@ -2040,7 +2040,7 @@ Replicated Data Type]]/.
 (package! crdt)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! crdt
   :commands (crdt-share-buffer
              crdt-connect
@@ -2048,7 +2048,7 @@ Replicated Data Type]]/.
              crdt-org-sync-overlay-mode))
 #+end_src
 
-*** Ag.el :search:
+*** The Silver Searcher :search:
 An Emacs front-end to /The Silver Searcher/, first we need to install =ag= using =sudo
 pacman -S the_silver_searcher=.
 
@@ -2056,7 +2056,7 @@ pacman -S the_silver_searcher=.
 (package! ag)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! ag
   :when +ag-ok-p
   :commands (ag
@@ -2115,7 +2115,7 @@ to run =git pull ; ./install-eaf.py= in =lisp/emacs-application-framework= and =
 eaf-install-and-update)= in Emacs. This updates EAF, applications and their
 dependencies.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! eaf
   :when +eaf-ok-p
   :load-path "lisp/emacs-application-framework"
@@ -2400,7 +2400,7 @@ A lightweight version of EAF that provides multimedia capabilities.
            :repo "seanfarley/emacs-bitwarden"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
@@ -2450,7 +2450,7 @@ Let it snow in Emacs!
 (package! snow)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! snow
   :commands (snow))
 #+end_src
@@ -2463,7 +2463,7 @@ Let it snow in Emacs!
            :repo "vibhavp/emacs-xkcd"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! xkcd
   :commands (xkcd-get xkcd)
   :config
@@ -3768,7 +3768,7 @@ it work with =projectile=:
   (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
 #+end_src
 
-*** LSP mode
+*** LSP mode :ide:lsp:
 **** Enable some useful UI stuff :diagnostics:ui:
 LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables some of
 the UI components; however, I like to enable some less intrusive, more useful UI
