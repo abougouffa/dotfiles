@@ -2089,7 +2089,9 @@ dependencies.
 
 #+begin_src emacs-lisp
 (use-package! eaf
-  :when +eaf-ok-p
+  ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
+  ;; Emacs daemon + emacsclient usage. So, this section will not be used for LUCID builds.
+  :when (and +eaf-ok-p (not (string-search "LUCID" system-configuration-features)))
   :load-path "lisp/emacs-application-framework"
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
