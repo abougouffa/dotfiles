@@ -343,7 +343,7 @@ upload
 (debugger +lsp)
 (docker +lsp)
 (eval +overlay)
-(lookup +docsets +dictrionary +offline)
+(lookup +docsets +dictionary +offline)
 (magit +forge)
 ;;pass
 ;;biblio
