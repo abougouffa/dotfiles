@@ -22,7 +22,7 @@ This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]
 If you want to reuse some of these configurations, you will need to modify some
 directories and add some user specific information (usernames, passwords...)
 
-This is the main configuration file [[https://github.com/abougouffa/dotfiles/dot_doom.d/config.org][.doom.d/config.org]], (available also as a [[https://github.com/abougouffa/dotfiles/dot_doom.d/config.pdf][PDF
+This is the main configuration file [[https://github.com/abougouffa/dotfiles/dot_doom.d/config.org][.doom.d/config.org]], (available also as a [[https://raw.githubusercontent.com/abougouffa/dotfiles/main/dot_doom.d/config.pdf][PDF
 file]], it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to
 generate some other user configuration files (define aliases, environment
 variables, user tools, Git configuration...).
