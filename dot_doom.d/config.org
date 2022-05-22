@@ -1753,6 +1753,8 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
              grammalecte-find-synonyms
              grammalecte-find-synonyms-at-point)
   :init
+  (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-etc-dir)
+        grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-etc-dir))
   (setq flycheck-grammalecte-report-spellcheck t
         flycheck-grammalecte-report-grammar t
         flycheck-grammalecte-report-apos nil
