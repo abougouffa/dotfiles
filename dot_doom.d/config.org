@@ -1650,13 +1650,13 @@ For =spell-fu=
 sudo pacman -S aspell aspell-en aspell-fr
 #+end_example
 
-*** Spell-Fu :spellfu:
+*** Spell-Fu :spell:
 Now, =spell-fu= supports multiple languages! Lets add English, French and Arabic.
 So I can "mélanger les langues sans avoir de problèmes!".
 
 #+begin_src emacs-lisp
 (after! spell-fu
-  (defun spell-fu-register-dictionary (lang)
+  (defun +spell-fu-register-dictionary (lang)
     "Add `LANG` to spell-fu multi-dict, with a personal dictionary."
     ;; Add the dictionary
     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary lang))
@@ -1668,8 +1668,8 @@ So I can "mélanger les langues sans avoir de problèmes!".
 
   (add-hook 'spell-fu-mode-hook
             (lambda ()
-              (spell-fu-register-dictionary "en")
-              (spell-fu-register-dictionary "fr"))))
+              (+spell-fu-register-dictionary "en")
+              (+spell-fu-register-dictionary "fr"))))
 #+end_src
 
 *** Guess language :language:text:
