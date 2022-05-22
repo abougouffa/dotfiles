@@ -723,6 +723,7 @@ tools and store the result in global constants.
 (defconst +quarto-ok-p (bool (executable-find "quarto")))
 (defconst +clang-format-ok-p (bool (executable-find "clang-format")))
 (defconst +inkscape-ok-p (bool (executable-find "inkscape")))
+(defconst +rosbag-ok-p (bool (executable-find "rosbag")))
 
 (defconst +netextender-ok-p
   (let ((ok (bool (and (executable-find "netExtender")
@@ -3304,43 +3305,44 @@ change this to be recognized as Octave/Matlab files.
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 #+end_src
 
-** ESS :ess:
-View data frames better with
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! ess-view)
-#+end_src
-
 ** ROS :ros:
+*** Extensions
 Add ROS specific file formats:
 
 #+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.urdf"    . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro"   . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 (add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.xacro$"  . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
+
+;; msg and srv files: for now use gdb-script-mode
+(add-to-list 'auto-mode-alist '("\\.msg\\'"    . gdb-script-mode))
+(add-to-list 'auto-mode-alist '("\\.srv\\'"    . gdb-script-mode))
+(add-to-list 'auto-mode-alist '("\\.action\\'" . gdb-script-mode))
 #+end_src
 
-*** ROS Emacs utils
-This is a WIP, to use the [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]] for =rosemacs= integration. I
-need to be able to use it over Tramp, as I mainly do my ROS stuff on a Docker
-container or on a remote robot. ATM, I need just to configure =rosemacs= to use
-Emacs to develop ROS packages using C++/Python, I'm not interested now for
-ROS Common Lisp development.
+*** ROS bags
+Mode to view ROS =.bag= files. Taken from [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]].
 
-#+begin_src emacs-lisp :tangle packages.el
-(package! rosemacs
-  :recipe (:host github
-           :repo "code-iai/ros_emacs_utils"
-           :files ("rosemacs/*"))
-  :disable t) ;; No clear way to make it work on a remote machine
-#+end_src
+#+begin_src emacs-lisp
+(when +rosbag-ok-p
+  (define-derived-mode rosbag-view-mode
+    fundamental-mode "Rosbag view mode"
+    "Major mode for viewing ROS bag files."
+    (let ((f (buffer-file-name)))
+      (let ((buffer-read-only nil))
+        (erase-buffer)
+        (message "Calling rosbag info")
+        (call-process "rosbag" nil (current-buffer) nil
+                      "info" f)
+        (set-buffer-modified-p nil))
+      (view-mode)
+      (set-visited-file-name nil t)))
 
-#+begin_src emacs-lisp :tangle yes
-(use-package! rosemacs
-  :config
-  (require 'rosemacs-config)
-  :commands (ros-core ros-topic-info))
+  ;; rosbag view mode
+  (add-to-list 'auto-mode-alist '("\\.bag$" . rosbag-view-mode)))
 #+end_src
 
 *** =ros.el=
@@ -3362,7 +3364,7 @@ to install some tools on the ROS machine, and build the workspace for the first
 time using =colcon build=, the repository contains example Docker files for [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_noetic][Noetic]]
 and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][Foxy]].
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! ros
   :init (map! :leader
               :prefix ("l" . "custom")
