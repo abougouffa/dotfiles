@@ -3297,6 +3297,13 @@ Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?ut
 ;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 #+end_src
 
+** ESS :ess:
+View data frames better with
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ess-view)
+#+end_src
+
 ** GNU Octave :octave:
 Files with =.m= extension gets recognized automatically as Objective C files. Lets
 change this to be recognized as Octave/Matlab files.
@@ -3401,7 +3408,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
            :repo "sjsch/embed-el"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! embed
   :commands (embed-openocd-start
              embed-openocd-stop
@@ -3427,7 +3434,7 @@ Add support for Yocto Project files.
            :repo "olanilsson/bitbake-modes"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package bitbake-modes
   :commands (bitbake-mode
              conf-bitbake-mode
@@ -3691,15 +3698,31 @@ keybindings.
            :files ("*.el" "*.c" "*.h" "Makefile")))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! gdb-mi
   :init
   (fmakunbound 'gdb)
   (fmakunbound 'gdb-enable-debug)
+
   :config
   (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
-#+end_src
+        gdb-ignore-gdbinit nil) ;; I use gdbinit to define some useful stuff
+  ;; History
+  (defvar +gdb-history-file "~/.gdb_history")
+  (defun +gud-gdb-mode-hook-setup ()
+    "GDB setup."
+
+    ;; Suposes "~/.gdbinit" contains:
+    ;; set history save on
+    ;; set history filename ~/.gdb_history
+    ;; set history remove-duplicates 2048
+    (when (and (ring-empty-p comint-input-ring)
+               (file-exists-p +gdb-history-file))
+      (setq comint-input-ring-file-name +gdb-history-file)
+      (comint-read-input-ring t)))
+
+  (add-hook 'gud-gdb-mode-hook '+gud-gdb-mode-hook-setup))
+        #+end_src
 
 **** Custom layout for =gdb-many-windows=
 Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
@@ -3752,7 +3775,7 @@ the builtin =gdb-many-windows= layout.
 
 **** Highlight current line
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (defvar gud-overlay
   (let* ((ov (make-overlay (point-min) (point-min))))
     (overlay-put ov 'face 'secondary-selection)
@@ -3773,26 +3796,6 @@ the builtin =gdb-many-windows= layout.
       (delete-overlay gud-overlay)))
 
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
-#+end_src
-
-**** History
-
-#+begin_src emacs-lisp
-(after! gdb-mi
-  (defvar ab/gdb-history-file "~/.gdb_history")
-  (defun ab/gud-gdb-mode-hook-setup ()
-    "GDB setup."
-
-    ;; Suposes "~/.gdbinit" contains:
-    ;; set history save on
-    ;; set history filename ~/.gdb_history
-    ;; set history remove-duplicates 2048
-    (when (and (ring-empty-p comint-input-ring)
-               (file-exists-p ab/gdb-history-file))
-      (setq comint-input-ring-file-name ab/gdb-history-file)
-      (comint-read-input-ring t)))
-
-  (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
 #+end_src
 
 ** Completion & IDE :lsp:ide:
@@ -3947,6 +3950,7 @@ use =rust_hdl= instead.
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
   (require 'lsp-vhdl)
+
   :hook (vhdl-mode . (lambda ()
                        (lsp t)
                        (flycheck-mode t))))
@@ -4013,22 +4017,67 @@ npm install -g @unibeautify/cli
   :commands (unibeautify))
 #+end_src
 
+*** FZF :fzf:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! fzf)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! evil
+  (evil-define-key 'insert fzf-mode-map (kbd "ESC") #'term-kill-subjob))
+
+(define-minor-mode fzf-mode
+  "Minor mode for the FZF buffer"
+  :init-value nil
+  :lighter " FZF"
+  :keymap '(("C-c" . term-kill-subjob)))
+
+(defadvice! doom-fzf--override-start-args-a (original-fn &rest args)
+  "Set the FZF minor mode with the fzf buffer."
+  :around #'fzf/start
+  (message "called with args %S" args)
+  (apply original-fn args)
+
+  ;; set the FZF buffer to fzf-mode so we can hook ctrl+c
+  (set-buffer "*fzf*")
+  (fzf-mode))
+
+(defvar fzf/args
+  "-x --print-query -m --tiebreak=index --expect=ctrl-v,ctrl-x,ctrl-t")
+
+(use-package! fzf
+  :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
+#+end_src
+
+*** Clang-format
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! clang-format)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! clang-format
+  :when +clang-format-ok-p
+  :commands (clang-format-region))
+#+end_src
+
 ** Git & VC
 *** Repo :repo:git:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
 distributions, or directly with:
 
-#+begin_src shell :tangle no :eval no
+#+begin_example shell :tangle no :eval no
 REPO_PATH="$HOME/.local/bin/repo"
 curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
 chmod a+x ${REPO_PATH}
-#+end_src
+#+end_example
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! repo)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! repo
   :when +repo-ok-p
   :commands repo-status)
@@ -4043,7 +4092,7 @@ specially with big change chunks.
   :disable t) ;; Disabled, too slow on big chunks
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! magit-delta
   :when +delta-ok-p
   :commands magit-status
@@ -4059,7 +4108,7 @@ Display Git information (author, date, message...) for current line
            :repo "artawower/blamer.el"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! blamer
   :custom
   (blamer-idle-time 0.3)
@@ -4085,18 +4134,6 @@ Display Git information (author, date, message...) for current line
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 #+end_src
 
-** Clang-format
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! clang-format)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! clang-format
-  :when +clang-format-ok-p
-  :commands (clang-format-region))
-#+end_src
-
 ** Assembly :asm:assembly:
 Add some packages for better assembly coding.
 
@@ -4108,7 +4145,7 @@ Add some packages for better assembly coding.
 (package! x86-lookup)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! nasm-mode
   :mode "\\.[n]*\\(asm\\|s\\)\\'")
 
@@ -4138,7 +4175,7 @@ Add some packages for better assembly coding.
 (package! disaster)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 ;; TODO: Configure to take into account "compile_commands.json"
 (use-package! disaster
   :commands (disaster))
@@ -4153,7 +4190,7 @@ Add some packages for better assembly coding.
            :files ("*.el")))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! devdocs
   :commands (devdocs-lookup devdocs-install)
   :config
@@ -4176,7 +4213,7 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
            :repo "zeph1e/franca-idl.el"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! franca-idl
   :commands franca-idl-mode)
 #+end_src
@@ -4189,7 +4226,7 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
            :repo "ymarco/auto-activating-snippets"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! aas
   :commands aas-mode)
 #+end_src
@@ -4203,7 +4240,7 @@ WIP: Not working atm!
            :repo "nbfalcon/flycheck-projectile"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! flycheck-projectile
   :commands flycheck-projectile-list-errors)
 #+end_src
@@ -4216,7 +4253,7 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
 (package! graphviz-dot-mode)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! graphviz-dot-mode
   :commands (graphviz-dot-mode graphviz-dot-preview))
 #+end_src
@@ -4229,7 +4266,7 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
            :repo "mmontone/emacs-inspector"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! inspector
   :commands (inspect-expression inspect-last-sexp))
 #+end_src
@@ -4368,7 +4405,7 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
 #+begin_src emacs-lisp
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "|" "DONE(d)" "KILL(k)")
-        (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+        (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
         (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
 (defun log-todo-next-creation-date (&rest ignore)
@@ -4404,7 +4441,7 @@ Apply some styling on the standard agenda:
       "⭠ now ─────────────────────────────────────────────────")
 #+end_src
 
-**** Super Agenda :agenda:
+**** Super agenda :agenda:
 Configure =org-super-agenda=
 
 #+begin_src emacs-lisp
@@ -4454,14 +4491,14 @@ Configure =org-super-agenda=
 I store my =org-gcal= configuration privately, it contains something like this:
 
 #+begin_example emacs-lisp :tangle no
-(after! org-gcal
-  (setq org-gcal-client-id "<SOME_ID>.apps.googleusercontent.com"
-        org-gcal-client-secret "<SOME_SECRET>"
-        org-gcal-fetch-file-alist '(("<USERNAME>@gmail.com" . "~/Dropbox/Org/gcal-agenda.org"))))
+(setq org-gcal-client-id "<SOME_ID>.apps.googleusercontent.com"
+      org-gcal-client-secret "<SOME_SECRET>"
+      org-gcal-fetch-file-alist '(("<USERNAME>@gmail.com" . "~/Dropbox/Org/gcal-agenda.org")))
 #+end_example
 
 #+begin_src emacs-lisp
-(load! "lisp/private/+org-gcal.el")
+(after! org-gcal
+  (load! "lisp/private/+org-gcal.el"))
 #+end_src
 
 ***** TODO CalDAV :calendar:caldav:
@@ -4946,17 +4983,14 @@ Return nil otherwise."
 Everyone used to use ~#+CAPITAL~ keywords. Then people realised that ~#+lowercase~
 is actually both marginally easier and visually nicer, so now the capital
 version is just used in the manual.
+
 #+begin_quote
 Org is standardized on lower case. Uppercase is used in the manual as a poor
 man's bold, and supported for historical reasons. --- [[https://orgmode.org/list/87tuuw3n15.fsf@nicolasgoaziou.fr][Nicolas Goaziou on the Org ML]]
 #+end_quote
 
-To avoid sometimes having to choose between the hassle out of updating old
-documents and using mixed syntax, I'll whip up a basic transcode-y function.
-It likely misses some edge cases, but should mostly work.
-
 #+begin_src emacs-lisp
-(defun org-syntax-convert-keyword-case-to-lower ()
+(defun +org-syntax-convert-keyword-case-to-lower ()
   "Convert all #+KEYWORDS to #+keywords."
   (interactive)
   (save-excursion
@@ -5521,7 +5555,7 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
 *** Bibliography
-
+**** BibTeX
 #+begin_src emacs-lisp
 (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
       bibtex-completion-library-path '("~/Zotero/storage/")
@@ -5676,8 +5710,8 @@ simply superior combination.
 
 #+begin_src emacs-lisp
 ;; Add 'svg' package to display SVG pictures (uses inkscape, imagemagik and ghostscript)
-(when +inkscape-ok-p
-  (add-to-list 'org-latex-packages-alist '("" "svg")))
+;; (when +inkscape-ok-p
+;;  (add-to-list 'org-latex-packages-alist '("" "svg")))
 ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex
 ;; (add-to-list 'org-latex-packages-alist '("utf8" "inputenc"))
 #+end_src
@@ -5971,7 +6005,7 @@ Then adding some regular expressions for it to =~/.config/git/config=, with some
 tools to view diffs on binary files.
 
 #+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
-# ===== TEXT FORMATS =====
+# ====== TEXT FORMATS ======
 [diff "org"]
   xfuncname = "^(\\*+ +.*)$"
 
@@ -6363,10 +6397,6 @@ e -w "$@"
 export EDITOR=$HOME/.local/bin/et
 # export VISUAL=$HOME/.local/bin/ev
 #+end_src
-
-** TODO tmux :tmux:
-Configure remote/local mixed =tmux= configuration, an example in [[https://github.com/samoshkin/tmux-config/][this repo]] and
-[[https://www.freecodecamp.org/news/tmux-in-practice-local-and-nested-remote-tmux-sessions-4f7ba5db8795/][this article]].
 
 ** AppImage :appimage:
 Install/update the =appimageupdatetool.AppImage= tool:
