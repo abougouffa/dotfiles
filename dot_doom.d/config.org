@@ -1990,6 +1990,7 @@ shortcuts to check the grammar.
   (osm-copyright t)     ;; Display the copyright information
 
   :init
+  (setq osm-tile-directory (expand-file-name "osm" doom-etc-dir))
   ;; Load Org link support
   (with-eval-after-load 'org
     (require 'osm-ol)))
