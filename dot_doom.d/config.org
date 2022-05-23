@@ -2859,7 +2859,7 @@ I configure my email accounts in a private file in
           (from-query (+mu-long-query "from" "or" +my-addresses)))
       (add-to-list
        'mu4e-bookmarks
-       (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?K) t)))
+       (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?k) t)))
 
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
