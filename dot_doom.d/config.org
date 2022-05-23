@@ -2848,6 +2848,19 @@ I configure my email accounts in a private file in
   (add-to-list 'mu4e-bookmarks
                '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
+  ;; Load a list of my email addresses '+my-addresses'
+  (load! "lisp/private/+my-addresses.el")
+  (when (bound-and-true-p +my-addresses)
+    ;; I like always to add myself in BCC, Lets add a bookmark to show all my BCC mails
+    (defun +mu-long-query (query oper arg-list)
+      (concat "(" (s-join (concat " " oper " ") (mapcar (lambda (addr) (format "%s:%s" query addr)) arg-list)) ")"))
+
+    (let ((bcc-query (+mu-long-query "bcc" "or" +my-addresses))
+          (from-query (+mu-long-query "from" "or" +my-addresses)))
+      (add-to-list
+       'mu4e-bookmarks
+       (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?K) t)))
+
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
 
