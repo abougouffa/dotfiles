@@ -2728,6 +2728,61 @@ Channel gmail-spam
 # END OF SECTION
 #+end_src
 
+*** msmtp
+I was using the standard =smtpmail= to send mails; but recently, I'm getting
+problems when sending mails. I passed a whole day trying to fix mail sending for
+one of my accounts, at the end of the day, I got a working setup; BUT, sending
+the first mail always ask me about password! I need to enter the password to be
+able to send the mail, Emacs asks me then if I want to save it to
+=~/.authifo.gpg=, when I confirm saving it, it got duplicated in the =authinfo.gpg=
+file.
+
+This seems to be a bug; and I found somewhere that =smtpmai= is buggy, and that
+=msmtp= seems to be a good alternative, so now I'm using a =msmtp=-based setup.
+
+For this, we will need an additional configuration file, =~/.msmtprc=, I configure
+it the same way as =mbsync=, I extract the passwords from =~/.authinfo.gpg= using
+GPG and =awk=.
+
+The following is a sample file =~/.msmtprc=.
+
+#+begin_src conf-space
+# Set default values for all following accounts.
+defaults
+auth                    on
+tls                     on
+tls_starttls            on
+tls_trust_file          /etc/ssl/certs/ca-certificates.crt
+logfile                 ~/.msmtp.log
+
+# Gmail
+account                 gmail
+auth                    plain
+host                    smtp.googlemail.com
+port                    587
+from                    username@gmail.com
+user                    username
+passwordeval            "gpg2 -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.googlemail.com/ {print $NF}'"
+add_missing_date_header on
+
+## Gmail - aliases
+account                 alias-account : gmail
+from                    alias@mail.com
+
+account                 other-alias : gmail
+from                    other.alias@address.org
+
+# Work
+account                 univ-paris-saclay
+auth                    on
+host                    smtp.domaine.tld
+port                    587
+from                    user@domaine.tld
+user                    user
+passwordeval            "gpg2 -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.domaine.tld/ {print $NF}'"
+tls_nocertcheck # ignore TLS certificate errors
+#+end_src
+
 *** mu4e
 Add =mu4e= to path if it exists on the file system.
 
