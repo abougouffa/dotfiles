@@ -2804,15 +2804,23 @@ I configure my email accounts in a private file in
 
   ;; Common parameters
   (setq mu4e-update-interval (* 3 60) ;; Every 3 min
-        +mu4e-backend 'mbsync
         mu4e-index-update-error-warning nil ;; Do not show warning after update
-        ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
+        mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
         mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
-        ;; message-send-mail-function 'smtpmail-send-it ;; Not needed, it is set by default
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
+
+  ;; Use msmtp instead of smtpmail
+  (setq sendmail-program "/usr/bin/msmtp"
+        message-sendmail-f-is-evil t
+        message-sendmail-envelope-from 'header
+        message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
+        message-send-mail-function #'message-send-mail-with-sendmail
+        send-mail-function #'smtpmail-send-it
+        mail-specify-envelope-from t
+        mail-envelope-from 'header)
 
   (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
                               (:account-stripe . 2)
@@ -2896,7 +2904,7 @@ Regards,
 /Paris-Saclay University - SATIE/MOSS | ez-Wheel/ \\\\
 ,#+end_signature")
 
-   ;; 'smtpmail' options
+   ;; 'smtpmail' options, no need for these when using 'msmtp'
    (smtpmail-smtp-user           . "username@server.com")
    (smtpmail-smtp-server         . "smtps.server.com")
    (smtpmail-stream-type         . ssl)
@@ -2918,6 +2926,8 @@ Regards,
    (mu4e-refile-folder           . "/gmail-dir/Archive")
    (org-msg-greeting-fmt         . "Hello%s,")
    (org-msg-signature            . "-- SIGNATURE")
+
+   ;; No need for these when using 'msmtp'
    (smtpmail-smtp-user           . "username@gmail.com")
    (smtpmail-smtp-server         . "smtp.googlemail.com")
    (smtpmail-stream-type         . starttls)
