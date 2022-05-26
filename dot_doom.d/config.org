@@ -712,20 +712,23 @@ tools and store the result in global constants.
 #+begin_src emacs-lisp
 (defun bool (val) (not (null val))) ;; Convert a value to boolean
 
-(defconst +zotero-ok-p (bool (executable-find "zotero")))
-(defconst +ag-ok-p (bool (executable-find "ag")))
-(defconst +chezmoi-ok-p (bool (executable-find "chezmoi")))
-(defconst +bitwarden-ok-p (bool (executable-find "bw")))
-(defconst +repo-ok-p (bool (executable-find "repo")))
-(defconst +delta-ok-p (bool (executable-find "delta")))
-(defconst +maxima-ok-p (bool (executable-find "maxima")))
-(defconst +eaf-ok-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
-(defconst +quarto-ok-p (bool (executable-find "quarto")))
-(defconst +clang-format-ok-p (bool (executable-find "clang-format")))
-(defconst +inkscape-ok-p (bool (executable-find "inkscape")))
-(defconst +rosbag-ok-p (bool (executable-find "rosbag")))
+(defconst ZOTERO-OK-P (bool (executable-find "zotero")))
+(defconst AG-OK-P (bool (executable-find "ag")))
+(defconst CHEZMOI-OK-P (bool (executable-find "chezmoi")))
+(defconst BITWARDEN-OK-P (bool (executable-find "bw")))
+(defconst REPO-OK-P (bool (executable-find "repo")))
+(defconst MAXIMA-OK-P (bool (executable-find "maxima")))
+(defconst QUARTO-OK-P (bool (executable-find "quarto")))
+(defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
+(defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
 
-(defconst +netextender-ok-p
+(defconst EAF-OK-P
+  (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
+             ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
+             ;; Emacs daemon + emacsclient usage. So, this section will not be used for LUCID builds.
+             (not (string-search "LUCID" system-configuration-features)))))
+
+(defconst NETEXTENDER-OK-P
   (let ((ok (bool (and (executable-find "netExtender")
                        (file-exists-p "~/.local/bin/netextender")
                        (file-exists-p "~/.ssh/netExtender-params.gpg")))))
@@ -733,14 +736,14 @@ tools and store the result in global constants.
     ok)
   "Evaluates to 't' when a valid netExtender configuration is present, 'nil' otherwise.")
 
-(defconst +mpd-ok-p
+(defconst MPD-OK-P
   (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
     (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
     ok)
   "Evaluates to 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
-(defconst +mpv-ok-p
-  (let ((ok (bool (and +mpd-ok-p
+(defconst MPV-OK-P
+  (let ((ok (bool (and MPD-OK-P
                        (executable-find "mpv")
                        (executable-find "youtube-dl")))))
     (unless ok (warn "Missing MPV or youtube-dl."))
@@ -1871,7 +1874,7 @@ shortcuts to check the grammar.
 
 #+begin_src emacs-lisp
 (use-package! chezmoi
-  :when +chezmoi-ok-p
+  :when CHEZMOI-OK-P
   :commands (chezmoi-write
              chezmoi-magit-status
              chezmoi-diff
@@ -2038,7 +2041,7 @@ Better colors for manual pages.
 
 #+begin_src emacs-lisp
 (use-package! zotxt
-  :when +zotero-ok-p
+  :when ZOTERO-OK-P
   :commands org-zotxt-mode)
 #+end_src
 
@@ -2068,7 +2071,7 @@ pacman -S the_silver_searcher=.
 
 #+begin_src emacs-lisp
 (use-package! ag
-  :when +ag-ok-p
+  :when AG-OK-P
   :commands (ag
              ag-files
              ag-regexp
@@ -2088,18 +2091,18 @@ eaf-install-and-update)= in Emacs. This updates EAF, applications and their
 dependencies.
 
 #+begin_src emacs-lisp
+(defconst EAF-DIR (expand-file-name "emacs-application-framework" doom-etc-dir))
+
 (use-package! eaf
-  ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
-  ;; Emacs daemon + emacsclient usage. So, this section will not be used for LUCID builds.
-  :when (and +eaf-ok-p (not (string-search "LUCID" system-configuration-features)))
-  :load-path "lisp/emacs-application-framework"
+  :when EAF-OK-P
+  :load-path EAF-DIR
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org mail browser mindmap jupyter org-previewer markdown-previewer))
-  ;; mindmap file-manager file-browser
-  ;; file-sender music-player video-player
-  ;; git image-viewer
+  ;;  file-manager file-browser
+  ;;  file-sender music-player video-player
+  ;;  git image-viewer
 
   :config
   ;; Generic
@@ -2147,7 +2150,6 @@ dependencies.
     ;; Make EAF Browser my default browser
     (setq browse-url-browser-function #'eaf-open-browser)
     (defalias 'browse-web #'eaf-open-browser))
-
 
   ;; File manager settings
   (when (member 'file-manager +eaf-enabled-apps)
@@ -2258,6 +2260,7 @@ dependencies.
               ("image-viewer" (kbd eaf-evil-leader-key))
               ("music-player" (kbd eaf-evil-leader-key))
               ("video-player" (kbd eaf-evil-leader-key))
+              ("mindmap" (kbd eaf-evil-leader-key))
               (_  (kbd "SPC")))
           (kbd "SPC"))))))
 #+end_src
@@ -2274,7 +2277,7 @@ dependencies.
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-  :when +bitwarden-ok-p
+  :when BITWARDEN-OK-P
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -2560,7 +2563,7 @@ echo "Y\n" | netExtender --auto-reconnect \
 *** Launch NetExtender session from Emacs
 
 #+begin_src emacs-lisp
-(when +netextender-ok-p
+(when NETEXTENDER-OK-P
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
@@ -3009,7 +3012,7 @@ default backend EMMS is using.
   ;; EMMS basic configuration
   (require 'emms-setup)
 
-  (when +mpd-ok-p
+  (when MPD-OK-P
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -3020,7 +3023,7 @@ default backend EMMS is using.
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if +mpd-ok-p
+  (if MPD-OK-P
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
@@ -3038,7 +3041,7 @@ default backend EMMS is using.
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when +mpd-ok-p
+  (when MPD-OK-P
     (emms-player-set emms-player-mpd 'regex
                      (emms-player-simple-regexp
                       "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
@@ -3112,7 +3115,7 @@ default backend EMMS is using.
                                 +emms-notification-icon)))
 
   ;; MPV and Youtube integration
-  (when +mpv-ok-p
+  (when MPV-OK-P
     (add-to-list 'emms-player-list 'emms-player-mpv t)
     (emms-player-set
      emms-player-mpv
@@ -3171,7 +3174,7 @@ gunicorn main:app
 
 #+begin_src emacs-lisp
 (after! (elfeed emms)
-  (when +mpv-ok-p
+  (when MPV-OK-P
     ;; Integration with Elfeed
     (define-emms-source elfeed (entry)
       (let ((track (emms-track
@@ -3225,7 +3228,7 @@ Then we add MPD related keybindings if MPD is used.
 #+begin_src emacs-lisp
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) +mpd-ok-p)
+      (:when (and (featurep! :app emms) MPD-OK-P)
        :prefix-map ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -3272,7 +3275,7 @@ added some minor stuff.
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
     (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
     ;; Force a sync to get the right song name over MPD in mode line
-    (when +mpd-ok-p (emms-player-mpd-sync-from-mpd))
+    (when MPD-OK-P (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
@@ -3303,7 +3306,7 @@ specify a recipe; however, installing it directly seems to not install
 
 #+begin_src emacs-lisp
 (use-package! maxima
-  :when +maxima-ok-p
+  :when MAXIMA-OK-P
   :commands (maxima-mode maxima-inferior-mode maxima)
   :init
   (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
@@ -3333,7 +3336,7 @@ sub-directory ~interfaces/emacs/imaxima~.
 
 #+begin_src emacs-lisp
 (use-package! imaxima
-  :when +maxima-ok-p
+  :when MAXIMA-OK-P
   :commands (imaxima imath-mode)
   :init
   (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
@@ -3421,7 +3424,7 @@ Add ROS specific file formats:
 Mode to view ROS =.bag= files. Taken from [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]].
 
 #+begin_src emacs-lisp
-(when +rosbag-ok-p
+(when ROSBAG-OK-P
   (define-derived-mode rosbag-view-mode
     fundamental-mode "Rosbag view mode"
     "Major mode for viewing ROS bag files."
@@ -4145,7 +4148,7 @@ npm install -g @unibeautify/cli
 
 #+begin_src emacs-lisp
 (use-package! clang-format
-  :when +clang-format-ok-p
+  :when CLANG-FORMAT-OK-P
   :commands (clang-format-region))
 #+end_src
 
@@ -4166,24 +4169,8 @@ chmod a+x ${REPO_PATH}
 
 #+begin_src emacs-lisp
 (use-package! repo
-  :when +repo-ok-p
+  :when REPO-OK-P
   :commands repo-status)
-#+end_src
-
-*** Magit :heart: Delta :magit:delta:
-Integrate =git-delta= with =magit=. Currently disabled because it is too slow,
-specially with big change chunks.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! magit-delta
-  :disable t) ;; Disabled, too slow on big chunks
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! magit-delta
-  :when +delta-ok-p
-  :commands magit-status
-  :hook (magit-mode . magit-delta-mode))
 #+end_src
 
 *** Blamer :git:blame:
@@ -5953,7 +5940,7 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
 
 #+begin_src emacs-lisp
 (use-package! quarto-mode
-  :when +quarto-ok-p)
+  :when QUARTO-OK-P)
 #+end_src
 
 * System configuration :linux:system:
