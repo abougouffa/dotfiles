@@ -125,18 +125,23 @@
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
 (defun bool (val) (not (null val))) ;; Convert a value to boolean
 
-(defconst +zotero-ok-p (bool (executable-find "zotero")))
-(defconst +ag-ok-p (bool (executable-find "ag")))
-(defconst +chezmoi-ok-p (bool (executable-find "chezmoi")))
-(defconst +bitwarden-ok-p (bool (executable-find "bw")))
-(defconst +repo-ok-p (bool (executable-find "repo")))
-(defconst +delta-ok-p (bool (executable-find "delta")))
-(defconst +maxima-ok-p (bool (executable-find "maxima")))
-(defconst +eaf-ok-p (bool (file-directory-p (expand-file-name "lisp/emacs-application-framework"))))
-(defconst +quarto-ok-p (bool (executable-find "quarto")))
-(defconst +clang-format-ok-p (bool (executable-find "clang-format")))
+(defconst ZOTERO-OK-P (bool (executable-find "zotero")))
+(defconst AG-OK-P (bool (executable-find "ag")))
+(defconst CHEZMOI-OK-P (bool (executable-find "chezmoi")))
+(defconst BITWARDEN-OK-P (bool (executable-find "bw")))
+(defconst REPO-OK-P (bool (executable-find "repo")))
+(defconst MAXIMA-OK-P (bool (executable-find "maxima")))
+(defconst QUARTO-OK-P (bool (executable-find "quarto")))
+(defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
+(defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
 
-(defconst +netextender-ok-p
+(defconst EAF-OK-P
+  (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
+             ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
+             ;; Emacs daemon + emacsclient usage. So, this section will not be used for LUCID builds.
+             (not (string-search "LUCID" system-configuration-features)))))
+
+(defconst NETEXTENDER-OK-P
   (let ((ok (bool (and (executable-find "netExtender")
                        (file-exists-p "~/.local/bin/netextender")
                        (file-exists-p "~/.ssh/netExtender-params.gpg")))))
@@ -144,14 +149,14 @@
     ok)
   "Evaluates to 't' when a valid netExtender configuration is present, 'nil' otherwise.")
 
-(defconst +mpd-ok-p
+(defconst MPD-OK-P
   (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
     (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
     ok)
   "Evaluates to 't' when MPD and MPC commands are present, 'nil' otherwise.")
 
-(defconst +mpv-ok-p
-  (let ((ok (bool (and +mpd-ok-p
+(defconst MPV-OK-P
+  (let ((ok (bool (and MPD-OK-P
                        (executable-find "mpv")
                        (executable-find "youtube-dl")))))
     (unless ok (warn "Missing MPV or youtube-dl."))
@@ -483,75 +488,113 @@ is binary, activate `hexl-mode'."
 (add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
 ;; Asynchronous tangling:1 ends here
 
-;; [[file:config.org::*Tabs][Tabs:1]]
+;; [[file:config.org::*Tabs as workspaces][Tabs as workspaces:1]]
 (use-package! tab-bar
   :custom
   (tab-bar-close-button-show nil)
-  (tab-bar-format '(tab-bar-format-tabs-groups tab-bar-separator))
+  (tab-bar-format '(+tab-bar-format-menu-bar tab-bar-format-tabs tab-bar-separator))
   (tab-bar-history-limit 25)
-  (tab-bar-new-tab-choice "*scratch*")
-  (tab-bar-show 1)
-  (tab-bar-tab-group-format-function #'+tab-bar-tab-group-format-default)
+  (tab-bar-new-tab-choice "*doom*")
+  (tab-bar-show t)
   (tab-bar-tab-hints t)
-  (tab-bar-tab-name-format-function #'+tab-bar-tab-name-format-default)
+  (tab-bar-tab-name-function #'+name-tab-by-project-or-default)
+  (tab-bar-tab-name-format-function #'+tab-name-format-default)
 
   :config
   (+tab-bar-setup)
 
   :preface
+  (defun +tab-bar-format-menu-bar ()
+    "Produce the Menu button for the tab bar that shows the menu bar."
+    `((menu-bar menu-item (propertize "  🅴  " 'face '+tab-bar-tab)
+       tab-bar-menu-bar :help "Menu Bar")))
+
   (defun +tab-bar-setup ()
-    (tab-bar-mode)
-    (tab-bar-history-mode))
+    ;; "Set up several tabs at startup."
+    ;; ;; Add *Messages* to Tab 1 to keep it in all tab
+    ;; ;; through `my-tab-bar-create-permitted-buffer-names'.
+    ;; (when (get-buffer "*Messages*")
+    ;;   (set-frame-parameter
+    ;;    nil
+    ;;    'buffer-list
+    ;;    (cons (get-buffer "*Messages*")
+    ;;          (frame-parameter nil 'buffer-list))))
 
-  (defgroup +tab-bar nil
-    "Siren specific tweaks to tar-bar-mode."
-    :group 'tab-bar)
+    ;; ;; Create Tab 3.
+    ;; (progn (+tab-bar-create)
+    ;;        (find-file (if (file-exists-p "~/Dropbox/Org")
+    ;;                       "~/Dropbox/Org"
+    ;;                     (tab-bar-close-tab)))
+    ;;        (split-window nil nil 'left))
 
-  (defcustom +tab-bar-echo-tab-list t
-    "When t and print list of tabs in echo area when changing tabs."
-    :type 'boolean
-    :group '+tab-bar)
+    ;; ;; Create Tab 2.
+    ;; (progn (=mu4e) ;; =mu4e creates a tab
+    ;;        (tab-bar-rename-tab "mu4e"))
 
-  (defface +tab-bar-echo-default
-    '((t :inherit default))
-    "Face for tab names in echo area."
-    :group '+tab-bar)
+    ;; ;; Go back to Tab 1
+    ;; (tab-bar-select-tab 1)
 
-  (defface +tab-bar-echo-current
-    '((t :inherit font-lock-keyword-face))
-    "Face for current tab name in echo area."
-    :group '+tab-bar)
+    (tab-bar-mode 1)
+    (tab-bar-history-mode 1))
 
-  (defface +tab-bar-echo-index
-    '((t :inherit font-lock-comment-face))
-    "Face for index numbers in echo area."
-    :group '+tab-bar)
+  (defvar +tab-bar-create-permitted-buffer-names
+    '("*scratch*" "*Messages*")
+    "List of buffer names kept by `my-tab-bar-create'.")
+
+  (defun +tab-bar-create (&optional arg)
+    "Create a new tab with cleaned buffer lists.
+ARG is directly passed to `tab-bar-new-tab'.
+Only buffers in `my-tab-bar-create-permitted-buffer-names'
+are kept kept in the `buffer-list' and `buried-buffer-list'.
+This is similar to `elscreen-create'."
+    (interactive)
+    (tab-bar-new-tab arg)
+    ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Current-Buffer.html
+    ;; The current-tab uses `buffer-list' and `buried-buffer-list'.
+    ;; A hidden tab keeps these as `wc-bl' and `wc-bbl'.
+    (set-frame-parameter
+     nil
+     'buffer-list
+     (seq-filter (lambda (buffer)
+                   (member (buffer-name buffer)
+                           +tab-bar-create-permitted-buffer-names))
+                 (frame-parameter nil 'buffer-list)))
+    (set-frame-parameter
+     nil
+     'buried-buffer-list
+     (seq-filter (lambda (buffer)
+                   (member (buffer-name buffer)
+                           +tab-bar-create-permitted-buffer-names))
+                 (frame-parameter nil 'buried-buffer-list))))
 
   (defface +tab-bar-tab
     `((t :inherit 'tab-bar-tab
          :foreground ,(face-attribute 'font-lock-keyword-face :foreground nil t)))
-    "Face for active tab in tab-bar."
-    :group '+tab-bar)
+    "Face for active tab in tab-bar.")
 
   (defface +tab-bar-tab-hint
     `((t :inherit '+tab-bar-tab
          :foreground ,(face-attribute 'tab-bar-tab-inactive :foreground nil t)))
-    "Face for active tab hint in tab-bar."
-    :group '+tab-bar)
+    "Face for active tab hint in tab-bar.")
 
   (defface +tab-bar-tab-inactive
     `((t :inherit 'tab-bar-tab-inactive
          :foreground ,(face-attribute 'font-lock-comment-face :foreground nil t)))
-    "Face for inactive tab in tab-bar."
-    :group '+tab-bar)
+    "Face for inactive tab in tab-bar.")
 
   (defface +tab-bar-tab-hint-inactive
     `((t :inherit '+tab-bar-tab-inactive
          :foreground ,(face-attribute 'tab-bar-tab-inactive :foreground nil t)))
-    "Face for inactive tab hint in tab-bar."
-    :group '+tab-bar)
+    "Face for inactive tab hint in tab-bar.")
 
-  (defun +tab-bar-tab-name-format-default (tab i)
+  (defun +circled-num (num)
+    (let ((s-num
+           (cond ((= num 0) ?⓿)
+                 ((<= num 10) (+ (1- num) ?❶))
+                 ((<= num 20) (+ (1- (- num 10)) ?⓫)))))
+      (if s-num (format "%c" s-num) (format "(%d)" num))))
+
+  (defun +tab-name-format-default (tab i)
     (let* ((current-p (eq (car tab) 'current-tab))
            (tab-face (if current-p
                          '+tab-bar-tab
@@ -559,9 +602,9 @@ is binary, activate `hexl-mode'."
            (hint-face (if current-p
                           '+tab-bar-tab-hint
                         '+tab-bar-tab-hint-inactive)))
-      (concat (propertize "  " 'face tab-face)
+      (concat (propertize " " 'face tab-face)
               (if tab-bar-tab-hints (propertize
-                                     (format "%d:" (- i 1)) 'face hint-face))
+                                     (format "%s " (+circled-num i)) 'face hint-face))
               (propertize
                (concat
                 (alist-get 'name tab)
@@ -570,94 +613,32 @@ is binary, activate `hexl-mode'."
                                   (if current-p 'non-selected 'selected)))
                          tab-bar-close-button)
                     "")
-                "  ")
+                " ")
                'face tab-face))))
 
-  (defun +tab-bar-tab-group-format-default (tab i)
-    (propertize
-     (concat (if tab-bar-tab-hints (format "%d:" (- i 1)) "")
-             (funcall tab-bar-tab-group-function tab))
-     'face 'tab-bar-tab-group-inactive))
+  (defun +name-tab-by-project-or-default ()
+    "Return project name if in a project, or default tab-bar name if not.
+The default tab-bar name uses the buffer name."
+    (let ((buf (buffer-file-name))
+          (tab-name nil))
+      (cond
+       ((not (string= "-" (projectile-project-name)))
+        (setq tab-name (projectile-project-name)))
+       ((and buf (vc-registered buf))
+        (setq tab-name (file-name-nondirectory (directory-file-name (vc-root-dir)))))
+       (t (tab-bar-tab-name-current)))
+      tab-name))
 
-  (defun +tab-bar-switch-to-or-create-tab (name)
-    "Switch to or create a tab by NAME."
-    (interactive
-     (let* ((recent-tabs (mapcar (lambda (tab) (alist-get 'name tab))
-                                 (tab-bar--tabs-recent))))
-       (list (completing-read "Switch to tab by name (default recent): "
-                              recent-tabs nil nil nil nil recent-tabs))))
-    (let ((tab-names (mapcar (lambda (tab) (alist-get 'name tab))
-                             (funcall tab-bar-tabs-function))))
-     (if (member name tab-names
-          (tab-bar-switch-to-tab name))
-        (+tab-bar-new-named-tab name)))
-    (tab-bar-select-tab (1+ (or (tab-bar--tab-index-by-name name) 0))))
-
-  (defun +tab-bar-new-named-tab (name)
-    "Create a new tab named NAME."
-    (interactive "MName for new tab (leave blank for automatic naming): ")
-    (tab-new 99999)
-    (if (not (string= name ""))
-        (tab-rename name)))
-
-  (defun +tab-bar-switch-to-index (&optional arg)
-    "Switch to tab with index ARG.
-When this command is bound to a numeric key, calling it without
-an argument will translate its bound numeric key to the numeric
-argument.
-ARG counts from 1."
-    (interactive "P")
-    (unless (integerp arg)
-      (let ((key (event-basic-type last-command-event)))
-        (setq arg (if (and (characterp key) (>= key ?0) (<= key ?9))
-                      (- key ?0)
-                    0))))
-
-    (tab-bar-select-tab (1+ arg)))
-
-  (defun +tab-bar-move-tab-left ()
-    "Move current tab to the left."
-    (interactive)
-    (tab-move -1))
-
-  (defun +tab-bar-move-tab-right ()
-    "Move current tab to the right."
-    (interactive)
-    (tab-move 1))
-
-  (defun +tab-bar-echo-tab-list ()
-    "Echo list of tabs"
-    (interactive)
-    (let* ((tabs (funcall tab-bar-tabs-function))
-           (current-index (or (tab-bar--current-tab-index tabs) 0))
-           (output '())
-           (index 0))
-      (dolist (tab tabs)
-        (add-to-list 'output
-                     (concat (propertize (format "%d:" index)
-                                         'face '+tab-bar-echo-index)
-                             (propertize (alist-get 'name tab)
-                                         'face (if (eq index current-index)
-                                                   '+tab-bar-echo-current
-                                                 '+tab-bar-echo-default)))
-                     t)
-        (setq index (1+ index)))
-
-      (message "tabs: %s" (string-join output " "))))
-
-  (defun +tab-bar-echo-tab-list-advice (&rest _)
-    (when +tab-bar-echo-tab-list
-      (+tab-bar-echo-tab-list)))
-
-  (advice-add 'tab-bar-close-tab :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'tab-bar-move-tab-to :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'tab-bar-new-tab-to :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'tab-bar-rename-tab :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'tab-bar-select-tab :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'tab-switcher-select :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'display-buffer-in-new-tab :after #'+tab-bar-echo-tab-list-advice)
-  (advice-add 'tab-bar-change-tab-group :after #'+tab-bar-echo-tab-list-advice))
-;; Tabs:1 ends here
+  (map! :leader
+        (:prefix-map ("TAB" . "Tabs")
+         :desc "Switch tab" "TAB" #'tab-bar-select-tab-by-name
+         :desc "New tab" "n" #'tab-bar-new-tab
+         :desc "Rename tab" "r" #'tab-bar-rename-tab
+         :desc "Rename tab by name" "R" #'tab-bar-rename-tab-by-name
+         :desc "Close tab" "d" #'tab-bar-close-tab
+         :desc "Close tab by name" "D" #'tab-bar-close-tab-by-name
+         :desc "Close other tabs" "1" #'tab-bar-close-other-tabs)))
+;; Tabs as workspaces:1 ends here
 
 ;; [[file:config.org::*Centaur tabs][Centaur tabs:1]]
 (after! centaur-tabs
@@ -814,7 +795,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Spell-Fu][Spell-Fu:1]]
 (after! spell-fu
-  (defun spell-fu-register-dictionary (lang)
+  (defun +spell-fu-register-dictionary (lang)
     "Add `LANG` to spell-fu multi-dict, with a personal dictionary."
     ;; Add the dictionary
     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary lang))
@@ -826,8 +807,8 @@ ARG counts from 1."
 
   (add-hook 'spell-fu-mode-hook
             (lambda ()
-              (spell-fu-register-dictionary "en")
-              (spell-fu-register-dictionary "fr"))))
+              (+spell-fu-register-dictionary "en")
+              (+spell-fu-register-dictionary "fr"))))
 ;; Spell-Fu:1 ends here
 
 ;; [[file:config.org::*Guess language][Guess language:2]]
@@ -877,6 +858,8 @@ ARG counts from 1."
              grammalecte-find-synonyms
              grammalecte-find-synonyms-at-point)
   :init
+  (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-etc-dir)
+        grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-etc-dir))
   (setq flycheck-grammalecte-report-spellcheck t
         flycheck-grammalecte-report-grammar t
         flycheck-grammalecte-report-apos nil
@@ -930,7 +913,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Chezmoi][Chezmoi:2]]
 (use-package! chezmoi
-  :when +chezmoi-ok-p
+  :when CHEZMOI-OK-P
   :commands (chezmoi-write
              chezmoi-magit-status
              chezmoi-diff
@@ -997,6 +980,63 @@ ARG counts from 1."
                               (lemon-linux-network-rx)))))
 ;; Lemon:2 ends here
 
+;; [[file:config.org::*eCryptfs][eCryptfs:1]]
+(defvar +ecryptfs-private-dir "Private")
+(defvar +ecryptfs-buffer-name "*emacs-ecryptfs*")
+(defvar +ecryptfs-config-dir (expand-file-name "~/.ecryptfs"))
+(defvar +ecryptfs-passphrase-gpg (expand-file-name "~/.ecryptfs/my-pass.gpg"))
+(defvar +ecryptfs--wrapping-independent-p (not (null (expand-file-name "wrapping-independent" +ecryptfs-config-dir))))
+(defvar +ecryptfs--wrapped-passphrase-file (expand-file-name "wrapped-passphrase" +ecryptfs-config-dir))
+(defvar +ecryptfs--mount-passphrase-sig-file (concat (expand-file-name +ecryptfs-private-dir +ecryptfs-config-dir) ".sig"))
+(defvar +ecryptfs--mount-private-cmd "/sbin/mount.ecryptfs_private")
+(defvar +ecryptfs--umount-private-cmd "/sbin/umount.ecryptfs_private")
+(defvar +ecryptfs--passphrase
+  (lambda ()
+    (s-trim-right ;; To remove the new line
+     (epg-decrypt-file (epg-make-context)
+                       (+ecryptfs-passphrase-gpg)
+                       nil))))
+(defvar +ecryptfs--encrypt-filenames-p
+  (not (eq 1
+           (with-temp-buffer
+             (insert-file-contents +ecryptfs--mount-passphrase-sig-file)
+             (count-lines (point-min) (point-max))))))
+(defvar +ecryptfs--command-format
+  (if +ecryptfs--encrypt-filenames-p
+      "ecryptfs-insert-wrapped-passphrase-into-keyring %s '%s'"
+    "ecryptfs-unwrap-passphrase %s '%s' | ecryptfs-add-passphrase -"))
+
+(defun +ecryptfs-mount-private ()
+  (interactive)
+  (unless (and (file-exists-p +ecryptfs--wrapped-passphrase-file)
+               (file-exists-p +ecryptfs--mount-passphrase-sig-file))
+    (error "Encrypted private directory \"%s\" is not setup properly."
+           +ecryptfs-private-dir)
+    (return))
+
+  (let ((try-again t))
+    (while (and
+            ;; In the first iteration, we try to silently mount the ecryptfs private directory,
+            ;; this would succeed if the key is available in the keyring.
+            (shell-command +ecryptfs--mount-private-cmd
+                           +ecryptfs-buffer-name)
+            try-again)
+      (setq try-again nil)
+      (message "Encrypted filenames mode [%s]." (if +ecryptfs--encrypt-filenames-p "ENABLED" "DISABLED"))
+      (shell-command
+       (format +ecryptfs--command-format
+               +ecryptfs--wrapped-passphrase-file
+               (funcall +ecryptfs--passphrase))
+       +ecryptfs-buffer-name))
+    (message "Ecryptfs mount private.")))
+
+(defun +ecryptfs-umount-private ()
+  (interactive)
+  (while (string-match-p "Sessions still open, not unmounting"
+                         (shell-command-to-string +ecryptfs--umount-private-cmd)))
+  (message "Unmounted private directory."))
+;; eCryptfs:1 ends here
+
 ;; [[file:config.org::*Weather][Weather:2]]
 (use-package! wttrin
   :commands wttrin)
@@ -1017,6 +1057,7 @@ ARG counts from 1."
   (osm-copyright t)     ;; Display the copyright information
 
   :init
+  (setq osm-tile-directory (expand-file-name "osm" doom-etc-dir))
   ;; Load Org link support
   (with-eval-after-load 'org
     (require 'osm-ol)))
@@ -1043,7 +1084,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Zotero Zotxt][Zotero Zotxt:2]]
 (use-package! zotxt
-  :when +zotero-ok-p
+  :when ZOTERO-OK-P
   :commands org-zotxt-mode)
 ;; Zotero Zotxt:2 ends here
 
@@ -1057,7 +1098,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*The Silver Searcher][The Silver Searcher:2]]
 (use-package! ag
-  :when +ag-ok-p
+  :when AG-OK-P
   :commands (ag
              ag-files
              ag-regexp
@@ -1067,16 +1108,18 @@ ARG counts from 1."
 ;; The Silver Searcher:2 ends here
 
 ;; [[file:config.org::*Emacs Application Framework][Emacs Application Framework:1]]
+(defconst EAF-DIR (expand-file-name "emacs-application-framework" doom-etc-dir))
+
 (use-package! eaf
-  :when +eaf-ok-p
-  :load-path "lisp/emacs-application-framework"
+  :when EAF-OK-P
+  :load-path EAF-DIR
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org mail browser mindmap jupyter org-previewer markdown-previewer))
-  ;; mindmap file-manager file-browser
-  ;; file-sender music-player video-player
-  ;; git image-viewer
+  ;;  file-manager file-browser
+  ;;  file-sender music-player video-player
+  ;;  git image-viewer
 
   :config
   ;; Generic
@@ -1124,7 +1167,6 @@ ARG counts from 1."
     ;; Make EAF Browser my default browser
     (setq browse-url-browser-function #'eaf-open-browser)
     (defalias 'browse-web #'eaf-open-browser))
-
 
   ;; File manager settings
   (when (member 'file-manager +eaf-enabled-apps)
@@ -1235,6 +1277,7 @@ ARG counts from 1."
               ("image-viewer" (kbd eaf-evil-leader-key))
               ("music-player" (kbd eaf-evil-leader-key))
               ("video-player" (kbd eaf-evil-leader-key))
+              ("mindmap" (kbd eaf-evil-leader-key))
               (_  (kbd "SPC")))
           (kbd "SPC"))))))
 ;; Emacs Application Framework:1 ends here
@@ -1243,7 +1286,7 @@ ARG counts from 1."
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-  :when +bitwarden-ok-p
+  :when BITWARDEN-OK-P
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -1433,7 +1476,7 @@ ARG counts from 1."
 ;; News feed =elfeed=:1 ends here
 
 ;; [[file:config.org::*Launch NetExtender session from Emacs][Launch NetExtender session from Emacs:1]]
-(when +netextender-ok-p
+(when NETEXTENDER-OK-P
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
@@ -1458,21 +1501,33 @@ ARG counts from 1."
 ;; Launch NetExtender session from Emacs:1 ends here
 
 ;; [[file:config.org::*mu4e][mu4e:2]]
+(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+;; mu4e:2 ends here
+
+;; [[file:config.org::*mu4e][mu4e:3]]
 (after! mu4e
   (require 'org-msg)
   (require 'smtpmail)
 
   ;; Common parameters
   (setq mu4e-update-interval (* 3 60) ;; Every 3 min
-        +mu4e-backend 'mbsync
         mu4e-index-update-error-warning nil ;; Do not show warning after update
-        ;; mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
+        mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
         mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
-        ;; message-send-mail-function 'smtpmail-send-it ;; Not needed, it is set by default
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
+
+  ;; Use msmtp instead of smtpmail
+  (setq sendmail-program "/usr/bin/msmtp"
+        message-sendmail-f-is-evil t
+        message-sendmail-envelope-from 'header
+        message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
+        message-send-mail-function #'message-send-mail-with-sendmail
+        send-mail-function #'smtpmail-send-it
+        mail-specify-envelope-from t
+        mail-envelope-from 'header)
 
   (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
                               (:account-stripe . 2)
@@ -1499,6 +1554,19 @@ ARG counts from 1."
   ;; Add shortcut to view yesterday's messages
   (add-to-list 'mu4e-bookmarks
                '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
+
+  ;; Load a list of my email addresses '+my-addresses'
+  (load! "lisp/private/+my-addresses.el")
+  (when (bound-and-true-p +my-addresses)
+    ;; I like always to add myself in BCC, Lets add a bookmark to show all my BCC mails
+    (defun +mu-long-query (query oper arg-list)
+      (concat "(" (s-join (concat " " oper " ") (mapcar (lambda (addr) (format "%s:%s" query addr)) arg-list)) ")"))
+
+    (let ((bcc-query (+mu-long-query "bcc" "or" +my-addresses))
+          (from-query (+mu-long-query "from" "or" +my-addresses)))
+      (add-to-list
+       'mu4e-bookmarks
+       (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?k) t)))
 
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
@@ -1528,7 +1596,7 @@ ARG counts from 1."
 
   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el"))
-;; mu4e:2 ends here
+;; mu4e:3 ends here
 
 ;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
 ;; Not sure if it is required!
@@ -1576,7 +1644,7 @@ ARG counts from 1."
   ;; EMMS basic configuration
   (require 'emms-setup)
 
-  (when +mpd-ok-p
+  (when MPD-OK-P
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -1587,7 +1655,7 @@ ARG counts from 1."
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if +mpd-ok-p
+  (if MPD-OK-P
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
@@ -1605,7 +1673,7 @@ ARG counts from 1."
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when +mpd-ok-p
+  (when MPD-OK-P
     (emms-player-set emms-player-mpd 'regex
                      (emms-player-simple-regexp
                       "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
@@ -1679,7 +1747,7 @@ ARG counts from 1."
                                 +emms-notification-icon)))
 
   ;; MPV and Youtube integration
-  (when +mpv-ok-p
+  (when MPV-OK-P
     (add-to-list 'emms-player-list 'emms-player-mpv t)
     (emms-player-set
      emms-player-mpv
@@ -1725,7 +1793,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Elfeed :heart: MPV][Elfeed :heart: MPV:2]]
 (after! (elfeed emms)
-  (when +mpv-ok-p
+  (when MPV-OK-P
     ;; Integration with Elfeed
     (define-emms-source elfeed (entry)
       (let ((track (emms-track
@@ -1773,7 +1841,7 @@ ARG counts from 1."
 ;; [[file:config.org::*Keybindings][Keybindings:2]]
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) +mpd-ok-p)
+      (:when (and (featurep! :app emms) MPD-OK-P)
        :prefix-map ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -1808,7 +1876,7 @@ ARG counts from 1."
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
     (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
     ;; Force a sync to get the right song name over MPD in mode line
-    (when +mpd-ok-p (emms-player-mpd-sync-from-mpd))
+    (when MPD-OK-P (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
@@ -1820,7 +1888,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Maxima][Maxima:2]]
 (use-package! maxima
-  :when +maxima-ok-p
+  :when MAXIMA-OK-P
   :commands (maxima-mode maxima-inferior-mode maxima)
   :init
   (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
@@ -1835,7 +1903,7 @@ ARG counts from 1."
 
 ;; [[file:config.org::*IMaxima][IMaxima:2]]
 (use-package! imaxima
-  :when +maxima-ok-p
+  :when MAXIMA-OK-P
   :commands (imaxima imath-mode)
   :init
   (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
@@ -1882,19 +1950,38 @@ ARG counts from 1."
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 ;; GNU Octave:1 ends here
 
-;; [[file:config.org::*ROS][ROS:1]]
+;; [[file:config.org::*Extensions][Extensions:1]]
+(add-to-list 'auto-mode-alist '("\\.urdf"    . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro"   . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 (add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.xacro$"  . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
-;; ROS:1 ends here
 
-;; [[file:config.org::*ROS Emacs utils][ROS Emacs utils:2]]
-(use-package! rosemacs
-  :config
-  (require 'rosemacs-config)
-  :commands (ros-core ros-topic-info))
-;; ROS Emacs utils:2 ends here
+;; msg and srv files: for now use gdb-script-mode
+(add-to-list 'auto-mode-alist '("\\.msg\\'"    . gdb-script-mode))
+(add-to-list 'auto-mode-alist '("\\.srv\\'"    . gdb-script-mode))
+(add-to-list 'auto-mode-alist '("\\.action\\'" . gdb-script-mode))
+;; Extensions:1 ends here
+
+;; [[file:config.org::*ROS bags][ROS bags:1]]
+(when ROSBAG-OK-P
+  (define-derived-mode rosbag-view-mode
+    fundamental-mode "Rosbag view mode"
+    "Major mode for viewing ROS bag files."
+    (let ((f (buffer-file-name)))
+      (let ((buffer-read-only nil))
+        (erase-buffer)
+        (message "Calling rosbag info")
+        (call-process "rosbag" nil (current-buffer) nil
+                      "info" f)
+        (set-buffer-modified-p nil))
+      (view-mode)
+      (set-visited-file-name nil t)))
+
+  ;; rosbag view mode
+  (add-to-list 'auto-mode-alist '("\\.bag$" . rosbag-view-mode)))
+;; ROS bags:1 ends here
 
 ;; [[file:config.org::*=ros.el=][=ros.el=:2]]
 (use-package! ros
@@ -1981,27 +2068,27 @@ ARG counts from 1."
   (require 'hydra)
 
   ;; Add some missing gdb/rr commands
-  (defun ab/realgud:cmd-start (arg)
+  (defun +realgud:cmd-start (arg)
     "start = break main + run"
     (interactive "p")
     (realgud-command "start"))
 
-  (defun ab/realgud:cmd-reverse-next (arg)
+  (defun +realgud:cmd-reverse-next (arg)
     "Reverse next"
     (interactive "p")
     (realgud-command "reverse-next"))
 
-  (defun ab/realgud:cmd-reverse-step (arg)
+  (defun +realgud:cmd-reverse-step (arg)
     "Reverse step"
     (interactive "p")
     (realgud-command "reverse-step"))
 
-  (defun ab/realgud:cmd-reverse-continue (arg)
+  (defun +realgud:cmd-reverse-continue (arg)
     "Reverse continue"
     (interactive "p")
     (realgud-command "reverse-continue"))
 
-  (defun ab/realgud:cmd-reverse-finish (arg)
+  (defun +realgud:cmd-reverse-finish (arg)
     "Reverse finish"
     (interactive "p")
     (realgud-command "reverse-finish"))
@@ -2021,10 +2108,10 @@ ARG counts from 1."
     ("c"  realgud:cmd-continue)
     ("R"  realgud:cmd-restart)
     ("u"  realgud:cmd-until-here)
-    ("rn" ab/realgud:cmd-reverse-next)
-    ("ri" ab/realgud:cmd-reverse-step)
-    ("ro" ab/realgud:cmd-reverse-finish)
-    ("rc" ab/realgud:cmd-reverse-continue)
+    ("rn" +realgud:cmd-reverse-next)
+    ("ri" +realgud:cmd-reverse-step)
+    ("ro" +realgud:cmd-reverse-finish)
+    ("rc" +realgud:cmd-reverse-continue)
     ("ba" realgud:cmd-break)
     ("bt" realgud:cmd-tbreak)
     ("bD" realgud:cmd-delete)
@@ -2037,7 +2124,7 @@ ARG counts from 1."
     ("!"  realgud:cmd-shell)
     ("Qk" realgud:cmd-kill)
     ("Sg" realgud:gdb)
-    ("Ss" ab/realgud:cmd-start)
+    ("Ss" +realgud:cmd-start)
     ("q"  nil "quit" :color blue) ;; :exit
     ("Qq" realgud:cmd-quit :color blue)) ;; :exit
 
@@ -2057,11 +2144,11 @@ ARG counts from 1."
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 ;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
-(defvar ab/realgud:launch-plist nil)
+(defvar +realgud:launch-plist nil)
 ;; RealGUD =.dir-locals.el= support (only for GDB):1 ends here
 
 ;; [[file:config.org::*RealGUD =.dir-locals.el= support (only for GDB)][RealGUD =.dir-locals.el= support (only for GDB):3]]
-(cl-defun ab/realgud:get-launch-debugger-args (&key program args)
+(defun +realgud:get-launch-debugger-args (&key program args)
   (let ((debugger--args ""))
     (when program
       (setq debugger--args program)
@@ -2079,16 +2166,16 @@ ARG counts from 1."
        debugger--args))))
 
 (defun +debugger/realgud:gdb-launch ()
-  "Launch RealGUD with parameters from `ab/realgud:launch-plist'"
+  "Launch RealGUD with parameters from `+realgud:launch-plist'"
   (interactive)
   (require 'realgud)
-  (if ab/realgud:launch-plist
+  (if +realgud:launch-plist
       (realgud:gdb
        (concat realgud:gdb-command-name
                " --args "
-               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+               (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
     (progn
-      (message "Variable `ab/realgud:launch-plist' is `nil'")
+      (message "Variable `+realgud:launch-plist' is `nil'")
       (realgud:gdb))))
 
 (map! :leader :prefix ("l" . "custom")
@@ -2107,9 +2194,9 @@ ARG counts from 1."
     (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `ab/realgud:launch-plist'"
+    "Launch `rr record' with parameters from `+realgud:launch-plist'"
     (interactive)
-    (let ((debugger--args (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
       (unless (make-process :name "*rr record*"
                             :buffer "*rr record*"
                             :command (append '("rr" "record") (s-split " " debugger--args)))
@@ -2127,9 +2214,25 @@ ARG counts from 1."
   :init
   (fmakunbound 'gdb)
   (fmakunbound 'gdb-enable-debug)
+
   :config
   (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
-        gdb-ignore-gdbinit nil)) ;; I use gdbinit to define some useful stuff
+        gdb-ignore-gdbinit nil) ;; I use gdbinit to define some useful stuff
+  ;; History
+  (defvar +gdb-history-file "~/.gdb_history")
+  (defun +gud-gdb-mode-hook-setup ()
+    "GDB setup."
+
+    ;; Suposes "~/.gdbinit" contains:
+    ;; set history save on
+    ;; set history filename ~/.gdb_history
+    ;; set history remove-duplicates 2048
+    (when (and (ring-empty-p comint-input-ring)
+               (file-exists-p +gdb-history-file))
+      (setq comint-input-ring-file-name +gdb-history-file)
+      (comint-read-input-ring t)))
+
+  (add-hook 'gud-gdb-mode-hook '+gud-gdb-mode-hook-setup))
 ;; Emacs GDB:2 ends here
 
 ;; [[file:config.org::*Custom layout for =gdb-many-windows=][Custom layout for =gdb-many-windows=:1]]
@@ -2199,24 +2302,6 @@ ARG counts from 1."
 
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 ;; Highlight current line:1 ends here
-
-;; [[file:config.org::*History][History:1]]
-(after! gdb-mi
-  (defvar ab/gdb-history-file "~/.gdb_history")
-  (defun ab/gud-gdb-mode-hook-setup ()
-    "GDB setup."
-
-    ;; Suposes "~/.gdbinit" contains:
-    ;; set history save on
-    ;; set history filename ~/.gdb_history
-    ;; set history remove-duplicates 2048
-    (when (and (ring-empty-p comint-input-ring)
-               (file-exists-p ab/gdb-history-file))
-      (setq comint-input-ring-file-name ab/gdb-history-file)
-      (comint-read-input-ring t)))
-
-  (add-hook 'gud-gdb-mode-hook 'ab/gud-gdb-mode-hook-setup))
-;; History:1 ends here
 
 ;; [[file:config.org::*Eglot][Eglot:1]]
 (after! eglot
@@ -2307,6 +2392,7 @@ ARG counts from 1."
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
   (require 'lsp-vhdl)
+
   :hook (vhdl-mode . (lambda ()
                        (lsp t)
                        (flycheck-mode t))))
@@ -2340,18 +2426,44 @@ ARG counts from 1."
   :commands (unibeautify))
 ;; Unibeautify:2 ends here
 
-;; [[file:config.org::*Repo][Repo:3]]
-(use-package! repo
-  :when +repo-ok-p
-  :commands repo-status)
-;; Repo:3 ends here
+;; [[file:config.org::*FZF][FZF:2]]
+(after! evil
+  (evil-define-key 'insert fzf-mode-map (kbd "ESC") #'term-kill-subjob))
 
-;; [[file:config.org::*Magit :heart: Delta][Magit :heart: Delta:2]]
-(use-package! magit-delta
-  :when +delta-ok-p
-  :commands magit-status
-  :hook (magit-mode . magit-delta-mode))
-;; Magit :heart: Delta:2 ends here
+(define-minor-mode fzf-mode
+  "Minor mode for the FZF buffer"
+  :init-value nil
+  :lighter " FZF"
+  :keymap '(("C-c" . term-kill-subjob)))
+
+(defadvice! doom-fzf--override-start-args-a (original-fn &rest args)
+  "Set the FZF minor mode with the fzf buffer."
+  :around #'fzf/start
+  (message "called with args %S" args)
+  (apply original-fn args)
+
+  ;; set the FZF buffer to fzf-mode so we can hook ctrl+c
+  (set-buffer "*fzf*")
+  (fzf-mode))
+
+(defvar fzf/args
+  "-x --print-query -m --tiebreak=index --expect=ctrl-v,ctrl-x,ctrl-t")
+
+(use-package! fzf
+  :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
+;; FZF:2 ends here
+
+;; [[file:config.org::*Clang-format][Clang-format:2]]
+(use-package! clang-format
+  :when CLANG-FORMAT-OK-P
+  :commands (clang-format-region))
+;; Clang-format:2 ends here
+
+;; [[file:config.org::*Repo][Repo:2]]
+(use-package! repo
+  :when REPO-OK-P
+  :commands repo-status)
+;; Repo:2 ends here
 
 ;; [[file:config.org::*Blamer][Blamer:2]]
 (use-package! blamer
@@ -2378,12 +2490,6 @@ ARG counts from 1."
     (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
     (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
 ;; Blamer:2 ends here
-
-;; [[file:config.org::*Clang-format][Clang-format:2]]
-(use-package! clang-format
-  :when +clang-format-ok-p
-  :commands (clang-format-region))
-;; Clang-format:2 ends here
 
 ;; [[file:config.org::*Assembly][Assembly:2]]
 (use-package! nasm-mode
@@ -2461,18 +2567,6 @@ ARG counts from 1."
         org-special-ctrl-a/e t
         org-startup-indented t ;; Enable 'org-indent-mode' by default, override with '+#startup: noindent' for big files
         org-insert-heading-respect-content t)
-  ;; (org-babel-do-load-languages
-  ;;  'org-babel-load-languages
-  ;;  '((R . t)
-  ;;    (python . t)
-  ;;    (jupyter . t)
-  ;;    (octave . t)
-  ;;    (plantuml . t)
-  ;;    (C . t)
-  ;;    (cpp . t)
-  ;;    (maxima . t)
-  ;;    (dot . t)
-  ;;    (emacs-lisp . t)))
   (setq org-babel-default-header-args
         '((:session  . "none")
           (:results  . "replace")
@@ -2499,17 +2593,62 @@ ARG counts from 1."
         :n "g <left>" #'org-up-element
         :n "g <right>" #'org-down-element)
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "|" "DONE(d)" "KILL(k)")
-          (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+        '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
+          (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
           (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
   
-  (defun log-todo-next-creation-date (&rest ignore)
-    "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-    (when (and (string= (org-get-todo-state) "NEXT")
-               (not (org-entry-get nil "ACTIVATED")))
-      (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+  (setq org-todo-keyword-faces
+        '(("IDEA" . (:foreground "goldenrod" :weight bold))
+          ("NEXT" . (:foreground "IndianRed1" :weight bold))
+          ("STRT" . (:foreground "OrangeRed" :weight bold))
+          ("WAIT" . (:foreground "coral" :weight bold))
+          ("KILL" . (:foreground "DarkGreen" :weight bold))
+          ("PROJ" . (:foreground "LimeGreen" :weight bold))
+          ("HOLD" . (:foreground "orange" :weight bold))))
   
-  (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+  (setq org-tag-persistent-alist
+        '((:startgroup . nil)
+          ("home" . ?h)
+          ("research" . ?r)
+          ("work" . ?w)
+          (:endgroup . nil)
+          (:startgroup . nil)
+          ("tool" . ?o)
+          ("dev" . ?d)
+          ("report" . ?p)
+          (:endgroup . nil)
+          (:startgroup . nil)
+          ("easy" . ?e)
+          ("medium" . ?m)
+          ("hard" . ?a)
+          (:endgroup . nil)
+          ("urgent" . ?u)
+          ("key" . ?k)
+          ("bonus" . ?b)
+          ("noexport" . ?x)))
+  
+  (setq org-tag-faces
+        '(("home" . (:foreground "goldenrod" :weight bold))
+          ("research" . (:foreground "goldenrod" :weight bold))
+          ("work" . (:foreground "goldenrod" :weight bold))
+          ("tool" . (:foreground "IndianRed1" :weight bold))
+          ("dev" . (:foreground "IndianRed1" :weight bold))
+          ("report" . (:foreground "IndianRed1" :weight bold))
+          ("urgent" . (:foreground "red" :weight bold))
+          ("key" . (:foreground "red" :weight bold))
+          ("easy" . (:foreground "green4" :weight bold))
+          ("medium" . (:foreground "orange" :weight bold))
+          ("hard" . (:foreground "red" :weight bold))
+          ("bonus" . (:foreground "goldenrod" :weight bold))
+          ("noexport" . (:foreground "LimeGreen" :weight bold))))
+  
+  ;; (defun log-todo-next-creation-date (&rest ignore)
+  ;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+  ;;   (when (and (string= (org-get-todo-state) "NEXT")
+  ;;              (not (org-entry-get nil "ACTIVATED")))
+  ;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+  
+  ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
   (setq org-agenda-files (list (expand-file-name "inbox.org" org-directory)
                                (expand-file-name "agenda.org" org-directory)
                                (expand-file-name "gcal-agenda.org" org-directory)
@@ -2562,7 +2701,8 @@ ARG counts from 1."
                               (:name "University" :tag "Univ" :order 32)
                               (:name "Trivial" :priority<= "E" :tag ("Trivial" "Unimportant") :todo ("SOMEDAY") :order 90)
                               (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
-  (load! "lisp/private/+org-gcal.el")
+  (after! org-gcal
+    (load! "lisp/private/+org-gcal.el"))
   (use-package! caldav
     :commands (org-caldav-sync))
   (setq +org-capture-emails-file (expand-file-name "inbox.org" org-directory)
@@ -3047,7 +3187,7 @@ ARG counts from 1."
                      (lambda (a b) (> (cdr a) (cdr b))))))
   
       (car (cl-set-difference src-langs header-langs :test #'string=))))
-  (defun org-syntax-convert-keyword-case-to-lower ()
+  (defun +org-syntax-convert-keyword-case-to-lower ()
     "Convert all #+KEYWORDS to #+keywords."
     (interactive)
     (save-excursion
@@ -3109,6 +3249,7 @@ ARG counts from 1."
     :init
     (setq org-modern-table-vertical 1
           org-modern-table-horizontal 1
+          org-modern-todo-faces org-todo-keyword-faces
           org-modern-keyword nil) ;; I like to fontify them using ligatures
   
     (global-org-modern-mode))
@@ -3124,19 +3265,20 @@ ARG counts from 1."
   (setq org-hide-emphasis-markers t
         org-pretty-entities t
         org-ellipsis " ↩"
-        org-hide-leading-stars t
-        org-priority-highest ?A
-        org-priority-lowest ?E
-        org-priority-faces
-        '((?A . 'all-the-icons-red)
-          (?B . 'all-the-icons-orange)
-          (?C . 'all-the-icons-yellow)
-          (?D . 'all-the-icons-green)
-          (?E . 'all-the-icons-blue)))
+        org-hide-leading-stars t)
+        ;; org-priority-highest ?A
+        ;; org-priority-lowest ?E
+        ;; org-priority-faces
+        ;; '((?A . 'all-the-icons-red)
+        ;;   (?B . 'all-the-icons-orange)
+        ;;   (?C . 'all-the-icons-yellow)
+        ;;   (?D . 'all-the-icons-green)
+        ;;   (?E . 'all-the-icons-blue)))
   (appendq! +ligatures-extra-symbols
-            '(:checkbox                "☐"
-              :pending                 "◼"
-              :checkedbox              "☑"
+            '(
+              ;; :checkbox                "☐"
+              ;; :pending                 "◼"
+              ;; :checkedbox              "☑"
               :list_property           "∷"
               :em_dash                 "—"
               :ellipses                "…"
@@ -3159,6 +3301,7 @@ ARG counts from 1."
               :latex_class_options     "🄻"
               :latex_header            "🅻"
               :latex_header_extra      "🅻"
+              :latex_compiler          "⟾"
               :beamer_header           "🅑"
               :latex                   "🅛"
               :attr_latex              "🄛"
@@ -3194,9 +3337,9 @@ ARG counts from 1."
   
   (set-ligatures! 'org-mode
     :merge t
-    :checkbox                "[ ]"
-    :pending                 "[-]"
-    :checkedbox              "[X]"
+    ;; :checkbox                "[ ]"
+    ;; :pending                 "[-]"
+    ;; :checkedbox              "[X]"
     :list_property           "::"
     :em_dash                 "---"
     :ellipsis                "..."
@@ -3219,6 +3362,7 @@ ARG counts from 1."
     :latex_class_options     "#+latex_class_options:"
     :latex_header            "#+latex_header:"
     :latex_header_extra      "#+latex_header_extra:"
+    :latex_compiler          "#+latex_compiler:"
     :beamer_header           "#+beamer_header:"
     :latex                   "#+latex:"
     :attr_latex              "#+attr_latex:"
@@ -3281,48 +3425,49 @@ ARG counts from 1."
   (setq org-preview-latex-default-process 'dvisvgm)
   
   ;; Define a function to set the format latex scale (to be reused in hooks)
-  (defun ab/set-org-latex-scale (scale)
-    (setq org-format-latex-options
-          (plist-put org-format-latex-options :scale scale)))
+  (defun +org-format-latex-set-scale (scale)
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale scale)))
   
   ;; Set the default scale
-  (ab/set-org-latex-scale 1.4)
+  (+org-format-latex-set-scale 1.4)
   
   ;; Increase scale in Zen mode
   (when (featurep! :ui zen)
-    (add-hook! 'writeroom-mode-enable-hook (ab/set-org-latex-scale 2.0))
-    (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
-  (defun scimax-org-renumber-environment (orig-func &rest args)
+    (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
+    (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
+  (defun +scimax-org-renumber-environment (orig-func &rest args)
     "A function to inject numbers in LaTeX fragment previews."
     (let ((results '())
           (counter -1)
           (numberp))
-      (setq results (cl-loop for (begin .  env) in
-                             (org-element-map (org-element-parse-buffer) 'latex-environment
-                               (lambda (env)
-                                 (cons
-                                  (org-element-property :begin env)
-                                  (org-element-property :value env))))
-                             collect
-                             (cond
-                              ((and (string-match "\\\\begin{equation}" env)
-                                    (not (string-match "\\\\tag{" env)))
-                               (cl-incf counter)
-                               (cons begin counter))
-                              ((string-match "\\\\begin{align}" env)
-                               (prog2
-                                   (cl-incf counter)
-                                   (cons begin counter)
-                                 (with-temp-buffer
-                                   (insert env)
-                                   (goto-char (point-min))
-                                   ;; \\ is used for a new line. Each one leads to a number
-                                   (cl-incf counter (count-matches "\\\\$"))
-                                   ;; unless there are nonumbers.
-                                   (goto-char (point-min))
-                                   (cl-decf counter (count-matches "\\nonumber")))))
-                              (t
-                               (cons begin nil)))))
+      (setq results
+            (cl-loop for (begin . env) in
+                     (org-element-map (org-element-parse-buffer) 'latex-environment
+                       (lambda (env)
+                         (cons
+                          (org-element-property :begin env)
+                          (org-element-property :value env))))
+                     collect
+                     (cond
+                      ((and (string-match "\\\\begin{equation}" env)
+                            (not (string-match "\\\\tag{" env)))
+                       (cl-incf counter)
+                       (cons begin counter)
+                       (message "Entered equation env, counter=%d" counter))
+                      ((string-match "\\\\begin{align}" env)
+                       (prog2
+                           (cl-incf counter)
+                           (cons begin counter)
+                         (with-temp-buffer
+                           (insert env)
+                           (goto-char (point-min))
+                           ;; \\ is used for a new line. Each one leads to a number
+                           (cl-incf counter (count-matches "\\\\$"))
+                           ;; unless there are nonumbers.
+                           (goto-char (point-min))
+                           (cl-decf counter (count-matches "\\nonumber")))))
+                      (t
+                       (cons begin nil)))))
   
       (when (setq numberp (cdr (assoc (point) results)))
         (setf (car args)
@@ -3333,17 +3478,46 @@ ARG counts from 1."
     (apply orig-func args))
   
   
-  (defun scimax-toggle-latex-equation-numbering ()
+  (defun +scimax-toggle-latex-equation-numbering ()
     "Toggle whether LaTeX fragments are numbered."
     (interactive)
-    (if (not (get 'scimax-org-renumber-environment 'enabled))
+    (if (not (get '+scimax-org-renumber-environment 'enabled))
         (progn
-          (advice-add 'org-create-formula-image :around #'scimax-org-renumber-environment)
-          (put 'scimax-org-renumber-environment 'enabled t)
-          (message "Latex numbering enabled"))
-      (advice-remove 'org-create-formula-image #'scimax-org-renumber-environment)
-      (put 'scimax-org-renumber-environment 'enabled nil)
-      (message "Latex numbering disabled.")))
+          (advice-add 'org-create-formula-image :around #'+scimax-org-renumber-environment)
+          (put '+scimax-org-renumber-environment 'enabled t)
+          (message "LaTeX numbering enabled."))
+      (advice-remove 'org-create-formula-image #'+scimax-org-renumber-environment)
+      (put '+scimax-org-renumber-environment 'enabled nil)
+      (message "LaTeX numbering disabled.")))
+  
+  
+  (defun +scimax-org-inject-latex-fragment (orig-func &rest args)
+    "Advice function to inject latex code before and/or after the equation in a latex fragment.
+  You can use this to set \\mathversion{bold} for example to make
+  it bolder. The way it works is by defining
+  :latex-fragment-pre-body and/or :latex-fragment-post-body in the
+  variable `org-format-latex-options'. These strings will then be
+  injected before and after the code for the fragment before it is
+  made into an image."
+    (setf (car args)
+          (concat
+           (or (plist-get org-format-latex-options :latex-fragment-pre-body) "")
+           (car args)
+           (or (plist-get org-format-latex-options :latex-fragment-post-body) "")))
+    (apply orig-func args))
+  
+  
+  (defun +scimax-toggle-inject-latex ()
+    "Toggle whether you can insert latex in fragments."
+    (interactive)
+    (if (not (get '+scimax-org-inject-latex-fragment 'enabled))
+        (progn
+          (advice-add 'org-create-formula-image :around #'+scimax-org-inject-latex-fragment)
+          (put '+scimax-org-inject-latex-fragment 'enabled t)
+          (message "Inject latex enabled"))
+      (advice-remove 'org-create-formula-image #'+scimax-org-inject-latex-fragment)
+      (put '+scimax-org-inject-latex-fragment 'enabled nil)
+      (message "Inject latex disabled")))
   (use-package! org-fragtog
     :hook (org-mode . org-fragtog-mode))
   (after! org-plot
@@ -3472,19 +3646,39 @@ ARG counts from 1."
         (format "Emacs %s (Org mode %s)" emacs-version (org-release)))
   ;; `org-latex-compilers' contains a list of possible values ("pdflatex" "xelatex" "lualatex")
   ;; for the `%latex' argument.
-  (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
-  ;; NOTE: Not tangled; old school
-  (setq org-latex-pdf-process
-        '("pdflatex -interaction nonstopmode -output-directory %o %f"
-          "bibtex %b"
-          "pdflatex -interaction nonstopmode -output-directory %o %f"
-          "pdflatex -interaction nonstopmode -output-directory %o %f"))
+  (setq org-latex-pdf-process '("latexmk -shell-escape -pdf -quiet -f -%latex -interaction=nonstopmode -output-directory=%o %f"))
+  ;; Add 'svg' package to display SVG pictures (uses inkscape, imagemagik and ghostscript)
+  ;; (add-to-list 'org-latex-packages-alist '("" "svg"))
+  ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex
+  ;; (add-to-list 'org-latex-packages-alist '("utf8" "inputenc"))
   ;; this is for code syntax highlighting in export. you need to use
   ;; -shell-escape with latex, and install pygments.
-  (setq org-latex-listings 'minted
-        org-latex-minted-options '(("frame" "lines")
-                                   ("fontsize" "\\scriptsize")
+  ;; (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+  ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+  
+  ;; (setq org-latex-listings 'minted) ;; Per document, in local variables
+  (setq org-latex-minted-options '(("frame" "lines")
+                                   ("fontsize" "\\footnotesize")
+                                   ("tabsize" "2")
+                                   ("breaklines" "")
+                                   ("breakanywhere" "") ;; break anywhere, no just on spaces
+                                   ("style" "default")
+                                   ("bgcolor" "GhostWhite")
                                    ("linenos" "")))
+  
+  (dolist (pair '((ipython    "python")
+                  (jupyter    "python")
+                  (scheme     "scheme")
+                  (lisp-data  "lisp")
+                  (conf       "ini")
+                  (conf-unix  "unixconfig")
+                  (conf-space "unixconfig")
+                  (conf-toml  "yaml")
+                  (gitconfig  "ini")
+                  (systemd    "ini")
+                  (gdb-script "text")))
+    (unless (member pair org-latex-minted-langs)
+      (add-to-list 'org-latex-minted-langs pair)))
   (after! ox-latex
     (add-to-list 'org-latex-classes
                  '("scr-article"
@@ -3571,5 +3765,5 @@ ARG counts from 1."
 
 ;; [[file:config.org::*Quarto][Quarto:2]]
 (use-package! quarto-mode
-  :when +quarto-ok-p)
+  :when QUARTO-OK-P)
 ;; Quarto:2 ends here

@@ -12,7 +12,7 @@
 
   :completion
   (vertico +icons)
-  (company +childframe)
+  company
 
   :ui
   deft
@@ -22,7 +22,6 @@
   hydra
   modeline
   vc-gutter
-  workspaces
   zen
   ophints
   nav-flash
@@ -31,6 +30,7 @@
   (popup +all +defaults)
   (emoji +ascii +unicode +github)
   (treemacs +lsp)
+  ;;workspaces
   ;;tabs
   ;;unicode
   ;;neotree
@@ -85,7 +85,7 @@
   (debugger +lsp)
   (docker +lsp)
   (eval +overlay)
-  (lookup +docsets +dictrionary +offline)
+  (lookup +docsets +dictionary +offline)
   (magit +forge)
   ;;pass
   ;;biblio

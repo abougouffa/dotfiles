@@ -180,14 +180,6 @@
 (package! ess-view)
 ;; ESS:1 ends here
 
-;; [[file:config.org::*ROS Emacs utils][ROS Emacs utils:1]]
-(package! rosemacs
-  :recipe (:host github
-           :repo "code-iai/ros_emacs_utils"
-           :files ("rosemacs/*"))
-  :disable t) ;; No clear way to make it work on a remote machine
-;; ROS Emacs utils:1 ends here
-
 ;; [[file:config.org::*=ros.el=][=ros.el=:1]]
 ;; `ros.el' depends on `with-shell-interpreter' among other packages
 ;; See: https://github.com/DerBeutlin/ros.el/blob/master/Cask
@@ -237,24 +229,23 @@
            :repo "Unibeautify/emacs"))
 ;; Unibeautify:1 ends here
 
-;; [[file:config.org::*Repo][Repo:2]]
-(package! repo)
-;; Repo:2 ends here
+;; [[file:config.org::*FZF][FZF:1]]
+(package! fzf)
+;; FZF:1 ends here
 
-;; [[file:config.org::*Magit :heart: Delta][Magit :heart: Delta:1]]
-(package! magit-delta
-  :disable t) ;; Disabled, too slow on big chunks
-;; Magit :heart: Delta:1 ends here
+;; [[file:config.org::*Clang-format][Clang-format:1]]
+(package! clang-format)
+;; Clang-format:1 ends here
+
+;; [[file:config.org::*Repo][Repo:1]]
+(package! repo)
+;; Repo:1 ends here
 
 ;; [[file:config.org::*Blamer][Blamer:1]]
 (package! blamer
   :recipe (:host github
            :repo "artawower/blamer.el"))
 ;; Blamer:1 ends here
-
-;; [[file:config.org::*Clang-format][Clang-format:1]]
-(package! clang-format)
-;; Clang-format:1 ends here
 
 ;; [[file:config.org::*Assembly][Assembly:1]]
 (package! nasm-mode)
