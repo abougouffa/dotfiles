@@ -4454,17 +4454,62 @@ There also seem to be a few keybindings which use =hjkl=, but miss arrow key equ
 
 #+begin_src emacs-lisp
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "|" "DONE(d)" "KILL(k)")
+      '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
         (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
         (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
-(defun log-todo-next-creation-date (&rest ignore)
-  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-  (when (and (string= (org-get-todo-state) "NEXT")
-             (not (org-entry-get nil "ACTIVATED")))
-    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+(setq org-todo-keyword-faces
+      '(("IDEA" . (:foreground "goldenrod" :weight bold))
+        ("NEXT" . (:foreground "IndianRed1" :weight bold))
+        ("STRT" . (:foreground "OrangeRed" :weight bold))
+        ("WAIT" . (:foreground "coral" :weight bold))
+        ("KILL" . (:foreground "DarkGreen" :weight bold))
+        ("PROJ" . (:foreground "LimeGreen" :weight bold))
+        ("HOLD" . (:foreground "orange" :weight bold))))
 
-(add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+(setq org-tag-persistent-alist
+      '((:startgroup . nil)
+        ("home" . ?h)
+        ("research" . ?r)
+        ("work" . ?w)
+        (:endgroup . nil)
+        (:startgroup . nil)
+        ("tool" . ?o)
+        ("dev" . ?d)
+        ("report" . ?p)
+        (:endgroup . nil)
+        (:startgroup . nil)
+        ("easy" . ?e)
+        ("medium" . ?m)
+        ("hard" . ?a)
+        (:endgroup . nil)
+        ("urgent" . ?u)
+        ("key" . ?k)
+        ("bonus" . ?b)
+        ("noexport" . ?x)))
+
+(setq org-tag-faces
+      '(("home" . (:foreground "goldenrod" :weight bold))
+        ("research" . (:foreground "goldenrod" :weight bold))
+        ("work" . (:foreground "goldenrod" :weight bold))
+        ("tool" . (:foreground "IndianRed1" :weight bold))
+        ("dev" . (:foreground "IndianRed1" :weight bold))
+        ("report" . (:foreground "IndianRed1" :weight bold))
+        ("urgent" . (:foreground "red" :weight bold))
+        ("key" . (:foreground "red" :weight bold))
+        ("easy" . (:foreground "green4" :weight bold))
+        ("medium" . (:foreground "orange" :weight bold))
+        ("hard" . (:foreground "red" :weight bold))
+        ("bonus" . (:foreground "goldenrod" :weight bold))
+        ("noexport" . (:foreground "LimeGreen" :weight bold))))
+
+;; (defun log-todo-next-creation-date (&rest ignore)
+;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+;;   (when (and (string= (org-get-todo-state) "NEXT")
+;;              (not (org-entry-get nil "ACTIVATED")))
+;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+
+;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
 **** Agenda :agenda:
@@ -5218,6 +5263,7 @@ sacrificing visual amenities with the =org-appear= package.
   :init
   (setq org-modern-table-vertical 1
         org-modern-table-horizontal 1
+        org-modern-todo-faces org-todo-keyword-faces
         org-modern-keyword nil) ;; I like to fontify them using ligatures
 
   (global-org-modern-mode))
@@ -5249,15 +5295,15 @@ I think it makes sense to have list bullets change with depth
 (setq org-hide-emphasis-markers t
       org-pretty-entities t
       org-ellipsis " ↩"
-      org-hide-leading-stars t
-      org-priority-highest ?A
-      org-priority-lowest ?E
-      org-priority-faces
-      '((?A . 'all-the-icons-red)
-        (?B . 'all-the-icons-orange)
-        (?C . 'all-the-icons-yellow)
-        (?D . 'all-the-icons-green)
-        (?E . 'all-the-icons-blue)))
+      org-hide-leading-stars t)
+      ;; org-priority-highest ?A
+      ;; org-priority-lowest ?E
+      ;; org-priority-faces
+      ;; '((?A . 'all-the-icons-red)
+      ;;   (?B . 'all-the-icons-orange)
+      ;;   (?C . 'all-the-icons-yellow)
+      ;;   (?D . 'all-the-icons-green)
+      ;;   (?E . 'all-the-icons-blue)))
 #+end_src
 
 It's also nice to make use of the Unicode characters for check boxes, and other
@@ -5265,9 +5311,10 @@ commands.
 
 #+begin_src emacs-lisp
 (appendq! +ligatures-extra-symbols
-          '(:checkbox                "☐"
-            :pending                 "◼"
-            :checkedbox              "☑"
+          '(
+            ;; :checkbox                "☐"
+            ;; :pending                 "◼"
+            ;; :checkedbox              "☑"
             :list_property           "∷"
             :em_dash                 "—"
             :ellipses                "…"
@@ -5326,9 +5373,9 @@ commands.
 
 (set-ligatures! 'org-mode
   :merge t
-  :checkbox                "[ ]"
-  :pending                 "[-]"
-  :checkedbox              "[X]"
+  ;; :checkbox                "[ ]"
+  ;; :pending                 "[-]"
+  ;; :checkedbox              "[X]"
   :list_property           "::"
   :em_dash                 "---"
   :ellipsis                "..."
