@@ -5493,56 +5493,57 @@ let's make it transparent.
 (setq org-preview-latex-default-process 'dvisvgm)
 
 ;; Define a function to set the format latex scale (to be reused in hooks)
-(defun ab/set-org-latex-scale (scale)
-  (setq org-format-latex-options
-        (plist-put org-format-latex-options :scale scale)))
+(defun +org-format-latex-set-scale (scale)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale scale)))
 
 ;; Set the default scale
-(ab/set-org-latex-scale 1.4)
+(+org-format-latex-set-scale 1.4)
 
 ;; Increase scale in Zen mode
 (when (featurep! :ui zen)
-  (add-hook! 'writeroom-mode-enable-hook (ab/set-org-latex-scale 2.0))
-  (add-hook! 'writeroom-mode-disable-hook (ab/set-org-latex-scale 1.4)))
+  (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
+  (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
 #+end_src
 
 ***** Better equation numbering
 Numbered equations all have (1) as the number for fragments with vanilla
-org-mode. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews so they look
-good. *Not working right now!*
+org-mode. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews
+so they look good. *Not working right now!*
 
 #+begin_src emacs-lisp
-(defun scimax-org-renumber-environment (orig-func &rest args)
+(defun +scimax-org-renumber-environment (orig-func &rest args)
   "A function to inject numbers in LaTeX fragment previews."
   (let ((results '())
         (counter -1)
         (numberp))
-    (setq results (cl-loop for (begin .  env) in
-                           (org-element-map (org-element-parse-buffer) 'latex-environment
-                             (lambda (env)
-                               (cons
-                                (org-element-property :begin env)
-                                (org-element-property :value env))))
-                           collect
-                           (cond
-                            ((and (string-match "\\\\begin{equation}" env)
-                                  (not (string-match "\\\\tag{" env)))
-                             (cl-incf counter)
-                             (cons begin counter))
-                            ((string-match "\\\\begin{align}" env)
-                             (prog2
-                                 (cl-incf counter)
-                                 (cons begin counter)
-                               (with-temp-buffer
-                                 (insert env)
-                                 (goto-char (point-min))
-                                 ;; \\ is used for a new line. Each one leads to a number
-                                 (cl-incf counter (count-matches "\\\\$"))
-                                 ;; unless there are nonumbers.
-                                 (goto-char (point-min))
-                                 (cl-decf counter (count-matches "\\nonumber")))))
-                            (t
-                             (cons begin nil)))))
+    (setq results
+          (cl-loop for (begin . env) in
+                   (org-element-map (org-element-parse-buffer) 'latex-environment
+                     (lambda (env)
+                       (cons
+                        (org-element-property :begin env)
+                        (org-element-property :value env))))
+                   collect
+                   (cond
+                    ((and (string-match "\\\\begin{equation}" env)
+                          (not (string-match "\\\\tag{" env)))
+                     (cl-incf counter)
+                     (cons begin counter)
+                     (message "Entered equation env, counter=%d" counter))
+                    ((string-match "\\\\begin{align}" env)
+                     (prog2
+                         (cl-incf counter)
+                         (cons begin counter)
+                       (with-temp-buffer
+                         (insert env)
+                         (goto-char (point-min))
+                         ;; \\ is used for a new line. Each one leads to a number
+                         (cl-incf counter (count-matches "\\\\$"))
+                         ;; unless there are nonumbers.
+                         (goto-char (point-min))
+                         (cl-decf counter (count-matches "\\nonumber")))))
+                    (t
+                     (cons begin nil)))))
 
     (when (setq numberp (cdr (assoc (point) results)))
       (setf (car args)
@@ -5553,17 +5554,46 @@ good. *Not working right now!*
   (apply orig-func args))
 
 
-(defun scimax-toggle-latex-equation-numbering ()
+(defun +scimax-toggle-latex-equation-numbering ()
   "Toggle whether LaTeX fragments are numbered."
   (interactive)
-  (if (not (get 'scimax-org-renumber-environment 'enabled))
+  (if (not (get '+scimax-org-renumber-environment 'enabled))
       (progn
-        (advice-add 'org-create-formula-image :around #'scimax-org-renumber-environment)
-        (put 'scimax-org-renumber-environment 'enabled t)
-        (message "Latex numbering enabled"))
-    (advice-remove 'org-create-formula-image #'scimax-org-renumber-environment)
-    (put 'scimax-org-renumber-environment 'enabled nil)
-    (message "Latex numbering disabled.")))
+        (advice-add 'org-create-formula-image :around #'+scimax-org-renumber-environment)
+        (put '+scimax-org-renumber-environment 'enabled t)
+        (message "LaTeX numbering enabled."))
+    (advice-remove 'org-create-formula-image #'+scimax-org-renumber-environment)
+    (put '+scimax-org-renumber-environment 'enabled nil)
+    (message "LaTeX numbering disabled.")))
+
+
+(defun +scimax-org-inject-latex-fragment (orig-func &rest args)
+  "Advice function to inject latex code before and/or after the equation in a latex fragment.
+You can use this to set \\mathversion{bold} for example to make
+it bolder. The way it works is by defining
+:latex-fragment-pre-body and/or :latex-fragment-post-body in the
+variable `org-format-latex-options'. These strings will then be
+injected before and after the code for the fragment before it is
+made into an image."
+  (setf (car args)
+        (concat
+         (or (plist-get org-format-latex-options :latex-fragment-pre-body) "")
+         (car args)
+         (or (plist-get org-format-latex-options :latex-fragment-post-body) "")))
+  (apply orig-func args))
+
+
+(defun +scimax-toggle-inject-latex ()
+  "Toggle whether you can insert latex in fragments."
+  (interactive)
+  (if (not (get '+scimax-org-inject-latex-fragment 'enabled))
+      (progn
+        (advice-add 'org-create-formula-image :around #'+scimax-org-inject-latex-fragment)
+        (put '+scimax-org-inject-latex-fragment 'enabled t)
+        (message "Inject latex enabled"))
+    (advice-remove 'org-create-formula-image #'+scimax-org-inject-latex-fragment)
+    (put '+scimax-org-inject-latex-fragment 'enabled nil)
+    (message "Inject latex disabled")))
 #+end_src
 
 ***** Fragtog
@@ -5807,8 +5837,7 @@ simply superior combination.
 
 #+begin_src emacs-lisp
 ;; Add 'svg' package to display SVG pictures (uses inkscape, imagemagik and ghostscript)
-;; (when +inkscape-ok-p
-;;  (add-to-list 'org-latex-packages-alist '("" "svg")))
+;; (add-to-list 'org-latex-packages-alist '("" "svg"))
 ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex
 ;; (add-to-list 'org-latex-packages-alist '("utf8" "inputenc"))
 #+end_src
