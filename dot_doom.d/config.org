@@ -2599,7 +2599,7 @@ SSLVersions TLSv1.2 TLSv1.1  # Supported SSL versions
 # Extract password from encrypted ~/.authinfo.gpg
 # File format: "machine <SERVER> login <LOGIN> port <PORT> password <PASSWORD>"
 # This uses sed to extract <PASSWORD> from line matching the account's <SERVER>
-PassCmd "echo $(gpg --no-tty -qd ~/.authinfo.gpg 2> /dev/null | sed -n 's,^machine smtp\\.host\\.ccc .*password \\(..*\\)$,\\1,p')"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.domain.tld/ {print $NF}'"
 AuthMechs *                  # Authentication mechanisms
 SSLType IMAPS                # Protocol (STARTTLS/IMAPS)
 CertificateFile /etc/ssl/certs/ca-certificates.crt
@@ -2634,12 +2634,12 @@ Patterns "INBOX" "Drafts" "Sent" "Archives/*" "Spam" "Trash"
 SyncState *                  # Save state in near side mailbox file ".mbsyncstate"
 # END OF SECTION
 
-# ================================================================================
+# =================================================================================
 
 IMAPAccount gmail
 Host imap.gmail.com
 User user@gmail.com
-PassCmd "echo $(gpg --no-tty -qd ~/.authinfo.gpg 2> /dev/null | sed -n 's,^machine smtp\\.googlemail\\.com .*password \\(..*\\)$,\\1,p')"
+PassCmd "gpg2 -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.domain.tld/ {print $NF}'"
 AuthMechs LOGIN
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
@@ -2741,7 +2741,7 @@ host                    smtp.googlemail.com
 port                    587
 from                    username@gmail.com
 user                    username
-passwordeval            "gpg2 -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.googlemail.com/ {print $NF}'"
+passwordeval            "gpg -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.googlemail.com/ {print $NF}'"
 add_missing_date_header on
 
 ## Gmail - aliases
@@ -2752,13 +2752,13 @@ account                 other-alias : gmail
 from                    other.alias@address.org
 
 # Work
-account                 univ-paris-saclay
+account                 work
 auth                    on
 host                    smtp.domaine.tld
 port                    587
-from                    user@domaine.tld
-user                    user
-passwordeval            "gpg2 -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.domaine.tld/ {print $NF}'"
+from                    username@domaine.tld
+user                    username
+passwordeval            "gpg -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.domaine.tld/ {print $NF}'"
 tls_nocertcheck # ignore TLS certificate errors
 #+end_src
 
