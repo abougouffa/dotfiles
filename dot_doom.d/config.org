@@ -3574,27 +3574,27 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
   (require 'hydra)
 
   ;; Add some missing gdb/rr commands
-  (defun ab/realgud:cmd-start (arg)
+  (defun +realgud:cmd-start (arg)
     "start = break main + run"
     (interactive "p")
     (realgud-command "start"))
 
-  (defun ab/realgud:cmd-reverse-next (arg)
+  (defun +realgud:cmd-reverse-next (arg)
     "Reverse next"
     (interactive "p")
     (realgud-command "reverse-next"))
 
-  (defun ab/realgud:cmd-reverse-step (arg)
+  (defun +realgud:cmd-reverse-step (arg)
     "Reverse step"
     (interactive "p")
     (realgud-command "reverse-step"))
 
-  (defun ab/realgud:cmd-reverse-continue (arg)
+  (defun +realgud:cmd-reverse-continue (arg)
     "Reverse continue"
     (interactive "p")
     (realgud-command "reverse-continue"))
 
-  (defun ab/realgud:cmd-reverse-finish (arg)
+  (defun +realgud:cmd-reverse-finish (arg)
     "Reverse finish"
     (interactive "p")
     (realgud-command "reverse-finish"))
@@ -3614,10 +3614,10 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
     ("c"  realgud:cmd-continue)
     ("R"  realgud:cmd-restart)
     ("u"  realgud:cmd-until-here)
-    ("rn" ab/realgud:cmd-reverse-next)
-    ("ri" ab/realgud:cmd-reverse-step)
-    ("ro" ab/realgud:cmd-reverse-finish)
-    ("rc" ab/realgud:cmd-reverse-continue)
+    ("rn" +realgud:cmd-reverse-next)
+    ("ri" +realgud:cmd-reverse-step)
+    ("ro" +realgud:cmd-reverse-finish)
+    ("rc" +realgud:cmd-reverse-continue)
     ("ba" realgud:cmd-break)
     ("bt" realgud:cmd-tbreak)
     ("bD" realgud:cmd-delete)
@@ -3630,7 +3630,7 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
     ("!"  realgud:cmd-shell)
     ("Qk" realgud:cmd-kill)
     ("Sg" realgud:gdb)
-    ("Ss" ab/realgud:cmd-start)
+    ("Ss" +realgud:cmd-start)
     ("q"  nil "quit" :color blue) ;; :exit
     ("Qq" realgud:cmd-quit :color blue)) ;; :exit
 
@@ -3652,7 +3652,7 @@ arguments, which means I have to type my arguments manually after calling
 
 For DAP mode, there is a support for either =dap-debug-edit-template=, or
 =launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
-this. So I define a parameter list named =ab/realgud:launch-plist=, which supports
+this. So I define a parameter list named =+realgud:launch-plist=, which supports
 =:program= and =:args=. The first is a string of the program path, and the second is
 a list of string arguments to pass to the program.
 
@@ -3661,7 +3661,7 @@ a list of string arguments to pass to the program.
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 ;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
-(defvar ab/realgud:launch-plist nil)
+(defvar +realgud:launch-plist nil)
 #+end_src
 
 This variable is set in a per-project basis thanks to =.dir-locals.el=, some thing
@@ -3669,7 +3669,7 @@ like this:
 
 #+begin_src lisp-data :tangle no
 ;; Example entry in .dir-locals.el
-((nil . ((ab/realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
+((nil . ((+realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
                                       :args ("--in_file=${workspaceFolder}/some/file.csv"
                                              "--out_file=/tmp/some_randome_file"
                                              "-a"))))))
@@ -3680,7 +3680,7 @@ defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][V
 =projectile-project-root=.
 
 #+begin_src emacs-lisp
-(cl-defun ab/realgud:get-launch-debugger-args (&key program args)
+(defun +realgud:get-launch-debugger-args (&key program args)
   (let ((debugger--args ""))
     (when program
       (setq debugger--args program)
@@ -3698,16 +3698,16 @@ defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][V
        debugger--args))))
 
 (defun +debugger/realgud:gdb-launch ()
-  "Launch RealGUD with parameters from `ab/realgud:launch-plist'"
+  "Launch RealGUD with parameters from `+realgud:launch-plist'"
   (interactive)
   (require 'realgud)
-  (if ab/realgud:launch-plist
+  (if +realgud:launch-plist
       (realgud:gdb
        (concat realgud:gdb-command-name
                " --args "
-               (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+               (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
     (progn
-      (message "Variable `ab/realgud:launch-plist' is `nil'")
+      (message "Variable `+realgud:launch-plist' is `nil'")
       (realgud:gdb))))
 
 (map! :leader :prefix ("l" . "custom")
@@ -3718,7 +3718,7 @@ defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][V
 
 **** Record and replay =rr=
 We then add some shortcuts to run =rr= from Emacs, the =rr record= takes the program
-name and arguments from my local =ab/realgud:gdb-launch-plist=, when =rr replay=
+name and arguments from my local =+realgud:launch-plist=, when =rr replay=
 respects the arguments configured in RealGUD's GDB command name. Some useful
 hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
 
@@ -3732,9 +3732,9 @@ hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing
     (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `ab/realgud:launch-plist'"
+    "Launch `rr record' with parameters from `+realgud:launch-plist'"
     (interactive)
-    (let ((debugger--args (apply 'ab/realgud:get-launch-debugger-args ab/realgud:launch-plist)))
+    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
       (unless (make-process :name "*rr record*"
                             :buffer "*rr record*"
                             :command (append '("rr" "record") (s-split " " debugger--args)))
