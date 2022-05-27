@@ -1917,7 +1917,7 @@ shortcuts to check the grammar.
   (lambda ()
     (s-trim-right ;; To remove the new line
      (epg-decrypt-file (epg-make-context)
-                       (+ecryptfs-passphrase-gpg)
+                       +ecryptfs-passphrase-gpg
                        nil))))
 (defvar +ecryptfs--encrypt-filenames-p
   (not (eq 1
