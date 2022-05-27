@@ -253,7 +253,7 @@ nav-flash
 (popup +all +defaults)
 (emoji +ascii +unicode +github)
 (treemacs +lsp)
-;;workspaces
+workspaces
 ;;tabs
 ;;unicode
 ;;neotree
@@ -1267,7 +1267,7 @@ straightforward, I'll just redefine it to a simpler, async, function.
 #+end_src
 
 ** IDE :ide:
-*** Tabs as workspaces :tab:
+*** COMMENT Tabs as workspaces :tab:
 Adapted from [[https://github.com/jimeh/.emacs.d/blob/master/modules/workspaces/siren-tab-bar.el][siren-tab-bar.el]].
 
 #+begin_src emacs-lisp
@@ -1289,38 +1289,13 @@ Adapted from [[https://github.com/jimeh/.emacs.d/blob/master/modules/workspaces/
   (defun +tab-bar-format-menu-bar ()
     "Produce the Menu button for the tab bar that shows the menu bar."
     `((menu-bar menu-item (propertize "  🅴  " 'face '+tab-bar-tab)
-       tab-bar-menu-bar :help "Menu Bar")))
+                tab-bar-menu-bar :help "Menu Bar")))
 
   (defun +tab-bar-setup ()
-    ;; "Set up several tabs at startup."
-    ;; ;; Add *Messages* to Tab 1 to keep it in all tab
-    ;; ;; through `my-tab-bar-create-permitted-buffer-names'.
-    ;; (when (get-buffer "*Messages*")
-    ;;   (set-frame-parameter
-    ;;    nil
-    ;;    'buffer-list
-    ;;    (cons (get-buffer "*Messages*")
-    ;;          (frame-parameter nil 'buffer-list))))
-
-    ;; ;; Create Tab 3.
-    ;; (progn (+tab-bar-create)
-    ;;        (find-file (if (file-exists-p "~/Dropbox/Org")
-    ;;                       "~/Dropbox/Org"
-    ;;                     (tab-bar-close-tab)))
-    ;;        (split-window nil nil 'left))
-
-    ;; ;; Create Tab 2.
-    ;; (progn (=mu4e) ;; =mu4e creates a tab
-    ;;        (tab-bar-rename-tab "mu4e"))
-
-    ;; ;; Go back to Tab 1
-    ;; (tab-bar-select-tab 1)
-
     (tab-bar-mode 1)
     (tab-bar-history-mode 1))
 
-  (defvar +tab-bar-create-permitted-buffer-names
-    '("*scratch*" "*Messages*")
+  (defvar +tab-bar-create-permitted-buffer-names '("*scratch*" "*Messages*")
     "List of buffer names kept by `my-tab-bar-create'.")
 
   (defun +tab-bar-create (&optional arg)
@@ -1334,20 +1309,14 @@ This is similar to `elscreen-create'."
     ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Current-Buffer.html
     ;; The current-tab uses `buffer-list' and `buried-buffer-list'.
     ;; A hidden tab keeps these as `wc-bl' and `wc-bbl'.
-    (set-frame-parameter
-     nil
-     'buffer-list
-     (seq-filter (lambda (buffer)
-                   (member (buffer-name buffer)
-                           +tab-bar-create-permitted-buffer-names))
-                 (frame-parameter nil 'buffer-list)))
-    (set-frame-parameter
-     nil
-     'buried-buffer-list
-     (seq-filter (lambda (buffer)
-                   (member (buffer-name buffer)
-                           +tab-bar-create-permitted-buffer-names))
-                 (frame-parameter nil 'buried-buffer-list))))
+    (set-frame-parameter nil 'buffer-list
+                         (seq-filter (lambda (buffer)
+                                       (member (buffer-name buffer) +tab-bar-create-permitted-buffer-names))
+                                     (frame-parameter nil 'buffer-list)))
+    (set-frame-parameter nil 'buried-buffer-list
+                         (seq-filter (lambda (buffer)
+                                       (member (buffer-name buffer) +tab-bar-create-permitted-buffer-names))
+                                     (frame-parameter nil 'buried-buffer-list))))
 
   (defface +tab-bar-tab
     `((t :inherit 'tab-bar-tab
@@ -1378,15 +1347,10 @@ This is similar to `elscreen-create'."
 
   (defun +tab-name-format-default (tab i)
     (let* ((current-p (eq (car tab) 'current-tab))
-           (tab-face (if current-p
-                         '+tab-bar-tab
-                       '+tab-bar-tab-inactive))
-           (hint-face (if current-p
-                          '+tab-bar-tab-hint
-                        '+tab-bar-tab-hint-inactive)))
+           (tab-face (if current-p '+tab-bar-tab '+tab-bar-tab-inactive))
+           (hint-face (if current-p '+tab-bar-tab-hint '+tab-bar-tab-hint-inactive)))
       (concat (propertize " " 'face tab-face)
-              (if tab-bar-tab-hints (propertize
-                                     (format "%s " (+circled-num i)) 'face hint-face))
+              (if tab-bar-tab-hints (propertize (format "%s " (+circled-num i)) 'face hint-face))
               (propertize
                (concat
                 (alist-get 'name tab)
@@ -1402,7 +1366,7 @@ This is similar to `elscreen-create'."
     "Return project name if in a project, or default tab-bar name if not.
 The default tab-bar name uses the buffer name."
     (let ((buf (buffer-file-name))
-          (tab-name nil))
+          (tab-name))
       (cond
        ((not (string= "-" (projectile-project-name)))
         (setq tab-name (projectile-project-name)))
@@ -1410,6 +1374,16 @@ The default tab-bar name uses the buffer name."
         (setq tab-name (file-name-nondirectory (directory-file-name (vc-root-dir)))))
        (t (tab-bar-tab-name-current)))
       tab-name))
+
+  (defun +assign-file-to-tab ()
+    (let ((tab-name (+name-tab-by-project-or-default))
+          (new-tab "existing"))
+      (unless (tab-bar-switch-to-tab tab-name)
+        (tab-bar-new-tab)
+        (setq new-tab "new"))
+      (message "File \"%s\" assigned to the %s tab \"%s\"" (buffer-name) new-tab tab-name)))
+
+  ;; (add-hook 'find-file-hook #'+assign-file-to-tab)
 
   (map! :leader
         (:prefix-map ("TAB" . "Tabs")
