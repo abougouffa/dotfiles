@@ -900,12 +900,6 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
      :when (fboundp 'org-agenda)
      :action org-agenda)
-    ("Recently opened files"
-     :icon (all-the-icons-octicon "file-text" :face 'doom-dashboard-menu-title)
-     :action recentf-open-files)
-    ("Open project"
-     :icon (all-the-icons-octicon "briefcase" :face 'doom-dashboard-menu-title)
-     :action projectile-switch-project)
     ("Jump to bookmark"
      :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
      :action bookmark-jump)
