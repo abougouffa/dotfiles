@@ -202,6 +202,8 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
   :config
   <<doom-config>>
 
+  :private
+  <<doom-private>>
 )
 #+end_src
 
@@ -452,6 +454,16 @@ emms
 everywhere
 (rss +org)
 ;;twitter
+#+end_src
+
+*** Private modules (=:private=)
+For long chunks of config, I will try to make them as modules, I tend also to
+use this feature to copy some of the modules which still unmerged to the main
+repo. The =tree-sitter= module is stolen from [[https://github.com/doomemacs/doomemacs/pull/5401][doomemacs#5401]].
+
+#+name: doom-private
+#+begin_src emacs-lisp
+tree-sitter
 #+end_src
 
 ** Additional packages (=packages.el=) :package:

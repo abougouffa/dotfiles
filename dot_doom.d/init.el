@@ -30,7 +30,7 @@
   (popup +all +defaults)
   (emoji +ascii +unicode +github)
   (treemacs +lsp)
-  ;;workspaces
+  workspaces
   ;;tabs
   ;;unicode
   ;;neotree
@@ -171,4 +171,6 @@
   literate
   (default +bindings +smartparens)
 
+  :private
+  tree-sitter
 )

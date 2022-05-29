@@ -236,12 +236,6 @@
      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
      :when (fboundp 'org-agenda)
      :action org-agenda)
-    ("Recently opened files"
-     :icon (all-the-icons-octicon "file-text" :face 'doom-dashboard-menu-title)
-     :action recentf-open-files)
-    ("Open project"
-     :icon (all-the-icons-octicon "briefcase" :face 'doom-dashboard-menu-title)
-     :action projectile-switch-project)
     ("Jump to bookmark"
      :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
      :action bookmark-jump)
@@ -487,158 +481,6 @@ is binary, activate `hexl-mode'."
 
 (add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
 ;; Asynchronous tangling:1 ends here
-
-;; [[file:config.org::*Tabs as workspaces][Tabs as workspaces:1]]
-(use-package! tab-bar
-  :custom
-  (tab-bar-close-button-show nil)
-  (tab-bar-format '(+tab-bar-format-menu-bar tab-bar-format-tabs tab-bar-separator))
-  (tab-bar-history-limit 25)
-  (tab-bar-new-tab-choice "*doom*")
-  (tab-bar-show t)
-  (tab-bar-tab-hints t)
-  (tab-bar-tab-name-function #'+name-tab-by-project-or-default)
-  (tab-bar-tab-name-format-function #'+tab-name-format-default)
-
-  :config
-  (+tab-bar-setup)
-
-  :preface
-  (defun +tab-bar-format-menu-bar ()
-    "Produce the Menu button for the tab bar that shows the menu bar."
-    `((menu-bar menu-item (propertize "  🅴  " 'face '+tab-bar-tab)
-       tab-bar-menu-bar :help "Menu Bar")))
-
-  (defun +tab-bar-setup ()
-    ;; "Set up several tabs at startup."
-    ;; ;; Add *Messages* to Tab 1 to keep it in all tab
-    ;; ;; through `my-tab-bar-create-permitted-buffer-names'.
-    ;; (when (get-buffer "*Messages*")
-    ;;   (set-frame-parameter
-    ;;    nil
-    ;;    'buffer-list
-    ;;    (cons (get-buffer "*Messages*")
-    ;;          (frame-parameter nil 'buffer-list))))
-
-    ;; ;; Create Tab 3.
-    ;; (progn (+tab-bar-create)
-    ;;        (find-file (if (file-exists-p "~/Dropbox/Org")
-    ;;                       "~/Dropbox/Org"
-    ;;                     (tab-bar-close-tab)))
-    ;;        (split-window nil nil 'left))
-
-    ;; ;; Create Tab 2.
-    ;; (progn (=mu4e) ;; =mu4e creates a tab
-    ;;        (tab-bar-rename-tab "mu4e"))
-
-    ;; ;; Go back to Tab 1
-    ;; (tab-bar-select-tab 1)
-
-    (tab-bar-mode 1)
-    (tab-bar-history-mode 1))
-
-  (defvar +tab-bar-create-permitted-buffer-names
-    '("*scratch*" "*Messages*")
-    "List of buffer names kept by `my-tab-bar-create'.")
-
-  (defun +tab-bar-create (&optional arg)
-    "Create a new tab with cleaned buffer lists.
-ARG is directly passed to `tab-bar-new-tab'.
-Only buffers in `my-tab-bar-create-permitted-buffer-names'
-are kept kept in the `buffer-list' and `buried-buffer-list'.
-This is similar to `elscreen-create'."
-    (interactive)
-    (tab-bar-new-tab arg)
-    ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Current-Buffer.html
-    ;; The current-tab uses `buffer-list' and `buried-buffer-list'.
-    ;; A hidden tab keeps these as `wc-bl' and `wc-bbl'.
-    (set-frame-parameter
-     nil
-     'buffer-list
-     (seq-filter (lambda (buffer)
-                   (member (buffer-name buffer)
-                           +tab-bar-create-permitted-buffer-names))
-                 (frame-parameter nil 'buffer-list)))
-    (set-frame-parameter
-     nil
-     'buried-buffer-list
-     (seq-filter (lambda (buffer)
-                   (member (buffer-name buffer)
-                           +tab-bar-create-permitted-buffer-names))
-                 (frame-parameter nil 'buried-buffer-list))))
-
-  (defface +tab-bar-tab
-    `((t :inherit 'tab-bar-tab
-         :foreground ,(face-attribute 'font-lock-keyword-face :foreground nil t)))
-    "Face for active tab in tab-bar.")
-
-  (defface +tab-bar-tab-hint
-    `((t :inherit '+tab-bar-tab
-         :foreground ,(face-attribute 'tab-bar-tab-inactive :foreground nil t)))
-    "Face for active tab hint in tab-bar.")
-
-  (defface +tab-bar-tab-inactive
-    `((t :inherit 'tab-bar-tab-inactive
-         :foreground ,(face-attribute 'font-lock-comment-face :foreground nil t)))
-    "Face for inactive tab in tab-bar.")
-
-  (defface +tab-bar-tab-hint-inactive
-    `((t :inherit '+tab-bar-tab-inactive
-         :foreground ,(face-attribute 'tab-bar-tab-inactive :foreground nil t)))
-    "Face for inactive tab hint in tab-bar.")
-
-  (defun +circled-num (num)
-    (let ((s-num
-           (cond ((= num 0) ?⓿)
-                 ((<= num 10) (+ (1- num) ?❶))
-                 ((<= num 20) (+ (1- (- num 10)) ?⓫)))))
-      (if s-num (format "%c" s-num) (format "(%d)" num))))
-
-  (defun +tab-name-format-default (tab i)
-    (let* ((current-p (eq (car tab) 'current-tab))
-           (tab-face (if current-p
-                         '+tab-bar-tab
-                       '+tab-bar-tab-inactive))
-           (hint-face (if current-p
-                          '+tab-bar-tab-hint
-                        '+tab-bar-tab-hint-inactive)))
-      (concat (propertize " " 'face tab-face)
-              (if tab-bar-tab-hints (propertize
-                                     (format "%s " (+circled-num i)) 'face hint-face))
-              (propertize
-               (concat
-                (alist-get 'name tab)
-                (or (and tab-bar-close-button-show
-                         (not (eq tab-bar-close-button-show
-                                  (if current-p 'non-selected 'selected)))
-                         tab-bar-close-button)
-                    "")
-                " ")
-               'face tab-face))))
-
-  (defun +name-tab-by-project-or-default ()
-    "Return project name if in a project, or default tab-bar name if not.
-The default tab-bar name uses the buffer name."
-    (let ((buf (buffer-file-name))
-          (tab-name nil))
-      (cond
-       ((not (string= "-" (projectile-project-name)))
-        (setq tab-name (projectile-project-name)))
-       ((and buf (vc-registered buf))
-        (setq tab-name (file-name-nondirectory (directory-file-name (vc-root-dir)))))
-       (t (tab-bar-tab-name-current)))
-      tab-name))
-
-  (map! :leader
-        (:prefix-map ("TAB" . "Tabs")
-         :desc "Switch tab" "TAB" #'tab-bar-select-tab-by-name
-         :desc "New tab" "n" #'tab-bar-new-tab
-         :desc "Rename tab" "r" #'tab-bar-rename-tab
-         :desc "Rename tab by name" "R" #'tab-bar-rename-tab-by-name
-         :desc "Close tab" "d" #'tab-bar-close-tab
-         :desc "Close tab by name" "D" #'tab-bar-close-tab-by-name
-         :desc "Close other tabs" "1" #'tab-bar-close-other-tabs)))
-;; Tabs as workspaces:1 ends here
 
 ;; [[file:config.org::*Centaur tabs][Centaur tabs:1]]
 (after! centaur-tabs
@@ -994,7 +836,7 @@ The default tab-bar name uses the buffer name."
   (lambda ()
     (s-trim-right ;; To remove the new line
      (epg-decrypt-file (epg-make-context)
-                       (+ecryptfs-passphrase-gpg)
+                       +ecryptfs-passphrase-gpg
                        nil))))
 (defvar +ecryptfs--encrypt-filenames-p
   (not (eq 1
@@ -1306,46 +1148,6 @@ The default tab-bar name uses the buffer name."
   (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
 ;; Dark mode:1 ends here
 
-;; [[file:config.org::*Better PDFs in mode line][Better PDFs in mode line:1]]
-(after! doom-modeline
-  (doom-modeline-def-segment buffer-name
-    "Display the current buffer's name, without any other information."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline--buffer-name)))
-
-  (doom-modeline-def-segment pdf-icon
-    "PDF icon from all-the-icons."
-    (concat
-     (doom-modeline-spc)
-     (doom-modeline-icon 'octicon "file-pdf" nil nil
-                         :face (if (doom-modeline--active)
-                                   'all-the-icons-red
-                                   'mode-line-inactive)
-                         :v-adjust 0.02)))
-
-  (defun doom-modeline-update-pdf-pages ()
-    "Update PDF pages."
-    (setq doom-modeline--pdf-pages
-          (let ((current-page-str (number-to-string (eval `(pdf-view-current-page))))
-                (total-page-str (number-to-string (pdf-cache-number-of-pages))))
-            (concat
-             (propertize
-              (concat (make-string (- (length total-page-str) (length current-page-str)) ? )
-                      " P" current-page-str)
-              'face 'mode-line)
-             (propertize (concat "/" total-page-str) 'face 'doom-modeline-buffer-minor-mode)))))
-
-  (doom-modeline-def-segment pdf-pages
-    "Display PDF pages."
-    (if (doom-modeline--active) doom-modeline--pdf-pages
-      (propertize doom-modeline--pdf-pages 'face 'mode-line-inactive)))
-
-  (doom-modeline-def-modeline 'pdf
-    '(bar window-number pdf-pages pdf-icon buffer-name)
-    '(misc-info matches major-mode process vcs)))
-;; Better PDFs in mode line:1 ends here
-
 ;; [[file:config.org::*Speed Type][Speed Type:2]]
 (use-package! speed-type
   :commands (speed-type-text))
@@ -1508,6 +1310,9 @@ The default tab-bar name uses the buffer name."
 (after! mu4e
   (require 'org-msg)
   (require 'smtpmail)
+  (require 'mu4e-contrib)
+  (require 'mu4e-icalendar)
+  (require 'org-agenda)
 
   ;; Common parameters
   (setq mu4e-update-interval (* 3 60) ;; Every 3 min
@@ -1595,7 +1400,18 @@ The default tab-bar name uses the buffer name."
             (lambda () (remove-hook 'message-sent-hook 'undo t)))
 
   ;; Load my accounts
-  (load! "lisp/private/+mu4e-accounts.el"))
+  (load! "lisp/private/+mu4e-accounts.el")
+
+  ;; iCalendar / Org
+  (mu4e-icalendar-setup)
+  (setq mu4e-icalendar-trash-after-reply nil
+        mu4e-icalendar-diary-file "~/Dropbox/Org/diary-invitations.org"
+        gnus-icalendar-org-capture-file "~/Dropbox/Org/notes.org"
+        gnus-icalendar-org-capture-headline '("Calendar"))
+
+  ;; To enable optional iCalendar->Org sync functionality
+  ;; NOTE: both the capture file and the headline(s) inside must already exist
+  (gnus-icalendar-org-setup))
 ;; mu4e:3 ends here
 
 ;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
@@ -2048,7 +1864,12 @@ The default tab-bar name uses the buffer name."
   (add-hook 'dap-terminated-hook
             (lambda (arg)
               (call-interactively #'dap-delete-session)
-              (dap-hydra/nil))))
+              (dap-hydra/nil)))
+
+  ;; A workaround to correctly show breakpoints
+  ;; from: https://github.com/emacs-lsp/dap-mode/issues/374#issuecomment-1140399819
+  (add-hook! +dap-running-session-mode
+      (set-window-buffer nil (current-buffer))))
 ;; DAP:2 ends here
 
 ;; [[file:config.org::*Doom store][Doom store:1]]
