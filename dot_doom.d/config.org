@@ -1527,6 +1527,30 @@ This makes the result of evals slightly prettier.
 (setq eros-eval-result-prefix "⟹ ")
 #+end_src
 
+*** Tree-sitter
+
+#+begin_src emacs-lisp :tangle yes
+(when (featurep! :private tree-sitter)
+  (add-hook!
+   '(;; cc
+     c-mode-local-vars-hook
+     c++-mode-local-vars-hook
+     ;; JSON
+     json-mode-local-vars-hook
+     jsonc-mode-local-vars-hook
+     ;; Julia
+     julia-mode-local-vars-hook
+     ;; Python
+     python-mode-local-vars-hook
+     ;; Shell
+     sh-mode-local-vars-hook
+     ;; Web
+     html-mode-local-vars-hook
+     mhtml-mode-local-vars-hook
+     css-mode-local-vars-hook)
+   #'tree-sitter!))
+#+end_src
+
 ** Symbols :symbol:
 *** Emojify :emoji:
 For starters, twitter's emojis look nicer than emoji-one.
