@@ -42,9 +42,11 @@ chezmoi init --apply abougouffa
 - You will need to install [[https://github.com/plexus/chemacs2][Chemacs2]] to ~.emacs.d~:
 
 #+begin_src sh
+# Backup previous Emacs config if any
 [ -f ~/.emacs ] && mv ~/.emacs ~/.emacs.bak
 [ -d ~/.emacs.d ] && mv ~/.emacs.d ~/.emacs.default
 
+# Install Chemacs2
 git clone https://github.com/plexus/chemacs2.git ~/.emacs.d
 #+end_src
 
@@ -848,8 +850,7 @@ Show battery level unless battery is not present or battery information is unkno
 #+begin_src emacs-lisp
 (setq doom-modeline-major-mode-icon t
       doom-modeline-major-mode-color-icon t
-      doom-modeline-buffer-state-icon t
-      doom-modeline-github t)
+      doom-modeline-buffer-state-icon t)
 #+end_src
 
 *** Set transparency :transparent:
@@ -861,7 +862,7 @@ Show battery level unless battery is not present or battery information is unkno
 #+end_src
 
 *** Dashboard :splash:dashboard:
-**** Custom Splash Image :image:banner:
+**** Custom splash image :image:banner:
 Change the logo to an image, a set of beautiful images can be found in =assets=.
 
 |----------------------|
@@ -965,7 +966,7 @@ with a unicode char, making =which-key='s candidate list less verbose.
 #+end_src
 
 *** Window title :title:
-I’d like to have just the buffer name, then if applicable the project folder.
+I'd like to have just the buffer name, then if applicable the project folder.
 
 #+begin_src emacs-lisp
 (setq frame-title-format
@@ -1018,7 +1019,7 @@ I do not find =company= useful in Org files.
             org-mode))
 #+end_src
 
-*** SVG Tag mode :svg:
+*** SVG tag :svg:
 
 #+begin_src emacs-lisp :tangle "packages.el"
 (package! svg-tag-mode)
@@ -2323,7 +2324,7 @@ using the =m z=.
   (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
 #+end_src
 
-**** Better PDFs in mode line :modeline:pdf:
+**** COMMENT Better PDFs in mode line :modeline:pdf:
 First up I'm going to want a segment for just the buffer file name, and a PDF
 icon. Then we'll redefine two functions used to generate the modeline.
 
@@ -2430,7 +2431,7 @@ Let it snow in Emacs!
                                             (if time-zone " (") time-zone (if time-zone ")")))
 #+end_src
 
-** Dirvish :heart: Dired
+** Dirvish + Dired
 DIRVISH is a minimalist yet versatile file manager based on Dired. Faster than
 ~ranger.el~.
 
@@ -2921,7 +2922,6 @@ I configure my email accounts in a private file in
   ;; To enable optional iCalendar->Org sync functionality
   ;; NOTE: both the capture file and the headline(s) inside must already exist
   (gnus-icalendar-org-setup))
-
 #+end_src
 
 The =lisp/private/+mu4e-accounts.el= file includes Doom's mu4e multi-account
@@ -3314,6 +3314,7 @@ added some minor stuff.
 
   (emms-mode-line-cycle 1))
 #+end_src
+
 ** Maxima :math:cas:algebra:
 The Maxima CAS cames bundled with three Emacs modes: =maxima=, =imaxima= and
 =emaxima=; installed by default in ~"/usr/share/emacs/site-lisp/maxima"~.
@@ -3437,8 +3438,6 @@ change this to be recognized as Octave/Matlab files.
 Add ROS specific file formats:
 
 #+begin_src emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.urdf"    . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.xacro"   . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 (add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
@@ -3519,7 +3518,8 @@ Some embedded systems development tools.
 
 TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
 - [[https://github.com/probe-rs/vscode][probe-rs-debugger]]
-- [[https://github.com/Marus/cortex-debug][cortex-debug]]
+- [[https://github.com/SL-RU/stm32-emacs][stm32-emacs]]
+- [[https://github.com/Marus/cortex-debug][cortex-debug]] with [[https://github.com/emacs-lsp/dap-mode/issues/224][potential integration with DAP]]
 - [[https://github.com/espressif/esp-debug-adapter][esp-debug-adapter]]
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -4340,7 +4340,7 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
   :commands aas-mode)
 #+end_src
 
-** Flycheck :heart: Projectile
+** Flycheck + Projectile
 WIP: Not working atm!
 
 #+begin_src emacs-lisp :tangle packages.el
