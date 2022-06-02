@@ -736,6 +736,10 @@ tools and store the result in global constants.
 (defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
 (defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
 
+(defconst FRICAS-OK-P
+  (bool (and (executable-find "fricas")
+             (file-directory-p "/usr/lib/fricas/emacs"))))
+
 (defconst EAF-OK-P
   (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
              ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
@@ -3375,6 +3379,16 @@ sub-directory ~interfaces/emacs/imaxima~.
 
   ;; Hook the `maxima-inferior-mode' to get Company completion.
   (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
+#+end_src
+
+** FriCAS :math:cas:algebra:
+The FriCAS cames bundled with an Emacs mode, lets load it.
+
+#+begin_src emacs-lisp
+(use-package! fricas
+  :when FRICAS-OK-P
+  :load-path "/usr/lib/fricas/emacs"
+  :commands (fricas-mode fricas-eval fricas))
 #+end_src
 
 * Programming :programming:
