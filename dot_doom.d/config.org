@@ -2923,9 +2923,15 @@ I configure my email accounts in a private file in
                    (replace-regexp-in-string "\\`.*/" "" (mu4e-message-field msg :maildir))
                    '+mu4e-header--folder-colors))))))
 
+  ;; Add a unified inbox shortcut
+  (add-to-list
+   'mu4e-bookmarks
+   '(:name "Unified inbox" :query "maildir:/.*inbox/" :key ?i) t)
+
   ;; Add shortcut to view yesterday's messages
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
+  (add-to-list
+   'mu4e-bookmarks
+   '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
   ;; Load a list of my email addresses '+my-addresses'
   (load! "lisp/private/+my-addresses.el")
