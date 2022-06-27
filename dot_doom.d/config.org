@@ -349,6 +349,7 @@ upload
 (eval +overlay)
 (lookup +docsets +dictionary +offline)
 (magit +forge)
+tree-sitter
 ;;pass
 ;;biblio
 ;;ansible
@@ -380,18 +381,19 @@ common-lisp
 markdown
 data
 qt
-(cc +lsp)
-(json +lsp)
-(julia +lsp)
+(cc +lsp +tree-sitter)
+(json +lsp +tree-sitter)
+(julia +lsp +tree-sitter)
 (latex +lsp +latexmk +fold)
-(rust +lsp)
+(rust +lsp +tree-sitter)
 (ess +lsp)
 (yaml +lsp)
-(sh +lsp)
-(python +lsp +pyenv +conda +pyright)
+(sh +lsp +tree-sitter)
+(python +lsp +pyenv +conda +pyright +tree-sitter)
 (racket +lsp +xp)
 (scheme +guile +racket +chez +gambit +gauche)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
+(web +tree-sitter)
 ;;rst                  ; ReST in peace
 ;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
@@ -465,7 +467,7 @@ repo. The =tree-sitter= module is stolen from [[https://github.com/doomemacs/doo
 
 #+name: doom-private
 #+begin_src emacs-lisp
-tree-sitter
+;; tree-sitter
 #+end_src
 
 ** Additional packages (=packages.el=) :package:
@@ -1554,30 +1556,6 @@ current buffer's, reload dir-locals."
               (equal dir-locals-file (file-name-nondirectory (buffer-file-name))))
      (message "Dir-locals will be reloaded after saving.")
      (add-hook 'after-save-hook '+dir-locals-reload-for-all-buffers-in-this-directory nil t))))
-#+end_src
-
-*** Tree-sitter
-
-#+begin_src emacs-lisp :tangle yes
-(when (featurep! :private tree-sitter)
-  (add-hook!
-   '(;; cc
-     c-mode-local-vars-hook
-     c++-mode-local-vars-hook
-     ;; JSON
-     json-mode-local-vars-hook
-     jsonc-mode-local-vars-hook
-     ;; Julia
-     julia-mode-local-vars-hook
-     ;; Python
-     python-mode-local-vars-hook
-     ;; Shell
-     sh-mode-local-vars-hook
-     ;; Web
-     html-mode-local-vars-hook
-     mhtml-mode-local-vars-hook
-     css-mode-local-vars-hook)
-   #'tree-sitter!))
 #+end_src
 
 ** Symbols :symbol:
