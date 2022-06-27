@@ -894,7 +894,7 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 **** Dashboard
 
 #+begin_src emacs-lisp
-;; (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 
@@ -903,29 +903,29 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
   (when (file-directory-p doom-private-dir)
     (find-file (expand-file-name "config.org" doom-private-dir))))
 
-(setq +doom-dashboard-menu-sections
-  '(("Reload last session"
-     :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
-     :when (cond ((featurep! :ui workspaces)
-                  (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
-                 ((require 'desktop nil t)
-                  (file-exists-p (desktop-full-file-name))))
-     :face (:inherit (doom-dashboard-menu-title bold))
-     :action doom/quickload-session)
-    ("Open mailbox"
-     :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
-     :action =mu4e)
-    ("Open org-agenda"
-     :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
-     :when (fboundp 'org-agenda)
-     :action org-agenda)
-    ("Jump to bookmark"
-     :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
-     :action bookmark-jump)
-    ("Open config.org"
-     :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
-     :when (file-directory-p doom-private-dir)
-     :action +doom/open-private-config-org)))
+;; (setq +doom-dashboard-menu-sections
+;;   '(("Reload last session"
+;;      :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
+;;      :when (cond ((featurep! :ui workspaces)
+;;                   (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
+;;                  ((require 'desktop nil t)
+;;                   (file-exists-p (desktop-full-file-name))))
+;;      :face (:inherit (doom-dashboard-menu-title bold))
+;;      :action doom/quickload-session)
+;;     ("Open mailbox"
+;;      :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
+;;      :action =mu4e)
+;;     ("Open org-agenda"
+;;      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
+;;      :when (fboundp 'org-agenda)
+;;      :action org-agenda)
+;;     ("Jump to bookmark"
+;;      :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
+;;      :action bookmark-jump)
+;;     ("Open config.org"
+;;      :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
+;;      :when (file-directory-p doom-private-dir)
+;;      :action +doom/open-private-config-org)))
 
 (defun +doom-dashboard-setup-modified-keymap ()
   (setq +doom-dashboard-mode-map (make-sparse-keymap))
