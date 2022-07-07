@@ -4463,7 +4463,7 @@ src_elisp{(after! ...)} block.
       org-use-property-inheritance t        ; it's convenient to have properties inherited
       org-log-done 'time                    ; having the time an item is done sounds convenient
       org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-      org-export-in-background t            ; run export processes in external emacs process
+;;    org-export-in-background t            ; run export processes in external emacs process
 ;;    org-export-async-debug t
       org-tags-column 0
       org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
@@ -5994,6 +5994,22 @@ simply superior combination.
   (add-to-list 'org-latex-classes
                '("IEEEtran"
                  "\\documentclass{IEEEtran}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("ieeeconf"
+                 "\\documentclass{ieeeconf}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("sagej"
+                 "\\documentclass{sagej}"
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
