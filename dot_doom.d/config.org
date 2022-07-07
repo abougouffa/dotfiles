@@ -2984,6 +2984,31 @@ Regards,
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
+** COMMENT IRC
+
+#+begin_src emacs-lisp
+(defun +fetch-my-password (&rest params)
+  (require 'auth-source)
+  (let ((match (car (apply #'auth-source-search params))))
+    (if match
+        (let ((secret (plist-get match :secret)))
+          (if (functionp secret)
+              (funcall secret)
+            secret))
+      (error "Password not found for %S" params))))
+
+(defun +my-nickserv-password (server)
+  (+fetch-my-password :user "abougouffa" :host "irc.libera.chat"))
+
+(set-irc-server! "irc.libera.chat"
+  '(:tls t
+    :port 6697
+    :nick "abougouffa"
+    :sasl-password +my-nickserver-password
+    :channels ("#emacs")))
+#+end_src
+
+
 ** Multimedia :media:music:
 I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music.
 
