@@ -6989,6 +6989,8 @@ Define some environment variables.
 
 #+begin_src shell :tangle ~/.env_stuff
 export DS_DIR=~/PhD/datasets-no/experiment_images/
+export DSO_BIN_DIR=~/PhD/workspace-no/vo/orig/dso/build/release/bin
+export DSO_RES_DIR=~/PhD/workspace-no/vo/orig/dso_results
 #+end_src
 
 Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
