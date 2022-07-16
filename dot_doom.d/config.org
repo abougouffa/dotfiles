@@ -41,21 +41,24 @@ chezmoi init --apply abougouffa
 #+end_src
 
 ** Emacs stuff
-- You will need to install [[https://github.com/plexus/chemacs2][Chemacs2]] to ~.emacs.d~:
+For my configuration, I'm using [[https://github.com/plexus/chemacs2][Chemacs2]] to allow using multiple Emacs
+configurations in the same machine. To have a config just like mine:
+
+- You need to install [[https://github.com/plexus/chemacs2][Chemacs2]] to =~/.emacs.d=:
 
 #+begin_src sh
 # Backup previous Emacs config if any
 [ -f ~/.emacs ] && mv ~/.emacs ~/.emacs.bak
-[ -d ~/.emacs.d ] && mv ~/.emacs.d ~/.emacs.default
+[ -d ~/.emacs.d ] && mv ~/.emacs.d ~/.emacs.d.bak
 
 # Install Chemacs2
 git clone https://github.com/plexus/chemacs2.git ~/.emacs.d
 #+end_src
 
-- Install [[https://github.com/hlissner/doom-emacs][Doom Emacs]] to =~/.config/emacs.doom= instead of =.emacs.d=:
+- Install [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to =~/.config/emacs.doom= instead of =.emacs.d=:
 
 #+begin_src sh
-git clone https://github.com/hlissner/doom-emacs.git ~/.config/emacs.doom
+git clone https://github.com/doomemacs/doomemacs.git ~/.config/emacs.doom
 
 ~/.config/emacs.doom/bin/doom install
 #+end_src
@@ -69,7 +72,8 @@ git clone https://github.com/hlissner/doom-emacs.git ~/.config/emacs.doom
 git clone https://github.com/syl20bnr/spacemacs.git ~/.config/emacs.spacemacs
 #+end_src
 
-- You can now customize =~/.emacs-profiles.el= if you want to.
+- You can now customize =~/.emacs-profiles.el= if you want to. Some additional
+  configurations for Chemacs2 is available in section [[gen-chemacs2]].
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
@@ -78,7 +82,7 @@ started my Vanilla Emacs configuration from scratch, but after a while, it
 becomes a mess. As a new Emacs user, I didn't understand the in the beginning how
 to optimize my configuration and how to do things correctly. I discovered then
 [[github:syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and just
-after, I found the awesome [[https://github.com/hlissner/doom-emacs][Doom Emacs]], and since, I didn't quit my Emacs screen!
+after, I found the awesome [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and since, I didn't quit my Emacs screen!
 
 In the beginning, I was basically copying chunks of Emacs Lisp code from the
 internet, which quickly becomes a mess, specially because I was using a mixture
@@ -648,6 +652,8 @@ stealing prevention* to /None/ in the KDE Settings.
 #+end_src
 
 ** Chemacs2
+<<gen-chemacs2>>
+
 Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
 however, I like to try other configs to get inspired!
 
