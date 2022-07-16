@@ -31,7 +31,9 @@ variables, user tools, Git configuration...).
 
 Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][*chezmoi*]] to manage my Dotfiles.
 
-Now the Dotfiles can be installed using:
+Now the Dotfiles can be installed using the following command; however, I don't
+recommend to install all of my dotfiles, try instead to adapt them or to copy
+some interesting chunks.
 
 #+begin_src sh
 sudo pacman -S chezmoi
