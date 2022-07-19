@@ -568,8 +568,8 @@ Show list of buffers when splitting.
 #+end_src
 
 *** Undo and auto-save :save:undo:
-There is a package [[https://github.com/bbatsov/super-save]], maybe better than the
-default =auto-save-mode=.
+There is a package [[https://github.com/bbatsov/super-save][bbatsov/super-save]], maybe better than the default
+=auto-save-mode=.
 
 #+begin_src emacs-lisp
 (setq undo-limit 80000000   ;; Raise undo-limit to 80Mb
@@ -2992,9 +2992,10 @@ Regards,
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
-** COMMENT IRC
+** IRC
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; TODO: Not tangled
 (defun +fetch-my-password (&rest params)
   (require 'auth-source)
   (let ((match (car (apply #'auth-source-search params))))
