@@ -2340,10 +2340,6 @@ dependencies.
 
 *** PDF tools
 
-#+begin_src emacs-lisp :tangle packages.el
-(unpin! pdf-tools)
-#+end_src
-
 **** Dark mode
 The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
 and read PDF documents, so lets make it dark by default, this can be toggled
