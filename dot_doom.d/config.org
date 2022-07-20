@@ -7008,6 +7008,11 @@ Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 source ~/.bitwarden-session
 #+end_src
 
+#+begin_src shell :tangle ~/.env_stuff
+# OPAM configuration
+[[ ! -r /home/hacko/.opam/opam-init/init.zsh ]] || source /home/hacko/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+#+end_src
+
 ** System dark theme trick :zotero:
 Zotero does not support dark mode (ATM), when using a system-wide dark
 theme (at least on KDE), Zotero UI gets messed up, to fix this, we can force
