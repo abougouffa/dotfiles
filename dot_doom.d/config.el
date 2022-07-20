@@ -135,6 +135,10 @@
 (defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
 (defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
 
+(defconst FRICAS-OK-P
+  (bool (and (executable-find "fricas")
+             (file-directory-p "/usr/lib/fricas/emacs"))))
+
 (defconst EAF-OK-P
   (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
              ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
@@ -202,16 +206,15 @@
 ;; [[file:config.org::*Mode line customization][Mode line customization:1]]
 (setq doom-modeline-major-mode-icon t
       doom-modeline-major-mode-color-icon t
-      doom-modeline-buffer-state-icon t
-      doom-modeline-github t)
+      doom-modeline-buffer-state-icon t)
 ;; Mode line customization:1 ends here
 
-;; [[file:config.org::*Custom Splash Image][Custom Splash Image:1]]
+;; [[file:config.org::*Custom splash image][Custom splash image:1]]
 (setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
-;; Custom Splash Image:1 ends here
+;; Custom splash image:1 ends here
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
-;; (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 
@@ -220,29 +223,29 @@
   (when (file-directory-p doom-private-dir)
     (find-file (expand-file-name "config.org" doom-private-dir))))
 
-(setq +doom-dashboard-menu-sections
-  '(("Reload last session"
-     :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
-     :when (cond ((featurep! :ui workspaces)
-                  (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
-                 ((require 'desktop nil t)
-                  (file-exists-p (desktop-full-file-name))))
-     :face (:inherit (doom-dashboard-menu-title bold))
-     :action doom/quickload-session)
-    ("Open mailbox"
-     :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
-     :action =mu4e)
-    ("Open org-agenda"
-     :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
-     :when (fboundp 'org-agenda)
-     :action org-agenda)
-    ("Jump to bookmark"
-     :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
-     :action bookmark-jump)
-    ("Open config.org"
-     :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
-     :when (file-directory-p doom-private-dir)
-     :action +doom/open-private-config-org)))
+;; (setq +doom-dashboard-menu-sections
+;;   '(("Reload last session"
+;;      :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
+;;      :when (cond ((featurep! :ui workspaces)
+;;                   (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
+;;                  ((require 'desktop nil t)
+;;                   (file-exists-p (desktop-full-file-name))))
+;;      :face (:inherit (doom-dashboard-menu-title bold))
+;;      :action doom/quickload-session)
+;;     ("Open mailbox"
+;;      :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
+;;      :action =mu4e)
+;;     ("Open org-agenda"
+;;      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
+;;      :when (fboundp 'org-agenda)
+;;      :action org-agenda)
+;;     ("Jump to bookmark"
+;;      :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
+;;      :action bookmark-jump)
+;;     ("Open config.org"
+;;      :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
+;;      :when (file-directory-p doom-private-dir)
+;;      :action +doom/open-private-config-org)))
 
 (defun +doom-dashboard-setup-modified-keymap ()
   (setq +doom-dashboard-mode-map (make-sparse-keymap))
@@ -322,7 +325,7 @@
             org-mode))
 ;; Company:1 ends here
 
-;; [[file:config.org::*SVG Tag mode][SVG Tag mode:2]]
+;; [[file:config.org::*SVG tag][SVG tag:2]]
 (use-package! svg-tag-mode
   :commands svg-tag-mode
   :config
@@ -346,7 +349,7 @@
                     :height 0.6
                     :padding 0
                     :margin 0))))))
-;; SVG Tag mode:2 ends here
+;; SVG tag:2 ends here
 
 ;; [[file:config.org::*Focus][Focus:2]]
 (use-package! focus
@@ -583,6 +586,32 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*Eros-eval][Eros-eval:1]]
 (setq eros-eval-result-prefix "⟹ ")
 ;; Eros-eval:1 ends here
+
+;; [[file:config.org::*=dir-locals.el=][=dir-locals.el=:1]]
+(defun +dir-locals-reload-for-current-buffer ()
+  "reload dir locals for the current buffer"
+  (interactive)
+  (let ((enable-local-variables :all))
+    (hack-dir-local-variables-non-file-buffer)))
+
+(defun +dir-locals-reload-for-all-buffers-in-this-directory ()
+  "For every buffer with the same `default-directory` as the
+current buffer's, reload dir-locals."
+  (interactive)
+  (let ((dir default-directory))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (equal default-directory dir)
+          (+dir-locals-reload-for-current-buffer))))))
+
+(add-hook!
+ '(emacs-lisp-mode-hook lisp-data-mode-hook)
+ (defun enable-autoreload-for-dir-locals ()
+   (when (and (buffer-file-name)
+              (equal dir-locals-file (file-name-nondirectory (buffer-file-name))))
+     (message "Dir-locals will be reloaded after saving.")
+     (add-hook 'after-save-hook '+dir-locals-reload-for-all-buffers-in-this-directory nil t))))
+;; =dir-locals.el=:1 ends here
 
 ;; [[file:config.org::*Emojify][Emojify:1]]
 (setq emojify-emoji-set "twemoji-v2")
@@ -1179,26 +1208,6 @@ is binary, activate `hexl-mode'."
                                             (if time-zone " (") time-zone (if time-zone ")")))
 ;; Calendar:1 ends here
 
-;; [[file:config.org::*Dirvish :heart: Dired][Dirvish :heart: Dired:2]]
-(use-package! dirvish
-  :after dired
-  :init (dirvish-override-dired-mode)
-  :hook (dired-mode . dired-omit-mode)
-  :config
-  (setq dirvish-cache-dir (concat doom-cache-dir "dirvish/")
-        dirvish-hide-details nil
-        dired-omit-files (concat dired-omit-files "\\|^\\..*$"))
-  (map! :map dirvish-mode-map
-        :n "b" #'dirvish-goto-bookmark
-        :n "z" #'dirvish-show-history
-        :n "f" #'dirvish-file-info-menu
-        :n "F" #'dirvish-toggle-fullscreen
-        :n "l" #'dired-find-file
-        :n "h" #'dired-up-directory
-        :localleader
-        "h" #'dired-omit-mode))
-;; Dirvish :heart: Dired:2 ends here
-
 ;; [[file:config.org::*e-Books =nov=][e-Books =nov=:2]]
 (use-package! nov
   :mode ("\\.epub\\'" . nov-mode)
@@ -1356,9 +1365,15 @@ is binary, activate `hexl-mode'."
                    (replace-regexp-in-string "\\`.*/" "" (mu4e-message-field msg :maildir))
                    '+mu4e-header--folder-colors))))))
 
+  ;; Add a unified inbox shortcut
+  (add-to-list
+   'mu4e-bookmarks
+   '(:name "Unified inbox" :query "maildir:/.*inbox/" :key ?i) t)
+
   ;; Add shortcut to view yesterday's messages
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
+  (add-to-list
+   'mu4e-bookmarks
+   '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
   ;; Load a list of my email addresses '+my-addresses'
   (load! "lisp/private/+my-addresses.el")
@@ -1729,6 +1744,13 @@ is binary, activate `hexl-mode'."
   (add-hook 'imaxima-startup-hook #'maxima-inferior-mode))
 ;; IMaxima:2 ends here
 
+;; [[file:config.org::*FriCAS][FriCAS:1]]
+(use-package! fricas
+  :when FRICAS-OK-P
+  :load-path "/usr/lib/fricas/emacs"
+  :commands (fricas-mode fricas-eval fricas))
+;; FriCAS:1 ends here
+
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
 (set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
@@ -1767,8 +1789,6 @@ is binary, activate `hexl-mode'."
 ;; GNU Octave:1 ends here
 
 ;; [[file:config.org::*Extensions][Extensions:1]]
-(add-to-list 'auto-mode-alist '("\\.urdf"    . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.xacro"   . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
 (add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
 (add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
@@ -1820,6 +1840,11 @@ is binary, activate `hexl-mode'."
                :workspace "~/ros2_ws"
                :extends '("/opt/ros/foxy/")))))
 ;; =ros.el=:2 ends here
+
+;; [[file:config.org::*Scheme][Scheme:1]]
+(after! geiser
+  (setq geiser-chez-binary "chez-scheme")) ;; default is "scheme"
+;; Scheme:1 ends here
 
 ;; [[file:config.org::*Embed.el][Embed.el:2]]
 (use-package! embed
@@ -2359,10 +2384,10 @@ is binary, activate `hexl-mode'."
   :commands aas-mode)
 ;; LaTeX:2 ends here
 
-;; [[file:config.org::*Flycheck :heart: Projectile][Flycheck :heart: Projectile:2]]
+;; [[file:config.org::*Flycheck + Projectile][Flycheck + Projectile:2]]
 (use-package! flycheck-projectile
   :commands flycheck-projectile-list-errors)
-;; Flycheck :heart: Projectile:2 ends here
+;; Flycheck + Projectile:2 ends here
 
 ;; [[file:config.org::*Graphviz][Graphviz:2]]
 (use-package! graphviz-dot-mode
@@ -2379,7 +2404,7 @@ is binary, activate `hexl-mode'."
         org-use-property-inheritance t        ; it's convenient to have properties inherited
         org-log-done 'time                    ; having the time an item is done sounds convenient
         org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-        org-export-in-background t            ; run export processes in external emacs process
+  ;;    org-export-in-background t            ; run export processes in external emacs process
   ;;    org-export-async-debug t
         org-tags-column 0
         org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
@@ -3537,6 +3562,22 @@ is binary, activate `hexl-mode'."
     (add-to-list 'org-latex-classes
                  '("IEEEtran"
                    "\\documentclass{IEEEtran}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+                 '("ieeeconf"
+                   "\\documentclass{ieeeconf}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+                 '("sagej"
+                   "\\documentclass{sagej}"
                    ("\\section{%s}" . "\\section*{%s}")
                    ("\\subsection{%s}" . "\\subsection*{%s}")
                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")

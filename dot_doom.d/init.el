@@ -54,7 +54,7 @@
   ;;rotate-text
 
   :emacs
-  (dired +icons)
+  (dired +dirvish +icons)
   (ibuffer +icons)
   (undo +tree)
   vc
@@ -87,6 +87,7 @@
   (eval +overlay)
   (lookup +docsets +dictionary +offline)
   (magit +forge)
+  tree-sitter
   ;;pass
   ;;biblio
   ;;ansible
@@ -104,18 +105,19 @@
   markdown
   data
   qt
-  (cc +lsp)
-  (json +lsp)
-  (julia +lsp)
+  (cc +lsp +tree-sitter)
+  (json +lsp +tree-sitter)
+  (julia +lsp +tree-sitter)
   (latex +lsp +latexmk +fold)
-  (rust +lsp)
+  (rust +lsp +tree-sitter)
   (ess +lsp)
   (yaml +lsp)
-  (sh +lsp)
-  (python +lsp +pyenv +conda +pyright)
+  (sh +lsp +tree-sitter)
+  (python +lsp +pyenv +conda +pyright +tree-sitter)
   (racket +lsp +xp)
-  (scheme +mit +guile +racket +chez)
+  (scheme +guile +racket +chez +gambit +gauche)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
+  (web +tree-sitter)
   ;;rst                  ; ReST in peace
   ;;(lua +lsp)           ; one-based indices? one-based indices
   ;;agda                 ; types of types of types of types...
@@ -170,7 +172,4 @@
   :config
   literate
   (default +bindings +smartparens)
-
-  :private
-  tree-sitter
 )

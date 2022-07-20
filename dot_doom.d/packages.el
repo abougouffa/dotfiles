@@ -2,9 +2,9 @@
 ;; -*- no-byte-compile: t; -*-
 ;; Additional packages (=packages.el=):1 ends here
 
-;; [[file:config.org::*SVG Tag mode][SVG Tag mode:1]]
+;; [[file:config.org::*SVG tag][SVG tag:1]]
 (package! svg-tag-mode)
-;; SVG Tag mode:1 ends here
+;; SVG tag:1 ends here
 
 ;; [[file:config.org::*Focus][Focus:1]]
 (package! focus)
@@ -144,10 +144,6 @@
            :repo "vibhavp/emacs-xkcd"))
 ;; =xkcd=:1 ends here
 
-;; [[file:config.org::*Dirvish :heart: Dired][Dirvish :heart: Dired:1]]
-(package! dirvish)
-;; Dirvish :heart: Dired:1 ends here
-
 ;; [[file:config.org::*e-Books =nov=][e-Books =nov=:1]]
 (package! nov)
 ;; e-Books =nov=:1 ends here
@@ -282,11 +278,11 @@
            :repo "ymarco/auto-activating-snippets"))
 ;; LaTeX:1 ends here
 
-;; [[file:config.org::*Flycheck :heart: Projectile][Flycheck :heart: Projectile:1]]
+;; [[file:config.org::*Flycheck + Projectile][Flycheck + Projectile:1]]
 (package! flycheck-projectile
   :recipe (:host github
            :repo "nbfalcon/flycheck-projectile"))
-;; Flycheck :heart: Projectile:1 ends here
+;; Flycheck + Projectile:1 ends here
 
 ;; [[file:config.org::*Graphviz][Graphviz:1]]
 (package! graphviz-dot-mode)
@@ -300,6 +296,9 @@
 
 ;; [[file:config.org::*Org mode additional packages][Org mode additional packages:1]]
 (package! org-super-agenda)
+
+;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
+(package! org-mode :pin "971eb6885ec996c923e955730df3bafbdc244e54")
 
 (package! caldav
   :recipe (:host github
