@@ -5882,7 +5882,12 @@ Use Org as LaTeX!
       (with-current-buffer (find-file-noselect (cdr results))
         (save-excursion
           (bibtex-search-entry (car results))
-          (org-ref-open-bibtex-pdf))))))
+          (org-ref-open-bibtex-pdf)))))
+
+  ;; Add keybinding to insert link
+  (map! :localleader
+        :map org-mode-map
+        :desc "Org-ref insert link" "C" #'org-ref-insert-link))
 #+end_src
 
 **** Citar
