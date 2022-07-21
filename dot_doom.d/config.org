@@ -397,12 +397,12 @@ qt
 (scheme +guile +racket +chez +gambit +gauche)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
 (web +tree-sitter)
+coq
 ocaml
 ;;rst                  ; ReST in peace
 ;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
 ;;(clojure +lsp)       ; java with a lisp
-;;coq                  ; proofs-as-programs
 ;;crystal              ; ruby at the speed of c
 ;;csharp               ; unity, .NET, and mono shenanigans
 ;;(dart +flutter)      ; paint ui and not much else
