@@ -397,6 +397,7 @@ qt
 (scheme +guile +racket +chez +gambit +gauche)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
 (web +tree-sitter)
+ocaml
 ;;rst                  ; ReST in peace
 ;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
@@ -424,7 +425,6 @@ qt
 ;;ledger               ; an accounting system in Emacs
 ;;nim                  ; python + lisp at the speed of c
 ;;nix                  ; I hereby declare "nix geht mehr!"
-;;ocaml                ; an objective camel
 ;;php                  ; perl's insecure younger brother
 ;;purescript           ; javascript, but functional
 ;;raku                 ; the artist formerly known as perl6
