@@ -5817,7 +5817,7 @@ example.
   :commands (org-bib-mode))
 #+end_src
 
-**** COMMENT Org-cite
+**** Org-cite
 
 #+begin_src emacs-lisp
 (after! oc
