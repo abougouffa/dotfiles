@@ -383,7 +383,9 @@ emacs-lisp
 common-lisp
 data
 qt
+coq
 (markdown +grip)
+(ocaml +tree-sitter)
 (cc +lsp +tree-sitter)
 (json +lsp +tree-sitter)
 (julia +lsp +tree-sitter)
@@ -397,8 +399,6 @@ qt
 (scheme +guile +racket +chez +gambit +gauche)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
 (web +tree-sitter)
-coq
-ocaml
 ;;rst                  ; ReST in peace
 ;;(lua +lsp)           ; one-based indices? one-based indices
 ;;agda                 ; types of types of types of types...
