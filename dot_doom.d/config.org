@@ -381,9 +381,9 @@ I do enable =plantuml= also to quickly plot UML models withing Org documents.
 plantuml
 emacs-lisp
 common-lisp
-markdown
 data
 qt
+(markdown +grip)
 (cc +lsp +tree-sitter)
 (json +lsp +tree-sitter)
 (julia +lsp +tree-sitter)
