@@ -5263,6 +5263,21 @@ Example of usage:
 ,#+end_figure
 #+end_example
 
+**** LaTeX inline markup
+Needs to make a src_latex{\textsc{text}}?, with this [[https://orgmode.org/worg/org-tutorials/org-latex-export.html][hack]] you can write
+~[[latex:textsc][Some text]]~.
+
+#+begin_src emacs-lisp
+(org-add-link-type
+ "latex" nil
+ (lambda (path desc format)
+   (cond
+    ((eq format 'html)
+     (format "<span class=\"%s\">%s</span>" path desc))
+    ((eq format 'latex)
+     (format "\\%s{%s}" path desc)))))
+#+end_src
+
 *** Visuals
 Here I try to do two things: improve the styling of the various documents, via
 font changes etc., and also propagate colours from the current theme.
