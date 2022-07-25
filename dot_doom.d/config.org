@@ -456,6 +456,7 @@ Take new window space from all other windows (not just current).
 (setq-default window-combination-resize t)
 #+end_src
 
+*** Messages buffer :messages:buffer:
 Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://stackoverflow.com/a/6341139/3058915][this answer]].
 
 #+begin_src emacs-lisp
