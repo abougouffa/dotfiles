@@ -4569,7 +4569,8 @@ Set files for =org-agenda=
                              (expand-file-name "agenda.org" org-directory)
                              (expand-file-name "gcal-agenda.org" org-directory)
                              (expand-file-name "notes.org" org-directory)
-                             (expand-file-name "projects.org" org-directory)))
+                             (expand-file-name "projects.org" org-directory)
+                             (expand-file-name "archive.org" org-directory)))
 #+end_src
 
 Apply some styling on the standard agenda:
