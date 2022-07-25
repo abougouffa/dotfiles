@@ -6033,10 +6033,11 @@ on that.
 #+begin_src emacs-lisp :tangle (if (>= emacs-major-version 28) "yes" "no")
 (after! text-mode
   (add-hook! 'text-mode-hook
-             ;; Apply ANSI color codes
-             (with-silent-modifications
-               (ansi-color-apply-on-region (point-min) (point-max) t))))
-#+end_src
+    (unless (derived-mode-p 'org-mode)
+      ;; Apply ANSI color codes
+      (with-silent-modifications
+        (ansi-color-apply-on-region (point-min) (point-max) t)))))
+        #+end_src
 
 *** Academic phrases
 When writing your academic paper, you might get stuck trying to find the right
