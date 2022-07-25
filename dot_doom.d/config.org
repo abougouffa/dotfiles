@@ -389,7 +389,7 @@ I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= su
 
 #+name: doom-email
 #+begin_src emacs-lisp
-(mu4e +org +gmail)
+(:if (executable-find "mu") (mu4e +org +gmail))
 #+end_src
 
 *** Apps (=:app=)
