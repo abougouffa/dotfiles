@@ -25,7 +25,7 @@
 (setq-default window-combination-resize t)
 ;; Window:1 ends here
 
-;; [[file:config.org::*Window][Window:2]]
+;; [[file:config.org::*Messages buffer][Messages buffer:1]]
 (defvar +messages-buffer-auto-tail--enabled nil)
 
 (defun +messages-buffer-auto-tail--advice (&rest arg)
@@ -60,7 +60,7 @@
          (advice-add 'message :after '+messages-buffer-auto-tail--advice)
          (setq +messages-buffer-auto-tail--enabled t)
          (message "+messages-buffer-auto-tail: Enabled."))))
-;; Window:2 ends here
+;; Messages buffer:1 ends here
 
 ;; [[file:config.org::*Split defaults][Split defaults:1]]
 (setq evil-vsplit-window-right t
@@ -100,17 +100,16 @@
 ;; [[file:config.org::*Initialization][Initialization:1]]
 (defun +greedily-do-daemon-setup ()
   (require 'org)
-  (when (require 'mu4e nil t)
+  (when (and (featurep! :email mu4e) (require 'mu4e nil t))
     (setq mu4e-confirm-quit t
           +mu4e-lock-greedy t
           +mu4e-lock-relaxed t)
-    (+mu4e-lock-start 'mu4e~start))
-  (when (require 'elfeed nil t)
+    (+mu4e-lock-start 'mu4e--start))
+  (when (and (featurep! :app rss) (require 'elfeed nil t))
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
-  ;; (add-hook! 'server-after-make-frame-hook (doom/reload-theme))
   (add-hook! 'server-after-make-frame-hook
     (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
       (switch-to-buffer +doom-dashboard-name))))
@@ -170,9 +169,10 @@
 
 ;; [[file:config.org::*Font][Font:1]]
 (setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
+      doom-big-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 30)
       doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :weight 'light))
+      doom-serif-font (font-spec :family "Input Serif" :weight 'light))
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Theme][Theme:1]]
@@ -620,7 +620,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Emojify][Emojify:2]]
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "🔚" "⏱" "®" "™" "🔚"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "⏱" "®" "™" "🅱" "❌" ;; "🔚" "🔚"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -1312,10 +1312,6 @@ current buffer's, reload dir-locals."
 ;; Launch NetExtender session from Emacs:1 ends here
 
 ;; [[file:config.org::*mu4e][mu4e:2]]
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
-;; mu4e:2 ends here
-
-;; [[file:config.org::*mu4e][mu4e:3]]
 (after! mu4e
   (require 'org-msg)
   (require 'smtpmail)
@@ -1375,13 +1371,16 @@ current buffer's, reload dir-locals."
    'mu4e-bookmarks
    '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
-  ;; Load a list of my email addresses '+my-addresses'
+  ;; Load a list of my email addresses '+my-addresses', defined as:
+  ;; (setq +my-addresses '("user@gmail.com" "user@hotmail.com"))
   (load! "lisp/private/+my-addresses.el")
+
   (when (bound-and-true-p +my-addresses)
     ;; I like always to add myself in BCC, Lets add a bookmark to show all my BCC mails
     (defun +mu-long-query (query oper arg-list)
       (concat "(" (s-join (concat " " oper " ") (mapcar (lambda (addr) (format "%s:%s" query addr)) arg-list)) ")"))
 
+    ;; Build a query to match mails send from "me" with "me" in BCC
     (let ((bcc-query (+mu-long-query "bcc" "or" +my-addresses))
           (from-query (+mu-long-query "from" "or" +my-addresses)))
       (add-to-list
@@ -1392,7 +1391,7 @@ current buffer's, reload dir-locals."
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
 
   ;; Org-Msg stuff
-  ;; org-msg-signature is set for each account separately
+  ;; org-msg-[signature|greeting-fmt] are separately set for each account
   (map! :map org-msg-edit-mode-map
         :after org-msg
         :n "G" #'org-msg-goto-body)
@@ -1404,7 +1403,7 @@ current buffer's, reload dir-locals."
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
-  ;; I constantly get a non systematic error after sending a mail.
+  ;; FIXME: I constantly get a non systematic error after sending a mail.
   ;; >> Error (message-sent-hook): Error running hook "undo" because:
   ;; >> (error Unrecognized entry in undo list undo-tree-canary)
   ;; It is triggered by the 'message-sent-hook', so lets remove the 'undo'
@@ -1427,7 +1426,7 @@ current buffer's, reload dir-locals."
   ;; To enable optional iCalendar->Org sync functionality
   ;; NOTE: both the capture file and the headline(s) inside must already exist
   (gnus-icalendar-org-setup))
-;; mu4e:3 ends here
+;; mu4e:2 ends here
 
 ;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
 ;; Not sure if it is required!
@@ -2499,7 +2498,8 @@ current buffer's, reload dir-locals."
                                (expand-file-name "agenda.org" org-directory)
                                (expand-file-name "gcal-agenda.org" org-directory)
                                (expand-file-name "notes.org" org-directory)
-                               (expand-file-name "projects.org" org-directory)))
+                               (expand-file-name "projects.org" org-directory)
+                               (expand-file-name "archive.org" org-directory)))
   ;; Agenda styling
   (setq org-agenda-block-separator ?─
         org-agenda-time-grid
@@ -3062,6 +3062,14 @@ current buffer's, reload dir-locals."
                    "\\caption{" (replace-regexp-in-string "\s+>(.+)" "" desc) "}"
                    "\\includegraphics" "[" (match-string 1 desc) "]" "{" file "}" "\\end{subfigure}")
          (format "\\begin{subfigure}\\includegraphics{%s}\\end{subfigure}" desc file)))))
+  (org-add-link-type
+   "latex" nil
+   (lambda (path desc format)
+     (cond
+      ((eq format 'html)
+       (format "<span class=\"%s\">%s</span>" path desc))
+      ((eq format 'latex)
+       (format "\\%s{%s}" path desc)))))
   (custom-set-faces!
     '(org-document-title :height 1.2))
   
@@ -3092,13 +3100,97 @@ current buffer's, reload dir-locals."
   (setq org-inline-src-prettify-results '("⟨" . "⟩")
         doom-themes-org-fontify-special-tags nil)
   (use-package! org-modern
-    :init
-    (setq org-modern-table-vertical 1
+    :hook (org-mode . org-modern-mode)
+    :config
+    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+          org-modern-table-vertical 1
           org-modern-table-horizontal 1
-          org-modern-todo-faces org-todo-keyword-faces
-          org-modern-keyword nil) ;; I like to fontify them using ligatures
+          org-modern-list '((43 . "➤")
+                            (45 . "–")
+                            (42 . "•"))
+          org-modern-footnote (cons nil (cadr org-script-display))
+          org-modern-priority nil
+          org-modern-horizontal-rule t
+          org-modern-todo-faces
+          '(("TODO" :inverse-video t :inherit org-todo)
+            ("PROJ" :inverse-video t :inherit +org-todo-project)
+            ("STRT" :inverse-video t :inherit +org-todo-active)
+            ("[-]"  :inverse-video t :inherit +org-todo-active)
+            ("HOLD" :inverse-video t :inherit +org-todo-onhold)
+            ("WAIT" :inverse-video t :inherit +org-todo-onhold)
+            ("[?]"  :inverse-video t :inherit +org-todo-onhold)
+            ("KILL" :inverse-video t :inherit +org-todo-cancel)
+            ("NO"   :inverse-video t :inherit +org-todo-cancel))
+          org-modern-keyword
+          '((t . t)
+            ("title" . "𝙏")
+            ("subtitle" . "𝙩")
+            ("author" . "𝘼")
+            ("email" . "@")
+            ("date" . "𝘿")
+            ("property" . "☸")
+            ("options" . "⌥")
+            ("startup" . "⏻")
+            ("macro" . "𝓜")
+            ("bind" . #("" 0 1 (display (raise -0.1))))
+            ("bibliography" . "")
+            ("print_bibliography" . #("" 0 1 (display (raise -0.1))))
+            ("cite_export" . "⮭")
+            ("print_glossary" . #("ᴬᶻ" 0 1 (display (raise -0.1))))
+            ("glossary_sources" . #("" 0 1 (display (raise -0.14))))
+            ("export_file_name" . "⇒")
+            ("include" . "⇤")
+            ("setupfile" . "⇐")
+            ("html_head" . "🅷")
+            ("html" . "🅗")
+            ("latex_class" . "🄻")
+            ("latex_class_options" . #("🄻" 1 2 (display (raise -0.14))))
+            ("latex_header" . "🅻")
+            ("latex_header_extra" . "🅻⁺")
+            ("latex" . "🅛")
+            ("beamer_theme" . "🄱")
+            ("beamer_color_theme" . #("🄱" 1 2 (display (raise -0.12))))
+            ("beamer_font_theme" . "🄱𝐀")
+            ("beamer_header" . "🅱")
+            ("beamer" . "🅑")
+            ("attr_latex" . "🄛")
+            ("attr_html" . "🄗")
+            ("attr_org" . "⒪")
+            ("name" . "⁍")
+            ("header" . "›")
+            ("caption" . "☰")
+            ("RESULTS" . "🠶")
+            ("language" . "𝙇")
+            ("hugo_base_dir" . "𝐇")
+            ("latex_compiler" . "⟾")
+            ("results" . "🠶")
+            ("filetags" . "#")
+            ("created" . "⏱")
+            ("export_select_tags" . "✔")
+            ("export_exclude_tags" . "❌")))
+    (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
+  (defadvice! +org-init-appearance-h--no-ligatures-a ()
+    :after #'+org-init-appearance-h
+    (set-ligatures! 'org-mode
+      :name nil
+      :src_block nil
+      :src_block_end nil
+      :quote nil
+      :quote_end nil))
+  (use-package! org-ol-tree
+    :commands org-ol-tree
+    :config
+    (setq org-ol-tree-ui-icon-set
+          (if (and (display-graphic-p)
+                   (fboundp 'all-the-icons-material))
+              'all-the-icons
+            'unicode))
+    (org-ol-tree-ui--update-icon-set))
   
-    (global-org-modern-mode))
+  (map! :map org-mode-map
+        :after org
+        :localleader
+        :desc "Outline" "O" #'org-ol-tree)
   ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
   ;; Scale image previews to 60% of the window width.
   (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
@@ -3120,126 +3212,6 @@ current buffer's, reload dir-locals."
         ;;   (?C . 'all-the-icons-yellow)
         ;;   (?D . 'all-the-icons-green)
         ;;   (?E . 'all-the-icons-blue)))
-  (appendq! +ligatures-extra-symbols
-            '(
-              ;; :checkbox                "☐"
-              ;; :pending                 "◼"
-              ;; :checkedbox              "☑"
-              :list_property           "∷"
-              :em_dash                 "—"
-              :ellipses                "…"
-              :arrow_right             "→"
-              :arrow_left              "←"
-              :title                   "𝙏"
-              :subtitle                "𝙩"
-              :language                "𝙇"
-              :author                  "𝘼"
-              :email                   "@"
-              :date                    "𝘿"
-              :property                "☸"
-              :options                 "⌥"
-              :startup                 "⏻"
-              :hugo_base_dir           "𝐇"
-              :macro                   "𝓜"
-              :html_head               "🅷"
-              :html                    "🅗"
-              :latex_class             "🄻"
-              :latex_class_options     "🄻"
-              :latex_header            "🅻"
-              :latex_header_extra      "🅻"
-              :latex_compiler          "⟾"
-              :beamer_header           "🅑"
-              :latex                   "🅛"
-              :attr_latex              "🄛"
-              :attr_html               "🄗"
-              :attr_org                "⒪"
-              :begin_quote             "❝"
-              :end_quote               "❞"
-              :begin_signature         "❝"
-              :end_signature           "❞"
-              :caption                 "☰"
-              :name                    "⁍"
-              :header                  "›"
-              :results                 "🠶"
-              :results_small           "🠶"
-              :begin_export            "⏩"
-              :end_export              "⏪"
-              :filetags                "#"
-              :created                 "⏱"
-              :include                 "⇩"
-              :setupfile               "⇩"
-              :export_file_name        "⇧"
-              :export_select_tags      "✔"
-              :export_exclude_tags     "❌"
-              :properties              "⚙"
-              :end                     "᛫"
-              :properties_small        "⚙"
-              :end_small               "᛫"
-              :priority_a              ,(propertize "⚑" 'face 'all-the-icons-red)
-              :priority_b              ,(propertize "⬆" 'face 'all-the-icons-orange)
-              :priority_c              ,(propertize "■" 'face 'all-the-icons-yellow)
-              :priority_d              ,(propertize "⬇" 'face 'all-the-icons-green)
-              :priority_e              ,(propertize "❓" 'face 'all-the-icons-blue)))
-  
-  (set-ligatures! 'org-mode
-    :merge t
-    ;; :checkbox                "[ ]"
-    ;; :pending                 "[-]"
-    ;; :checkedbox              "[X]"
-    :list_property           "::"
-    :em_dash                 "---"
-    :ellipsis                "..."
-    :arrow_right             "->"
-    :arrow_left              "<-"
-    :title                   "#+title:"
-    :subtitle                "#+subtitle:"
-    :language                "#+language:"
-    :author                  "#+author:"
-    :email                   "#+email:"
-    :date                    "#+date:"
-    :property                "#+property:"
-    :options                 "#+options:"
-    :startup                 "#+startup:"
-    :hugo_base_dir           "#+hugo_base_dir:"
-    :macro                   "#+macro:"
-    :html_head               "#+html_head:"
-    :html                    "#+html:"
-    :latex_class             "#+latex_class:"
-    :latex_class_options     "#+latex_class_options:"
-    :latex_header            "#+latex_header:"
-    :latex_header_extra      "#+latex_header_extra:"
-    :latex_compiler          "#+latex_compiler:"
-    :beamer_header           "#+beamer_header:"
-    :latex                   "#+latex:"
-    :attr_latex              "#+attr_latex:"
-    :attr_html               "#+attr_html:"
-    :attr_org                "#+attr_org:"
-    :begin_quote             "#+begin_quote"
-    :end_quote               "#+end_quote"
-    :begin_signature         "#+begin_signature"
-    :end_signature           "#+end_signature"
-    :caption                 "#+caption:"
-    :header                  "#+header:"
-    :begin_export            "#+begin_export"
-    :end_export              "#+end_export"
-    :filetags                "#+filetags:"
-    :created                 "#+created:"
-    :include                 "#+include:"
-    :setupfile               "#+setupfile:"
-    :export_file_name        "#+export_file_name:"
-    :export_select_tags      "#+export_select_tags:"
-    :export_exclude_tags     "#+export_exclude_tags:"
-    :results                 "#+RESULTS:"
-    :results_small           "#+results:"
-    :property                ":PROPERTIES:"
-    :end                     ":END:"
-    :property_small          ":properties:"
-    :end_small               ":end:"
-    :priority_a              "[#A]"
-    :priority_b              "[#B]"
-    :priority_c              "[#C]"
-    :priority_d              "[#D]"
-    :priority_e              "[#E]")
   (setq org-highlight-latex-and-related '(native script entities))
   (require 'org-src)
   (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
@@ -3453,6 +3425,34 @@ current buffer's, reload dir-locals."
           (call-process "open" nil 0 nil fpath)))
   (use-package! org-bib
     :commands (org-bib-mode))
+  (after! oc
+    (setq org-cite-csl-styles-dir "~/Zotero/styles")
+  
+    (defun org-ref-to-org-cite ()
+      "Attempt to convert org-ref citations to org-cite syntax."
+      (interactive)
+      (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
+                                 ("nocite" . "/n")
+                                 ("citep" . "") ("citep*" . "//f")
+                                 ("parencite" . "") ("Parencite" . "//c")
+                                 ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
+                                 ("citeyear" . "/na/b")
+                                 ("Citep" . "//c") ("Citealp" . "//bc")
+                                 ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
+                                 ("autocite" . "") ("Autocite" . "//c")
+                                 ("notecite" . "/l/b") ("Notecite" . "/l/bc")
+                                 ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
+             (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
+                              ":" (group (+ (not (any "\n     ,.)]}")))))))
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward cite-regexp nil t)
+            (message (format "[cite%s:@%s]"
+                             (cdr (assoc (match-string 1) cite-conversions))
+                             (match-string 2)))
+            (replace-match (format "[cite%s:@%s]"
+                                   (cdr (assoc (match-string 1) cite-conversions))
+                                   (match-string 2))))))))
   (use-package! org-ref
     :after org
     :config
@@ -3481,7 +3481,12 @@ current buffer's, reload dir-locals."
         (with-current-buffer (find-file-noselect (cdr results))
           (save-excursion
             (bibtex-search-entry (car results))
-            (org-ref-open-bibtex-pdf))))))
+            (org-ref-open-bibtex-pdf)))))
+  
+    ;; Add keybinding to insert link
+    (map! :localleader
+          :map org-mode-map
+          :desc "Org-ref insert link" "C" #'org-ref-insert-link))
   (setq citar-library-paths '("~/Zotero/storage")
         citar-notes-paths '("~/PhD/bibliography/notes/")
         citar-bibliography '("~/Zotero/library.bib"))
@@ -3529,6 +3534,14 @@ current buffer's, reload dir-locals."
     (add-to-list 'org-latex-classes
                  '("scr-article"
                    "\\documentclass{scrartcl}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (add-to-list 'org-latex-classes
+                 '("lettre"
+                   "\\documentclass{lettre}"
                    ("\\section{%s}" . "\\section*{%s}")
                    ("\\subsection{%s}" . "\\subsection*{%s}")
                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -3614,9 +3627,10 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Plain text][Plain text:1]]
 (after! text-mode
   (add-hook! 'text-mode-hook
-             ;; Apply ANSI color codes
-             (with-silent-modifications
-               (ansi-color-apply-on-region (point-min) (point-max) t))))
+    (unless (derived-mode-p 'org-mode)
+      ;; Apply ANSI color codes
+      (with-silent-modifications
+        (ansi-color-apply-on-region (point-min) (point-max) t)))))
 ;; Plain text:1 ends here
 
 ;; [[file:config.org::*Academic phrases][Academic phrases:1]]

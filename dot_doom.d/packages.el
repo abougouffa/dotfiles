@@ -122,10 +122,6 @@
            :repo "seanfarley/emacs-bitwarden"))
 ;; Bitwarden:1 ends here
 
-;; [[file:config.org::*PDF tools][PDF tools:1]]
-(unpin! pdf-tools)
-;; PDF tools:1 ends here
-
 ;; [[file:config.org::*Speed Type][Speed Type:1]]
 (package! speed-type)
 ;; Speed Type:1 ends here
@@ -295,37 +291,35 @@
 ;; Inspector:1 ends here
 
 ;; [[file:config.org::*Org mode additional packages][Org mode additional packages:1]]
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+(package! org-wild-notifier)
+(package! org-fragtog)
+(package! org-ref)
+(package! org-appear)
 (package! org-super-agenda)
+(package! doct)
 
-;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
-(package! org-mode :pin "971eb6885ec996c923e955730df3bafbdc244e54")
+(package! org-mode
+  ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
+  :pin "971eb6885ec996c923e955730df3bafbdc244e54")
 
 (package! caldav
   :recipe (:host github
            :repo "dengste/org-caldav"))
 
-(package! doct)
-
-(package! org-appear)
-
-;; To avoid problems with org-roam-ui
-(unpin! org-roam)
-(package! websocket)
-(package! org-roam-ui)
-
-(package! org-wild-notifier)
+(package! org-ol-tree
+  :recipe (:host github :repo "Townk/org-ol-tree")
+  :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
 
 (package! org-modern
   :recipe (:host github
            :repo "minad/org-modern"))
 
-(package! org-fragtog)
-
 (package! org-bib
   :recipe (:host github
            :repo "rougier/org-bib-mode"))
-
-(package! org-ref)
 
 (package! academic-phrases
   :recipe (:host github
