@@ -2558,7 +2558,7 @@ You will need to:
 - Run =mu init --maildir=~/Maildir --my-address=user@host1 --my-address=user@host2=
 - Run =mbsync -c ~/.mbsyncrc -a=
 - For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
-  this format =machine MAIL.EXAMPLE.ORG port 587 login MY_USER password MY_PASSWORD=
+  this format =machine MAIL.DOMAIN.TLD port 587 login USER password PASSWD=
 - Encrypt the =~/.authinfo= file using GPG =gpg -c ~/.authinfo= and delete the
   original unencrypted file.
 
@@ -2724,7 +2724,7 @@ host                    smtp.googlemail.com
 port                    587
 from                    username@gmail.com
 user                    username
-passwordeval            "gpg -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.googlemail.com/ {print $NF}'"
+passwordeval            "gpg -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp.googlemail.com login .*@gmail.com/ {print $NF}'"
 add_missing_date_header on
 
 ## Gmail - aliases
@@ -2750,10 +2750,6 @@ Add =mu4e= to path if it exists on the file system.
 
 #+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/local/share/emacs/site-lisp/mu4e") "yes" "no")
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-#+end_src
-
-#+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/share/emacs/site-lisp/mu4e") "yes" "no")
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 #+end_src
 
 I configure my email accounts in a private file in
@@ -2819,13 +2815,16 @@ I configure my email accounts in a private file in
    'mu4e-bookmarks
    '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
-  ;; Load a list of my email addresses '+my-addresses'
+  ;; Load a list of my email addresses '+my-addresses', defined as:
+  ;; (setq +my-addresses '("user@gmail.com" "user@hotmail.com"))
   (load! "lisp/private/+my-addresses.el")
+
   (when (bound-and-true-p +my-addresses)
     ;; I like always to add myself in BCC, Lets add a bookmark to show all my BCC mails
     (defun +mu-long-query (query oper arg-list)
       (concat "(" (s-join (concat " " oper " ") (mapcar (lambda (addr) (format "%s:%s" query addr)) arg-list)) ")"))
 
+    ;; Build a query to match mails send from "me" with "me" in BCC
     (let ((bcc-query (+mu-long-query "bcc" "or" +my-addresses))
           (from-query (+mu-long-query "from" "or" +my-addresses)))
       (add-to-list
@@ -2836,7 +2835,7 @@ I configure my email accounts in a private file in
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
 
   ;; Org-Msg stuff
-  ;; org-msg-signature is set for each account separately
+  ;; org-msg-[signature|greeting-fmt] are separately set for each account
   (map! :map org-msg-edit-mode-map
         :after org-msg
         :n "G" #'org-msg-goto-body)
@@ -2848,7 +2847,7 @@ I configure my email accounts in a private file in
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
-  ;; I constantly get a non systematic error after sending a mail.
+  ;; FIXME: I constantly get a non systematic error after sending a mail.
   ;; >> Error (message-sent-hook): Error running hook "undo" because:
   ;; >> (error Unrecognized entry in undo list undo-tree-canary)
   ;; It is triggered by the 'message-sent-hook', so lets remove the 'undo'
