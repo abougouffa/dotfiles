@@ -5328,13 +5328,90 @@ sacrificing visual amenities with the =org-appear= package.
 
 #+begin_src emacs-lisp
 (use-package! org-modern
-  :init
-  (setq org-modern-table-vertical 1
+  :hook (org-mode . org-modern-mode)
+  :config
+  (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+        org-modern-table-vertical 1
         org-modern-table-horizontal 1
-        org-modern-todo-faces org-todo-keyword-faces
-        org-modern-keyword nil) ;; I like to fontify them using ligatures
+        org-modern-list '((43 . "➤")
+                          (45 . "–")
+                          (42 . "•"))
+        org-modern-footnote (cons nil (cadr org-script-display))
+        org-modern-priority nil
+        org-modern-horizontal-rule t
+        org-modern-todo-faces
+        '(("TODO" :inverse-video t :inherit org-todo)
+          ("PROJ" :inverse-video t :inherit +org-todo-project)
+          ("STRT" :inverse-video t :inherit +org-todo-active)
+          ("[-]"  :inverse-video t :inherit +org-todo-active)
+          ("HOLD" :inverse-video t :inherit +org-todo-onhold)
+          ("WAIT" :inverse-video t :inherit +org-todo-onhold)
+          ("[?]"  :inverse-video t :inherit +org-todo-onhold)
+          ("KILL" :inverse-video t :inherit +org-todo-cancel)
+          ("NO"   :inverse-video t :inherit +org-todo-cancel))
+        org-modern-keyword
+        '((t . t)
+          ("title" . "𝙏")
+          ("subtitle" . "𝙩")
+          ("author" . "𝘼")
+          ("email" . "@")
+          ("date" . "𝘿")
+          ("property" . "☸")
+          ("options" . "⌥")
+          ("startup" . "⏻")
+          ("macro" . "𝓜")
+          ("bind" . #("" 0 1 (display (raise -0.1))))
+          ("bibliography" . "")
+          ("print_bibliography" . #("" 0 1 (display (raise -0.1))))
+          ("cite_export" . "⮭")
+          ("print_glossary" . #("ᴬᶻ" 0 1 (display (raise -0.1))))
+          ("glossary_sources" . #("" 0 1 (display (raise -0.14))))
+          ("export_file_name" . "⇒")
+          ("include" . "⇤")
+          ("setupfile" . "⇐")
+          ("html_head" . "🅷")
+          ("html" . "🅗")
+          ("latex_class" . "🄻")
+          ("latex_class_options" . #("🄻" 1 2 (display (raise -0.14))))
+          ("latex_header" . "🅻")
+          ("latex_header_extra" . "🅻⁺")
+          ("latex" . "🅛")
+          ("beamer_theme" . "🄱")
+          ("beamer_color_theme" . #("🄱" 1 2 (display (raise -0.12))))
+          ("beamer_font_theme" . "🄱𝐀")
+          ("beamer_header" . "🅱")
+          ("beamer" . "🅑")
+          ("attr_latex" . "🄛")
+          ("attr_html" . "🄗")
+          ("attr_org" . "⒪")
+          ("name" . "⁍")
+          ("header" . "›")
+          ("caption" . "☰")
+          ("RESULTS" . "🠶")
+          ("language" . "𝙇")
+          ("hugo_base_dir" . "𝐇")
+          ("latex_compiler" . "⟾")
+          ("results" . "🠶")
+          ("filetags" . "#")
+          ("created" . "⏱")
+          ("export_select_tags" . "✔")
+          ("export_exclude_tags" . "❌")))
+  (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
+#+end_src
 
-  (global-org-modern-mode))
+Not let's remove the overlap between the substitutions we set here and those
+that Doom applies via =:ui ligatures= and =:lang org=.
+
+#+begin_src emacs-lisp
+(defadvice! +org-init-appearance-h--no-ligatures-a ()
+  :after #'+org-init-appearance-h
+  (set-ligatures! 'org-mode
+    :name nil
+    :src_block nil
+    :src_block_end nil
+    :quote nil
+    :quote_end nil))
+
 #+end_src
 
 **** Image previews
@@ -5372,132 +5449,6 @@ I think it makes sense to have list bullets change with depth
       ;;   (?C . 'all-the-icons-yellow)
       ;;   (?D . 'all-the-icons-green)
       ;;   (?E . 'all-the-icons-blue)))
-#+end_src
-
-It's also nice to make use of the Unicode characters for check boxes, and other
-commands.
-
-#+begin_src emacs-lisp
-(appendq! +ligatures-extra-symbols
-          '(
-            ;; :checkbox                "☐"
-            ;; :pending                 "◼"
-            ;; :checkedbox              "☑"
-            :list_property           "∷"
-            :em_dash                 "—"
-            :ellipses                "…"
-            :arrow_right             "→"
-            :arrow_left              "←"
-            :title                   "𝙏"
-            :subtitle                "𝙩"
-            :language                "𝙇"
-            :author                  "𝘼"
-            :email                   "@"
-            :date                    "𝘿"
-            :property                "☸"
-            :options                 "⌥"
-            :startup                 "⏻"
-            :hugo_base_dir           "𝐇"
-            :macro                   "𝓜"
-            :html_head               "🅷"
-            :html                    "🅗"
-            :latex_class             "🄻"
-            :latex_class_options     "🄻"
-            :latex_header            "🅻"
-            :latex_header_extra      "🅻"
-            :latex_compiler          "⟾"
-            :beamer_header           "🅑"
-            :latex                   "🅛"
-            :attr_latex              "🄛"
-            :attr_html               "🄗"
-            :attr_org                "⒪"
-            :begin_quote             "❝"
-            :end_quote               "❞"
-            :begin_signature         "❝"
-            :end_signature           "❞"
-            :caption                 "☰"
-            :name                    "⁍"
-            :header                  "›"
-            :results                 "🠶"
-            :results_small           "🠶"
-            :begin_export            "⏩"
-            :end_export              "⏪"
-            :filetags                "#"
-            :created                 "⏱"
-            :include                 "⇩"
-            :setupfile               "⇩"
-            :export_file_name        "⇧"
-            :export_select_tags      "✔"
-            :export_exclude_tags     "❌"
-            :properties              "⚙"
-            :end                     "᛫"
-            :properties_small        "⚙"
-            :end_small               "᛫"
-            :priority_a              ,(propertize "⚑" 'face 'all-the-icons-red)
-            :priority_b              ,(propertize "⬆" 'face 'all-the-icons-orange)
-            :priority_c              ,(propertize "■" 'face 'all-the-icons-yellow)
-            :priority_d              ,(propertize "⬇" 'face 'all-the-icons-green)
-            :priority_e              ,(propertize "❓" 'face 'all-the-icons-blue)))
-
-(set-ligatures! 'org-mode
-  :merge t
-  ;; :checkbox                "[ ]"
-  ;; :pending                 "[-]"
-  ;; :checkedbox              "[X]"
-  :list_property           "::"
-  :em_dash                 "---"
-  :ellipsis                "..."
-  :arrow_right             "->"
-  :arrow_left              "<-"
-  :title                   "#+title:"
-  :subtitle                "#+subtitle:"
-  :language                "#+language:"
-  :author                  "#+author:"
-  :email                   "#+email:"
-  :date                    "#+date:"
-  :property                "#+property:"
-  :options                 "#+options:"
-  :startup                 "#+startup:"
-  :hugo_base_dir           "#+hugo_base_dir:"
-  :macro                   "#+macro:"
-  :html_head               "#+html_head:"
-  :html                    "#+html:"
-  :latex_class             "#+latex_class:"
-  :latex_class_options     "#+latex_class_options:"
-  :latex_header            "#+latex_header:"
-  :latex_header_extra      "#+latex_header_extra:"
-  :latex_compiler          "#+latex_compiler:"
-  :beamer_header           "#+beamer_header:"
-  :latex                   "#+latex:"
-  :attr_latex              "#+attr_latex:"
-  :attr_html               "#+attr_html:"
-  :attr_org                "#+attr_org:"
-  :begin_quote             "#+begin_quote"
-  :end_quote               "#+end_quote"
-  :begin_signature         "#+begin_signature"
-  :end_signature           "#+end_signature"
-  :caption                 "#+caption:"
-  :header                  "#+header:"
-  :begin_export            "#+begin_export"
-  :end_export              "#+end_export"
-  :filetags                "#+filetags:"
-  :created                 "#+created:"
-  :include                 "#+include:"
-  :setupfile               "#+setupfile:"
-  :export_file_name        "#+export_file_name:"
-  :export_select_tags      "#+export_select_tags:"
-  :export_exclude_tags     "#+export_exclude_tags:"
-  :results                 "#+RESULTS:"
-  :results_small           "#+results:"
-  :property                ":PROPERTIES:"
-  :end                     ":END:"
-  :property_small          ":properties:"
-  :end_small               ":end:"
-  :priority_a              "[#A]"
-  :priority_b              "[#B]"
-  :priority_c              "[#C]"
-  :priority_d              "[#D]"
-  :priority_e              "[#E]")
 #+end_src
 
 **** LaTeX fragments
