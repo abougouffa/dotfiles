@@ -4372,7 +4372,15 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
 To avoid problems in the src_elisp{(after! org)} section.
 
 #+begin_src emacs-lisp :tangle packages.el
+(unpin! org-roam) ;; To avoid problems with org-roam-ui
+(package! websocket)
+(package! org-roam-ui)
+(package! org-wild-notifier)
+(package! org-fragtog)
+(package! org-ref)
+(package! org-appear)
 (package! org-super-agenda)
+(package! doct)
 
 (package! org-mode
   ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
@@ -4382,32 +4390,17 @@ To avoid problems in the src_elisp{(after! org)} section.
   :recipe (:host github
            :repo "dengste/org-caldav"))
 
-(package! doct)
-
-(package! org-appear)
-
 (package! org-ol-tree
   :recipe (:host github :repo "Townk/org-ol-tree")
   :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
-
-;; To avoid problems with org-roam-ui
-(unpin! org-roam)
-(package! websocket)
-(package! org-roam-ui)
-
-(package! org-wild-notifier)
 
 (package! org-modern
   :recipe (:host github
            :repo "minad/org-modern"))
 
-(package! org-fragtog)
-
 (package! org-bib
   :recipe (:host github
            :repo "rougier/org-bib-mode"))
-
-(package! org-ref)
 
 (package! academic-phrases
   :recipe (:host github
@@ -4433,6 +4426,7 @@ src_elisp{(after! ...)} block.
 *** Behavior :behavior:
 **** Tweaking defaults
 ***** Org basics
+
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/Org/"        ; let's put files here
       org-use-property-inheritance t        ; it's convenient to have properties inherited
@@ -4493,7 +4487,8 @@ specific modes as desired.
 #+end_src
 
 ***** EVIL
-There also seem to be a few keybindings which use =hjkl=, but miss arrow key equivalents.
+There also seem to be a few keybindings which use =hjkl=, but miss arrow key
+equivalents.
 
 #+begin_src emacs-lisp
 (map! :map evil-org-mode-map
@@ -5045,8 +5040,8 @@ For header args, the keys I'll use are:
     ('keyword (string-match-p "^header-args" (org-element-property :value (org-element-context))))))
 #+end_src
 
-Now let's write a function we can reference in yasnippets to produce a nice
-interactive way to specify header args.
+Now let's write a function we can reference in YASnippets to produce a nice
+interactive way to specify header arguments.
 
 #+begin_src emacs-lisp
 (defun +yas/org-prompt-header-arg (arg question values)
@@ -5128,14 +5123,14 @@ Return nil otherwise."
     (car (cl-set-difference src-langs header-langs :test #'string=))))
 #+end_src
 
-**** Translate capital keywords (old) to lower case (new)
+**** Translate capital keywords to lower case
 Everyone used to use ~#+CAPITAL~ keywords. Then people realised that ~#+lowercase~
 is actually both marginally easier and visually nicer, so now the capital
 version is just used in the manual.
 
 #+begin_quote
 Org is standardized on lower case. Uppercase is used in the manual as a poor
-man's bold, and supported for historical reasons. --- [[https://orgmode.org/list/87tuuw3n15.fsf@nicolasgoaziou.fr][Nicolas Goaziou on the Org ML]]
+man's bold, and supported for historical reasons. --- [[https://orgmode.org/list/87tuuw3n15.fsf@nicolasgoaziou.fr][Nicolas Goaziou]]
 #+end_quote
 
 #+begin_src emacs-lisp
