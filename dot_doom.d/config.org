@@ -6768,6 +6768,13 @@ then
 fi
 #+end_src
 
+*** =netpaste=
+Define a =netpaste= command to paste to a Pastebin server.
+
+#+begin_src shell :tangle ~/.zshrc
+alias netpaste='curl -F file=@- 0x0.st' # OR 'curl -F f:1=<- ix.io '
+#+end_src
+
 *** Sudo GUI!
 And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
 with root permissions, this requires =xhost=.
@@ -6781,14 +6788,9 @@ then
 fi
 #+end_src
 
-Define a =netpaste= command to paste to [[https://ptpb.pw][https://ptpb.pw]].
 *** Neovim
 Use Neovim instead of VIM to provide =vi= and =vim= commands.
 
-#+begin_src shell :tangle ~/.env_stuff
-# To copy the output of a command to ptpb.pw
-alias netpaste='curl -F c=@- https://ptpb.pw'
-#+end_src
 #+begin_src shell :tangle ~/.zshrc
 # NeoVim
 if command -v nvim &> /dev/null
