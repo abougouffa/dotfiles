@@ -5163,54 +5163,6 @@ Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-no
   (setq org-wild-notifier-alert-time '(60 30)))
 #+end_src
 
-**** COMMENT Fix problematic hooks
-When one of the src_elisp{org-mode-hook} functions errors, it halts the hook
-execution. This is problematic, and there are two hooks in particular which
-cause issues. Let's make their failure less eventful.
-
-#+begin_src emacs-lisp
-(defadvice! shut-up-org-problematic-hooks (orig-fn &rest args)
-  :around #'org-fancy-priorities-mode
-  :around #'org-superstar-mode
-; :around #'dap-mode-hook
-  (ignore-errors (apply orig-fn args)))
-#+end_src
-
-**** COMMENT LSP support for babel blocks
-
-#+begin_src emacs-lisp
-(cl-defmacro lsp-org-babel-enable (lang)
-  "Support LANG in org source code block."
-  (setq centaur-lsp 'lsp-mode)
-  (cl-check-type lang stringp)
-  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
-         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
-    `(progn
-       (defun ,intern-pre (info)
-         (let ((file-name (->> info caddr (alist-get :file))))
-           (unless file-name
-             (setq file-name (make-temp-file "babel-lsp-")))
-           (setq buffer-file-name file-name)
-           (lsp-deferred)))
-       (put ',intern-pre 'function-documentation
-            (format "Enable lsp-mode in the buffer of org source block (%s)."
-                    (upcase ,lang)))
-       (if (fboundp ',edit-pre)
-           (advice-add ',edit-pre :after ',intern-pre)
-         (progn
-           (defun ,edit-pre (info)
-             (,intern-pre info))
-           (put ',edit-pre 'function-documentation
-                (format "Prepare local buffer environment for org source block (%s)."
-                        (upcase ,lang))))))))
-
-(defvar org-babel-lang-list
-  '("go" "python" "ipython" "bash" "sh" "emacs-lisp" "octave"))
-
-(dolist (lang org-babel-lang-list)
-  (eval `(lsp-org-babel-enable ,lang)))
-#+end_src
-
 *** Custom links
 **** Sub-figures
 This defines a new link type =subfig= to enable exporting sub-figures to LaTeX,
