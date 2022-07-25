@@ -4389,6 +4389,10 @@ To avoid problems in the src_elisp{(after! org)} section.
 
 (package! org-appear)
 
+(package! org-ol-tree
+  :recipe (:host github :repo "Townk/org-ol-tree")
+  :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
+
 ;; To avoid problems with org-roam-ui
 (unpin! org-roam)
 (package! websocket)
@@ -5411,7 +5415,26 @@ that Doom applies via =:ui ligatures= and =:lang org=.
     :src_block_end nil
     :quote nil
     :quote_end nil))
+#+end_src
 
+We’ll bind this to =O= on the =org-mode= localleader, and manually apply a [[https://github.com/Townk/org-ol-tree/pull/13][PR
+recognising the pgtk window system]].
+
+#+begin_src emacs-lisp
+(use-package! org-ol-tree
+  :commands org-ol-tree
+  :config
+  (setq org-ol-tree-ui-icon-set
+        (if (and (display-graphic-p)
+                 (fboundp 'all-the-icons-material))
+            'all-the-icons
+          'unicode))
+  (org-ol-tree-ui--update-icon-set))
+
+(map! :map org-mode-map
+      :after org
+      :localleader
+      :desc "Outline" "O" #'org-ol-tree)
 #+end_src
 
 **** Image previews
