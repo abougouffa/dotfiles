@@ -261,13 +261,6 @@ nav-flash
 (emoji +ascii +unicode +github)
 (treemacs +lsp)
 workspaces
-;;tabs
-;;unicode
-;;neotree
-;;doom-quit
-;;indent-guides
-;;minimap
-;;vi-tilde-fringe
 #+end_src
 
 *** Editor (=:editor=)
@@ -285,10 +278,6 @@ multiple-cursors
 parinfer
 snippets
 word-wrap
-;;lispy
-;;(objed +manual)
-;;god
-;;rotate-text
 #+end_src
 
 *** Emacs builtin stuff (=:emacs=)
@@ -300,7 +289,6 @@ Beautify Emacs builtin packages.
 (ibuffer +icons)
 (undo +tree)
 vc
-;;electric
 #+end_src
 
 *** Terminals (=:term=)
@@ -353,12 +341,6 @@ upload
 (lookup +docsets +dictionary +offline)
 (magit +forge)
 tree-sitter
-;;pass
-;;biblio
-;;ansible
-;;prodigy
-;;taskrunner
-;;terraform
 #+end_src
 
 *** Operating system (=:os=)
@@ -423,7 +405,6 @@ irc
 emms
 everywhere
 (rss +org)
-;;twitter
 #+end_src
 
 ** Additional packages (=packages.el=) :package:
