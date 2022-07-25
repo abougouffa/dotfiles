@@ -4377,8 +4377,9 @@ To avoid problems in the src_elisp{(after! org)} section.
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-super-agenda)
 
-;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
-(package! org-mode :pin "971eb6885ec996c923e955730df3bafbdc244e54")
+(package! org-mode
+  ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
+  :pin "971eb6885ec996c923e955730df3bafbdc244e54")
 
 (package! caldav
   :recipe (:host github
