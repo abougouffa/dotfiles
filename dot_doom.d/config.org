@@ -5279,7 +5279,7 @@ sacrificing visual amenities with the =org-appear= package.
 (use-package! org-modern
   :hook (org-mode . org-modern-mode)
   :config
-  (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+  (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "✸" "▶")
         org-modern-table-vertical 1
         org-modern-table-horizontal 1
         org-modern-list '((43 . "➤")
