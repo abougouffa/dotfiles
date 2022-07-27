@@ -692,8 +692,8 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      doom-big-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 30)
+(setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 22)
+      doom-big-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 32)
       doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Input Serif" :weight 'light))
