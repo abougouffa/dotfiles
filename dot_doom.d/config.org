@@ -41,39 +41,19 @@ chezmoi init --apply abougouffa
 #+end_src
 
 ** Emacs stuff
-For my configuration, I'm using [[https://github.com/plexus/chemacs2][Chemacs2]] to allow using multiple Emacs
-configurations in the same machine. To have a config just like mine:
+To install my Doom Emacs configuration:
 
-- You need to install [[https://github.com/plexus/chemacs2][Chemacs2]] to =~/.emacs.d=:
-
-#+begin_src sh
-# Backup previous Emacs config if any
-[ -f ~/.emacs ] && mv ~/.emacs ~/.emacs.bak
-[ -d ~/.emacs.d ] && mv ~/.emacs.d ~/.emacs.d.bak
-
-# Install Chemacs2
-git clone https://github.com/plexus/chemacs2.git ~/.emacs.d
-#+end_src
-
-- Install [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to =~/.config/emacs.doom= instead of =.emacs.d=:
+- Install [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to =~/.config/emacs= or =.emacs.d=:
 
 #+begin_src sh
-git clone https://github.com/doomemacs/doomemacs.git ~/.config/emacs.doom
+git clone https://github.com/doomemacs/doomemacs.git ~/.config/emacs
 
-~/.config/emacs.doom/bin/doom install
+~/.config/emacs/bin/doom install
 #+end_src
 
-- You can install other Emacs distributions like [[https://github.com/syl20bnr/spacemacs][Spacemacs]]; lets clone it to
-  =~/.config/emacs.spacemacs=, however, I'm not using it anymore, it can just be
-  a fall back solution if I mess up my Doom config and I want to do something
-  quickly:
-
-  #+begin_src
-git clone https://github.com/syl20bnr/spacemacs.git ~/.config/emacs.spacemacs
-#+end_src
-
-- You can now customize =~/.emacs-profiles.el= if you want to. Some additional
-  configurations for Chemacs2 is available in section [[gen-chemacs2]].
+Until [[https://github.com/abougouffa/dotfiles/commit/12b3d20e19db4586b3a11e7b1ffe3772a0e17d14][12b3d20e]], I was using [[https://github.com/plexus/chemacs2][Chemacs2]] to manage multiple Emacs profiles. Since
+I'm using only Doom Emacs, I found keeping Chemacs2 adds only an extra layer of
+complexity, hence, I reverted back to a straightforward Doom Emacs config.
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
@@ -591,27 +571,6 @@ stealing prevention* to /None/ in the KDE Settings.
   (set-face-foreground face (face-attribute 'default :background)))
 
 (set-face-background 'fringe (face-attribute 'default :background))
-#+end_src
-
-** Chemacs2
-<<gen-chemacs2>>
-
-Add Chemacs2 profiles for a set of Emacs configurations. I'm using DOOM Emacs,
-however, I like to try other configs to get inspired!
-
-#+begin_src emacs-lisp :tangle ~/.emacs-profiles.el
-(("doom"      . ((user-emacs-directory . "~/.config/emacs.doom")
-                 (env . (("DOOMDIR" . "~/.doom.d")))))
- ("rational"  . ((user-emacs-directory . "~/.config/emacs.rational")
-                 (env . (("RATIONAL_EMACS_HOME" . "~/.config/emacs.rational")))))
- ("scimax"    . ((user-emacs-directory . "~/.config/emcas.scimax")))
- ("spacemacs" . ((user-emacs-directory . "~/.config/emacs.spacemacs"))))
-#+end_src
-
-Make =doom= the default profile.
-
-#+begin_src text :tangle ~/.emacs-profile
-doom
 #+end_src
 
 * Emacs daemon :daemon:
@@ -6870,8 +6829,8 @@ fi
 # OPAM configuration
 [[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null
 
-# Add ~/.config/emacs.doom/bin to path (for DOOM Emacs stuff)
-export PATH=$PATH:$HOME/.config/emacs.doom/bin
+# Add ~/.config/emacs/bin to path (for DOOM Emacs stuff)
+export PATH=$PATH:$HOME/.config/emacs/bin
 #+end_src
 
 Define some environment variables.
