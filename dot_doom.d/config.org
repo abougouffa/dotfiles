@@ -1,4 +1,3 @@
-# -*- geiser-scheme-implementation: 'guile; org-export-in-background: nil; org-latex-listings: 'minted; eval: (add-to-list 'org-latex-packages-alist '("" "minted")); -*-
 #+title: Doom Emacs Configuration
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
@@ -5407,7 +5406,7 @@ It's nice to customize the look of LaTeX fragments.
 
 #+begin_src emacs-lisp
 ;; (setq org-format-latex-header "\\documentclass{article}
-;; \\usepackage[usenames]{xcolor}
+;; \\usepackage[svgnames]{xcolor}
 ;; \\usepackage[T1]{fontenc}
 ;; \\usepackage{booktabs}
 
