@@ -620,7 +620,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Emojify][Emojify:2]]
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "⏱" "®" "™" "🅱" "❌" ;; "🔚" "🔚"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" "⬆" "⬇" "❓" "⏱" "®" "™" "🅱" "❌" "✳"
     ;; Terminal powerline
     "✔"
     ;; Box drawing
@@ -1204,8 +1204,9 @@ current buffer's, reload dir-locals."
 (setq calendar-latitude 48.7
       calendar-longitude 2.17
       calendar-location-name "Orsay, FR"
-      calendar-time-display-form '(24-hours ":" minutes
-                                            (if time-zone " (") time-zone (if time-zone ")")))
+      calendar-time-display-form
+      '(24-hours ":" minutes
+                 (if time-zone " (") time-zone (if time-zone ")")))
 ;; Calendar:1 ends here
 
 ;; [[file:config.org::*e-Books =nov=][e-Books =nov=:2]]
@@ -3102,7 +3103,7 @@ current buffer's, reload dir-locals."
   (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
-    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+    (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "✸" "▶")
           org-modern-table-vertical 1
           org-modern-table-horizontal 1
           org-modern-list '((43 . "➤")
@@ -3216,7 +3217,7 @@ current buffer's, reload dir-locals."
   (require 'org-src)
   (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
   ;; (setq org-format-latex-header "\\documentclass{article}
-  ;; \\usepackage[usenames]{xcolor}
+  ;; \\usepackage[svgnames]{xcolor}
   ;; \\usepackage[T1]{fontenc}
   ;; \\usepackage{booktabs}
   
