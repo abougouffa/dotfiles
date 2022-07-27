@@ -52,8 +52,8 @@ git clone https://github.com/doomemacs/doomemacs.git ~/.config/emacs
 #+end_src
 
 Until [[https://github.com/abougouffa/dotfiles/commit/12b3d20e19db4586b3a11e7b1ffe3772a0e17d14][12b3d20e]], I was using [[https://github.com/plexus/chemacs2][Chemacs2]] to manage multiple Emacs profiles. Since
-I'm using only Doom Emacs, I found keeping Chemacs2 adds only an extra layer of
-complexity, hence, I reverted back to a straightforward Doom Emacs config.
+I'm using only Doom Emacs and Doom recently introduced a [[https://github.com/doomemacs/doomemacs/commit/5b6b204bcbcf69d541c49ca55a2d5c3604f04dad][new feature to
+bootstrap other Emacs configs]], so I switched to a plain Doom Emacs config.
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
