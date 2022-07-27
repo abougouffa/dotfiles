@@ -3501,7 +3501,7 @@ Add support for Yocto Project files.
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package bitbake-modes
+(use-package! bitbake-modes
   :commands (bitbake-mode
              conf-bitbake-mode
              bb-scc-mode wks-mode
