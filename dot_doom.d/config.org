@@ -1824,8 +1824,8 @@ shortcuts to check the grammar.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! lemon
-  :recipe (:host gitlab
-           :repo "ieure/lemon"))
+  :recipe (:host nil
+           :repo "https://codeberg.org/emacs-weirdware/lemon.git"))
 #+end_src
 
 #+begin_src emacs-lisp
