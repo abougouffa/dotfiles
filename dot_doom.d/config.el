@@ -121,55 +121,9 @@
     (lambda (arg) (recentf-save-list))))
 ;; Save recent files:1 ends here
 
-;; [[file:config.org::*Check for external tools][Check for external tools:1]]
-(defun bool (val) (not (null val))) ;; Convert a value to boolean
-
-(defconst ZOTERO-OK-P (bool (executable-find "zotero")))
-(defconst AG-OK-P (bool (executable-find "ag")))
-(defconst CHEZMOI-OK-P (bool (executable-find "chezmoi")))
-(defconst BITWARDEN-OK-P (bool (executable-find "bw")))
-(defconst REPO-OK-P (bool (executable-find "repo")))
-(defconst MAXIMA-OK-P (bool (executable-find "maxima")))
-(defconst QUARTO-OK-P (bool (executable-find "quarto")))
-(defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
-(defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
-
-(defconst FRICAS-OK-P
-  (bool (and (executable-find "fricas")
-             (file-directory-p "/usr/lib/fricas/emacs"))))
-
-(defconst EAF-OK-P
-  (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
-             ;; EAF doesn't work with LUCID build, however, I found LUCID more stable for
-             ;; Emacs daemon + emacsclient usage. So, this section will not be used for LUCID builds.
-             (not (string-search "LUCID" system-configuration-features)))))
-
-(defconst NETEXTENDER-OK-P
-  (let ((ok (bool (and (executable-find "netExtender")
-                       (file-exists-p "~/.local/bin/netextender")
-                       (file-exists-p "~/.ssh/netExtender-params.gpg")))))
-    (unless ok (warn "Missing netExtender dependencies."))
-    ok)
-  "Evaluates to 't' when a valid netExtender configuration is present, 'nil' otherwise.")
-
-(defconst MPD-OK-P
-  (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
-    (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-    ok)
-  "Evaluates to 't' when MPD and MPC commands are present, 'nil' otherwise.")
-
-(defconst MPV-OK-P
-  (let ((ok (bool (and MPD-OK-P
-                       (executable-find "mpv")
-                       (executable-find "youtube-dl")))))
-    (unless ok (warn "Missing MPV or youtube-dl."))
-    (and nil ok)) ;; NOTE: disabled
-  "Evaluates to 't' when MPV and youtube-dl commands are present, 'nil' otherwise.")
-;; Check for external tools:1 ends here
-
 ;; [[file:config.org::*Font][Font:1]]
-(setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 20)
-      doom-big-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 30)
+(setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 22)
+      doom-big-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 32)
       doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Input Serif" :weight 'light))
@@ -697,29 +651,6 @@ current buffer's, reload dir-locals."
              guess-language-mark-lines))
 ;; Guess language:2 ends here
 
-;; [[file:config.org::*Grammarly][Grammarly:2]]
-(use-package! grammarly
-  :config
-  (grammarly-load-from-authinfo))
-
-(if (featurep! :tools lsp +eglot)
-    (use-package! eglot-grammarly
-      :commands (+lsp-grammarly-load)
-      :init
-      (defun +lsp-grammarly-load ()
-        "Load Grammarly LSP server."
-        (interactive)
-        (require 'eglot-grammarly)
-        (call-interactively #'eglot)))
-  (use-package! lsp-grammarly
-    :commands (+lsp-grammarly-load)
-    :init
-    (defun +lsp-grammarly-load ()
-      "Load Grammarly LSP server."
-      (require 'lsp-grammarly)
-      (lsp-deferred)))) ;; or (lsp)
-;; Grammarly:2 ends here
-
 ;; [[file:config.org::*Grammalecte][Grammalecte:2]]
 (use-package! flycheck-grammalecte
   :commands (flycheck-grammalecte-correct-error-at-point
@@ -763,7 +694,8 @@ current buffer's, reload dir-locals."
         flyspell-lazy-window-idle-seconds 5))
 ;; Lazy flyspell:1 ends here
 
-;; [[file:config.org::*LanguageTool][LanguageTool:1]]
+;; [[file:config.org::*Doom's =:checkers grammar=][Doom's =:checkers grammar=:1]]
+;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :checkers grammar)
        :prefix-map ("l" . "langtool")
@@ -775,7 +707,23 @@ current buffer's, reload dir-locals."
        :desc "Next error"              "n" #'langtool-goto-next-error
        :desc "Previous error"          "p" #'langtool-goto-previous-error
        :desc "Switch default language" "L" #'langtool-switch-default-language))
-;; LanguageTool:1 ends here
+;; Doom's =:checkers grammar=:1 ends here
+
+;; [[file:config.org::*Flycheck][Flycheck:2]]
+(use-package! flycheck-languagetool
+  :ensure t
+  :hook (text-mode . flycheck-languagetool-setup)
+  :init
+  (if LANGUAGETOOL-OK-P
+      (setq flycheck-languagetool-server-command '("languagetool" "--http"))
+    ;; Else, use a remote server config with LanguageTool's free API
+    (setq flycheck-languagetool-url "https://api.languagetool.org"
+          flycheck-languagetool-server-port nil
+          flycheck-languagetool-server-jar nil))
+
+  (setq flycheck-languagetool-language "auto"
+        flycheck-languagetool-check-params '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE"))))
+;; Flycheck:2 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:2]]
 (use-package! disk-usage
@@ -1751,6 +1699,19 @@ current buffer's, reload dir-locals."
   :commands (fricas-mode fricas-eval fricas))
 ;; FriCAS:1 ends here
 
+;; [[file:config.org::*Dirvish][Dirvish:1]]
+;; (after! dirvish
+;;   (setq
+;;    ;; dirvish-mode-line-format ; it's ok to place string inside
+;;    ;; '(:left (sort file-time " " file-size symlink) :right (omit yank index))
+;;    ;; Don't worry, Dirvish is still performant even you enable all these attributes
+;;    dirvish-attributes '(all-the-icons file-size subtree-state vc-state git-msg)
+;;    ;; Maybe the icons are too big to your eyes
+;;    dirvish-all-the-icons-height 0.8
+;;    ;; In case you want the details at startup like `dired'
+;;    dirvish-hide-details t))
+;; Dirvish:1 ends here
+
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
 (set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
@@ -1864,7 +1825,7 @@ current buffer's, reload dir-locals."
 ;; Embed.el:2 ends here
 
 ;; [[file:config.org::*Bitbake (Yocto)][Bitbake (Yocto):2]]
-(use-package bitbake-modes
+(use-package! bitbake-modes
   :commands (bitbake-mode
              conf-bitbake-mode
              bb-scc-mode wks-mode

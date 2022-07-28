@@ -42,26 +42,17 @@
            :repo "tmalsburg/guess-language.el"))
 ;; Guess language:1 ends here
 
-;; [[file:config.org::*Grammarly][Grammarly:1]]
-(package! grammarly
-  :recipe (:host github
-           :repo "emacs-grammarly/grammarly"))
-
-;; Install the suitable LSP frontend
-(if (featurep! :tools lsp +eglot)
-  (package! eglot-grammarly
-    :recipe (:host github
-             :repo "emacs-grammarly/eglot-grammarly"))
-  (package! lsp-grammarly
-    :recipe (:host github
-             :repo "emacs-grammarly/lsp-grammarly")))
-;; Grammarly:1 ends here
-
 ;; [[file:config.org::*Grammalecte][Grammalecte:1]]
 (package! flycheck-grammalecte
   :recipe (:host github
            :repo "milouse/flycheck-grammalecte"))
 ;; Grammalecte:1 ends here
+
+;; [[file:config.org::*Flycheck][Flycheck:1]]
+(package! flycheck-languagetool
+  :recipe (:host github
+           :repo "abougouffa/flycheck-languagetool")) ;; "emacs-languagetool/flycheck-languagetool"
+;; Flycheck:1 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:1]]
 (package! disk-usage)
@@ -79,8 +70,8 @@
 
 ;; [[file:config.org::*Lemon][Lemon:1]]
 (package! lemon
-  :recipe (:host gitlab
-           :repo "ieure/lemon"))
+  :recipe (:host nil
+           :repo "https://codeberg.org/emacs-weirdware/lemon.git"))
 ;; Lemon:1 ends here
 
 ;; [[file:config.org::*Weather][Weather:1]]
