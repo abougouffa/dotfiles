@@ -1629,6 +1629,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
     :init
     (defun +lsp-grammarly-load ()
       "Load Grammarly LSP server."
+      (interactive)
       (require 'lsp-grammarly)
       (lsp-deferred)))) ;; or (lsp)
 #+end_src
