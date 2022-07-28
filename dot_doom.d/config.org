@@ -1848,7 +1848,9 @@ Doom Emacs uses =Emacs-langtool= package in the =grammar= module. Lets try
           flycheck-languagetool-server-jar nil))
 
   (setq flycheck-languagetool-language "auto"
-        flycheck-languagetool-check-params '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE"))))
+        ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
+        flycheck-languagetool-check-params '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE")
+                                             ("motherTongue" . "ar"))))
 #+end_src
 
 ** System tools :system:
