@@ -1838,16 +1838,11 @@ Doom Emacs uses =Emacs-langtool= package in the =grammar= module. Lets try
 #+begin_src emacs-lisp
 (use-package! flycheck-languagetool
   :ensure t
+  :when LANGUAGETOOL-OK-P
   :hook (text-mode . flycheck-languagetool-setup)
   :init
-  (if LANGUAGETOOL-OK-P
-      (setq flycheck-languagetool-server-command '("languagetool" "--http"))
-    ;; Else, use a remote server config with LanguageTool's free API
-    (setq flycheck-languagetool-url "https://api.languagetool.org"
-          flycheck-languagetool-server-port nil
-          flycheck-languagetool-server-jar nil))
-
-  (setq flycheck-languagetool-language "auto"
+  (setq flycheck-languagetool-server-command '("languagetool" "--http")
+        flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE")
                                              ("motherTongue" . "ar"))))
