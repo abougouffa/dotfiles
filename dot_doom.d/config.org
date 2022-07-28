@@ -132,6 +132,7 @@ tools and store the result in global constants.
 (defun bool (val) (not (null val))) ;; Convert a value to boolean
 
 (defconst ZOTERO-OK-P (bool (executable-find "zotero")))
+(defconst LANGUAGETOOL-OK-P (bool (executable-find "languagetool")))
 (defconst AG-OK-P (bool (executable-find "ag")))
 (defconst CHEZMOI-OK-P (bool (executable-find "chezmoi")))
 (defconst BITWARDEN-OK-P (bool (executable-find "bw")))
@@ -344,7 +345,7 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 #+begin_src emacs-lisp
 (syntax +childframe)
 (spell +aspell)
-grammar
+;; grammar
 #+end_src
 
 *** Tools (=:tools=)
@@ -1730,10 +1731,42 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 #+end_src
 
 *** LanguageTool :langtool:
-Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool][LSP]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] implementations. This section defines some
-shortcuts to check the grammar.
+**** COMMENT LTeX
+Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool][LSP]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] implementations.
+
+#+begin_src emacs-lisp :tangle packages.el
+;; Needed, but not installed automatically
+(package! github-tags
+  :recipe (:host github
+           :repo "jcs-elpa/github-tags"))
+
+(package! lsp-ltex
+  :recipe (:host github
+           :repo "emacs-languagetool/lsp-ltex"))
+#+end_src
 
 #+begin_src emacs-lisp
+(use-package! lsp-ltex
+  :commands (+lsp-ltex-load)
+  :init
+  (setq lsp-ltex-language "fr"
+        lsp-ltex-disabled-rules '("FRENCH_WHITESPACE"))
+
+  (defun +lsp-ltex-load ()
+    "Load LTeX LSP server."
+    (interactive)
+    (require 'lsp-ltex)
+    (lsp-deferred))
+
+  :config
+  (setq flycheck-checker-error-threshold 10000))
+#+end_src
+
+**** Doom's =:checkers grammar=
+This section defines some shortcuts to check the grammar.
+
+#+begin_src emacs-lisp :tangle yes
+;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :checkers grammar)
        :prefix-map ("l" . "langtool")
@@ -1745,6 +1778,76 @@ shortcuts to check the grammar.
        :desc "Next error"              "n" #'langtool-goto-next-error
        :desc "Previous error"          "p" #'langtool-goto-previous-error
        :desc "Switch default language" "L" #'langtool-switch-default-language))
+
+#+end_src
+
+**** COMMENT =languagetool.el=
+Doom Emacs uses =Emacs-langtool= package in the =grammar= module. Lets try
+=languagetool.el=!
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! languagetool
+  :recipe (:host github
+           :repo "PillFall/languagetool.el"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! languagetool
+  :when (and LANGUAGETOOL-OK-P (not (featurep! :checkers grammar)))
+  :commands (languagetool-check
+             languagetool-clear-suggestions
+             languagetool-correct-at-point
+             languagetool-correct-buffer
+             languagetool-set-language
+             languagetool-server-mode
+             languagetool-server-start
+             languagetool-server-stop)
+  :config
+  (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8"
+                                      "-cp" "/usr/share/languagetool:/usr/share/java/languagetool/*")
+        languagetool-console-command "org.languagetool.commandline.Main"
+        languagetool-server-command "org.languagetool.server.HTTPServer"
+        languagetool-mother-tongue "ar"
+        languagetool-correction-language "auto"))
+#+end_src
+
+#+begin_src emacs-lisp
+;; Keybinding for `languagetool.el'
+(map! :leader :prefix ("l" . "custom")
+      (:when (and LANGUAGETOOL-OK-P (not (featurep! :checkers grammar)))
+       :prefix-map ("l" . "languagetool")
+       :desc "Check"             "l" #'languagetool-check
+       :desc "Correct buffer"    "b" #'languagetool-correct-buffer
+       :desc "Stop server"       "s" #'languagetool-server-stop
+       :desc "Start server"      "S" #'languagetool-server-start
+       :desc "Clear suggestions" "d" #'languagetool-clear-suggestions
+       :desc "Correct at point"  "m" #'languagetool-correct-at-point
+       :desc "languagetool-server-mode" "M" #'languagetool-server-mode
+       :desc "Set language"      "L" #'languagetool-set-language))
+#+end_src
+
+**** Flycheck
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! flycheck-languagetool
+  :recipe (:host github
+           :repo "abougouffa/flycheck-languagetool")) ;; "emacs-languagetool/flycheck-languagetool"
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! flycheck-languagetool
+  :ensure t
+  :hook (text-mode . flycheck-languagetool-setup)
+  :init
+  (if LANGUAGETOOL-OK-P
+      (setq flycheck-languagetool-server-command '("languagetool" "--http"))
+    ;; Else, use a remote server config with LanguageTool's free API
+    (setq flycheck-languagetool-url "https://api.languagetool.org"
+          flycheck-languagetool-server-port nil
+          flycheck-languagetool-server-jar nil))
+
+  (setq flycheck-languagetool-language "auto"
+        flycheck-languagetool-check-params '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE"))))
 #+end_src
 
 ** System tools :system:
