@@ -131,46 +131,27 @@ Some of the added packages require external tools, I like to check for these
 tools and store the result in global constants.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
-(defun bool (val) (not (null val))) ;; Convert a value to boolean
+(defun bool (val) (not (null val)))
 
-(defconst AG-OK-P (bool (executable-find "ag")))
-(defconst REPO-OK-P (bool (executable-find "repo")))
-(defconst MAXIMA-OK-P (bool (executable-find "maxima")))
-(defconst QUARTO-OK-P (bool (executable-find "quarto")))
-(defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
-(defconst ZOTERO-OK-P (bool (executable-find "zotero")))
-(defconst CHEZMOI-OK-P (bool (executable-find "chezmoi")))
-(defconst BITWARDEN-OK-P (bool (executable-find "bw")))
-(defconst LANGUAGETOOL-OK-P (bool (executable-find "languagetool")))
-(defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
+;; Some packages do not work correctly on Emacs built with the LUCID feature
+(defconst IS-LUCID (bool (string-search "LUCID" system-configuration-features)))
 
-(defconst EAF-OK-P
-  (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
-             ;; EAF seems to not work with LUCID build.
-             (not (string-search "LUCID" system-configuration-features)))))
-
-(defconst MPD-OK-P
-  (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
-    (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-    ok))
-
-(defconst MPV-OK-P
-  (let ((ok (bool (and MPD-OK-P
-                       (executable-find "mpv")
-                       (executable-find "youtube-dl")))))
-    (unless ok (warn "Missing MPV or youtube-dl."))
-    (and nil ok))) ;; NOTE: disabled)
-
-(defconst FRICAS-OK-P
-  (bool (and (executable-find "fricas")
-             (file-directory-p "/usr/lib/fricas/emacs"))))
-
-(defconst NETEXTENDER-OK-P
-  (let ((ok (bool (and (executable-find "netExtender")
-                       (file-exists-p "~/.local/bin/netextender")
-                       (file-exists-p "~/.ssh/netExtender-params.gpg")))))
-    (unless ok (warn "Missing netExtender dependencies."))
-    ok))
+(defconst AG-P (bool (executable-find "ag")))
+(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p (expand-file-name "eaf/eaf-repo" doom-etc-dir)))))
+(defconst MPD-P (bool (and (executable-find "mpc") (executable-find "mpd"))))
+(defconst MPV-P (bool (executable-find "mpv")))
+(defconst REPO-P (bool (executable-find "repo")))
+(defconst FRICAS-P (bool (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs"))))
+(defconst MAXIMA-P (bool (executable-find "maxima")))
+(defconst QUARTO-P (bool (executable-find "quarto")))
+(defconst ROSBAG-P (bool (executable-find "rosbag")))
+(defconst ZOTERO-P (bool (executable-find "zotero")))
+(defconst CHEZMOI-P (bool (executable-find "chezmoi")))
+(defconst BITWARDEN-P (bool (executable-find "bw")))
+(defconst YOUTUBE-DL-P (bool (or (executable-find "yt-dlp") (executable-find "youtube-dl"))))
+(defconst NETEXTENDER-P (bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
+(defconst CLANG-FORMAT-P (bool (executable-find "clang-format")))
+(defconst LANGUAGETOOL-P (bool (executable-find "languagetool")))
 #+end_src
 
 ** Doom modules (=init.el=) :module:
@@ -1778,12 +1759,12 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
   ;; pacakge manager (like ngrams)
-  (when LANGUAGETOOL-OK-P
+  (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
-  (when LANGUAGETOOL-OK-P
+  (when LANGUAGETOOL-P
     (+languagetool-server-start))
   (setq flycheck-checker-error-threshold 5000))
 #+end_src
@@ -1799,7 +1780,7 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
 
 #+begin_src emacs-lisp
 (use-package! flycheck-languagetool
-  :when LANGUAGETOOL-OK-P
+  :when LANGUAGETOOL-P
   :hook (text-mode . flycheck-languagetool-setup)
   :init
   (setq flycheck-languagetool-server-command '("languagetool" "--http")
@@ -1830,7 +1811,7 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
 
 #+begin_src emacs-lisp
 (use-package! chezmoi
-  :when CHEZMOI-OK-P
+  :when CHEZMOI-P
   :commands (chezmoi-write
              chezmoi-magit-status
              chezmoi-diff
@@ -2057,7 +2038,7 @@ Better colors for manual pages.
 
 #+begin_src emacs-lisp
 (use-package! zotxt
-  :when ZOTERO-OK-P
+  :when ZOTERO-P
   :commands org-zotxt-mode)
 #+end_src
 
@@ -2087,7 +2068,7 @@ pacman -S the_silver_searcher=.
 
 #+begin_src emacs-lisp
 (use-package! ag
-  :when AG-OK-P
+  :when AG-P
   :commands (ag
              ag-files
              ag-regexp
@@ -2110,7 +2091,7 @@ dependencies.
 (defconst EAF-DIR (expand-file-name "emacs-application-framework" doom-etc-dir))
 
 (use-package! eaf
-  :when EAF-OK-P
+  :when EAF-P
   :load-path EAF-DIR
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
@@ -2293,7 +2274,7 @@ dependencies.
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-  :when BITWARDEN-OK-P
+  :when BITWARDEN-P
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -2517,7 +2498,7 @@ echo "Y\n" | netExtender --auto-reconnect \
 *** Launch NetExtender session from Emacs
 
 #+begin_src emacs-lisp
-(when NETEXTENDER-OK-P
+(when NETEXTENDER-P
   (defvar +netextender-process-name "netextender")
   (defvar +netextender-buffer-name "*netextender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
@@ -3010,7 +2991,7 @@ default backend EMMS is using.
   ;; EMMS basic configuration
   (require 'emms-setup)
 
-  (when MPD-OK-P
+  (when MPD-P
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -3021,7 +3002,7 @@ default backend EMMS is using.
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if MPD-OK-P
+  (if MPD-P
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
@@ -3039,7 +3020,7 @@ default backend EMMS is using.
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when MPD-OK-P
+  (when MPD-P
     (emms-player-set emms-player-mpd 'regex
                      (emms-player-simple-regexp
                       "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
@@ -3113,7 +3094,7 @@ default backend EMMS is using.
                                 +emms-notification-icon)))
 
   ;; MPV and Youtube integration
-  (when MPV-OK-P
+  (when MPV-P
     (add-to-list 'emms-player-list 'emms-player-mpv t)
     (emms-player-set
      emms-player-mpv
@@ -3172,7 +3153,7 @@ gunicorn main:app
 
 #+begin_src emacs-lisp
 (after! (elfeed emms)
-  (when MPV-OK-P
+  (when MPV-P
     ;; Integration with Elfeed
     (define-emms-source elfeed (entry)
       (let ((track (emms-track
@@ -3226,7 +3207,7 @@ Then we add MPD related keybindings if MPD is used.
 #+begin_src emacs-lisp
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) MPD-OK-P)
+      (:when (and (featurep! :app emms) MPD-P)
        :prefix-map ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -3273,7 +3254,7 @@ added some minor stuff.
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
     (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
     ;; Force a sync to get the right song name over MPD in mode line
-    (when MPD-OK-P (emms-player-mpd-sync-from-mpd))
+    (when MPD-P (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
@@ -3305,7 +3286,7 @@ specify a recipe; however, installing it directly seems to not install
 
 #+begin_src emacs-lisp
 (use-package! maxima
-  :when MAXIMA-OK-P
+  :when MAXIMA-P
   :commands (maxima-mode maxima-inferior-mode maxima)
   :init
   (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
@@ -3335,7 +3316,7 @@ sub-directory ~interfaces/emacs/imaxima~.
 
 #+begin_src emacs-lisp
 (use-package! imaxima
-  :when MAXIMA-OK-P
+  :when MAXIMA-P
   :commands (imaxima imath-mode)
   :init
   (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
@@ -3350,7 +3331,7 @@ The FriCAS cames bundled with an Emacs mode, lets load it.
 
 #+begin_src emacs-lisp
 (use-package! fricas
-  :when FRICAS-OK-P
+  :when FRICAS-P
   :load-path "/usr/lib/fricas/emacs"
   :commands (fricas-mode fricas-eval fricas))
 #+end_src
@@ -3431,7 +3412,7 @@ Add ROS specific file formats:
 Mode to view ROS =.bag= files. Taken from [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]].
 
 #+begin_src emacs-lisp
-(when ROSBAG-OK-P
+(when ROSBAG-P
   (define-derived-mode rosbag-view-mode
     fundamental-mode "Rosbag view mode"
     "Major mode for viewing ROS bag files."
@@ -4158,7 +4139,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
 
 #+begin_src emacs-lisp
 (use-package! clang-format
-  :when CLANG-FORMAT-OK-P
+  :when CLANG-FORMAT-P
   :commands (clang-format-region))
 #+end_src
 
@@ -4179,7 +4160,7 @@ chmod a+x ${REPO_PATH}
 
 #+begin_src emacs-lisp
 (use-package! repo
-  :when REPO-OK-P
+  :when REPO-P
   :commands repo-status)
 #+end_src
 
@@ -5997,7 +5978,7 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
 
 #+begin_src emacs-lisp
 (use-package! quarto-mode
-  :when QUARTO-OK-P)
+  :when QUARTO-P)
 #+end_src
 
 * System configuration :linux:system:
