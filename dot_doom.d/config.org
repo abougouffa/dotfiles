@@ -1429,13 +1429,13 @@ current buffer's, reload dir-locals."
         (when (equal default-directory dir)
           (+dir-locals-reload-for-current-buffer))))))
 
-(add-hook!
- '(emacs-lisp-mode-hook lisp-data-mode-hook)
- (defun enable-autoreload-for-dir-locals ()
-   (when (and (buffer-file-name)
-              (equal dir-locals-file (file-name-nondirectory (buffer-file-name))))
-     (message "Dir-locals will be reloaded after saving.")
-     (add-hook 'after-save-hook '+dir-locals-reload-for-all-buffers-in-this-directory nil t))))
+(defun +dir-locals-enable-autoreload ()
+  (when (and (buffer-file-name)
+             (equal dir-locals-file (file-name-nondirectory (buffer-file-name))))
+    (message "Dir-locals will be reloaded after saving.")
+    (add-hook 'after-save-hook '+dir-locals-reload-for-all-buffers-in-this-directory nil t)))
+
+(add-hook! '(emacs-lisp-mode-hook lisp-data-mode-hook) #'+dir-locals-enable-autoreload)
 #+end_src
 
 ** Symbols :symbol:
