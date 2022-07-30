@@ -3533,6 +3533,14 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
          :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
 #+end_src
 
+*** Arduino
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! arduino-mode
+  :recipe (:host github
+           :repo "bookest/arduino-mode"))
+#+end_src
+
 *** Bitbake (Yocto) :bitbake:yocto:
 Add support for Yocto Project files.
 
