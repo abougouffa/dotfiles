@@ -646,7 +646,7 @@ frame/terminal is deleted.
 #+begin_src emacs-lisp
 (when (daemonp)
   (add-hook! '(delete-frame-functions delete-terminal-functions)
-    (lambda (arg) (recentf-save-list))))
+    (recentf-save-list)))
 #+end_src
 
 * Package configuration :package:
