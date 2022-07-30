@@ -1777,11 +1777,12 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
   ;; In this way, I can configure it to use the extra stuff installed from the
   ;; pacakge manager (like ngrams)
   (when LANGUAGETOOL-OK-P
-    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081")
-    (+languagetool-server-start))
+    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
+  (when LANGUAGETOOL-OK-P
+    (+languagetool-server-start))
   (setq flycheck-checker-error-threshold 5000))
 #+end_src
 
