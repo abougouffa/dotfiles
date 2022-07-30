@@ -157,7 +157,7 @@ tools and store the result in global constants.
                        (executable-find "mpv")
                        (executable-find "youtube-dl")))))
     (unless ok (warn "Missing MPV or youtube-dl."))
-    (and nil ok)) ;; NOTE: disabled)
+    (and nil ok))) ;; NOTE: disabled)
 
 (defconst FRICAS-OK-P
   (bool (and (executable-find "fricas")
