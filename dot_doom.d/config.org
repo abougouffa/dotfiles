@@ -1688,7 +1688,28 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 #+end_src
 
 *** LanguageTool :langtool:
-**** COMMENT LTeX
+**** Doom's =:checkers grammar=
+This section defines some shortcuts to check the grammar.
+
+#+begin_src emacs-lisp :tangle yes
+(setq langtool-default-language "auto")
+
+;; Keybinding for `langtool' (of module `:checkers grammar')
+(map! :leader :prefix ("l" . "custom")
+      (:when (featurep! :checkers grammar)
+       :prefix-map ("l" . "langtool")
+       :desc "Check"                   "l" #'langtool-check
+       :desc "Correct buffer"          "b" #'langtool-correct-buffer
+       :desc "Stop server"             "s" #'langtool-server-stop
+       :desc "Done checking"           "d" #'langtool-check-done
+       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
+       :desc "Next error"              "n" #'langtool-goto-next-error
+       :desc "Previous error"          "p" #'langtool-goto-previous-error
+       :desc "Switch default language" "L" #'langtool-switch-default-language))
+
+#+end_src
+
+**** LTeX :lsp:
 Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool][LSP]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] implementations.
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1719,26 +1740,7 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
   (setq flycheck-checker-error-threshold 10000))
 #+end_src
 
-**** Doom's =:checkers grammar=
-This section defines some shortcuts to check the grammar.
-
-#+begin_src emacs-lisp :tangle yes
-;; Keybinding for `langtool' (of module `:checkers grammar')
-(map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :checkers grammar)
-       :prefix-map ("l" . "langtool")
-       :desc "Check"                   "l" #'langtool-check
-       :desc "Correct buffer"          "b" #'langtool-correct-buffer
-       :desc "Stop server"             "s" #'langtool-server-stop
-       :desc "Done checking"           "d" #'langtool-check-done
-       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
-       :desc "Next error"              "n" #'langtool-goto-next-error
-       :desc "Previous error"          "p" #'langtool-goto-previous-error
-       :desc "Switch default language" "L" #'langtool-switch-default-language))
-
-#+end_src
-
-**** Flycheck
+**** Flycheck :flycheck:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! flycheck-languagetool
@@ -1855,11 +1857,12 @@ This section defines some shortcuts to check the grammar.
   (require 'lemon-network)
   (setq lemon-delay 5
         lemon-refresh-rate 2
-        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
-                              (lemon-cpu-linux)
-                              (lemon-memory-linux)
-                              (lemon-linux-network-tx)
-                              (lemon-linux-network-rx)))))
+        lemon-monitors
+        (list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
+                (lemon-cpu-linux)
+                (lemon-memory-linux)
+                (lemon-linux-network-tx)
+                (lemon-linux-network-rx)))))
 #+end_src
 
 *** eCryptfs
