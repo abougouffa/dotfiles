@@ -4120,24 +4120,6 @@ together =project=, =eglot=, =cmake= and =clangd=.
     (project-cmake-eglot-integration))
 #+end_src
 
-*** Unibeautify :format:
-The next-gen beautifier? Add initial support for [[https://github.com/Unibeautify/cli][Unibeautify]].
-
-#+begin_example shell :noeval :export no
-npm install -g @unibeautify/cli
-#+end_example
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! unibeautify
-  :recipe (:host github
-           :repo "Unibeautify/emacs"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle yes
-(use-package! unibeautify
-  :commands (unibeautify))
-#+end_src
-
 *** FZF :fzf:
 
 #+begin_src emacs-lisp :tangle packages.el
