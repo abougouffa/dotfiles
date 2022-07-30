@@ -4560,7 +4560,7 @@ Configure =org-super-agenda=
 
 #+begin_src emacs-lisp
 (use-package! org-super-agenda
-  :after org-agenda
+  :defer t
   :config
   (org-super-agenda-mode)
   :init
