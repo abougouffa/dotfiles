@@ -2320,8 +2320,18 @@ using the =m z=.
   (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
 #+end_src
 
+*** LTDR
+Add the =tldr.el= client for [[https://github.com/tldr-pages/tldr][TLDR pages]].
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! tldr)
+#+end_src
 
 #+begin_src emacs-lisp
+(use-package! tldr
+  :commands (tldr-update-docs tldr)
+  :init
+  (setq tldr-enabled-categories '("common" "linux" "osx" "sunos")))
 #+end_src
 
 ** Fun :fun:
