@@ -4335,12 +4335,22 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! mermaid-mode)
+
+(package! ob-mermaid
+  :recipe (:host github
+           :repo "arnm/ob-mermaid"))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! mermaid-mode
   :commands mermaid-mode
   :mode ("\\.mmd\\'"))
+
+(use-package! ob-mermaid
+  :after org
+  :init
+  (after! org
+    (add-to-list 'org-babel-load-languages '(mermaid . t))))
 #+end_src
 
 ** Inspector :inspector:debug:
