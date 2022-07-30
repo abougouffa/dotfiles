@@ -1599,14 +1599,17 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
 
-;; Install the suitable LSP frontend
-(if (featurep! :tools lsp +eglot)
-  (package! eglot-grammarly
-    :recipe (:host github
-             :repo "emacs-grammarly/eglot-grammarly"))
-  (package! lsp-grammarly
-    :recipe (:host github
-             :repo "emacs-grammarly/lsp-grammarly")))
+;; Install the suitable LSP frontend (Eglot / LSP Mode)
+(package! eglot-grammarly
+  :disable (not (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-grammarly/eglot-grammarly"))
+
+(package! lsp-grammarly
+  :disable (and (featurep! :tools lsp)
+                (not (featurep! :tools lsp +eglot)))
+  :recipe (:host github
+           :repo "emacs-grammarly/lsp-grammarly"))
 #+end_src
 
 #+begin_src emacs-lisp
