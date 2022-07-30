@@ -42,14 +42,50 @@
            :repo "tmalsburg/guess-language.el"))
 ;; Guess language:1 ends here
 
+;; [[file:config.org::*Grammarly][Grammarly:1]]
+(package! grammarly
+  :recipe (:host github
+           :repo "emacs-grammarly/grammarly"))
+
+;; Install the suitable LSP frontend (Eglot / LSP Mode)
+(package! eglot-grammarly
+  :disable (not (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-grammarly/eglot-grammarly"))
+
+(package! lsp-grammarly
+  :disable (and (featurep! :tools lsp)
+                (not (featurep! :tools lsp +eglot)))
+  :recipe (:host github
+           :repo "emacs-grammarly/lsp-grammarly"))
+;; Grammarly:1 ends here
+
 ;; [[file:config.org::*Grammalecte][Grammalecte:1]]
 (package! flycheck-grammalecte
   :recipe (:host github
            :repo "milouse/flycheck-grammalecte"))
 ;; Grammalecte:1 ends here
 
+;; [[file:config.org::*LTeX][LTeX:1]]
+;; Needed, but not installed automatically
+(package! github-tags
+  :recipe (:host github
+           :repo "jcs-elpa/github-tags"))
+
+(package! lsp-ltex
+  :disable (and (featurep! :tools lsp) (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-languagetool/lsp-ltex"))
+
+(package! eglot-ltex
+  :disable (not (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-languagetool/eglot-ltex"))
+;; LTeX:1 ends here
+
 ;; [[file:config.org::*Flycheck][Flycheck:1]]
 (package! flycheck-languagetool
+  :disable t ;; Disabled, using LTeX LSP
   :recipe (:host github
            :repo "abougouffa/flycheck-languagetool")) ;; "emacs-languagetool/flycheck-languagetool"
 ;; Flycheck:1 ends here
@@ -112,6 +148,10 @@
   :recipe (:host github
            :repo "seanfarley/emacs-bitwarden"))
 ;; Bitwarden:1 ends here
+
+;; [[file:config.org::*LTDR][LTDR:1]]
+(package! tldr)
+;; LTDR:1 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:1]]
 (package! speed-type)
@@ -178,6 +218,12 @@
            :repo "sjsch/embed-el"))
 ;; Embed.el:1 ends here
 
+;; [[file:config.org::*Arduino][Arduino:1]]
+(package! arduino-mode
+  :recipe (:host github
+           :repo "bookest/arduino-mode"))
+;; Arduino:1 ends here
+
 ;; [[file:config.org::*Bitbake (Yocto)][Bitbake (Yocto):1]]
 (package! bitbake-modes
   :recipe (:host bitbucket
@@ -205,12 +251,6 @@
   :recipe (:host github
            :repo "juanjosegarciaripoll/project-cmake"))
 ;; Project CMake:1 ends here
-
-;; [[file:config.org::*Unibeautify][Unibeautify:1]]
-(package! unibeautify
-  :recipe (:host github
-           :repo "Unibeautify/emacs"))
-;; Unibeautify:1 ends here
 
 ;; [[file:config.org::*FZF][FZF:1]]
 (package! fzf)

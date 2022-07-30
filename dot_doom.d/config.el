@@ -651,6 +651,36 @@ current buffer's, reload dir-locals."
              guess-language-mark-lines))
 ;; Guess language:2 ends here
 
+;; [[file:config.org::*Grammarly][Grammarly:2]]
+(use-package! grammarly
+  :config
+  (grammarly-load-from-authinfo))
+
+(use-package! eglot-grammarly
+  :when (featurep! :tools lsp +eglot)
+  :commands (+lsp-grammarly-load)
+  :init
+  (defun +lsp-grammarly-load ()
+    "Load Grammarly LSP server for Eglot."
+    (interactive)
+    (require 'eglot-grammarly)
+    (call-interactively #'eglot)))
+
+(use-package! lsp-grammarly
+  :when (and (featurep! :tools lsp)
+             (not (featurep! :tools lsp +eglot)))
+  :commands (+lsp-grammarly-load)
+  :init
+  (defun +lsp-grammarly-load ()
+    "Load Grammarly LSP server for LSP Mode."
+    (interactive)
+    (require 'lsp-grammarly)
+    (lsp-deferred)) ;; or (lsp)
+
+  :config
+  (set-lsp-priority! 'grammarly-ls 1))
+;; Grammarly:2 ends here
+
 ;; [[file:config.org::*Grammalecte][Grammalecte:2]]
 (use-package! flycheck-grammalecte
   :commands (flycheck-grammalecte-correct-error-at-point
@@ -688,13 +718,9 @@ current buffer's, reload dir-locals."
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 ;; Grammalecte:2 ends here
 
-;; [[file:config.org::*Lazy flyspell][Lazy flyspell:1]]
-(after! flyspell
-  (setq flyspell-lazy-idle-seconds 2
-        flyspell-lazy-window-idle-seconds 5))
-;; Lazy flyspell:1 ends here
-
 ;; [[file:config.org::*Doom's =:checkers grammar=][Doom's =:checkers grammar=:1]]
+(setq langtool-default-language "auto")
+
 ;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :checkers grammar)
@@ -709,20 +735,77 @@ current buffer's, reload dir-locals."
        :desc "Switch default language" "L" #'langtool-switch-default-language))
 ;; Doom's =:checkers grammar=:1 ends here
 
+;; [[file:config.org::*LTeX][LTeX:2]]
+(use-package! lsp-ltex
+  :commands (+lsp-ltex-load)
+  :init
+  (setq lsp-ltex-language "auto"
+        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-disabled-rules
+        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
+          :en ["WHITESPACE"]))
+
+  (defun +lsp-ltex-load ()
+    "Load LTeX LSP server."
+    (interactive)
+    (require 'lsp-ltex)
+    (lsp-deferred))
+
+  (defvar +languagetool-process-name "ltex-languagetool-server")
+
+  (defun +languagetool-server-start (&optional port)
+    "Start LanguageTool server with PORT."
+    (interactive)
+    (if (process-live-p (get-process +languagetool-process-name))
+        (message "LanguageTool server already running.")
+      (when (start-process
+             +languagetool-process-name
+             " *LanguageTool server*"
+             "languagetool"
+             "--http"
+             "--port" (format "%s" (or port 8081))
+             "--languageModel" "/usr/share/ngrams")
+        (message "Started LanguageTool server."))))
+
+  (defun +languagetool-server-stop ()
+    "Stop the LanguageTool server."
+    (interactive)
+    (if (process-live-p (get-process +languagetool-process-name))
+        (when (kill-process +languagetool-process-name)
+          (message "Stopped LanguageTool server."))
+      (message "No LanguageTool server running.")))
+
+  (defun +languagetool-server-restart (&optional port)
+    "Restart the LanguageTool server with PORT, start new instance if not running."
+    (interactive)
+    (when (process-live-p (get-process +languagetool-process-name))
+      (+languagetool-server-stop))
+    (sit-for 5)
+    (+languagetool-server-start port))
+
+  ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
+  ;; In this way, I can configure it to use the extra stuff installed from the
+  ;; pacakge manager (like ngrams)
+  (when LANGUAGETOOL-OK-P
+    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081")
+    (+languagetool-server-start))
+
+  :config
+  (set-lsp-priority! 'ltex-ls 2)
+  (setq flycheck-checker-error-threshold 5000))
+;; LTeX:2 ends here
+
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
 (use-package! flycheck-languagetool
-  :ensure t
+  :when LANGUAGETOOL-OK-P
   :hook (text-mode . flycheck-languagetool-setup)
   :init
-  (if LANGUAGETOOL-OK-P
-      (setq flycheck-languagetool-server-command '("languagetool" "--http"))
-    ;; Else, use a remote server config with LanguageTool's free API
-    (setq flycheck-languagetool-url "https://api.languagetool.org"
-          flycheck-languagetool-server-port nil
-          flycheck-languagetool-server-jar nil))
-
-  (setq flycheck-languagetool-language "auto"
-        flycheck-languagetool-check-params '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE"))))
+  (setq flycheck-languagetool-server-command '("languagetool" "--http")
+        flycheck-languagetool-language "auto"
+        ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
+        flycheck-languagetool-check-params
+        '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
+          ("motherTongue" . "ar"))))
 ;; Flycheck:2 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:2]]
@@ -792,11 +875,12 @@ current buffer's, reload dir-locals."
   (require 'lemon-network)
   (setq lemon-delay 5
         lemon-refresh-rate 2
-        lemon-monitors(list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
-                              (lemon-cpu-linux)
-                              (lemon-memory-linux)
-                              (lemon-linux-network-tx)
-                              (lemon-linux-network-rx)))))
+        lemon-monitors
+        (list '((lemon-cpufreq-linux :display-opts '(:sparkline (:type gridded)))
+                (lemon-cpu-linux)
+                (lemon-memory-linux)
+                (lemon-linux-network-tx)
+                (lemon-linux-network-rx)))))
 ;; Lemon:2 ends here
 
 ;; [[file:config.org::*eCryptfs][eCryptfs:1]]
@@ -1124,6 +1208,13 @@ current buffer's, reload dir-locals."
 (after! pdf-tools
   (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
 ;; Dark mode:1 ends here
+
+;; [[file:config.org::*LTDR][LTDR:2]]
+(use-package! tldr
+  :commands (tldr-update-docs tldr)
+  :init
+  (setq tldr-enabled-categories '("common" "linux" "osx" "sunos")))
+;; LTDR:2 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:2]]
 (use-package! speed-type
@@ -1699,19 +1790,6 @@ current buffer's, reload dir-locals."
   :commands (fricas-mode fricas-eval fricas))
 ;; FriCAS:1 ends here
 
-;; [[file:config.org::*Dirvish][Dirvish:1]]
-;; (after! dirvish
-;;   (setq
-;;    ;; dirvish-mode-line-format ; it's ok to place string inside
-;;    ;; '(:left (sort file-time " " file-size symlink) :right (omit yank index))
-;;    ;; Don't worry, Dirvish is still performant even you enable all these attributes
-;;    dirvish-attributes '(all-the-icons file-size subtree-state vc-state git-msg)
-;;    ;; Maybe the icons are too big to your eyes
-;;    dirvish-all-the-icons-height 0.8
-;;    ;; In case you want the details at startup like `dired'
-;;    dirvish-hide-details t))
-;; Dirvish:1 ends here
-
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
 (set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
@@ -2227,11 +2305,6 @@ current buffer's, reload dir-locals."
     (project-cmake-scan-kits)
     (project-cmake-eglot-integration))
 ;; Project CMake:2 ends here
-
-;; [[file:config.org::*Unibeautify][Unibeautify:2]]
-(use-package! unibeautify
-  :commands (unibeautify))
-;; Unibeautify:2 ends here
 
 ;; [[file:config.org::*FZF][FZF:2]]
 (after! evil

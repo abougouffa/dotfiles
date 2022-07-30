@@ -57,7 +57,7 @@
   :checkers
   (syntax +childframe)
   (spell +aspell)
-  ;; grammar
+  grammar
 
   :tools
   direnv
