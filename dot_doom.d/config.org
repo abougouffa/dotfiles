@@ -4331,6 +4331,18 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
   :after graphviz-dot-mode)
 #+end_src
 
+** Mermaid
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! mermaid-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! mermaid-mode
+  :commands mermaid-mode
+  :mode ("\\.mmd\\'"))
+#+end_src
+
 ** Inspector :inspector:debug:
 
 #+begin_src emacs-lisp :tangle packages.el
