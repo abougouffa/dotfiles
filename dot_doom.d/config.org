@@ -1617,23 +1617,29 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   :config
   (grammarly-load-from-authinfo))
 
-(if (featurep! :tools lsp +eglot)
-    (use-package! eglot-grammarly
-      :commands (+lsp-grammarly-load)
-      :init
-      (defun +lsp-grammarly-load ()
-        "Load Grammarly LSP server."
-        (interactive)
-        (require 'eglot-grammarly)
-        (call-interactively #'eglot)))
-  (use-package! lsp-grammarly
-    :commands (+lsp-grammarly-load)
-    :init
-    (defun +lsp-grammarly-load ()
-      "Load Grammarly LSP server."
-      (interactive)
-      (require 'lsp-grammarly)
-      (lsp-deferred)))) ;; or (lsp)
+(use-package! eglot-grammarly
+  :when (featurep! :tools lsp +eglot)
+  :commands (+lsp-grammarly-load)
+  :init
+  (defun +lsp-grammarly-load ()
+    "Load Grammarly LSP server for Eglot."
+    (interactive)
+    (require 'eglot-grammarly)
+    (call-interactively #'eglot)))
+
+(use-package! lsp-grammarly
+  :when (and (featurep! :tools lsp)
+             (not (featurep! :tools lsp +eglot)))
+  :commands (+lsp-grammarly-load)
+  :init
+  (defun +lsp-grammarly-load ()
+    "Load Grammarly LSP server for LSP Mode."
+    (interactive)
+    (require 'lsp-grammarly)
+    (lsp-deferred)) ;; or (lsp)
+
+  :config
+  (set-lsp-priority! 'grammarly-ls 1))
 #+end_src
 
 *** Grammalecte :french:grammar:
