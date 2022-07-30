@@ -1719,16 +1719,35 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
            :repo "jcs-elpa/github-tags"))
 
 (package! lsp-ltex
+  :disable (and (featurep! :tools lsp) (featurep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/lsp-ltex"))
+
+(package! eglot-ltex
+  :disable (not (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-languagetool/eglot-ltex"))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! lsp-ltex
   :commands (+lsp-ltex-load)
   :init
-  (setq lsp-ltex-language "fr"
-        lsp-ltex-disabled-rules '("FRENCH_WHITESPACE"))
+  (setq lsp-ltex-language "auto"
+        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-disabled-rules
+        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
+          :en ["WHITESPACE"]))
+
+  ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
+  ;; In this way, I can configure it to use the extra stuff installed from the
+  ;; pacakge manager (like ngrams)
+  (when LANGUAGETOOL-OK-P
+    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081")
+    (unless (process-live-p (get-process "languagetool-server"))
+      (start-process "languagetool-server"
+                     " *LanguageTool server*"
+                     "languagetool" "--http" "--port" "8081" "--languageModel" "/usr/share/ngrams")))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -1737,7 +1756,8 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
     (lsp-deferred))
 
   :config
-  (setq flycheck-checker-error-threshold 10000))
+  (set-lsp-priority! 'ltex-ls 2)
+  (setq flycheck-checker-error-threshold 5000))
 #+end_src
 
 **** Flycheck :flycheck:
