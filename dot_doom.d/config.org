@@ -3397,12 +3397,12 @@ change this to be recognized as Octave/Matlab files.
 Add ROS specific file formats:
 
 #+begin_src emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
-(add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.xacro$"  . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.rviz\\'"   . conf-unix-mode))
+(add-to-list 'auto-mode-alist '("\\.urdf\\'"   . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro\\'"  . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.launch\\'" . xml-mode))
 
-;; msg and srv files: for now use gdb-script-mode
+;; Use gdb-script-mode for msg and srv files
 (add-to-list 'auto-mode-alist '("\\.msg\\'"    . gdb-script-mode))
 (add-to-list 'auto-mode-alist '("\\.srv\\'"    . gdb-script-mode))
 (add-to-list 'auto-mode-alist '("\\.action\\'" . gdb-script-mode))
@@ -3451,9 +3451,10 @@ and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][F
 
 #+begin_src emacs-lisp
 (use-package! ros
-  :init (map! :leader
-              :prefix ("l" . "custom")
-              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :init
+  (map! :leader
+        :prefix ("l" . "custom")
+        :desc "Hydra ROS" "r" #'hydra-ros-main/body)
   :commands (hydra-ros-main/body ros-set-workspace)
   :config
   (setq ros-workspaces
@@ -3530,12 +3531,13 @@ Add support for Yocto Project files.
 
 #+begin_src emacs-lisp
 (use-package! bitbake-modes
-  :commands (bitbake-mode
-             conf-bitbake-mode
-             bb-scc-mode wks-mode
-             bitbake-task-log-mode
+  :commands (wks-mode
+             mmm-mode
              bb-sh-mode
-             mmm-mode))
+             bb-scc-mode
+             bitbake-mode
+             conf-bitbake-mode
+             bitbake-task-log-mode))
 #+end_src
 
 ** Debugging :debug:
@@ -3776,8 +3778,8 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger)
          :prefix-map ("d" . "debugger")
-         :desc "rr record"  "r" #'+debugger/rr-record
-         :desc "rr replay"  "R" #'+debugger/rr-replay)))
+         :desc "rr record" "r" #'+debugger/rr-record
+         :desc "rr replay" "R" #'+debugger/rr-replay)))
 #+end_src
 
 *** GDB :gdb:
@@ -4219,19 +4221,18 @@ Add some packages for better assembly coding.
   :mode "\\.hax\\'")
 
 (use-package! mips-mode
-  :mode "\\.mips$")
+  :mode "\\.mips\\'")
 
 (use-package! riscv-mode
-  :commands (riscv-mode)
-  :mode "\\.riscv$")
+  :mode "\\.riscv\\'")
 
 (use-package! x86-lookup
   :commands (x86-lookup)
   :config
   (when (featurep! :tools pdf)
-     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
+    (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
   ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
+  (setq x86-lookup-pdf (expand-file-name "x86-lookup/325383-sdm-vol-2abcd.pdf" doom-etc-dir)))
 #+end_src
 
 ** Disaster :disaster:disassemble:
@@ -4469,7 +4470,7 @@ file local variables (with the src_org{# -*- geiser-scheme-implementation:
 
 ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
 (defun +org-confirm-babel-evaluate (lang body)
-  (not (string= lang "scheme"))) ;; don't ask for scheme
+  (not (string= lang "scheme"))) ;; Don't ask for scheme
 
 (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 #+end_src
@@ -4564,12 +4565,13 @@ equivalents.
 Set files for =org-agenda=
 
 #+begin_src emacs-lisp
-(setq org-agenda-files (list (expand-file-name "inbox.org" org-directory)
-                             (expand-file-name "agenda.org" org-directory)
-                             (expand-file-name "gcal-agenda.org" org-directory)
-                             (expand-file-name "notes.org" org-directory)
-                             (expand-file-name "projects.org" org-directory)
-                             (expand-file-name "archive.org" org-directory)))
+(setq org-agenda-files
+      (list (expand-file-name "inbox.org" org-directory)
+            (expand-file-name "agenda.org" org-directory)
+            (expand-file-name "gcal-agenda.org" org-directory)
+            (expand-file-name "notes.org" org-directory)
+            (expand-file-name "projects.org" org-directory)
+            (expand-file-name "archive.org" org-directory)))
 #+end_src
 
 Apply some styling on the standard agenda:
