@@ -2495,12 +2495,12 @@ echo "Y\n" | netExtender --auto-reconnect \
   $(gpg -q --for-your-eyes-only --no-tty -d ${MY_LOGIN_PARAMS_FILE})
 #+end_src
 
-*** Launch NetExtender session from Emacs
+*** Emacs + NetExtender
 
 #+begin_src emacs-lisp
 (when NETEXTENDER-P
   (defvar +netextender-process-name "netextender")
-  (defvar +netextender-buffer-name "*netextender*")
+  (defvar +netextender-buffer-name " *NetExtender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
 
   (defun +netextender-start ()
