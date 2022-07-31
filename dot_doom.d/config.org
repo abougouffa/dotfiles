@@ -4146,6 +4146,19 @@ together =project=, =eglot=, =cmake= and =clangd=.
   :commands (clang-format-region))
 #+end_src
 
+*** Auto-include C++ headers :cpp:header:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! cpp-auto-include
+  :recipe (:host github
+           :repo "emacsorphanage/cpp-auto-include"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! cpp-auto-include
+  :commands cpp-auto-include)
+#+end_src
+
 ** Git & VC :git:vc:
 *** Repo :repo:
 This adds Emacs integration of =repo=, The Multiple Git Repository Tool. Make sure
