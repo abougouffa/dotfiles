@@ -395,8 +395,8 @@ coq
 #+end_src
 
 *** Email (=:email=)
-I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= support and
-=+gmail= adds better management of Gmail accounts.
+I like to use =mu4e= to manage mail mailboxes. The =+org= flag adds =org-msg= support
+and =+gmail= adds better management of Gmail accounts.
 
 #+name: doom-email
 #+begin_src emacs-lisp
@@ -4148,8 +4148,9 @@ together =project=, =eglot=, =cmake= and =clangd=.
 
 ** Git & VC :git:vc:
 *** Repo :repo:
-Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
-distributions, or directly with:
+This adds Emacs integration of =repo=, The Multiple Git Repository Tool. Make sure
+the [[https://gerrit.googlesource.com/git-repo][repo]] tool is installed, if not, =pacman -S repo= on Arch-based distributions,
+or directly with:
 
 #+begin_example shell :tangle no :eval no
 REPO_PATH="$HOME/.local/bin/repo"
@@ -4313,8 +4314,8 @@ WIP: Not working atm!
 #+end_src
 
 ** Graphviz :graph:graphviz:dot:
-Graphviz is a nice method of visualizing simple graphs, based on plaintext
-=.dot= / =.gv= files.
+Graphviz is a nice method of visualizing simple graphs, based on th DOT graph
+description language (~*.dot~ / ~*.gv~ files).
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! graphviz-dot-mode)
