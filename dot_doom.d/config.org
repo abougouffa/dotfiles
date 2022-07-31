@@ -3476,7 +3476,8 @@ and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][F
 
 #+begin_src emacs-lisp
 (after! geiser
-  (setq geiser-chez-binary "chez-scheme")) ;; default is "scheme"
+  (setq geiser-default-implementation 'guile
+        geiser-chez-binary "chez-scheme")) ;; default is "scheme"
 #+end_src
 
 ** Embedded systems :embedded:
@@ -4465,9 +4466,6 @@ file local variables (with the src_org{# -*- geiser-scheme-implementation:
 'guile; -*-}) and dir-locals but it didn't work. This should work now!
 
 #+begin_src emacs-lisp
-(after! geiser
-  (setq geiser-default-implementation 'guile))
-
 ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
 (defun +org-confirm-babel-evaluate (lang body)
   (not (string= lang "scheme"))) ;; Don't ask for scheme
