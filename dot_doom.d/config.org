@@ -2474,7 +2474,7 @@ contains a line of private parameters to pass to =netExtender=, like this:
 
 #+begin_src shell :tangle no
 echo "-u <USERNAME> -d <DOMAINE> -p <PASSWORD> -s <SERVER_IP>" \
-  | gpg -c > netExtender-params.gpg
+  | gpg -c > sslvpn.gpg
 #+end_src
 
 Then I like to have a simple script which decrypt the credentials and launch a
@@ -2489,7 +2489,7 @@ then
   yay -S netextender
 fi
 
-MY_LOGIN_PARAMS_FILE="$HOME/.ssh/netExtender-params.gpg"
+MY_LOGIN_PARAMS_FILE="$HOME/.ssh/sslvpn.gpg"
 
 echo "Y\n" | netExtender --auto-reconnect \
   $(gpg -q --for-your-eyes-only --no-tty -d ${MY_LOGIN_PARAMS_FILE})
