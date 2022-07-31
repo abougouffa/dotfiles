@@ -3377,7 +3377,7 @@ Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?ut
 ;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 #+end_src
 
-** ESS :ess:
+** ESS :ess:stats:r:
 View data frames better with
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3393,7 +3393,7 @@ change this to be recognized as Octave/Matlab files.
 #+end_src
 
 ** ROS :ros:
-*** Extensions
+*** Extensions :files:
 Add ROS specific file formats:
 
 #+begin_src emacs-lisp
@@ -3408,7 +3408,7 @@ Add ROS specific file formats:
 (add-to-list 'auto-mode-alist '("\\.action\\'" . gdb-script-mode))
 #+end_src
 
-*** ROS bags
+*** ROS bags :bag:
 Mode to view ROS =.bag= files. Taken from [[https://github.com/code-iai/ros_emacs_utils][code-iai/ros_emacs_utils]].
 
 #+begin_src emacs-lisp
@@ -3471,7 +3471,7 @@ and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][F
                :extends '("/opt/ros/foxy/")))))
 #+end_src
 
-** Scheme
+** Scheme :scheme:geiser:
 
 #+begin_src emacs-lisp
 (after! geiser
@@ -3479,7 +3479,7 @@ and [[https://github.com/DerBeutlin/ros.el/blob/master/docker/Dockerfile_foxy][F
 #+end_src
 
 ** Embedded systems :embedded:
-*** Embed.el
+*** Embed.el :openocd:gdb:
 Some embedded systems development tools.
 
 TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
@@ -3511,7 +3511,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
          :desc "OpenOCD flash"    "f" #'embed-openocd-flash)))
 #+end_src
 
-*** Arduino
+*** Arduino :arduino:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! arduino-mode
@@ -3596,7 +3596,7 @@ For C/C++, DAP mode is missing so much features.
 In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it stops
 and disconnect while debugging, making it a double pain.
 
-**** Additional commands
+**** Additional commands :hydra:
 There is no best than using pure GDB, it makes debugging more flexible. Lets
 define some missing GDB commands, add them to Hydra keys, and define some
 reverse debugging commands for usage with [[https://rr-project.org][rr]] (which we can use by substituting
@@ -3678,7 +3678,7 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 #+end_src
 
-**** RealGUD =.dir-locals.el= support (only for GDB) :locals:
+**** RealGUD =.dir-locals.el= support :locals:
 I do a lot of development on C/C++ apps that gets data from command line
 arguments, which means I have to type my arguments manually after calling
 =realgud:gdb=, which is very annoying.
@@ -3749,11 +3749,11 @@ defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][V
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
 #+end_src
 
-**** Record and replay =rr=
+**** Record and replay =rr= :rr:reverse:
 We then add some shortcuts to run =rr= from Emacs, the =rr record= takes the program
-name and arguments from my local =+realgud:launch-plist=, when =rr replay=
-respects the arguments configured in RealGUD's GDB command name. Some useful
-hints could be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
+name and arguments from my local =+realgud:launch-plist=, when =rr replay= respects
+the arguments configured in RealGUD's GDB command name. Some useful hints could
+be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
 
 #+begin_src emacs-lisp
 (after! realgud
@@ -4131,7 +4131,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
   :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
 #+end_src
 
-*** Clang-format
+*** Clang-format :cpp:format:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! clang-format)
@@ -4143,8 +4143,8 @@ together =project=, =eglot=, =cmake= and =clangd=.
   :commands (clang-format-region))
 #+end_src
 
-** Git & VC
-*** Repo :repo:git:
+** Git & VC :git:vc:
+*** Repo :repo:
 Make sure the [[https://android.googlesource.com/tools/repo/][repo]] tool is installed, if not, =pacman -S repo= on Arch-based
 distributions, or directly with:
 
@@ -4164,7 +4164,7 @@ chmod a+x ${REPO_PATH}
   :commands repo-status)
 #+end_src
 
-*** Blamer :git:blame:
+*** Blamer :blame:
 Display Git information (author, date, message...) for current line
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -4269,7 +4269,7 @@ For editing systemd unit files.
 (package! systemd)
 #+end_src
 
-** Franca IDL
+** Franca IDL :franca:
 Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -4296,7 +4296,7 @@ Add support for /[[https://github.com/franca/franca][Franca Interface Definition
   :commands aas-mode)
 #+end_src
 
-** Flycheck + Projectile
+** Flycheck + Projectile :projectile:flycheck:
 WIP: Not working atm!
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -4310,7 +4310,7 @@ WIP: Not working atm!
   :commands flycheck-projectile-list-errors)
 #+end_src
 
-** Graphviz :graphviz:
+** Graphviz :graph:graphviz:dot:
 Graphviz is a nice method of visualizing simple graphs, based on plaintext
 =.dot= / =.gv= files.
 
@@ -4331,7 +4331,7 @@ Graphviz is a nice method of visualizing simple graphs, based on plaintext
   :after graphviz-dot-mode)
 #+end_src
 
-** Mermaid
+** Mermaid :graph:mermaid:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! mermaid-mode)
