@@ -4324,11 +4324,10 @@ description language (~*.dot~ / ~*.gv~ files).
 #+begin_src emacs-lisp
 (use-package! graphviz-dot-mode
   :commands graphviz-dot-mode
-  :mode ("\\.dot\\'" "\\.gz\\'")
+  :mode ("\\.dot\\'" "\\.gv\\'")
   :init
   (after! org
-    (setcdr (assoc "dot" org-src-lang-modes)
-            'graphviz-dot)))
+    (setcdr (assoc "dot" org-src-lang-modes) 'graphviz-dot)))
 
 (use-package! company-graphviz-dot
   :after graphviz-dot-mode)
