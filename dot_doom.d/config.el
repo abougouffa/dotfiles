@@ -518,17 +518,17 @@ is binary, activate `hexl-mode'."
       '("~/PhD/workspace"
         "~/PhD/workspace-no"
         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-        "~/Projects/foss_projects"))
+        "~/Projects/foss"))
 
 (setq projectile-ignored-projects
-      '("~/"
-        "/tmp"
+      '("/tmp"
         "~/.cache"
         "~/.emacs.d/.local/straight/repos/"))
 
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
-  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+  (some (lambda (p) (s-starts-with-p (expand-file-name p) (expand-file-name filepath)))
+        projectile-ignored-projects))
 ;; Projectile:1 ends here
 
 ;; [[file:config.org::*Tramp][Tramp:1]]
@@ -652,7 +652,7 @@ current buffer's, reload dir-locals."
 (use-package! vhdl-mode
   ;; Required unless vhdl_ls is on the $PATH
   :config
-  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
+  (setq lsp-vhdl-server-path "~/Projects/foss/rust_hdl/target/release/vhdl_ls"
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
   (require 'lsp-vhdl)
@@ -1103,7 +1103,6 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Islamic prayer times][Islamic prayer times:2]]
 (use-package! awqat
-  :load-path "~/Projects/foss_projects/awqat"
   :commands (awqat-display-prayer-time-mode awqat-times-for-day)
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
