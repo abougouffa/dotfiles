@@ -1535,6 +1535,19 @@ together =project=, =eglot=, =cmake= and =clangd=.
   :commands cpp-auto-include)
 #+end_src
 
+*** Emacs Refactor
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! erefactor
+  :recipe (:host github
+           :repo "mhayashi1120/Emacs-erefactor"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! erefactor
+  :defer t)
+#+end_src
+
 ** Symbols :symbol:
 *** Emojify :emoji:
 For starters, twitter's emojis look nicer than emoji-one.
