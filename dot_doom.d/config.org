@@ -1270,9 +1270,10 @@ wrapper function which calls Doom's one, with an extra check.
 
 (defun +projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `+projectile-ignored-roots'"
+  (require 'cl-lib)
   (or (doom-project-ignored-p filepath) ;; Used by default by doom with `projectile-ignored-project-function'
-      (some (lambda (root) (file-in-directory-p (expand-file-name filepath) (expand-file-name root)))
-            +projectile-ignored-roots)))
+      (cl-some (lambda (root) (file-in-directory-p (expand-file-name filepath) (expand-file-name root)))
+          +projectile-ignored-roots)))
 
 (setq projectile-ignored-project-function #'+projectile-ignored-project-function)
 #+end_src
