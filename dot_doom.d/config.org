@@ -4136,13 +4136,21 @@ Add some packages for better assembly coding.
 ** Disaster :disaster:disassemble:
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! disaster)
+(package! disaster
+  :pin "9662437834e79cda3c468952ec03947aa39e92f6"
+  :recipe (:host github
+           :repo "abougouffa/disaster"))
 #+end_src
 
 #+begin_src emacs-lisp
-;; TODO: Configure to take into account "compile_commands.json"
 (use-package! disaster
-  :commands (disaster))
+  :commands (disaster)
+  :init
+  (setq disaster-assembly-mode 'nasm-mode)
+
+  (map! :localleader
+        :map (c++-mode-map c-mode-map)
+        :desc "Disaster" "d" #'disaster))
 #+end_src
 
 ** Devdocs :devdocs:
