@@ -81,8 +81,8 @@
            :repo "emacs-grammarly/eglot-grammarly"))
 
 (package! lsp-grammarly
-  :disable (and (featurep! :tools lsp)
-                (not (featurep! :tools lsp +eglot)))
+  :disable (or (not (featurep! :tools lsp))
+               (featurep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/lsp-grammarly"))
 ;; Grammarly:1 ends here

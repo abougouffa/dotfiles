@@ -534,9 +534,10 @@ is binary, activate `hexl-mode'."
 
 (defun +projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `+projectile-ignored-roots'"
+  (require 'cl-lib)
   (or (doom-project-ignored-p filepath) ;; Used by default by doom with `projectile-ignored-project-function'
-      (some (lambda (root) (file-in-directory-p (expand-file-name filepath) (expand-file-name root)))
-            +projectile-ignored-roots)))
+      (cl-some (lambda (root) (file-in-directory-p (expand-file-name filepath) (expand-file-name root)))
+          +projectile-ignored-roots)))
 
 (setq projectile-ignored-project-function #'+projectile-ignored-project-function)
 ;; Projectile:1 ends here
@@ -660,16 +661,19 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*VHDL][VHDL:1]]
 (use-package! vhdl-mode
-  ;; Required unless vhdl_ls is on the $PATH
+  :hook (vhdl-mode . #'+lsp-vhdl-ls-load)
+  :init
+  (defun +lsp-vhdl-ls-load ()
+    (interactive)
+    (lsp t)
+    (flycheck-mode t))
+
   :config
+  ;; Required unless vhdl_ls is on the $PATH
   (setq lsp-vhdl-server-path "~/Projects/foss/rust_hdl/target/release/vhdl_ls"
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
-  (require 'lsp-vhdl)
-
-  :hook (vhdl-mode . (lambda ()
-                       (lsp t)
-                       (flycheck-mode t))))
+  (require 'lsp-vhdl))
 ;; VHDL:1 ends here
 
 ;; [[file:config.org::*SonarLint][SonarLint:2]]
@@ -821,7 +825,22 @@ current buffer's, reload dir-locals."
     (require 'lsp-grammarly)
     (lsp-deferred)) ;; or (lsp)
 
+  (after! lsp-mode
+    (defun +lsp-grammarly-toggle ()
+      "Enable/disable Grammarly LSP."
+      (interactive)
+      (if (member 'grammarly-ls lsp-disabled-clients)
+          (progn
+            (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
+            (message "Enabled grammarly-ls"))
+        (progn
+          (add-to-list 'lsp-disabled-clients 'grammarly-ls)
+          (message "Disabled grammarly-ls")))))
+
   :config
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
   (set-lsp-priority! 'grammarly-ls 1))
 ;; Grammarly:2 ends here
 
@@ -879,22 +898,8 @@ current buffer's, reload dir-locals."
        :desc "Switch default language" "L" #'langtool-switch-default-language))
 ;; Doom's =:checkers grammar=:1 ends here
 
-;; [[file:config.org::*LTeX][LTeX:2]]
-(use-package! lsp-ltex
-  :commands (+lsp-ltex-load)
-  :init
-  (setq lsp-ltex-language "auto"
-        lsp-ltex-mother-tongue "ar"
-        lsp-ltex-disabled-rules
-        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
-          :en ["WHITESPACE"]))
-
-  (defun +lsp-ltex-load ()
-    "Load LTeX LSP server."
-    (interactive)
-    (require 'lsp-ltex)
-    (lsp-deferred))
-
+;; [[file:config.org::*LanguageTool server][LanguageTool server:1]]
+(when LANGUAGETOOL-P
   (defvar +languagetool-process-name "ltex-languagetool-server")
 
   (defun +languagetool-server-start (&optional port)
@@ -925,7 +930,29 @@ current buffer's, reload dir-locals."
     (when (process-live-p (get-process +languagetool-process-name))
       (+languagetool-server-stop))
     (sit-for 5)
-    (+languagetool-server-start port))
+    (+languagetool-server-start port)))
+;; LanguageTool server:1 ends here
+
+;; [[file:config.org::*LTeX][LTeX:2]]
+(use-package! lsp-ltex
+  :commands (+lsp-ltex-load)
+  :hook ((org-mode . +lsp-ltex-load)
+         (markdown-mode . +lsp-ltex-load)
+         (latex-mode . +lsp-ltex-load)
+         (tex-mode . +lsp-ltex-load)
+         (text-mode . +lsp-ltex-load))
+  :init
+  (setq lsp-ltex-java-force-try-system-wide t
+        ;; lsp-ltex-server-store-path (executable-find "ltex-ls")
+        ;; lsp-ltex-version
+        ;; (gethash "ltex-ls"
+        ;;          (json-parse-string (shell-command-to-string "ltex-ls -V")))
+        lsp-ltex-language "auto"
+        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
+        lsp-ltex-disabled-rules
+        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
+          :en ["WHITESPACE"]))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
@@ -933,11 +960,29 @@ current buffer's, reload dir-locals."
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
+  (defun +lsp-ltex-load ()
+    "Load LTeX LSP server."
+    (interactive)
+    (require 'lsp-ltex)
+    (lsp-deferred))
+
+  (after! lsp-mode
+    (defun +lsp-ltex-toggle ()
+      "Enable/disable LTeX LSP."
+      (interactive)
+      (if (member 'ltex-ls lsp-disabled-clients)
+          (progn
+            (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+            (message "Enabled ltex-ls"))
+        (progn
+          (add-to-list 'lsp-disabled-clients 'ltex-ls)
+          (message "Disabled ltex-ls")))))
+
   :config
   (set-lsp-priority! 'ltex-ls 2)
-  (when LANGUAGETOOL-P
-    (+languagetool-server-start))
-  (setq flycheck-checker-error-threshold 5000))
+  (setq flycheck-checker-error-threshold 5000)
+  (when LANGUAGETOOL-P ;; Try to launch a server
+    (+languagetool-server-start)))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
@@ -2377,7 +2422,7 @@ current buffer's, reload dir-locals."
   ;; Inspired by https://alhassy.github.io/emacs.d/#Encouraging-useful-commit-messages
   ;; Making reference to: https://chris.beams.io/posts/git-commit/
   (defun +git-commit-reminder ()
-    (insert "\n\n-----------------------------------------
+    (insert "\n\n# -----------------------------------------
 # The commit subject line ought to finish the phrase:
 # “If applied, this commit will ⟪your subject line here⟫.”")
     (beginning-of-buffer))
