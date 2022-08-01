@@ -4030,11 +4030,16 @@ the builtin =gdb-many-windows= layout.
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 #+end_src
 
+*** Valgrind :valgrind:
 
 #+begin_src emacs-lisp :tangle packages.el
+(package! valgrind
+  :recipe (:local-repo "lisp/valgrind"))
 #+end_src
 
 #+begin_src emacs-lisp
+(use-package! valgrind
+  :commands valgrind)
 #+end_src
 
 ** Git & VC :git:vc:
