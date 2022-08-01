@@ -1930,6 +1930,18 @@ understands the structure of plain text formats such as Org and Markdown.
     (require 'lsp-ltex)
     (lsp-deferred))
 
+  (after! lsp-mode
+    (defun +lsp-ltex-toggle ()
+      "Enable/disable LTeX LSP."
+      (interactive)
+      (if (member 'ltex-ls lsp-disabled-clients)
+          (progn
+            (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+            (message "Enabled ltex-ls"))
+        (progn
+          (add-to-list 'lsp-disabled-clients 'ltex-ls)
+          (message "Disabled ltex-ls")))))
+
   :config
   (set-lsp-priority! 'ltex-ls 2)
   (setq flycheck-checker-error-threshold 5000)
