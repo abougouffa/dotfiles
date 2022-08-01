@@ -1830,42 +1830,10 @@ This section defines some shortcuts to check the grammar.
 
 #+end_src
 
-**** LTeX :lsp:
-Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool][LSP]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] implementations.
-
-#+begin_src emacs-lisp :tangle packages.el
-;; Needed, but not installed automatically
-(package! github-tags
-  :recipe (:host github
-           :repo "jcs-elpa/github-tags"))
-
-(package! lsp-ltex
-  :disable (and (featurep! :tools lsp) (featurep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-languagetool/lsp-ltex"))
-
-(package! eglot-ltex
-  :disable (not (featurep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-languagetool/eglot-ltex"))
-#+end_src
+**** LanguageTool server
 
 #+begin_src emacs-lisp
-(use-package! lsp-ltex
-  :commands (+lsp-ltex-load)
-  :init
-  (setq lsp-ltex-language "auto"
-        lsp-ltex-mother-tongue "ar"
-        lsp-ltex-disabled-rules
-        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
-          :en ["WHITESPACE"]))
-
-  (defun +lsp-ltex-load ()
-    "Load LTeX LSP server."
-    (interactive)
-    (require 'lsp-ltex)
-    (lsp-deferred))
-
+(when LANGUAGETOOL-P
   (defvar +languagetool-process-name "ltex-languagetool-server")
 
   (defun +languagetool-server-start (&optional port)
@@ -1896,7 +1864,59 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
     (when (process-live-p (get-process +languagetool-process-name))
       (+languagetool-server-stop))
     (sit-for 5)
-    (+languagetool-server-start port))
+    (+languagetool-server-start port)))
+#+end_src
+
+**** LTeX :lsp:
+Originally, [[https://valentjn.github.io/ltex/index.html][LTeX LS]] stands for /LaTeX Language Server/, it acts as a Language
+Server for LaTeX, but not only. It can check grammar and spelling of several
+markup languages such as BibTeX, ConTeXt, LaTeX, Markdown, Org,
+reStructuredText... and others. Alongside, it provides interfacing with
+LanguageTool to implement natural language checking.
+
+#+begin_quote
+Other WIP LanguageTool LSP implementation for both [[https://github.com/emacs-languagetool/lsp-languagetool][LSP Mode]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] can be
+interesting, TO BE WATCHED. However, LTeX seems to be a good solution, as it
+understands the structure of plain text formats such as Org and Markdown.
+#+end_quote
+
+#+begin_src emacs-lisp :tangle packages.el
+;; Needed, but not installed automatically
+(package! github-tags
+  :recipe (:host github
+           :repo "jcs-elpa/github-tags"))
+
+(package! lsp-ltex
+  :disable (and (featurep! :tools lsp) (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-languagetool/lsp-ltex"))
+
+(package! eglot-ltex
+  :disable (not (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-languagetool/eglot-ltex"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lsp-ltex
+  :commands (+lsp-ltex-load)
+  :hook ((org-mode . +lsp-ltex-load)
+         (markdown-mode . +lsp-ltex-load)
+         (latex-mode . +lsp-ltex-load)
+         (tex-mode . +lsp-ltex-load)
+         (text-mode . +lsp-ltex-load))
+  :init
+  (setq lsp-ltex-java-force-try-system-wide t
+        ;; lsp-ltex-server-store-path (executable-find "ltex-ls")
+        ;; lsp-ltex-version
+        ;; (gethash "ltex-ls"
+        ;;          (json-parse-string (shell-command-to-string "ltex-ls -V")))
+        lsp-ltex-language "auto"
+        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
+        lsp-ltex-disabled-rules
+        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
+          :en ["WHITESPACE"]))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
@@ -1904,11 +1924,17 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
+  (defun +lsp-ltex-load ()
+    "Load LTeX LSP server."
+    (interactive)
+    (require 'lsp-ltex)
+    (lsp-deferred))
+
   :config
   (set-lsp-priority! 'ltex-ls 2)
-  (when LANGUAGETOOL-P
-    (+languagetool-server-start))
-  (setq flycheck-checker-error-threshold 5000))
+  (setq flycheck-checker-error-threshold 5000)
+  (when LANGUAGETOOL-P ;; Try to launch a server
+    (+languagetool-server-start)))
 #+end_src
 
 **** Flycheck :flycheck:
