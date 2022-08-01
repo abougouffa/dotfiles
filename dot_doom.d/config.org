@@ -1469,16 +1469,19 @@ use =rust_hdl= instead.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package! vhdl-mode
-  ;; Required unless vhdl_ls is on the $PATH
+  :hook (vhdl-mode . #'+lsp-vhdl-ls-load)
+  :init
+  (defun +lsp-vhdl-ls-load ()
+    (interactive)
+    (lsp t)
+    (flycheck-mode t))
+
   :config
+  ;; Required unless vhdl_ls is on the $PATH
   (setq lsp-vhdl-server-path "~/Projects/foss/rust_hdl/target/release/vhdl_ls"
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
-  (require 'lsp-vhdl)
-
-  :hook (vhdl-mode . (lambda ()
-                       (lsp t)
-                       (flycheck-mode t))))
+  (require 'lsp-vhdl))
 #+end_src
 
 ***** SonarLint
