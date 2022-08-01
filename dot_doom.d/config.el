@@ -517,18 +517,28 @@ is binary, activate `hexl-mode'."
 (setq projectile-project-search-path
       '("~/PhD/workspace"
         "~/PhD/workspace-no"
+        "~/PhD/papers"
         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
         "~/Projects/foss"))
 
 (setq projectile-ignored-projects
       '("/tmp"
+        "~/"
         "~/.cache"
         "~/.emacs.d/.local/straight/repos/"))
 
-(defun projectile-ignored-project-function (filepath)
-  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
-  (some (lambda (p) (s-starts-with-p (expand-file-name p) (expand-file-name filepath)))
-        projectile-ignored-projects))
+(setq +projectile-ignored-roots
+      '("~/.cache"
+        ;; No need for this one, as `doom-project-ignored-p' checks for files in `doom-local-dir'
+        "~/.emacs.d/.local/straight/"))
+
+(defun +projectile-ignored-project-function (filepath)
+  "Return t if FILEPATH is within any of `+projectile-ignored-roots'"
+  (or (doom-project-ignored-p filepath) ;; Used by default by doom with `projectile-ignored-project-function'
+      (some (lambda (root) (file-in-directory-p (expand-file-name filepath) (expand-file-name root)))
+            +projectile-ignored-roots)))
+
+(setq projectile-ignored-project-function #'+projectile-ignored-project-function)
 ;; Projectile:1 ends here
 
 ;; [[file:config.org::*Tramp][Tramp:1]]
