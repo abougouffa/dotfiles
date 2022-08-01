@@ -1994,6 +1994,11 @@ current buffer's, reload dir-locals."
 ;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 ;; CSV rainbow:1 ends here
 
+;; [[file:config.org::*Vim][Vim:2]]
+(use-package! vimrc-mode
+  :mode "\\.vim\\(rc\\)?\\'")
+;; Vim:2 ends here
+
 ;; [[file:config.org::*GNU Octave][GNU Octave:1]]
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 ;; GNU Octave:1 ends here
@@ -2366,6 +2371,19 @@ current buffer's, reload dir-locals."
 (use-package! valgrind
   :commands valgrind)
 ;; Valgrind:2 ends here
+
+;; [[file:config.org::*Magit][Magit:1]]
+(after! magit
+  ;; Inspired by https://alhassy.github.io/emacs.d/#Encouraging-useful-commit-messages
+  ;; Making reference to: https://chris.beams.io/posts/git-commit/
+  (defun +git-commit-reminder ()
+    (insert "\n\n-----------------------------------------
+# The commit subject line ought to finish the phrase:
+# “If applied, this commit will ⟪your subject line here⟫.”")
+    (beginning-of-buffer))
+
+  (add-hook 'git-commit-setup-hook '+git-commit-reminder))
+;; Magit:1 ends here
 
 ;; [[file:config.org::*Repo][Repo:2]]
 (use-package! repo

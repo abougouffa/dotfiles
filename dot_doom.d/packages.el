@@ -230,6 +230,12 @@
            :files ("interfaces/emacs/imaxima/*")))
 ;; IMaxima:1 ends here
 
+;; [[file:config.org::*Vim][Vim:1]]
+(package! vimrc-mode
+  :recipe (:host github
+           :repo "mcandre/vimrc-mode"))
+;; Vim:1 ends here
+
 ;; [[file:config.org::*ESS][ESS:1]]
 (package! ess-view)
 ;; ESS:1 ends here
@@ -276,6 +282,11 @@
 (package! valgrind
   :recipe (:local-repo "lisp/valgrind"))
 ;; Valgrind:1 ends here
+
+;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
+(package! company-gitcommit
+  :recipe (:local-repo "lisp/company-gitcommit"))
+;; WIP Company for commit messages:1 ends here
 
 ;; [[file:config.org::*Repo][Repo:1]]
 (package! repo)
