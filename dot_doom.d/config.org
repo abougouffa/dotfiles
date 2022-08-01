@@ -1251,7 +1251,7 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
       '("~/PhD/workspace"
         "~/PhD/workspace-no"
         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-        "~/Projects/foss_projects"))
+        "~/Projects/foss"))
 
 (setq projectile-ignored-projects
       '("~/"
@@ -1457,7 +1457,7 @@ use =rust_hdl= instead.
 (use-package! vhdl-mode
   ;; Required unless vhdl_ls is on the $PATH
   :config
-  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
+  (setq lsp-vhdl-server-path "~/Projects/foss/rust_hdl/target/release/vhdl_ls"
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
   (require 'lsp-vhdl)
@@ -2116,7 +2116,6 @@ Watch the LanguageTool [[https://github.com/emacs-languagetool/lsp-languagetool]
 
 #+begin_src emacs-lisp
 (use-package! awqat
-  :load-path "~/Projects/foss_projects/awqat"
   :commands (awqat-display-prayer-time-mode awqat-times-for-day)
   :config
   ;; Make sure `calendar-latitude' and `calendar-longitude' are set,
