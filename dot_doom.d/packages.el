@@ -36,6 +36,33 @@
 (unpin! lsp-treemacs)
 ;; Treemacs:1 ends here
 
+;; [[file:config.org::*SonarLint][SonarLint:1]]
+(package! lsp-sonarlint)
+;; SonarLint:1 ends here
+
+;; [[file:config.org::*Project CMake][Project CMake:1]]
+(package! project-cmake
+  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :recipe (:host github
+           :repo "juanjosegarciaripoll/project-cmake"))
+;; Project CMake:1 ends here
+
+;; [[file:config.org::*Clang-format][Clang-format:1]]
+(package! clang-format)
+;; Clang-format:1 ends here
+
+;; [[file:config.org::*Auto-include C++ headers][Auto-include C++ headers:1]]
+(package! cpp-auto-include
+  :recipe (:host github
+           :repo "emacsorphanage/cpp-auto-include"))
+;; Auto-include C++ headers:1 ends here
+
+;; [[file:config.org::*Emacs Refactor][Emacs Refactor:1]]
+(package! erefactor
+  :recipe (:host github
+           :repo "mhayashi1120/Emacs-erefactor"))
+;; Emacs Refactor:1 ends here
+
 ;; [[file:config.org::*Guess language][Guess language:1]]
 (package! guess-language
   :recipe (:host github
@@ -153,6 +180,10 @@
 (package! tldr)
 ;; LTDR:1 ends here
 
+;; [[file:config.org::*FZF][FZF:1]]
+(package! fzf)
+;; FZF:1 ends here
+
 ;; [[file:config.org::*Speed Type][Speed Type:1]]
 (package! speed-type)
 ;; Speed Type:1 ends here
@@ -241,24 +272,10 @@
            :files ("*.el" "*.c" "*.h" "Makefile")))
 ;; Emacs GDB:1 ends here
 
-;; [[file:config.org::*SonarLint][SonarLint:1]]
-(package! lsp-sonarlint)
-;; SonarLint:1 ends here
-
-;; [[file:config.org::*Project CMake][Project CMake:1]]
-(package! project-cmake
-  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :recipe (:host github
-           :repo "juanjosegarciaripoll/project-cmake"))
-;; Project CMake:1 ends here
-
-;; [[file:config.org::*FZF][FZF:1]]
-(package! fzf)
-;; FZF:1 ends here
-
-;; [[file:config.org::*Clang-format][Clang-format:1]]
-(package! clang-format)
-;; Clang-format:1 ends here
+;; [[file:config.org::*Valgrind][Valgrind:1]]
+(package! valgrind
+  :recipe (:local-repo "lisp/valgrind"))
+;; Valgrind:1 ends here
 
 ;; [[file:config.org::*Repo][Repo:1]]
 (package! repo)
@@ -279,7 +296,10 @@
 ;; Assembly:1 ends here
 
 ;; [[file:config.org::*Disaster][Disaster:1]]
-(package! disaster)
+(package! disaster
+  :pin "9662437834e79cda3c468952ec03947aa39e92f6"
+  :recipe (:host github
+           :repo "abougouffa/disaster"))
 ;; Disaster:1 ends here
 
 ;; [[file:config.org::*Devdocs][Devdocs:1]]
@@ -314,6 +334,14 @@
 ;; [[file:config.org::*Graphviz][Graphviz:1]]
 (package! graphviz-dot-mode)
 ;; Graphviz:1 ends here
+
+;; [[file:config.org::*Mermaid][Mermaid:1]]
+(package! mermaid-mode)
+
+(package! ob-mermaid
+  :recipe (:host github
+           :repo "arnm/ob-mermaid"))
+;; Mermaid:1 ends here
 
 ;; [[file:config.org::*Inspector][Inspector:1]]
 (package! inspector

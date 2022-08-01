@@ -99,7 +99,7 @@
   (sh +lsp +tree-sitter)
   (python +lsp +pyenv +conda +pyright +tree-sitter)
   (racket +lsp +xp)
-  (scheme +guile +racket +chez +gambit +gauche)
+  (scheme +mit +guile +racket +chez +gambit +gauche +chibi +chicken)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
   (web +tree-sitter)
 

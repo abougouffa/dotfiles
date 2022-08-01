@@ -118,7 +118,7 @@
 ;; [[file:config.org::*Save recent files][Save recent files:1]]
 (when (daemonp)
   (add-hook! '(delete-frame-functions delete-terminal-functions)
-    (lambda (arg) (recentf-save-list))))
+    (recentf-save-list)))
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font][Font:1]]
@@ -558,14 +558,148 @@ current buffer's, reload dir-locals."
         (when (equal default-directory dir)
           (+dir-locals-reload-for-current-buffer))))))
 
-(add-hook!
- '(emacs-lisp-mode-hook lisp-data-mode-hook)
- (defun enable-autoreload-for-dir-locals ()
-   (when (and (buffer-file-name)
-              (equal dir-locals-file (file-name-nondirectory (buffer-file-name))))
-     (message "Dir-locals will be reloaded after saving.")
-     (add-hook 'after-save-hook '+dir-locals-reload-for-all-buffers-in-this-directory nil t))))
+(defun +dir-locals-enable-autoreload ()
+  (when (and (buffer-file-name)
+             (equal dir-locals-file (file-name-nondirectory (buffer-file-name))))
+    (message "Dir-locals will be reloaded after saving.")
+    (add-hook 'after-save-hook '+dir-locals-reload-for-all-buffers-in-this-directory nil t)))
+
+(add-hook! '(emacs-lisp-mode-hook lisp-data-mode-hook) #'+dir-locals-enable-autoreload)
 ;; =dir-locals.el=:1 ends here
+
+;; [[file:config.org::*Eglot][Eglot:1]]
+(after! eglot
+  ;; A hack to make it works with projectile
+  (defun projectile-project-find-function (dir)
+    (let* ((root (projectile-project-root dir)))
+      (and root (cons 'transient root))))
+
+  (with-eval-after-load 'project
+    (add-to-list 'project-find-functions 'projectile-project-find-function))
+
+  ;; Use clangd with some options
+  (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
+;; Eglot:1 ends here
+
+;; [[file:config.org::*Enable some useful UI stuff][Enable some useful UI stuff:1]]
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil
+        lsp-log-io nil
+        lsp-lens-enable t ; not working properly with ccls!
+        lsp-diagnostics-provider :auto
+        lsp-enable-symbol-highlighting t
+        lsp-headerline-breadcrumb-enable nil
+        lsp-headerline-breadcrumb-segments '(symbols)))
+;; Enable some useful UI stuff:1 ends here
+
+;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
+(after! lsp-clangd
+  (setq lsp-clients-clangd-args
+        '("-j=4"
+          "--background-index"
+          "--clang-tidy"
+          "--completion-style=detailed"
+          "--header-insertion=never"
+          "--header-insertion-decorators=0"))
+  (set-lsp-priority! 'clangd 1))
+;; LSP mode with =clangd=:1 ends here
+
+;; [[file:config.org::*Python][Python:1]]
+(after! tramp
+  (require 'lsp-mode)
+  ;; (require 'lsp-pyright)
+
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        ;; To bypass the "lsp--document-highlight fails if
+        ;; textDocument/documentHighlight is not supported" error
+        lsp-enable-symbol-highlighting nil)
+
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection "pyls")
+    :major-modes '(python-mode)
+    :remote? t
+    :server-id 'pyls-remote)))
+;; Python:1 ends here
+
+;; [[file:config.org::*C/C++ with =clangd=][C/C++ with =clangd=:1]]
+(after! tramp
+  (require 'lsp-mode)
+
+  (setq lsp-enable-snippet nil
+        lsp-log-io nil
+        ;; To bypass the "lsp--document-highlight fails if
+        ;; textDocument/documentHighlight is not supported" error
+        lsp-enable-symbol-highlighting nil)
+
+  (lsp-register-client
+    (make-lsp-client
+     :new-connection
+     (lsp-tramp-connection
+      (lambda ()
+        (cons "clangd-12" ; executable name on remote machine 'ccls'
+              lsp-clients-clangd-args)))
+     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+     :remote? t
+     :server-id 'clangd-remote)))
+;; C/C++ with =clangd=:1 ends here
+
+;; [[file:config.org::*VHDL][VHDL:1]]
+(use-package! vhdl-mode
+  ;; Required unless vhdl_ls is on the $PATH
+  :config
+  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
+        lsp-vhdl-server 'vhdl-ls
+        lsp-vhdl--params nil)
+  (require 'lsp-vhdl)
+
+  :hook (vhdl-mode . (lambda ()
+                       (lsp t)
+                       (flycheck-mode t))))
+;; VHDL:1 ends here
+
+;; [[file:config.org::*SonarLint][SonarLint:2]]
+;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
+;; SonarLint:2 ends here
+
+;; [[file:config.org::*Cppcheck][Cppcheck:1]]
+(after! flycheck
+  (setq flycheck-cppcheck-checks '("information"
+                                   "missingInclude"
+                                   "performance"
+                                   "portability"
+                                   "style"
+                                   "unusedFunction"
+                                   "warning"))) ;; Actually, we can use "all"
+;; Cppcheck:1 ends here
+
+;; [[file:config.org::*Project CMake][Project CMake:2]]
+(use-package! project-cmake
+    :config
+    (require 'eglot)
+    (project-cmake-scan-kits)
+    (project-cmake-eglot-integration))
+;; Project CMake:2 ends here
+
+;; [[file:config.org::*Clang-format][Clang-format:2]]
+(use-package! clang-format
+  :when CLANG-FORMAT-P
+  :commands (clang-format-region))
+;; Clang-format:2 ends here
+
+;; [[file:config.org::*Auto-include C++ headers][Auto-include C++ headers:2]]
+(use-package! cpp-auto-include
+  :commands cpp-auto-include)
+;; Auto-include C++ headers:2 ends here
+
+;; [[file:config.org::*Emacs Refactor][Emacs Refactor:2]]
+(use-package! erefactor
+  :defer t)
+;; Emacs Refactor:2 ends here
 
 ;; [[file:config.org::*Emojify][Emojify:1]]
 (setq emojify-emoji-set "twemoji-v2")
@@ -786,18 +920,19 @@ current buffer's, reload dir-locals."
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
   ;; pacakge manager (like ngrams)
-  (when LANGUAGETOOL-OK-P
-    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081")
-    (+languagetool-server-start))
+  (when LANGUAGETOOL-P
+    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
+  (when LANGUAGETOOL-P
+    (+languagetool-server-start))
   (setq flycheck-checker-error-threshold 5000))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
 (use-package! flycheck-languagetool
-  :when LANGUAGETOOL-OK-P
+  :when LANGUAGETOOL-P
   :hook (text-mode . flycheck-languagetool-setup)
   :init
   (setq flycheck-languagetool-server-command '("languagetool" "--http")
@@ -815,7 +950,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Chezmoi][Chezmoi:2]]
 (use-package! chezmoi
-  :when CHEZMOI-OK-P
+  :when CHEZMOI-P
   :commands (chezmoi-write
              chezmoi-magit-status
              chezmoi-diff
@@ -987,7 +1122,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Zotero Zotxt][Zotero Zotxt:2]]
 (use-package! zotxt
-  :when ZOTERO-OK-P
+  :when ZOTERO-P
   :commands org-zotxt-mode)
 ;; Zotero Zotxt:2 ends here
 
@@ -1001,7 +1136,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*The Silver Searcher][The Silver Searcher:2]]
 (use-package! ag
-  :when AG-OK-P
+  :when AG-P
   :commands (ag
              ag-files
              ag-regexp
@@ -1014,7 +1149,7 @@ current buffer's, reload dir-locals."
 (defconst EAF-DIR (expand-file-name "emacs-application-framework" doom-etc-dir))
 
 (use-package! eaf
-  :when EAF-OK-P
+  :when EAF-P
   :load-path EAF-DIR
   :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
   :init
@@ -1189,7 +1324,7 @@ current buffer's, reload dir-locals."
 (use-package! bitwarden
   ;;:config
   ;;(bitwarden-auth-source-enable)
-  :when BITWARDEN-OK-P
+  :when BITWARDEN-P
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
@@ -1215,6 +1350,33 @@ current buffer's, reload dir-locals."
   :init
   (setq tldr-enabled-categories '("common" "linux" "osx" "sunos")))
 ;; LTDR:2 ends here
+
+;; [[file:config.org::*FZF][FZF:2]]
+(after! evil
+  (evil-define-key 'insert fzf-mode-map (kbd "ESC") #'term-kill-subjob))
+
+(define-minor-mode fzf-mode
+  "Minor mode for the FZF buffer"
+  :init-value nil
+  :lighter " FZF"
+  :keymap '(("C-c" . term-kill-subjob)))
+
+(defadvice! doom-fzf--override-start-args-a (original-fn &rest args)
+  "Set the FZF minor mode with the fzf buffer."
+  :around #'fzf/start
+  (message "called with args %S" args)
+  (apply original-fn args)
+
+  ;; set the FZF buffer to fzf-mode so we can hook ctrl+c
+  (set-buffer "*fzf*")
+  (fzf-mode))
+
+(defvar fzf/args
+  "-x --print-query -m --tiebreak=index --expect=ctrl-v,ctrl-x,ctrl-t")
+
+(use-package! fzf
+  :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
+;; FZF:2 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:2]]
 (use-package! speed-type
@@ -1326,10 +1488,10 @@ current buffer's, reload dir-locals."
         "https://lwn.net/headlines/rss"))
 ;; News feed =elfeed=:1 ends here
 
-;; [[file:config.org::*Launch NetExtender session from Emacs][Launch NetExtender session from Emacs:1]]
-(when NETEXTENDER-OK-P
+;; [[file:config.org::*Emacs + NetExtender][Emacs + NetExtender:1]]
+(when NETEXTENDER-P
   (defvar +netextender-process-name "netextender")
-  (defvar +netextender-buffer-name "*netextender*")
+  (defvar +netextender-buffer-name " *NetExtender*")
   (defvar +netextender-command '("~/.local/bin/netextender"))
 
   (defun +netextender-start ()
@@ -1349,7 +1511,7 @@ current buffer's, reload dir-locals."
       (if (kill-buffer +netextender-buffer-name)
           (message "Killed NetExtender VPN session")
         (message "Cannot kill NetExtender")))))
-;; Launch NetExtender session from Emacs:1 ends here
+;; Emacs + NetExtender:1 ends here
 
 ;; [[file:config.org::*mu4e][mu4e:2]]
 (after! mu4e
@@ -1514,7 +1676,7 @@ current buffer's, reload dir-locals."
   ;; EMMS basic configuration
   (require 'emms-setup)
 
-  (when MPD-OK-P
+  (when MPD-P
     (require 'emms-player-mpd))
 
   (emms-all)
@@ -1525,7 +1687,7 @@ current buffer's, reload dir-locals."
         emms-browser-covers 'emms-browser-cache-thumbnail-async
         emms-seek-seconds 5)
 
-  (if MPD-OK-P
+  (if MPD-P
       ;; If using MPD as backend
       (setq emms-player-list '(emms-player-mpd)
             emms-info-functions '(emms-info-mpd)
@@ -1543,7 +1705,7 @@ current buffer's, reload dir-locals."
   (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
 
   ;; Try to start MPD or connect to it if it is already started.
-  (when MPD-OK-P
+  (when MPD-P
     (emms-player-set emms-player-mpd 'regex
                      (emms-player-simple-regexp
                       "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
@@ -1617,7 +1779,7 @@ current buffer's, reload dir-locals."
                                 +emms-notification-icon)))
 
   ;; MPV and Youtube integration
-  (when MPV-OK-P
+  (when MPV-P
     (add-to-list 'emms-player-list 'emms-player-mpv t)
     (emms-player-set
      emms-player-mpv
@@ -1663,7 +1825,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Elfeed :heart: MPV][Elfeed :heart: MPV:2]]
 (after! (elfeed emms)
-  (when MPV-OK-P
+  (when MPV-P
     ;; Integration with Elfeed
     (define-emms-source elfeed (entry)
       (let ((track (emms-track
@@ -1711,7 +1873,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Keybindings][Keybindings:2]]
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) MPD-OK-P)
+      (:when (and (featurep! :app emms) MPD-P)
        :prefix-map ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -1746,7 +1908,7 @@ current buffer's, reload dir-locals."
     "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
     (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
     ;; Force a sync to get the right song name over MPD in mode line
-    (when MPD-OK-P (emms-player-mpd-sync-from-mpd))
+    (when MPD-P (emms-player-mpd-sync-from-mpd))
     ;; Trigger a forced update of mode line (useful when pausing)
     (emms-mode-line-alter-mode-line))
 
@@ -1758,7 +1920,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Maxima][Maxima:2]]
 (use-package! maxima
-  :when MAXIMA-OK-P
+  :when MAXIMA-P
   :commands (maxima-mode maxima-inferior-mode maxima)
   :init
   (require 'straight) ;; to use `straight-build-dir' and `straight-base-dir'
@@ -1773,7 +1935,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*IMaxima][IMaxima:2]]
 (use-package! imaxima
-  :when MAXIMA-OK-P
+  :when MAXIMA-P
   :commands (imaxima imath-mode)
   :init
   (setq imaxima-use-maxima-mode-flag nil ;; otherwise, it don't render equations with LaTeX.
@@ -1785,7 +1947,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*FriCAS][FriCAS:1]]
 (use-package! fricas
-  :when FRICAS-OK-P
+  :when FRICAS-P
   :load-path "/usr/lib/fricas/emacs"
   :commands (fricas-mode fricas-eval fricas))
 ;; FriCAS:1 ends here
@@ -1828,19 +1990,19 @@ current buffer's, reload dir-locals."
 ;; GNU Octave:1 ends here
 
 ;; [[file:config.org::*Extensions][Extensions:1]]
-(add-to-list 'auto-mode-alist '("\\.rviz$"   . conf-unix-mode))
-(add-to-list 'auto-mode-alist '("\\.launch$" . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.urdf$"   . xml-mode))
-(add-to-list 'auto-mode-alist '("\\.xacro$"  . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.rviz\\'"   . conf-unix-mode))
+(add-to-list 'auto-mode-alist '("\\.urdf\\'"   . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro\\'"  . xml-mode))
+(add-to-list 'auto-mode-alist '("\\.launch\\'" . xml-mode))
 
-;; msg and srv files: for now use gdb-script-mode
+;; Use gdb-script-mode for msg and srv files
 (add-to-list 'auto-mode-alist '("\\.msg\\'"    . gdb-script-mode))
 (add-to-list 'auto-mode-alist '("\\.srv\\'"    . gdb-script-mode))
 (add-to-list 'auto-mode-alist '("\\.action\\'" . gdb-script-mode))
 ;; Extensions:1 ends here
 
 ;; [[file:config.org::*ROS bags][ROS bags:1]]
-(when ROSBAG-OK-P
+(when ROSBAG-P
   (define-derived-mode rosbag-view-mode
     fundamental-mode "Rosbag view mode"
     "Major mode for viewing ROS bag files."
@@ -1860,9 +2022,10 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*=ros.el=][=ros.el=:2]]
 (use-package! ros
-  :init (map! :leader
-              :prefix ("l" . "custom")
-              :desc "Hydra ROS" "r" #'hydra-ros-main/body)
+  :init
+  (map! :leader
+        :prefix ("l" . "custom")
+        :desc "Hydra ROS" "r" #'hydra-ros-main/body)
   :commands (hydra-ros-main/body ros-set-workspace)
   :config
   (setq ros-workspaces
@@ -1882,7 +2045,8 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Scheme][Scheme:1]]
 (after! geiser
-  (setq geiser-chez-binary "chez-scheme")) ;; default is "scheme"
+  (setq geiser-default-implementation 'guile
+        geiser-chez-binary "chez-scheme")) ;; default is "scheme"
 ;; Scheme:1 ends here
 
 ;; [[file:config.org::*Embed.el][Embed.el:2]]
@@ -1904,12 +2068,13 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Bitbake (Yocto)][Bitbake (Yocto):2]]
 (use-package! bitbake-modes
-  :commands (bitbake-mode
-             conf-bitbake-mode
-             bb-scc-mode wks-mode
-             bitbake-task-log-mode
+  :commands (wks-mode
+             mmm-mode
              bb-sh-mode
-             mmm-mode))
+             bb-scc-mode
+             bitbake-mode
+             conf-bitbake-mode
+             bitbake-task-log-mode))
 ;; Bitbake (Yocto):2 ends here
 
 ;; [[file:config.org::*DAP][DAP:2]]
@@ -2024,15 +2189,15 @@ current buffer's, reload dir-locals."
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 ;; Additional commands:1 ends here
 
-;; [[file:config.org::*RealGUD =.dir-locals.el= support (only for GDB)][RealGUD =.dir-locals.el= support (only for GDB):1]]
+;; [[file:config.org::*RealGUD =.dir-locals.el= support][RealGUD =.dir-locals.el= support:1]]
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 ;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
 (defvar +realgud:launch-plist nil)
-;; RealGUD =.dir-locals.el= support (only for GDB):1 ends here
+;; RealGUD =.dir-locals.el= support:1 ends here
 
-;; [[file:config.org::*RealGUD =.dir-locals.el= support (only for GDB)][RealGUD =.dir-locals.el= support (only for GDB):3]]
+;; [[file:config.org::*RealGUD =.dir-locals.el= support][RealGUD =.dir-locals.el= support:3]]
 (defun +realgud:get-launch-debugger-args (&key program args)
   (let ((debugger--args ""))
     (when program
@@ -2067,7 +2232,7 @@ current buffer's, reload dir-locals."
       (:when (featurep! :tools debugger)
        :prefix-map ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
-;; RealGUD =.dir-locals.el= support (only for GDB):3 ends here
+;; RealGUD =.dir-locals.el= support:3 ends here
 
 ;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
 (after! realgud
@@ -2090,8 +2255,8 @@ current buffer's, reload dir-locals."
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger)
          :prefix-map ("d" . "debugger")
-         :desc "rr record"  "r" #'+debugger/rr-record
-         :desc "rr replay"  "R" #'+debugger/rr-replay)))
+         :desc "rr record" "r" #'+debugger/rr-record
+         :desc "rr replay" "R" #'+debugger/rr-replay)))
 ;; Record and replay =rr=:1 ends here
 
 ;; [[file:config.org::*Emacs GDB][Emacs GDB:2]]
@@ -2188,160 +2353,14 @@ current buffer's, reload dir-locals."
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 ;; Highlight current line:1 ends here
 
-;; [[file:config.org::*Eglot][Eglot:1]]
-(after! eglot
-  ;; A hack to make it works with projectile
-  (defun projectile-project-find-function (dir)
-    (let* ((root (projectile-project-root dir)))
-      (and root (cons 'transient root))))
-
-  (with-eval-after-load 'project
-    (add-to-list 'project-find-functions 'projectile-project-find-function))
-
-  ;; Use clangd with some options
-  (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
-;; Eglot:1 ends here
-
-;; [[file:config.org::*Enable some useful UI stuff][Enable some useful UI stuff:1]]
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover nil
-        lsp-log-io nil
-        lsp-lens-enable t ; not working properly with ccls!
-        lsp-diagnostics-provider :auto
-        lsp-enable-symbol-highlighting t
-        lsp-headerline-breadcrumb-enable nil
-        lsp-headerline-breadcrumb-segments '(symbols)))
-;; Enable some useful UI stuff:1 ends here
-
-;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
-(after! lsp-clangd
-  (setq lsp-clients-clangd-args
-        '("-j=4"
-          "--background-index"
-          "--clang-tidy"
-          "--completion-style=detailed"
-          "--header-insertion=never"
-          "--header-insertion-decorators=0"))
-  (set-lsp-priority! 'clangd 2))
-;; LSP mode with =clangd=:1 ends here
-
-;; [[file:config.org::*Python][Python:1]]
-(after! tramp
-  (require 'lsp-mode)
-  ;; (require 'lsp-pyright)
-
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
-
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
-;; Python:1 ends here
-
-;; [[file:config.org::*C/C++ with =clangd=][C/C++ with =clangd=:1]]
-(after! tramp
-  (require 'lsp-mode)
-
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
-
-  (lsp-register-client
-    (make-lsp-client
-     :new-connection
-     (lsp-tramp-connection
-      (lambda ()
-        (cons "clangd-12" ; executable name on remote machine 'ccls'
-              lsp-clients-clangd-args)))
-     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-     :remote? t
-     :server-id 'clangd-remote)))
-;; C/C++ with =clangd=:1 ends here
-
-;; [[file:config.org::*VHDL][VHDL:1]]
-(use-package! vhdl-mode
-  ;; Required unless vhdl_ls is on the $PATH
-  :config
-  (setq lsp-vhdl-server-path "~/Projects/foss_projects/rust_hdl/target/release/vhdl_ls"
-        lsp-vhdl-server 'vhdl-ls
-        lsp-vhdl--params nil)
-  (require 'lsp-vhdl)
-
-  :hook (vhdl-mode . (lambda ()
-                       (lsp t)
-                       (flycheck-mode t))))
-;; VHDL:1 ends here
-
-;; [[file:config.org::*SonarLint][SonarLint:2]]
-;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
-;; SonarLint:2 ends here
-
-;; [[file:config.org::*Cppcheck][Cppcheck:1]]
-(after! flycheck
-  (setq flycheck-cppcheck-checks '("information"
-                                   "missingInclude"
-                                   "performance"
-                                   "portability"
-                                   "style"
-                                   "unusedFunction"
-                                   "warning"))) ;; Actually, we can use "all"
-;; Cppcheck:1 ends here
-
-;; [[file:config.org::*Project CMake][Project CMake:2]]
-(use-package! project-cmake
-    :config
-    (require 'eglot)
-    (project-cmake-scan-kits)
-    (project-cmake-eglot-integration))
-;; Project CMake:2 ends here
-
-;; [[file:config.org::*FZF][FZF:2]]
-(after! evil
-  (evil-define-key 'insert fzf-mode-map (kbd "ESC") #'term-kill-subjob))
-
-(define-minor-mode fzf-mode
-  "Minor mode for the FZF buffer"
-  :init-value nil
-  :lighter " FZF"
-  :keymap '(("C-c" . term-kill-subjob)))
-
-(defadvice! doom-fzf--override-start-args-a (original-fn &rest args)
-  "Set the FZF minor mode with the fzf buffer."
-  :around #'fzf/start
-  (message "called with args %S" args)
-  (apply original-fn args)
-
-  ;; set the FZF buffer to fzf-mode so we can hook ctrl+c
-  (set-buffer "*fzf*")
-  (fzf-mode))
-
-(defvar fzf/args
-  "-x --print-query -m --tiebreak=index --expect=ctrl-v,ctrl-x,ctrl-t")
-
-(use-package! fzf
-  :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
-;; FZF:2 ends here
-
-;; [[file:config.org::*Clang-format][Clang-format:2]]
-(use-package! clang-format
-  :when CLANG-FORMAT-OK-P
-  :commands (clang-format-region))
-;; Clang-format:2 ends here
+;; [[file:config.org::*Valgrind][Valgrind:2]]
+(use-package! valgrind
+  :commands valgrind)
+;; Valgrind:2 ends here
 
 ;; [[file:config.org::*Repo][Repo:2]]
 (use-package! repo
-  :when REPO-OK-P
+  :when REPO-P
   :commands repo-status)
 ;; Repo:2 ends here
 
@@ -2380,25 +2399,29 @@ current buffer's, reload dir-locals."
   :mode "\\.hax\\'")
 
 (use-package! mips-mode
-  :mode "\\.mips$")
+  :mode "\\.mips\\'")
 
 (use-package! riscv-mode
-  :commands (riscv-mode)
-  :mode "\\.riscv$")
+  :mode "\\.riscv\\'")
 
 (use-package! x86-lookup
   :commands (x86-lookup)
   :config
   (when (featurep! :tools pdf)
-     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
+    (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
   ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-  (setq x86-lookup-pdf "assets/325383-sdm-vol-2abcd.pdf"))
+  (setq x86-lookup-pdf (expand-file-name "x86-lookup/325383-sdm-vol-2abcd.pdf" doom-etc-dir)))
 ;; Assembly:2 ends here
 
 ;; [[file:config.org::*Disaster][Disaster:2]]
-;; TODO: Configure to take into account "compile_commands.json"
 (use-package! disaster
-  :commands (disaster))
+  :commands (disaster)
+  :init
+  (setq disaster-assembly-mode 'nasm-mode)
+
+  (map! :localleader
+        :map (c++-mode-map c-mode-map)
+        :desc "Disaster" "d" #'disaster))
 ;; Disaster:2 ends here
 
 ;; [[file:config.org::*Devdocs][Devdocs:2]]
@@ -2425,8 +2448,27 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Graphviz][Graphviz:2]]
 (use-package! graphviz-dot-mode
-  :commands (graphviz-dot-mode graphviz-dot-preview))
+  :commands graphviz-dot-mode
+  :mode ("\\.dot\\'" "\\.gv\\'")
+  :init
+  (after! org
+    (setcdr (assoc "dot" org-src-lang-modes) 'graphviz-dot)))
+
+(use-package! company-graphviz-dot
+  :after graphviz-dot-mode)
 ;; Graphviz:2 ends here
+
+;; [[file:config.org::*Mermaid][Mermaid:2]]
+(use-package! mermaid-mode
+  :commands mermaid-mode
+  :mode ("\\.mmd\\'"))
+
+(use-package! ob-mermaid
+  :after org
+  :init
+  (after! org
+    (add-to-list 'org-babel-load-languages '(mermaid . t))))
+;; Mermaid:2 ends here
 
 ;; [[file:config.org::*Inspector][Inspector:2]]
 (use-package! inspector
@@ -2456,12 +2498,9 @@ current buffer's, reload dir-locals."
           (:hlines   . "no")
           (:tangle   . "no")
           (:comments . "link")))
-  (after! geiser
-    (setq geiser-default-implementation 'guile))
-  
   ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
   (defun +org-confirm-babel-evaluate (lang body)
-    (not (string= lang "scheme"))) ;; don't ask for scheme
+    (not (string= lang "scheme"))) ;; Don't ask for scheme
   
   (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
   (remove-hook 'text-mode-hook #'visual-line-mode)
@@ -2529,12 +2568,13 @@ current buffer's, reload dir-locals."
   ;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
   
   ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
-  (setq org-agenda-files (list (expand-file-name "inbox.org" org-directory)
-                               (expand-file-name "agenda.org" org-directory)
-                               (expand-file-name "gcal-agenda.org" org-directory)
-                               (expand-file-name "notes.org" org-directory)
-                               (expand-file-name "projects.org" org-directory)
-                               (expand-file-name "archive.org" org-directory)))
+  (setq org-agenda-files
+        (list (expand-file-name "inbox.org" org-directory)
+              (expand-file-name "agenda.org" org-directory)
+              (expand-file-name "gcal-agenda.org" org-directory)
+              (expand-file-name "notes.org" org-directory)
+              (expand-file-name "projects.org" org-directory)
+              (expand-file-name "archive.org" org-directory)))
   ;; Agenda styling
   (setq org-agenda-block-separator ?─
         org-agenda-time-grid
@@ -2544,7 +2584,7 @@ current buffer's, reload dir-locals."
         org-agenda-current-time-string
         "⭠ now ─────────────────────────────────────────────────")
   (use-package! org-super-agenda
-    :after org-agenda
+    :defer t
     :config
     (org-super-agenda-mode)
     :init
@@ -3676,5 +3716,5 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Quarto][Quarto:2]]
 (use-package! quarto-mode
-  :when QUARTO-OK-P)
+  :when QUARTO-P)
 ;; Quarto:2 ends here

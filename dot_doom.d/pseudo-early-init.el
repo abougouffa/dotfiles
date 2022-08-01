@@ -11,44 +11,25 @@
 ;; Fixes:1 ends here
 
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
-(defun bool (val) (not (null val))) ;; Convert a value to boolean
+(defun bool (val) (not (null val)))
 
-(defconst AG-OK-P (bool (executable-find "ag")))
-(defconst REPO-OK-P (bool (executable-find "repo")))
-(defconst MAXIMA-OK-P (bool (executable-find "maxima")))
-(defconst QUARTO-OK-P (bool (executable-find "quarto")))
-(defconst ROSBAG-OK-P (bool (executable-find "rosbag")))
-(defconst ZOTERO-OK-P (bool (executable-find "zotero")))
-(defconst CHEZMOI-OK-P (bool (executable-find "chezmoi")))
-(defconst BITWARDEN-OK-P (bool (executable-find "bw")))
-(defconst LANGUAGETOOL-OK-P (bool (executable-find "languagetool")))
-(defconst CLANG-FORMAT-OK-P (bool (executable-find "clang-format")))
+;; Some packages do not work correctly on Emacs built with the LUCID feature
+(defconst IS-LUCID (bool (string-search "LUCID" system-configuration-features)))
 
-(defconst EAF-OK-P
-  (bool (and (file-directory-p (expand-file-name "emacs-application-framework" doom-etc-dir))
-             ;; EAF seems to not work with LUCID build.
-             (not (string-search "LUCID" system-configuration-features)))))
-
-(defconst MPD-OK-P
-  (let ((ok (bool (and (executable-find "mpc") (executable-find "mpd")))))
-    (unless ok (warn "Missing MPD or MPC. Falling back to the EMMS default backend."))
-    ok))
-
-(defconst MPV-OK-P
-  (let ((ok (bool (and MPD-OK-P
-                       (executable-find "mpv")
-                       (executable-find "youtube-dl")))))
-    (unless ok (warn "Missing MPV or youtube-dl."))
-    (and nil ok)) ;; NOTE: disabled)
-
-(defconst FRICAS-OK-P
-  (bool (and (executable-find "fricas")
-             (file-directory-p "/usr/lib/fricas/emacs"))))
-
-(defconst NETEXTENDER-OK-P
-  (let ((ok (bool (and (executable-find "netExtender")
-                       (file-exists-p "~/.local/bin/netextender")
-                       (file-exists-p "~/.ssh/netExtender-params.gpg")))))
-    (unless ok (warn "Missing netExtender dependencies."))
-    ok))
+(defconst AG-P (bool (executable-find "ag")))
+(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p (expand-file-name "eaf/eaf-repo" doom-etc-dir)))))
+(defconst MPD-P (bool (and (executable-find "mpc") (executable-find "mpd"))))
+(defconst MPV-P (bool (executable-find "mpv")))
+(defconst REPO-P (bool (executable-find "repo")))
+(defconst FRICAS-P (bool (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs"))))
+(defconst MAXIMA-P (bool (executable-find "maxima")))
+(defconst QUARTO-P (bool (executable-find "quarto")))
+(defconst ROSBAG-P (bool (executable-find "rosbag")))
+(defconst ZOTERO-P (bool (executable-find "zotero")))
+(defconst CHEZMOI-P (bool (executable-find "chezmoi")))
+(defconst BITWARDEN-P (bool (executable-find "bw")))
+(defconst YOUTUBE-DL-P (bool (or (executable-find "yt-dlp") (executable-find "youtube-dl"))))
+(defconst NETEXTENDER-P (bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
+(defconst CLANG-FORMAT-P (bool (executable-find "clang-format")))
+(defconst LANGUAGETOOL-P (bool (executable-find "languagetool")))
 ;; Check for external tools:1 ends here
