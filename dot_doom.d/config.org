@@ -4096,6 +4096,27 @@ the builtin =gdb-many-windows= layout.
   (add-hook 'git-commit-setup-hook '+git-commit-reminder))
 #+end_src
 
+**** WIP Company for commit messages
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! company-gitcommit
+  :recipe (:local-repo "lisp/company-gitcommit"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: WIP: not tangled
+(use-package! company-gitcommit
+  :init
+  (add-hook
+   'git-commit-setup-hook
+   (lambda ()
+     (let ((backends (car company-backends)))
+       (setq company-backend
+             (if (listp backends)
+                 (cons (append backends 'company-gitcommit) (car company-backends))
+               (append company-backends (list 'company-gitcommit))))))))
+#+end_src
+
 *** Repo :repo:
 This adds Emacs integration of =repo=, The Multiple Git Repository Tool. Make sure
 the [[https://gerrit.googlesource.com/git-repo][repo]] tool is installed, if not, =pacman -S repo= on Arch-based distributions,
