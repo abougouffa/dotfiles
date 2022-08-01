@@ -3532,6 +3532,19 @@ Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?ut
 ;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 #+end_src
 
+** Vim :vim:vimrc:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! vimrc-mode
+  :recipe (:host github
+           :repo "mcandre/vimrc-mode"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! vimrc-mode
+  :mode "\\.vim\\(rc\\)?\\'")
+#+end_src
+
 ** ESS :ess:stats:r:
 View data frames better with
 
