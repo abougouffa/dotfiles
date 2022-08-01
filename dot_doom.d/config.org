@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+date: 2022-07-30
+#+date: 2022-08-01
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
