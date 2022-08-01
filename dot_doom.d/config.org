@@ -1254,14 +1254,14 @@ Disabled, not working correctly with Emacs Daemon + EmacsClient.
         "~/Projects/foss"))
 
 (setq projectile-ignored-projects
-      '("~/"
-        "/tmp"
+      '("/tmp"
         "~/.cache"
         "~/.emacs.d/.local/straight/repos/"))
 
 (defun projectile-ignored-project-function (filepath)
   "Return t if FILEPATH is within any of `projectile-ignored-projects'"
-  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+  (some (lambda (p) (s-starts-with-p (expand-file-name p) (expand-file-name filepath)))
+        projectile-ignored-projects))
 #+end_src
 
 *** Tramp :tramp:
