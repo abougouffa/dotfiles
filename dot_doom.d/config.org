@@ -1744,7 +1744,22 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
     (require 'lsp-grammarly)
     (lsp-deferred)) ;; or (lsp)
 
+  (after! lsp-mode
+    (defun +lsp-grammarly-toggle ()
+      "Enable/disable Grammarly LSP."
+      (interactive)
+      (if (member 'grammarly-ls lsp-disabled-clients)
+          (progn
+            (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
+            (message "Enabled grammarly-ls"))
+        (progn
+          (add-to-list 'lsp-disabled-clients 'grammarly-ls)
+          (message "Disabled grammarly-ls")))))
+
   :config
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
   (set-lsp-priority! 'grammarly-ls 1))
 #+end_src
 
