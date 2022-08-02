@@ -53,12 +53,15 @@
   name = "VersionControl"
 
 [[layers]]
-  name = "lsp"
-  filetypes = [
-    "rust",
-    "c",
-    "cpp"
-  ]
+  name = "treesitter"
+
+#[[layers]]
+#  name = "lsp"
+#  filetypes = [
+#    "rust",
+#    "c",
+#    "cpp"
+#  ]
 
 [[layers]]
   name = "lang#c"
@@ -66,6 +69,9 @@
   [layer.clang_std]
     c = "c11"
     cpp = "c++1z"
+
+[[layers]]
+  name = "lang#assembly"
 
 [[layers]]
   name = "lang#ipynb"
@@ -77,10 +83,10 @@
   name = "lang#python"
   format_on_save = true
   python_file_head = [
-      '#!/usr/bin/env python',
-      '# -*- coding: utf-8 -*-',
-      '',
-      ''
+    '#!/usr/bin/env python',
+    '# -*- coding: utf-8 -*-',
+    '',
+    ''
   ]
 
 [[layers]]
@@ -90,7 +96,50 @@
   name = "lang#rust"
 
 [[layers]]
+  name = "lang#lisp"
+
+[[layers]]
+  name = "lang#markdown"
+
+# Messes up with Org files (adds newlines before tags...)
+# [[layers]]
+#  name = "lang#org"
+
+ [[layers]]
+  name = "lang#plantuml"
+  plantuml_jar_path = "/usr/share/java/plantuml/plantuml.jar"
+
+[[layers]]
+    name = "lang#scheme"
+    scheme_dialect = "chez-scheme"
+    scheme_interpreter = "/usr/bin/chez-scheme"
+
+[[layers]]
+    name = "lang#sh"
+
+[[layers]]
+  name = "lang#latex"
+
+[[layers]]
+  name = "lang#json"
+
+[[layers]]
+  name = "lang#xml"
+
+[[layers]]
+  name = "lang#toml"
+
+[[layers]]
+  name = "lang#dockerfile"
+
+[[layers]]
+  name = "lang#cmake"
+
+[[layers]]
   name = "sudo"
+
+[[layers]]
+  name = "ssh"
 
 [[layers]]
   name = "git"
@@ -100,9 +149,15 @@
   name = "fzf"
 
 [[layers]]
+  name = "ctrlspace"
+
+[[layers]]
   name = "format"
   enable = true
   format_on_save = false
+
+[[layers]]
+  name = "exprfold"
 
 [[layers]]
   name = "tools"
