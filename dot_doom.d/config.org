@@ -1915,18 +1915,11 @@ understands the structure of plain text formats such as Org and Markdown.
 
 #+begin_src emacs-lisp
 (use-package! lsp-ltex
-  :commands (+lsp-ltex-load)
-  :hook ((org-mode . +lsp-ltex-load)
-         (markdown-mode . +lsp-ltex-load)
-         (latex-mode . +lsp-ltex-load)
-         (tex-mode . +lsp-ltex-load)
-         (text-mode . +lsp-ltex-load))
+  :commands (+lsp-ltex-load
+             +lsp-ltex-toggle)
   :init
   (setq lsp-ltex-java-force-try-system-wide t
-        ;; lsp-ltex-server-store-path (executable-find "ltex-ls")
-        ;; lsp-ltex-version
-        ;; (gethash "ltex-ls"
-        ;;          (json-parse-string (shell-command-to-string "ltex-ls -V")))
+        lsp-ltex-check-frequency "save"
         lsp-ltex-language "auto"
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
@@ -1940,29 +1933,37 @@ understands the structure of plain text formats such as Org and Markdown.
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'ltex-ls))
+
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
     (interactive)
     (require 'lsp-ltex)
     (lsp-deferred))
 
-  (after! lsp-mode
-    (defun +lsp-ltex-toggle ()
-      "Enable/disable LTeX LSP."
-      (interactive)
-      (if (member 'ltex-ls lsp-disabled-clients)
-          (progn
-            (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
-            (message "Enabled ltex-ls"))
+  (defun +lsp-ltex-toggle ()
+    "Enable/disable LTeX LSP."
+    (interactive)
+    (if (member 'ltex-ls lsp-disabled-clients)
         (progn
-          (add-to-list 'lsp-disabled-clients 'ltex-ls)
-          (message "Disabled ltex-ls")))))
+          (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+          (when LANGUAGETOOL-P (+languagetool-server-start))
+          (+lsp-ltex-load)
+          (message "Enabled ltex-ls"))
+      (progn
+        (add-to-list 'lsp-disabled-clients 'ltex-ls)
+        (lsp-disconnect)
+        (message "Disabled ltex-ls"))))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:prefix "l"
+         :desc "Toggle LTeX LS" "t" #'+lsp-ltex-toggle))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
-  (setq flycheck-checker-error-threshold 5000)
-  (when LANGUAGETOOL-P ;; Try to launch a server
-    (+languagetool-server-start)))
+  (setq flycheck-checker-error-threshold 1000))
 #+end_src
 
 **** Flycheck :flycheck:
