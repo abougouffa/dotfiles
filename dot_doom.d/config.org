@@ -1837,7 +1837,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
           "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
 
   (map! :leader :prefix ("l" . "custom")
-        (:prefix-map ("g" . "grammalecte")
+        (:prefix ("g" . "grammalecte")
          :desc "Correct error at point"     "p" #'flycheck-grammalecte-correct-error-at-point
          :desc "Conjugate a verb"           "V" #'grammalecte-conjugate-verb
          :desc "Define a word"              "W" #'grammalecte-define
@@ -3416,7 +3416,7 @@ Lastly, lets define keybindings for these commands, under ~<leader> l m~.
 #+begin_src emacs-lisp :tangle yes
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :app emms)
-       :prefix-map ("m" . "media")
+       :prefix ("m" . "media")
        :desc "Playlist go"                 "g" #'emms-playlist-mode-go
        :desc "Add playlist"                "D" #'emms-add-playlist
        :desc "Toggle random playlist"      "r" #'emms-toggle-random-playlist
@@ -3436,7 +3436,7 @@ Then we add MPD related keybindings if MPD is used.
 (map! :leader
       :prefix ("l m")
       (:when (and (featurep! :app emms) MPD-P)
-       :prefix-map ("m" . "mpd/mpc")
+       :prefix ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
        :desc "EMMS player (MPD update)"  "R" #'emms-player-mpd-update-all-reset-cache
@@ -3747,7 +3747,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
   :init
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger +lsp)
-         :prefix-map ("e" . "embedded")
+         :prefix ("e" . "embedded")
          :desc "Start OpenOCD"    "o" #'embed-openocd-start
          :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
          :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
@@ -3831,7 +3831,7 @@ session, to do so, I define a helper function to clear data stored in the
 
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :tools debugger +lsp)
-       :prefix-map ("d" . "debugger")
+       :prefix ("d" . "debugger")
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 #+end_src
 
@@ -3918,7 +3918,7 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
 
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger)
-         :prefix-map ("d" . "debugger")
+         :prefix ("d" . "debugger")
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 #+end_src
 
@@ -3989,7 +3989,7 @@ defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][V
 
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :tools debugger)
-       :prefix-map ("d" . "debugger")
+       :prefix ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
 #+end_src
 
@@ -4019,7 +4019,7 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
 
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger)
-         :prefix-map ("d" . "debugger")
+         :prefix ("d" . "debugger")
          :desc "rr record" "r" #'+debugger/rr-record
          :desc "rr replay" "R" #'+debugger/rr-replay)))
 #+end_src
