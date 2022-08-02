@@ -1855,24 +1855,32 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 **** Doom's =:checkers grammar=
 This section defines some shortcuts to check the grammar.
 
-#+begin_src emacs-lisp :tangle yes
-(setq langtool-default-language "auto")
+#+begin_src emacs-lisp
+(after! langtool
+  (when LANGUAGETOOL-P
+    ;; Use the server
+    (setq langtool-language-tool-server-jar nil
+          langtool-http-server-host "localhost"
+          langtool-http-server-port 8081))
+
+  (setq langtool-default-language "auto"
+        langtool-mother-tongue "ar"
+        langtool-disabled-rules nil))
 
 ;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :checkers grammar)
-       :prefix-map ("l" . "langtool")
-       :desc "Check"                   "l" #'langtool-check
-       :desc "Correct buffer"          "b" #'langtool-correct-buffer
-       :desc "Stop server"             "s" #'langtool-server-stop
-       :desc "Done checking"           "d" #'langtool-check-done
-       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
-       :desc "Next error"              "n" #'langtool-goto-next-error
-       :desc "Previous error"          "p" #'langtool-goto-previous-error
-       :desc "Switch default language" "L" #'langtool-switch-default-language))
-
-#+end_src
-
+       :prefix ("l" . "langtool")
+       :desc "Check"             "l" #'langtool-check
+       :desc "Correct buffer"    "b" #'langtool-correct-buffer
+       :desc "Done checking"     "d" #'langtool-check-done
+       :desc "Show msg at point" "m" #'langtool-show-message-at-point
+       :desc "Next error"        "n" #'langtool-goto-next-error
+       :desc "Previous error"    "p" #'langtool-goto-previous-error
+       (:prefix ("s" . "server")
+        :desc "Start server"     "s" #'+languagetool-server-start
+        :desc "Stop server"      "q" #'+languagetool-server-stop
+        :desc "Restart server"   "r" #'+languagetool-server-restart)))
 #+end_src
 
 **** LTeX :lsp:
