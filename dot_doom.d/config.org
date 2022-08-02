@@ -4288,9 +4288,8 @@ Add some packages for better assembly coding.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! disaster
-  :pin "9662437834e79cda3c468952ec03947aa39e92f6"
   :recipe (:host github
-           :repo "abougouffa/disaster"))
+           :repo "abougouffa/disaster")) ;; :local-repo "~/Projects/foss/disaster"
 #+end_src
 
 #+begin_src emacs-lisp
@@ -4300,7 +4299,7 @@ Add some packages for better assembly coding.
   (setq disaster-assembly-mode 'nasm-mode)
 
   (map! :localleader
-        :map (c++-mode-map c-mode-map)
+        :map (c++-mode-map c-mode-map fortran-mode)
         :desc "Disaster" "d" #'disaster))
 #+end_src
 
