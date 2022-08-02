@@ -797,7 +797,20 @@ current buffer's, reload dir-locals."
 ;; Emojify:4 ends here
 
 ;; [[file:config.org::*Ligatures][Ligatures:1]]
-(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
+(setq +ligatures-extras-in-modes
+      (if (and (listp +ligatures-extras-in-modes)
+               (eq 'not (car +ligatures-extras-in-modes)))
+          (delete-dups
+           (append +ligatures-extras-in-modes
+                   '(c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+        '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+
+(setq +ligatures-in-modes
+      (if (and (listp +ligatures-in-modes)
+               (eq 'not (car +ligatures-in-modes)))
+          (delete-dups
+           (append +ligatures-in-modes '(emacs-lisp-mode scheme-mode racket-mode)))
+        '(not emacs-lisp-mode scheme-mode racket-mode)))
 ;; Ligatures:1 ends here
 
 ;; [[file:config.org::*Spell-Fu][Spell-Fu:1]]
