@@ -1738,25 +1738,24 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 (package! grammarly
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
-
-;; Install the suitable LSP frontend (Eglot / LSP Mode)
-(package! eglot-grammarly
-  :disable (not (featurep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-grammarly/eglot-grammarly"))
-
-(package! lsp-grammarly
-  :disable (or (not (featurep! :tools lsp))
-               (featurep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-grammarly/lsp-grammarly"))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! grammarly
   :config
   (grammarly-load-from-authinfo))
+#+end_src
 
+**** Eglot
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! eglot-grammarly
+  :disable (not (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-grammarly/eglot-grammarly"))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package! eglot-grammarly
   :when (featurep! :tools lsp +eglot)
   :commands (+lsp-grammarly-load)
@@ -1766,34 +1765,44 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
     (interactive)
     (require 'eglot-grammarly)
     (call-interactively #'eglot)))
+#+end_src
 
+**** LSP Mode
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lsp-grammarly
+  :disable (or (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
+  :recipe (:host github
+           :repo "emacs-grammarly/lsp-grammarly"))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package! lsp-grammarly
-  :when (and (featurep! :tools lsp)
-             (not (featurep! :tools lsp +eglot)))
-  :commands (+lsp-grammarly-load)
+  :when (and (featurep! :tools lsp) (not (featurep! :tools lsp +eglot)))
+  :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
+
   (defun +lsp-grammarly-load ()
     "Load Grammarly LSP server for LSP Mode."
     (interactive)
     (require 'lsp-grammarly)
     (lsp-deferred)) ;; or (lsp)
 
-  (after! lsp-mode
-    (defun +lsp-grammarly-toggle ()
-      "Enable/disable Grammarly LSP."
-      (interactive)
-      (if (member 'grammarly-ls lsp-disabled-clients)
-          (progn
-            (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
-            (message "Enabled grammarly-ls"))
+  (defun +lsp-grammarly-toggle ()
+    "Enable/disable Grammarly LSP."
+    (interactive)
+    (if (member 'grammarly-ls lsp-disabled-clients)
         (progn
-          (add-to-list 'lsp-disabled-clients 'grammarly-ls)
-          (message "Disabled grammarly-ls")))))
+          (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
+          (message "Enabled grammarly-ls"))
+      (progn
+        (add-to-list 'lsp-disabled-clients 'grammarly-ls)
+        (message "Disabled grammarly-ls"))))
 
   :config
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
   (set-lsp-priority! 'grammarly-ls 1))
 #+end_src
 
