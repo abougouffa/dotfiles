@@ -551,7 +551,7 @@ There is a package [[https://github.com/bbatsov/super-save][bbatsov/super-save]]
 
 #+begin_src emacs-lisp
 (setq source-directory
-      (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git"))
+      (expand-file-name "~/Softwares/src/emacs"))
 #+end_src
 
 *** Frame :frame:
