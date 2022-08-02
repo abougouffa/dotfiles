@@ -5995,6 +5995,26 @@ simply superior combination.
 ;; org-latex-reference-command "\\cref{%s}")
 #+end_src
 
+***** Export multi-files Org documents
+Lets say wa have a multi-files documents, with =main.org= is the entry point
+with several Org src_org{#+include: chapterX.org} files. Most of the time, user
+will be writing in a chapter files, and not the =main.org=, while if we want to
+export the document, we need to open and export the =main.org= file.
+
+A solution is to add this advice to the src_elisp{(org-latex-export-to-pdf)} to
+switch to =main.org= (if it exists) before running the export.
+
+#+begin_src emacs-lisp
+(advice-add 'org-latex-export-to-pdf :around
+            (lambda (orig-fn &rest orig-args)
+              (message "Export to PDF %s."
+                       (if (file-exists-p (expand-file-name "main.org"))
+                           (with-current-buffer (find-file-noselect "main.org")
+                             (apply orig-fn orig-args))
+                         (apply orig-fn orig-args))
+                       "succeeded" "failed")))
+#+end_src
+
 **** Hugo
 Update files with last modified date, when ~#+lastmod:~ is available
 
