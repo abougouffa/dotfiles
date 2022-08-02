@@ -965,6 +965,8 @@ current buffer's, reload dir-locals."
              +lsp-ltex-toggle)
   :init
   (setq lsp-ltex-java-force-try-system-wide t
+        lsp-ltex-server-store-path nil ;; force it to use system ltex-ls
+        lsp-ltex-version (gethash "ltex-ls" (json-parse-string (shell-command-to-string "ltex-ls -V")))
         lsp-ltex-check-frequency "save"
         lsp-ltex-language "auto"
         lsp-ltex-mother-tongue "ar"
@@ -2444,6 +2446,24 @@ current buffer's, reload dir-locals."
   :commands valgrind)
 ;; Valgrind:2 ends here
 
+;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:2]]
+(use-package! company-gitcommit
+  :init
+  (add-hook
+   'git-commit-setup-hook
+   (lambda ()
+     (let ((backends (car company-backends)))
+       (setq company-backend
+             (if (listp backends)
+                 (cons (append backends 'company-gitcommit) (car company-backends))
+               (append company-backends (list 'company-gitcommit))))))))
+;; WIP Company for commit messages:2 ends here
+
+;; [[file:config.org::*Pretty graph][Pretty graph:2]]
+(use-package! magit-pretty-graph
+  :after magit)
+;; Pretty graph:2 ends here
+
 ;; [[file:config.org::*Repo][Repo:2]]
 (use-package! repo
   :when REPO-P
@@ -2506,7 +2526,7 @@ current buffer's, reload dir-locals."
   (setq disaster-assembly-mode 'nasm-mode)
 
   (map! :localleader
-        :map (c++-mode-map c-mode-map)
+        :map (c++-mode-map c-mode-map fortran-mode)
         :desc "Disaster" "d" #'disaster))
 ;; Disaster:2 ends here
 

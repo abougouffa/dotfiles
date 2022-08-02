@@ -287,8 +287,15 @@
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
 (package! company-gitcommit
+  :disable t
   :recipe (:local-repo "lisp/company-gitcommit"))
 ;; WIP Company for commit messages:1 ends here
+
+;; [[file:config.org::*Pretty graph][Pretty graph:1]]
+(package! magit-pretty-graph
+  :recipe (:host github
+           :repo "georgek/magit-pretty-graph"))
+;; Pretty graph:1 ends here
 
 ;; [[file:config.org::*Repo][Repo:1]]
 (package! repo)
@@ -310,9 +317,8 @@
 
 ;; [[file:config.org::*Disaster][Disaster:1]]
 (package! disaster
-  :pin "9662437834e79cda3c468952ec03947aa39e92f6"
   :recipe (:host github
-           :repo "abougouffa/disaster"))
+           :repo "abougouffa/disaster")) ;; :local-repo "~/Projects/foss/disaster"
 ;; Disaster:1 ends here
 
 ;; [[file:config.org::*Devdocs][Devdocs:1]]
