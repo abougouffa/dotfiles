@@ -1934,6 +1934,8 @@ understands the structure of plain text formats such as Org and Markdown.
              +lsp-ltex-toggle)
   :init
   (setq lsp-ltex-java-force-try-system-wide t
+        lsp-ltex-server-store-path nil ;; force it to use system ltex-ls
+        lsp-ltex-version (gethash "ltex-ls" (json-parse-string (shell-command-to-string "ltex-ls -V")))
         lsp-ltex-check-frequency "save"
         lsp-ltex-language "auto"
         lsp-ltex-mother-tongue "ar"
