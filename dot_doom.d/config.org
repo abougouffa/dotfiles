@@ -4194,6 +4194,19 @@ the builtin =gdb-many-windows= layout.
                (append company-backends (list 'company-gitcommit))))))))
 #+end_src
 
+**** Pretty graph
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! magit-pretty-graph
+  :recipe (:host github
+           :repo "georgek/magit-pretty-graph"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! magit-pretty-graph
+  :after magit)
+#+end_src
+
 *** Repo :repo:
 This adds Emacs integration of =repo=, The Multiple Git Repository Tool. Make sure
 the [[https://gerrit.googlesource.com/git-repo][repo]] tool is installed, if not, =pacman -S repo= on Arch-based distributions,
