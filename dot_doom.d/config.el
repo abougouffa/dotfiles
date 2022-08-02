@@ -94,7 +94,7 @@
 
 ;; [[file:config.org::*Emacs sources][Emacs sources:1]]
 (setq source-directory
-      (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git"))
+      (expand-file-name "~/Softwares/src/emacs"))
 ;; Emacs sources:1 ends here
 
 ;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
@@ -3764,6 +3764,14 @@ current buffer's, reload dir-locals."
   (setq org-latex-default-class "article")
   ;; org-latex-tables-booktabs t
   ;; org-latex-reference-command "\\cref{%s}")
+  (advice-add 'org-latex-export-to-pdf :around
+              (lambda (orig-fn &rest orig-args)
+                (message "Export to PDF %s."
+                         (if (file-exists-p (expand-file-name "main.org"))
+                             (with-current-buffer (find-file-noselect "main.org")
+                               (apply orig-fn orig-args))
+                           (apply orig-fn orig-args))
+                         "succeeded" "failed")))
   (setq time-stamp-active t
         time-stamp-start "#\\+lastmod:[ \t]*"
         time-stamp-end "$"

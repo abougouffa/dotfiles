@@ -31,5 +31,5 @@
 (defconst YOUTUBE-DL-P (bool (or (executable-find "yt-dlp") (executable-find "youtube-dl"))))
 (defconst NETEXTENDER-P (bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
 (defconst CLANG-FORMAT-P (bool (executable-find "clang-format")))
-(defconst LANGUAGETOOL-P (bool (executable-find "languagetool")))
+(defconst LANGUAGETOOL-P (bool (and (executable-find "languagetool") (string-match "\\(?:MANJARO\\|ARCH\\)" operating-system-release))))
 ;; Check for external tools:1 ends here
