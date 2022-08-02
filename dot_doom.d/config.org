@@ -1278,8 +1278,8 @@ straightforward, I'll just redefine it to a simpler, async, function.
   #+end_src
 
 *** Projectile :projectile:
-Doom Emacs defined a function #src_elisp{(doom-project-ignored-p path)} and uses
-it with #src_elisp{projectile-ignored-project-function}. So we will create a
+Doom Emacs defined a function src_elisp{(doom-project-ignored-p path)} and uses
+it with src_elisp{projectile-ignored-project-function}. So we will create a
 wrapper function which calls Doom's one, with an extra check.
 
 #+begin_src emacs-lisp
