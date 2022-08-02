@@ -607,6 +607,45 @@ stealing prevention* to /None/ in the KDE Settings.
 #+end_src
 
 * Emacs daemon :daemon:
+** LanguageTool Server :languagetool:
+This will launch the LanguageTool Server at startup, this server will be used
+then by both =langtool= and =ltex-ls=.
+
+#+begin_src emacs-lisp
+(when LANGUAGETOOL-P
+  (defvar +languagetool--process-name "ltex-languagetool-server")
+
+  (defun +languagetool-server-start (&optional port)
+    "Start LanguageTool server with PORT."
+    (interactive)
+    (if (process-live-p (get-process +languagetool--process-name))
+        (message "LanguageTool server already running.")
+      (when (start-process
+             +languagetool--process-name
+             " *LanguageTool server*"
+             "languagetool"
+             "--http"
+             "--port" (format "%s" (or port 8081))
+             "--languageModel" "/usr/share/ngrams")
+        (message "Started LanguageTool server."))))
+
+  (defun +languagetool-server-stop ()
+    "Stop the LanguageTool server."
+    (interactive)
+    (if (process-live-p (get-process +languagetool--process-name))
+        (when (kill-process +languagetool--process-name)
+          (message "Stopped LanguageTool server."))
+      (message "No LanguageTool server running.")))
+
+  (defun +languagetool-server-restart (&optional port)
+    "Restart the LanguageTool server with PORT, start new instance if not running."
+    (interactive)
+    (when (process-live-p (get-process +languagetool--process-name))
+      (+languagetool-server-stop))
+    (sit-for 5)
+    (+languagetool-server-start port)))
+#+end_src
+
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
 with it, so I may as well eat the load time at startup. We also want to keep
@@ -619,13 +658,21 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 #+begin_src emacs-lisp
 (defun +greedily-do-daemon-setup ()
   (require 'org)
+  ;; mu4e
   (when (and (featurep! :email mu4e) (require 'mu4e nil t))
     (setq mu4e-confirm-quit t
           +mu4e-lock-greedy t
           +mu4e-lock-relaxed t)
     (+mu4e-lock-start 'mu4e--start))
+
+  ;; RSS
   (when (and (featurep! :app rss) (require 'elfeed nil t))
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+    (run-at-time nil (* 8 60 60) #'elfeed-update))
+
+  ;; LanguageTool
+  (when (and LANGUAGETOOL-P nil) ;; disabled, too heavy, enable on demand
+    (unless (ignore-errors (+languagetool-server-start))
+      (message "LanguageTool Server cannot be launched at daemon startup."))))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
@@ -1829,41 +1876,6 @@ This section defines some shortcuts to check the grammar.
 
 #+end_src
 
-**** LanguageTool server
-
-#+begin_src emacs-lisp
-(when LANGUAGETOOL-P
-  (defvar +languagetool-process-name "ltex-languagetool-server")
-
-  (defun +languagetool-server-start (&optional port)
-    "Start LanguageTool server with PORT."
-    (interactive)
-    (if (process-live-p (get-process +languagetool-process-name))
-        (message "LanguageTool server already running.")
-      (when (start-process
-             +languagetool-process-name
-             " *LanguageTool server*"
-             "languagetool"
-             "--http"
-             "--port" (format "%s" (or port 8081))
-             "--languageModel" "/usr/share/ngrams")
-        (message "Started LanguageTool server."))))
-
-  (defun +languagetool-server-stop ()
-    "Stop the LanguageTool server."
-    (interactive)
-    (if (process-live-p (get-process +languagetool-process-name))
-        (when (kill-process +languagetool-process-name)
-          (message "Stopped LanguageTool server."))
-      (message "No LanguageTool server running.")))
-
-  (defun +languagetool-server-restart (&optional port)
-    "Restart the LanguageTool server with PORT, start new instance if not running."
-    (interactive)
-    (when (process-live-p (get-process +languagetool-process-name))
-      (+languagetool-server-stop))
-    (sit-for 5)
-    (+languagetool-server-start port)))
 #+end_src
 
 **** LTeX :lsp:
