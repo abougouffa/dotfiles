@@ -97,16 +97,59 @@
       (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git"))
 ;; Emacs sources:1 ends here
 
+;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
+(when LANGUAGETOOL-P
+  (defvar +languagetool--process-name "ltex-languagetool-server")
+
+  (defun +languagetool-server-start (&optional port)
+    "Start LanguageTool server with PORT."
+    (interactive)
+    (if (process-live-p (get-process +languagetool--process-name))
+        (message "LanguageTool server already running.")
+      (when (start-process
+             +languagetool--process-name
+             " *LanguageTool server*"
+             "languagetool"
+             "--http"
+             "--port" (format "%s" (or port 8081))
+             "--languageModel" "/usr/share/ngrams")
+        (message "Started LanguageTool server."))))
+
+  (defun +languagetool-server-stop ()
+    "Stop the LanguageTool server."
+    (interactive)
+    (if (process-live-p (get-process +languagetool--process-name))
+        (when (kill-process +languagetool--process-name)
+          (message "Stopped LanguageTool server."))
+      (message "No LanguageTool server running.")))
+
+  (defun +languagetool-server-restart (&optional port)
+    "Restart the LanguageTool server with PORT, start new instance if not running."
+    (interactive)
+    (when (process-live-p (get-process +languagetool--process-name))
+      (+languagetool-server-stop))
+    (sit-for 5)
+    (+languagetool-server-start port)))
+;; LanguageTool Server:1 ends here
+
 ;; [[file:config.org::*Initialization][Initialization:1]]
 (defun +greedily-do-daemon-setup ()
   (require 'org)
+  ;; mu4e
   (when (and (featurep! :email mu4e) (require 'mu4e nil t))
     (setq mu4e-confirm-quit t
           +mu4e-lock-greedy t
           +mu4e-lock-relaxed t)
     (+mu4e-lock-start 'mu4e--start))
+
+  ;; RSS
   (when (and (featurep! :app rss) (require 'elfeed nil t))
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+    (run-at-time nil (* 8 60 60) #'elfeed-update))
+
+  ;; LanguageTool
+  (when (and LANGUAGETOOL-P nil) ;; disabled, too heavy, enable on demand
+    (unless (ignore-errors (+languagetool-server-start))
+      (message "LanguageTool Server cannot be launched at daemon startup."))))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
@@ -438,15 +481,6 @@ is binary, activate `hexl-mode'."
 
 (add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
 ;; Asynchronous tangling:1 ends here
-
-;; [[file:config.org::*Centaur tabs][Centaur tabs:1]]
-(after! centaur-tabs
-  (centaur-tabs-mode -1)
-  (setq centaur-tabs-set-icons t
-        centaur-tabs-modified-marker "⭘"
-        centaur-tabs-close-button "×"
-        centaur-tabs-gray-out-icons 'buffer))
-;; Centaur tabs:1 ends here
 
 ;; [[file:config.org::*Treemacs][Treemacs:2]]
 (after! treemacs
@@ -803,7 +837,9 @@ current buffer's, reload dir-locals."
 (use-package! grammarly
   :config
   (grammarly-load-from-authinfo))
+;; Grammarly:2 ends here
 
+;; [[file:config.org::*Eglot][Eglot:2]]
 (use-package! eglot-grammarly
   :when (featurep! :tools lsp +eglot)
   :commands (+lsp-grammarly-load)
@@ -813,36 +849,37 @@ current buffer's, reload dir-locals."
     (interactive)
     (require 'eglot-grammarly)
     (call-interactively #'eglot)))
+;; Eglot:2 ends here
 
+;; [[file:config.org::*LSP Mode][LSP Mode:2]]
 (use-package! lsp-grammarly
-  :when (and (featurep! :tools lsp)
-             (not (featurep! :tools lsp +eglot)))
-  :commands (+lsp-grammarly-load)
+  :when (and (featurep! :tools lsp) (not (featurep! :tools lsp +eglot)))
+  :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
+
   (defun +lsp-grammarly-load ()
     "Load Grammarly LSP server for LSP Mode."
     (interactive)
     (require 'lsp-grammarly)
     (lsp-deferred)) ;; or (lsp)
 
-  (after! lsp-mode
-    (defun +lsp-grammarly-toggle ()
-      "Enable/disable Grammarly LSP."
-      (interactive)
-      (if (member 'grammarly-ls lsp-disabled-clients)
-          (progn
-            (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
-            (message "Enabled grammarly-ls"))
+  (defun +lsp-grammarly-toggle ()
+    "Enable/disable Grammarly LSP."
+    (interactive)
+    (if (member 'grammarly-ls lsp-disabled-clients)
         (progn
-          (add-to-list 'lsp-disabled-clients 'grammarly-ls)
-          (message "Disabled grammarly-ls")))))
+          (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
+          (message "Enabled grammarly-ls"))
+      (progn
+        (add-to-list 'lsp-disabled-clients 'grammarly-ls)
+        (message "Disabled grammarly-ls"))))
 
   :config
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
   (set-lsp-priority! 'grammarly-ls 1))
-;; Grammarly:2 ends here
+;; LSP Mode:2 ends here
 
 ;; [[file:config.org::*Grammalecte][Grammalecte:2]]
 (use-package! flycheck-grammalecte
@@ -867,7 +904,7 @@ current buffer's, reload dir-locals."
           "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
 
   (map! :leader :prefix ("l" . "custom")
-        (:prefix-map ("g" . "grammalecte")
+        (:prefix ("g" . "grammalecte")
          :desc "Correct error at point"     "p" #'flycheck-grammalecte-correct-error-at-point
          :desc "Conjugate a verb"           "V" #'grammalecte-conjugate-verb
          :desc "Define a word"              "W" #'grammalecte-define
@@ -882,71 +919,40 @@ current buffer's, reload dir-locals."
 ;; Grammalecte:2 ends here
 
 ;; [[file:config.org::*Doom's =:checkers grammar=][Doom's =:checkers grammar=:1]]
-(setq langtool-default-language "auto")
+(after! langtool
+  (when LANGUAGETOOL-P
+    ;; Use the server
+    (setq langtool-language-tool-server-jar nil
+          langtool-http-server-host "localhost"
+          langtool-http-server-port 8081))
+
+  (setq langtool-default-language "auto"
+        langtool-mother-tongue "ar"
+        langtool-disabled-rules nil))
 
 ;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :checkers grammar)
-       :prefix-map ("l" . "langtool")
-       :desc "Check"                   "l" #'langtool-check
-       :desc "Correct buffer"          "b" #'langtool-correct-buffer
-       :desc "Stop server"             "s" #'langtool-server-stop
-       :desc "Done checking"           "d" #'langtool-check-done
-       :desc "Show msg at point"       "m" #'langtool-show-message-at-point
-       :desc "Next error"              "n" #'langtool-goto-next-error
-       :desc "Previous error"          "p" #'langtool-goto-previous-error
-       :desc "Switch default language" "L" #'langtool-switch-default-language))
+       :prefix ("l" . "langtool")
+       :desc "Check"             "l" #'langtool-check
+       :desc "Correct buffer"    "b" #'langtool-correct-buffer
+       :desc "Done checking"     "d" #'langtool-check-done
+       :desc "Show msg at point" "m" #'langtool-show-message-at-point
+       :desc "Next error"        "n" #'langtool-goto-next-error
+       :desc "Previous error"    "p" #'langtool-goto-previous-error
+       (:prefix ("s" . "server")
+        :desc "Start server"     "s" #'+languagetool-server-start
+        :desc "Stop server"      "q" #'+languagetool-server-stop
+        :desc "Restart server"   "r" #'+languagetool-server-restart)))
 ;; Doom's =:checkers grammar=:1 ends here
-
-;; [[file:config.org::*LanguageTool server][LanguageTool server:1]]
-(when LANGUAGETOOL-P
-  (defvar +languagetool-process-name "ltex-languagetool-server")
-
-  (defun +languagetool-server-start (&optional port)
-    "Start LanguageTool server with PORT."
-    (interactive)
-    (if (process-live-p (get-process +languagetool-process-name))
-        (message "LanguageTool server already running.")
-      (when (start-process
-             +languagetool-process-name
-             " *LanguageTool server*"
-             "languagetool"
-             "--http"
-             "--port" (format "%s" (or port 8081))
-             "--languageModel" "/usr/share/ngrams")
-        (message "Started LanguageTool server."))))
-
-  (defun +languagetool-server-stop ()
-    "Stop the LanguageTool server."
-    (interactive)
-    (if (process-live-p (get-process +languagetool-process-name))
-        (when (kill-process +languagetool-process-name)
-          (message "Stopped LanguageTool server."))
-      (message "No LanguageTool server running.")))
-
-  (defun +languagetool-server-restart (&optional port)
-    "Restart the LanguageTool server with PORT, start new instance if not running."
-    (interactive)
-    (when (process-live-p (get-process +languagetool-process-name))
-      (+languagetool-server-stop))
-    (sit-for 5)
-    (+languagetool-server-start port)))
-;; LanguageTool server:1 ends here
 
 ;; [[file:config.org::*LTeX][LTeX:2]]
 (use-package! lsp-ltex
-  :commands (+lsp-ltex-load)
-  :hook ((org-mode . +lsp-ltex-load)
-         (markdown-mode . +lsp-ltex-load)
-         (latex-mode . +lsp-ltex-load)
-         (tex-mode . +lsp-ltex-load)
-         (text-mode . +lsp-ltex-load))
+  :commands (+lsp-ltex-load
+             +lsp-ltex-toggle)
   :init
   (setq lsp-ltex-java-force-try-system-wide t
-        ;; lsp-ltex-server-store-path (executable-find "ltex-ls")
-        ;; lsp-ltex-version
-        ;; (gethash "ltex-ls"
-        ;;          (json-parse-string (shell-command-to-string "ltex-ls -V")))
+        lsp-ltex-check-frequency "save"
         lsp-ltex-language "auto"
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
@@ -960,29 +966,37 @@ current buffer's, reload dir-locals."
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'ltex-ls))
+
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
     (interactive)
     (require 'lsp-ltex)
     (lsp-deferred))
 
-  (after! lsp-mode
-    (defun +lsp-ltex-toggle ()
-      "Enable/disable LTeX LSP."
-      (interactive)
-      (if (member 'ltex-ls lsp-disabled-clients)
-          (progn
-            (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
-            (message "Enabled ltex-ls"))
+  (defun +lsp-ltex-toggle ()
+    "Enable/disable LTeX LSP."
+    (interactive)
+    (if (member 'ltex-ls lsp-disabled-clients)
         (progn
-          (add-to-list 'lsp-disabled-clients 'ltex-ls)
-          (message "Disabled ltex-ls")))))
+          (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+          (when LANGUAGETOOL-P (+languagetool-server-start))
+          (+lsp-ltex-load)
+          (message "Enabled ltex-ls"))
+      (progn
+        (add-to-list 'lsp-disabled-clients 'ltex-ls)
+        (lsp-disconnect)
+        (message "Disabled ltex-ls"))))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:prefix "l"
+         :desc "Toggle LTeX LS" "t" #'+lsp-ltex-toggle))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
-  (setq flycheck-checker-error-threshold 5000)
-  (when LANGUAGETOOL-P ;; Try to launch a server
-    (+languagetool-server-start)))
+  (setq flycheck-checker-error-threshold 1000))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
@@ -1911,7 +1925,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :app emms)
-       :prefix-map ("m" . "media")
+       :prefix ("m" . "media")
        :desc "Playlist go"                 "g" #'emms-playlist-mode-go
        :desc "Add playlist"                "D" #'emms-add-playlist
        :desc "Toggle random playlist"      "r" #'emms-toggle-random-playlist
@@ -1928,7 +1942,7 @@ current buffer's, reload dir-locals."
 (map! :leader
       :prefix ("l m")
       (:when (and (featurep! :app emms) MPD-P)
-       :prefix-map ("m" . "mpd/mpc")
+       :prefix ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
        :desc "EMMS player (MPD update)"  "R" #'emms-player-mpd-update-all-reset-cache
@@ -2118,7 +2132,7 @@ current buffer's, reload dir-locals."
   :init
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger +lsp)
-         :prefix-map ("e" . "embedded")
+         :prefix ("e" . "embedded")
          :desc "Start OpenOCD"    "o" #'embed-openocd-start
          :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
          :desc "OpenOCD GDB"      "g" #'embed-openocd-gdb
@@ -2168,7 +2182,7 @@ current buffer's, reload dir-locals."
 
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :tools debugger +lsp)
-       :prefix-map ("d" . "debugger")
+       :prefix ("d" . "debugger")
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 ;; Doom store:1 ends here
 
@@ -2244,7 +2258,7 @@ current buffer's, reload dir-locals."
 
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger)
-         :prefix-map ("d" . "debugger")
+         :prefix ("d" . "debugger")
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 ;; Additional commands:1 ends here
 
@@ -2289,7 +2303,7 @@ current buffer's, reload dir-locals."
 
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :tools debugger)
-       :prefix-map ("d" . "debugger")
+       :prefix ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
 ;; RealGUD =.dir-locals.el= support:3 ends here
 
@@ -2313,7 +2327,7 @@ current buffer's, reload dir-locals."
 
   (map! :leader :prefix ("l" . "custom")
         (:when (featurep! :tools debugger)
-         :prefix-map ("d" . "debugger")
+         :prefix ("d" . "debugger")
          :desc "rr record" "r" #'+debugger/rr-record
          :desc "rr replay" "R" #'+debugger/rr-replay)))
 ;; Record and replay =rr=:1 ends here

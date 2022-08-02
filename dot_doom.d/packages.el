@@ -73,19 +73,21 @@
 (package! grammarly
   :recipe (:host github
            :repo "emacs-grammarly/grammarly"))
+;; Grammarly:1 ends here
 
-;; Install the suitable LSP frontend (Eglot / LSP Mode)
+;; [[file:config.org::*Eglot][Eglot:1]]
 (package! eglot-grammarly
   :disable (not (featurep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/eglot-grammarly"))
+;; Eglot:1 ends here
 
+;; [[file:config.org::*LSP Mode][LSP Mode:1]]
 (package! lsp-grammarly
-  :disable (or (not (featurep! :tools lsp))
-               (featurep! :tools lsp +eglot))
+  :disable (or (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/lsp-grammarly"))
-;; Grammarly:1 ends here
+;; LSP Mode:1 ends here
 
 ;; [[file:config.org::*Grammalecte][Grammalecte:1]]
 (package! flycheck-grammalecte
@@ -114,7 +116,7 @@
 (package! flycheck-languagetool
   :disable t ;; Disabled, using LTeX LSP
   :recipe (:host github
-           :repo "abougouffa/flycheck-languagetool")) ;; "emacs-languagetool/flycheck-languagetool"
+           :repo "emacs-languagetool/flycheck-languagetool"))
 ;; Flycheck:1 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:1]]
