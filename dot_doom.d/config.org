@@ -1971,7 +1971,7 @@ understands the structure of plain text formats such as Org and Markdown.
 (package! flycheck-languagetool
   :disable t ;; Disabled, using LTeX LSP
   :recipe (:host github
-           :repo "abougouffa/flycheck-languagetool")) ;; "emacs-languagetool/flycheck-languagetool"
+           :repo "emacs-languagetool/flycheck-languagetool"))
 #+end_src
 
 #+begin_src emacs-lisp
