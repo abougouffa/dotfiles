@@ -1206,18 +1206,6 @@ straightforward, I'll just redefine it to a simpler, async, function.
 #+end_src
 
 ** Completion & IDE :ide:
-*** Centaur tabs :tab:
-Disabled, not working correctly with Emacs Daemon + EmacsClient.
-
-#+begin_src emacs-lisp
-(after! centaur-tabs
-  (centaur-tabs-mode -1)
-  (setq centaur-tabs-set-icons t
-        centaur-tabs-modified-marker "⭘"
-        centaur-tabs-close-button "×"
-        centaur-tabs-gray-out-icons 'buffer))
-#+end_src
-
 *** Treemacs
 
 #+begin_src emacs-lisp :tangle packages.el
