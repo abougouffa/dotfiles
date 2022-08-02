@@ -1666,10 +1666,25 @@ Email and IRC.
 
 *** Ligatures :ligatures:
 Extra ligatures are good, however, I'd like to see my keywords! Lets disable
-them in C/C++, Rust and Python modes.
+them in C/C++, Rust and Python modes. In addition to that, Lisps do replace
+lambdas with the greek symbol λ, however, this cause miss formatting and
+sometimes messes up with the parenthesis, so lets disable ligatures on Lisps.
 
 #+begin_src emacs-lisp
-(setq +ligatures-extras-in-modes '(not c-mode c++-mode rust-mode python-mode))
+(setq +ligatures-extras-in-modes
+      (if (and (listp +ligatures-extras-in-modes)
+               (eq 'not (car +ligatures-extras-in-modes)))
+          (delete-dups
+           (append +ligatures-extras-in-modes
+                   '(c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+        '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+
+(setq +ligatures-in-modes
+      (if (and (listp +ligatures-in-modes)
+               (eq 'not (car +ligatures-in-modes)))
+          (delete-dups
+           (append +ligatures-in-modes '(emacs-lisp-mode scheme-mode racket-mode)))
+        '(not emacs-lisp-mode scheme-mode racket-mode)))
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
