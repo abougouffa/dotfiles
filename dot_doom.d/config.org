@@ -4403,6 +4403,20 @@ For editing systemd unit files.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! systemd)
+
+(package! journalctl-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! journalctl-mode
+  :commands (journalctl
+             journalctl-boot
+             journalctl-unit
+             journalctl-user-unit)
+  :init
+  (map! :map journalctl-mode-map
+        :nv "J" #'journalctl-next-chunk
+        :nv "K" #'journalctl-previous-chunk))
 #+end_src
 
 ** Franca IDL :franca:
