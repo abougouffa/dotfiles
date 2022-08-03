@@ -964,16 +964,54 @@ current buffer's, reload dir-locals."
   :commands (+lsp-ltex-load
              +lsp-ltex-toggle)
   :init
+  (defun +serialize-symbol (some-symbol)
+    (when (boundp some-symbol)
+      (let ((out-file (expand-file-name
+                       (format "lsp-ltex/%s.el"
+                               (symbol-name some-symbol))
+                       doom-etc-dir)))
+        (with-temp-buffer
+          (prin1 (eval some-symbol)
+                 (current-buffer))
+          (write-file (expand-file-name out-file doom-etc-dir)))
+        out-file)))
+
+  (defun +deserialize-symbol (some-symbol)
+    (let ((in-file (expand-file-name
+                    (format "lsp-ltex/%s.el"
+                            (symbol-name some-symbol))
+                    doom-etc-dir)))
+      (when (file-exists-p in-file)
+        (message "Loading `%s' from file \"%s\"" (symbol-name some-symbol) in-file)
+        (with-temp-buffer
+          (insert-file-contents in-file)
+          (goto-char (point-min))
+          (ignore-errors (set some-symbol (read (current-buffer))))))))
+
+  (defun +add-to-plist (lang word plist-symbol)
+    (let* ((lang-key (make-symbol (concat ":" lang))))
+      (when (null (eval plist-symbol))
+        (set plist-symbol (list lang-key [])))
+      (plist-put (eval plist-symbol) lang-key
+       (vconcat (list word) ;; Add word to the rest
+                (plist-get (eval plist-symbol) lang-key)))
+      (+serialize-symbol plist-symbol)))
+
   (setq lsp-ltex-java-force-try-system-wide t
-        lsp-ltex-server-store-path nil ;; force it to use system ltex-ls
-        lsp-ltex-version (gethash "ltex-ls" (json-parse-string (shell-command-to-string "ltex-ls -V")))
-        lsp-ltex-check-frequency "save"
-        lsp-ltex-language "auto"
-        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-server-store-path (executable-find "ltex-ls")
+        lsp-ltex-version
+        (gethash "ltex-ls"
+                 (json-parse-string (shell-command-to-string "ltex-ls -V")))
         lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
-        lsp-ltex-disabled-rules
-        '(:fr ["WHITESPACE" "FRENCH_WHITESPACE" "DEUX_POINTS_ESPACE"]
-          :en ["WHITESPACE"]))
+        lsp-ltex-check-frequency "save"
+        lsp-ltex-language "fr"
+        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-log-level "warning"
+        lsp-ltex-trace-server "off")
+
+  (+deserialize-symbol 'lsp-ltex-dictionary)
+  (+deserialize-symbol 'lsp-ltex-disabled-rules)
+  (+deserialize-symbol 'lsp-ltex-hidden-false-positives)
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
@@ -981,9 +1019,32 @@ current buffer's, reload dir-locals."
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'ltex-ls))
+  (defun +lsp-ltex--emulate-action (command lang element &optional title)
+    (message "Emulating LSP action \"%s\" [%s], adding \"%s\"." title command element)
+    (+add-to-plist
+     lang element
+     (cond ((equal command "_ltex.addToDictionary") 'lsp-ltex-dictionary)
+           ((equal command "_ltex.disableRules") 'lsp-ltex-disabled-rules)
+           ((equal command "_ltex.hideFalsePositives") 'lsp-ltex-hidden-false-positives))))
+
+  (defun +lsp-ltex--execute-action (orig-fn &optional orig-args)
+    (let* ((command-ht (gethash "command" orig-args))
+           (command (gethash "command" command-ht))
+           (title (gethash "title" command-ht))
+           (arguments-ht (aref (gethash "arguments" command-ht) 0))
+           (args-key (cond ((equal command "_ltex.addToDictionary") "words")
+                           ((equal command "_ltex.disableRules") "ruleIds")
+                           ((equal command "_ltex.hideFalsePositives") "falsePositives"))))
+      (if (and args-key
+               (not (equal args-key "falsePositives"))) ;; TODO: process the "falsePositives" case
+          (let ((args-ht (gethash args-key arguments-ht)))
+            (dolist (lang (hash-table-keys args-ht))
+              (mapc
+               (lambda (arg)
+                 (+lsp-ltex--emulate-action command lang arg title))
+               (gethash lang args-ht))))
+        ;; For other actions, apply the original function call
+        (apply orig-fn orig-args))))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -1004,6 +1065,11 @@ current buffer's, reload dir-locals."
         (add-to-list 'lsp-disabled-clients 'ltex-ls)
         (lsp-disconnect)
         (message "Disabled ltex-ls"))))
+
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'ltex-ls)
+    (advice-add 'lsp-execute-code-action :around '+lsp-ltex--execute-action))
 
   (map! :leader :prefix ("l" . "custom")
         (:prefix "l"
@@ -2536,6 +2602,18 @@ current buffer's, reload dir-locals."
   :config
   (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
 ;; Devdocs:2 ends here
+
+;; [[file:config.org::*Systemd][Systemd:2]]
+(use-package! journalctl-mode
+  :commands (journalctl
+             journalctl-boot
+             journalctl-unit
+             journalctl-user-unit)
+  :init
+  (map! :map journalctl-mode-map
+        :nv "J" #'journalctl-next-chunk
+        :nv "K" #'journalctl-previous-chunk))
+;; Systemd:2 ends here
 
 ;; [[file:config.org::*Franca IDL][Franca IDL:2]]
 (use-package! franca-idl

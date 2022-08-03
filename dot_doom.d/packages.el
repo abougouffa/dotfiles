@@ -330,6 +330,8 @@
 
 ;; [[file:config.org::*Systemd][Systemd:1]]
 (package! systemd)
+
+(package! journalctl-mode)
 ;; Systemd:1 ends here
 
 ;; [[file:config.org::*Franca IDL][Franca IDL:1]]
