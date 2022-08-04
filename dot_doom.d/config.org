@@ -1288,13 +1288,13 @@ it with src_elisp{projectile-ignored-project-function}. So we will create a
 wrapper function which calls Doom's one, with an extra check.
 
 #+begin_src emacs-lisp
-;; Run `M-x projectile-project-search-path' to reload paths from this variable
+;; Run `M-x projectile-discover-projects-in-search-path' to reload paths from this variable
 (setq projectile-project-search-path
-      '("~/PhD/workspace"
+      '("~/PhD/papers"
+        "~/PhD/workspace"
         "~/PhD/workspace-no"
-        "~/PhD/papers"
         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-        "~/Projects/foss"))
+        ("~/Projects/foss" . 2))) ;; ("dir" . depth)
 
 (setq projectile-ignored-projects
       '("/tmp"
