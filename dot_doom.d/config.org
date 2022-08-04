@@ -1914,19 +1914,20 @@ This section defines some shortcuts to check the grammar.
 
 **** LTeX :lsp:
 Originally, [[https://valentjn.github.io/ltex/index.html][LTeX LS]] stands for /LaTeX Language Server/, it acts as a Language
-Server for LaTeX, but not only. It can check grammar and spelling of several
-markup languages such as BibTeX, ConTeXt, LaTeX, Markdown, Org,
+Server for LaTeX, but not only. It can check the grammar and the spelling of
+several markup languages such as BibTeX, ConTeXt, LaTeX, Markdown, Org,
 reStructuredText... and others. Alongside, it provides interfacing with
 LanguageTool to implement natural language checking.
 
 #+begin_quote
-Other WIP LanguageTool LSP implementation for both [[https://github.com/emacs-languagetool/lsp-languagetool][LSP Mode]] and [[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] can be
-interesting, TO BE WATCHED. However, LTeX seems to be a good solution, as it
-understands the structure of plain text formats such as Org and Markdown.
+*TO BE WATCHED:* Other WIP LanguageTool LSP implementations for both [[https://github.com/emacs-languagetool/lsp-languagetool][LSP Mode]] and
+[[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] can be interesting. However, LTeX seems to be a good solution, as it
+understands the structure of plain text formats such as Org and Markdown, which
+reduces the false positives due to the marking and special commands.
 #+end_quote
 
 #+begin_src emacs-lisp :tangle packages.el
-;; Needed, but not installed automatically
+;; Needed for automatic installation, but not installed automatically
 (package! github-tags
   :recipe (:host github
            :repo "jcs-elpa/github-tags"))
