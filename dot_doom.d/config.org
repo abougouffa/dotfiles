@@ -1950,31 +1950,34 @@ understands the structure of plain text formats such as Org and Markdown.
 #+begin_src emacs-lisp
 (use-package! lsp-ltex
   :commands (+lsp-ltex-load
+             +lsp-ltex-enable
+             +lsp-ltex-disable
              +lsp-ltex-toggle)
   :init
-  (defun +serialize-symbol (some-symbol)
+  (defun +serialize-symbol (some-symbol to-directory)
     (when (boundp some-symbol)
-      (let ((out-file (expand-file-name
-                       (format "lsp-ltex/%s.el"
-                               (symbol-name some-symbol))
-                       doom-etc-dir)))
+      (let ((out-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
+                                        out-directory)))
         (with-temp-buffer
-          (prin1 (eval some-symbol)
-                 (current-buffer))
-          (write-file (expand-file-name out-file doom-etc-dir)))
+          (prin1 (eval some-symbol) (current-buffer))
+          (write-file out-file))
         out-file)))
 
-  (defun +deserialize-symbol (some-symbol)
-    (let ((in-file (expand-file-name
-                    (format "lsp-ltex/%s.el"
-                            (symbol-name some-symbol))
-                    doom-etc-dir)))
+  (defun +deserialize-symbol (some-symbol from-directory)
+    (let ((in-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
+                                     from-directory)))
       (when (file-exists-p in-file)
         (message "Loading `%s' from file \"%s\"" (symbol-name some-symbol) in-file)
         (with-temp-buffer
           (insert-file-contents in-file)
           (goto-char (point-min))
           (ignore-errors (set some-symbol (read (current-buffer))))))))
+
+  (defvar +lsp-ltex-serialization-path
+    (let ((path (expand-file-name "lsp-ltex" doom-etc-dir)))
+      (unless (and (file-exists-p path) (file-directory-p path))
+        (mkdir path t))
+      path))
 
   (defun +add-to-plist (lang word plist-symbol)
     (let* ((lang-key (intern (concat ":" lang))))
@@ -1983,7 +1986,7 @@ understands the structure of plain text formats such as Org and Markdown.
       (plist-put (eval plist-symbol) lang-key
                  (vconcat (list word) ;; Add word to the rest
                           (plist-get (eval plist-symbol) lang-key)))
-      (+serialize-symbol plist-symbol)))
+      (+serialize-symbol plist-symbol +lsp-ltex-serialization-path)))
 
   (setq lsp-ltex-java-force-try-system-wide t
         lsp-ltex-server-store-path nil
@@ -1995,9 +1998,9 @@ understands the structure of plain text formats such as Org and Markdown.
         lsp-ltex-log-level "warning"
         lsp-ltex-trace-server "off")
 
-  (+deserialize-symbol 'lsp-ltex-dictionary)
-  (+deserialize-symbol 'lsp-ltex-disabled-rules)
-  (+deserialize-symbol 'lsp-ltex-hidden-false-positives)
+  (+deserialize-symbol 'lsp-ltex-dictionary +lsp-ltex-serialization-path)
+  (+deserialize-symbol 'lsp-ltex-disabled-rules +lsp-ltex-serialization-path)
+  (+deserialize-symbol 'lsp-ltex-hidden-false-positives +lsp-ltex-serialization-path)
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
