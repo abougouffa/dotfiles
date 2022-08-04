@@ -1693,20 +1693,13 @@ sometimes messes up with the parenthesis, so lets disable ligatures on Lisps.
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
-*** Install back-end :backend:
-For =flyspell= + =hunspell=
-
-#+begin_example shell
-sudo pacman -S hunspell hunspell-en_US hunspell-en_GB hunspell-fr
-#+end_example
-
-For =spell-fu=
+*** Spell-Fu :spell:
+Install the =aspell= back-end and the dictionaries to use with =spell-fu=
 
 #+begin_example shell
 sudo pacman -S aspell aspell-en aspell-fr
 #+end_example
 
-*** Spell-Fu :spell:
 Now, =spell-fu= supports multiple languages! Lets add English, French and Arabic.
 So I can "mélanger les langues sans avoir de problèmes!".
 
