@@ -1953,7 +1953,7 @@ reduces the false positives due to the marking and special commands.
   (defun +serialize-symbol (some-symbol to-directory)
     (when (boundp some-symbol)
       (let ((out-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
-                                        out-directory)))
+                                        to-directory)))
         (with-temp-buffer
           (prin1 (eval some-symbol) (current-buffer))
           (write-file out-file))
@@ -1980,9 +1980,9 @@ reduces the false positives due to the marking and special commands.
       (when (null (eval plist-symbol))
         (set plist-symbol (list lang-key [])))
       (plist-put (eval plist-symbol) lang-key
-                 (vconcat (list word) ;; Add word to the rest
-                          (plist-get (eval plist-symbol) lang-key)))
-      (+serialize-symbol plist-symbol +lsp-ltex-serialization-path)))
+                 (vconcat (list word) (plist-get (eval plist-symbol) lang-key)))
+      (when-let (out-file (+serialize-symbol plist-symbol +lsp-ltex-serialization-path))
+        (message "Word \"%s\" (%d) saved to file \"%s\"" word lang out-file))))
 
   (setq lsp-ltex-java-force-try-system-wide t
         lsp-ltex-server-store-path nil
