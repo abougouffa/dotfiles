@@ -4385,7 +4385,7 @@ Add some packages for better assembly coding.
 #+begin_src emacs-lisp :tangle packages.el
 (package! disaster
   :recipe (:host github
-           :repo "abougouffa/disaster")) ;; :local-repo "~/Projects/foss/disaster"
+           :repo "abougouffa/disaster"))
 #+end_src
 
 #+begin_src emacs-lisp
