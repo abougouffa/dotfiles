@@ -2021,19 +2021,34 @@ understands the structure of plain text formats such as Org and Markdown.
     (require 'lsp-ltex)
     (lsp-deferred))
 
+  (defun +lsp-ltex-enabled-p ()
+    (not (member 'ltex-ls lsp-disabled-clients)))
+
+  (defun +lsp-ltex-enable ()
+    "Enable LTeX LSP."
+    (interactive)
+    (when (not (+lsp-ltex-enabled-p))
+      (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+      (message "Enabled ltex-ls"))
+    (unless (+languagetool-server-running-p)
+      (+languagetool-server-start)
+      (sit-for 1))
+    (+lsp-ltex-load))
+
+  (defun +lsp-ltex-disable ()
+    "Disable LTeX LSP."
+    (interactive)
+    (when (+lsp-ltex-enabled-p)
+      (add-to-list 'lsp-disabled-clients 'ltex-ls)
+      (lsp-disconnect)
+      (message "Disabled ltex-ls")))
+
   (defun +lsp-ltex-toggle ()
     "Enable/disable LTeX LSP."
     (interactive)
-    (if (member 'ltex-ls lsp-disabled-clients)
-        (progn
-          (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
-          (when LANGUAGETOOL-P (+languagetool-server-start))
-          (+lsp-ltex-load)
-          (message "Enabled ltex-ls"))
-      (progn
-        (add-to-list 'lsp-disabled-clients 'ltex-ls)
-        (lsp-disconnect)
-        (message "Disabled ltex-ls"))))
+    (if (+lsp-ltex-enabled-p)
+        (+lsp-ltex-disable)
+      (+lsp-ltex-enable)))
 
   (after! lsp-mode
     ;; Disable by default
