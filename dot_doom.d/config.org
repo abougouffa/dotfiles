@@ -1894,13 +1894,12 @@ This section defines some shortcuts to check the grammar.
 (after! langtool
   (when LANGUAGETOOL-P
     ;; Use the server
-    (setq langtool-language-tool-server-jar nil
+    (setq langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
           langtool-http-server-host "localhost"
-          langtool-http-server-port 8081))
-
-  (setq langtool-default-language "auto"
-        langtool-mother-tongue "ar"
-        langtool-disabled-rules nil))
+          langtool-http-server-port 9091 ;; To avoid conflict with the LTeX server
+          langtool-default-language "auto"
+          langtool-mother-tongue "ar"
+          langtool-disabled-rules nil)))
 
 ;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
