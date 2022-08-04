@@ -1998,8 +1998,8 @@ understands the structure of plain text formats such as Org and Markdown.
            ((equal command "_ltex.disableRules") 'lsp-ltex-disabled-rules)
            ((equal command "_ltex.hideFalsePositives") 'lsp-ltex-hidden-false-positives))))
 
-  (defun +lsp-ltex--execute-action (orig-fn &optional orig-args)
-    (let* ((command-ht (gethash "command" orig-args))
+  (defun +lsp-ltex--execute-action (r)
+    (let* ((command-ht (gethash "command" r))
            (command (gethash "command" command-ht))
            (title (gethash "title" command-ht))
            (arguments-ht (aref (gethash "arguments" command-ht) 0))
@@ -2013,9 +2013,7 @@ understands the structure of plain text formats such as Org and Markdown.
               (mapc
                (lambda (arg)
                  (+lsp-ltex--emulate-action command lang arg title))
-               (gethash lang args-ht))))
-        ;; For other actions, apply the original function call
-        (apply orig-fn orig-args))))
+               (gethash lang args-ht)))))))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -2040,7 +2038,7 @@ understands the structure of plain text formats such as Org and Markdown.
   (after! lsp-mode
     ;; Disable by default
     (add-to-list 'lsp-disabled-clients 'ltex-ls)
-    (advice-add 'lsp-execute-code-action :around '+lsp-ltex--execute-action))
+    (advice-add 'lsp-execute-code-action :after '+lsp-ltex--execute-action))
 
   (map! :leader :prefix ("l" . "custom")
         (:prefix "l"
