@@ -6432,7 +6432,7 @@ tools to view diffs on binary files.
 [diff "rust"]
   xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
 
-# ===== BINARY FORMATS =====
+# ====== BINARY FORMATS ======
 [diff "pdf"]
   binary = true
 # textconv = pdfinfo
