@@ -6122,13 +6122,47 @@ simply superior combination.
 #+end_src
 
 ***** Export multi-files Org documents
-Lets say wa have a multi-files documents, with =main.org= is the entry point
-with several Org src_org{#+include: chapterX.org} files. Most of the time, user
-will be writing in a chapter files, and not the =main.org=, while if we want to
-export the document, we need to open and export the =main.org= file.
+Lets say we have a multi-files document, with =main.org= as the entry point.
+Supposing we have a structure like this:
 
-A solution is to add this advice to the src_elisp{(org-latex-export-to-pdf)} to
-switch to =main.org= (if it exists) before running the export.
+#+name: multi-files-org
+#+begin_src dot :results value file graphics :file "assets/multi-files-org.svg" :exports none
+digraph G {
+  node [color=black,fillcolor=white,shape=note,style=filled,fontname="Lato"];
+  main [label="main.org",fillcolor=lightgray]
+  intro [label="intro.org"]
+  chap1 [label="chap1.org"]
+  chap2 [label="chap2.org"]
+  chap21 [label="chap2-part1.org"]
+  chap22 [label="chap2-part2.org"]
+  chapx [label="chapX.org"]
+
+  {main} -> {intro chap1 chap2 chapx}
+  {chap2} -> {chap21 chap22}
+}
+#+end_src
+
+#+caption: Example of a multi-files document structure
+#+attr_latex: :width 0.55\linewidth
+[[file:assets/multi-files-org.svg]]
+
+Files =intro.org=, =chap1.org=, ... are included in =main.org= like src_org{#+include:
+chapt1.org}. Most of the time, we will spent our time writing in a chapter
+files, and not the =main.org=, and if we want to export the document, we need to
+open and export the =main.org= file.
+
+A solution to this is *to admit the convention* of:
+
+#+begin_quote
+If a file named =main.org= is present beside any other Org file, it should be
+considered as the entry point; and whenever we export to PDF (from any of the
+Org files like: =intro.org=, =chap1.org=, ...), we automatically jump to the
+=main.org=, and run the export there.
+#+end_quote
+
+This can be achieved by adding an advice around the
+src_elisp{(org-latex-export-to-pdf)} to switch to =main.org= (if it exists) before
+running the export.
 
 #+begin_src emacs-lisp
 (advice-add 'org-latex-export-to-pdf :around
