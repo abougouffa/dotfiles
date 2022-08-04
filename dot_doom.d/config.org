@@ -1722,6 +1722,8 @@ So I can "mélanger les langues sans avoir de problèmes!".
 #+end_src
 
 *** Guess language :language:text:
+Can be interesting for automatically switching the language for spell checking,
+grammar...
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! guess-language
