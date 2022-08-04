@@ -11,6 +11,7 @@
 #+latex_header: \usepackage{fontspec}
 # For minted support
 #+latex_header: \usepackage{minted}
+#+latex_header: \usepackage{svg}
 # To support named colors like LightGray...
 #+latex_header: \usepackage[svgnames]{xcolor}
 #+latex_header: \definecolor{MyBGGray}{gray}{0.9}
