@@ -6209,6 +6209,27 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
       (message "Replaced %d apostrophes" count))))
 #+end_src
 
+*** Yanking multi-lines paragraphs
+
+#+begin_src emacs-lisp
+(defun +yank-paragraphize ()
+  "Copy, then remove newlines and Org styling (/*_~)."
+  (interactive)
+  (copy-region-as-kill nil nil t)
+  (with-temp-buffer
+    (yank)
+    ;; Remove newlines, and Org styling (/*_~)
+    (goto-char (point-min))
+    (let ((case-fold-search nil))
+      (while (re-search-forward "[\n/*_~]" nil t)
+        (replace-match (if (s-matches-p (match-string 0) "\n") " " "") t)))
+    (kill-region (point-min) (point-max))))
+
+(map! :localleader
+      :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
+      :desc "Paragraphized yank" "y" #'+yank-paragraphize)
+#+end_src
+
 * System configuration :linux:system:
 ** Mime types :mime:
 *** Org mode files :org:
