@@ -169,8 +169,8 @@
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font][Font:1]]
-(setq doom-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 22)
-      doom-big-font (font-spec :family "FantasqueSansMono Nerd Font Mono" :size 32)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 20 :weight 'light)
+      doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
       doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Input Serif" :weight 'light))
@@ -987,7 +987,7 @@ current buffer's, reload dir-locals."
   (defun +serialize-symbol (some-symbol to-directory)
     (when (boundp some-symbol)
       (let ((out-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
-                                        out-directory)))
+                                        to-directory)))
         (with-temp-buffer
           (prin1 (eval some-symbol) (current-buffer))
           (write-file out-file))
@@ -1014,9 +1014,9 @@ current buffer's, reload dir-locals."
       (when (null (eval plist-symbol))
         (set plist-symbol (list lang-key [])))
       (plist-put (eval plist-symbol) lang-key
-                 (vconcat (list word) ;; Add word to the rest
-                          (plist-get (eval plist-symbol) lang-key)))
-      (+serialize-symbol plist-symbol +lsp-ltex-serialization-path)))
+                 (vconcat (list word) (plist-get (eval plist-symbol) lang-key)))
+      (when-let (out-file (+serialize-symbol plist-symbol +lsp-ltex-serialization-path))
+        (message "Word \"%s\" (%d) saved to file \"%s\"" word lang out-file))))
 
   (setq lsp-ltex-java-force-try-system-wide t
         lsp-ltex-server-store-path nil
