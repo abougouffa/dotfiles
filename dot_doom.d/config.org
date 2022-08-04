@@ -1962,12 +1962,12 @@ understands the structure of plain text formats such as Org and Markdown.
           (ignore-errors (set some-symbol (read (current-buffer))))))))
 
   (defun +add-to-plist (lang word plist-symbol)
-    (let* ((lang-key (make-symbol (concat ":" lang))))
+    (let* ((lang-key (intern (concat ":" lang))))
       (when (null (eval plist-symbol))
         (set plist-symbol (list lang-key [])))
       (plist-put (eval plist-symbol) lang-key
-       (vconcat (list word) ;; Add word to the rest
-                (plist-get (eval plist-symbol) lang-key)))
+                 (vconcat (list word) ;; Add word to the rest
+                          (plist-get (eval plist-symbol) lang-key)))
       (+serialize-symbol plist-symbol)))
 
   (setq lsp-ltex-java-force-try-system-wide t
