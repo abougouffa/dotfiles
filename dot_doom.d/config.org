@@ -1801,26 +1801,41 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   :when (and (featurep! :tools lsp) (not (featurep! :tools lsp +eglot)))
   :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
-
   (defun +lsp-grammarly-load ()
     "Load Grammarly LSP server for LSP Mode."
     (interactive)
     (require 'lsp-grammarly)
     (lsp-deferred)) ;; or (lsp)
 
+  (defun +lsp-grammarly-enabled-p ()
+    (not (member 'grammarly-ls lsp-disabled-clients)))
+
+  (defun +lsp-grammarly-enable ()
+    "Enable Grammarly LSP."
+    (interactive)
+    (when (not (+lsp-grammarly-enabled-p))
+      (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
+      (message "Enabled grammarly-ls"))
+    (+lsp-grammarly-load))
+
+  (defun +lsp-grammarly-disable ()
+    "Disable Grammarly LSP."
+    (interactive)
+    (when (+lsp-grammarly-enabled-p)
+      (add-to-list 'lsp-disabled-clients 'grammarly-ls)
+      (lsp-disconnect)
+      (message "Disabled grammarly-ls")))
+
   (defun +lsp-grammarly-toggle ()
     "Enable/disable Grammarly LSP."
     (interactive)
-    (if (member 'grammarly-ls lsp-disabled-clients)
-        (progn
-          (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
-          (message "Enabled grammarly-ls"))
-      (progn
-        (add-to-list 'lsp-disabled-clients 'grammarly-ls)
-        (message "Disabled grammarly-ls"))))
+    (if (+lsp-grammarly-enabled-p)
+        (+lsp-grammarly-disable)
+      (+lsp-grammarly-enable)))
+
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
 
   :config
   (set-lsp-priority! 'grammarly-ls 1))
