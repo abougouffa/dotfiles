@@ -1971,10 +1971,8 @@ understands the structure of plain text formats such as Org and Markdown.
       (+serialize-symbol plist-symbol)))
 
   (setq lsp-ltex-java-force-try-system-wide t
-        lsp-ltex-server-store-path (executable-find "ltex-ls")
-        lsp-ltex-version
-        (gethash "ltex-ls"
-                 (json-parse-string (shell-command-to-string "ltex-ls -V")))
+        lsp-ltex-server-store-path nil
+        lsp-ltex-version (gethash "ltex-ls" (json-parse-string (shell-command-to-string "ltex-ls -V")))
         lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
         lsp-ltex-check-frequency "save"
         lsp-ltex-language "fr"
