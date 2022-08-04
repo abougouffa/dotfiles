@@ -1,4 +1,4 @@
-;;; config.el -*- lexical-binding: t; -*-
+;;; config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 ;; [[file:config.org::*User information][User information:1]]
 (setq user-full-name "Abdelhak Bougouffa"
@@ -551,13 +551,13 @@ is binary, activate `hexl-mode'."
 ;; Treemacs:2 ends here
 
 ;; [[file:config.org::*Projectile][Projectile:1]]
-;; Run `M-x projectile-project-search-path' to reload paths from this variable
+;; Run `M-x projectile-discover-projects-in-search-path' to reload paths from this variable
 (setq projectile-project-search-path
-      '("~/PhD/workspace"
+      '("~/PhD/papers"
+        "~/PhD/workspace"
         "~/PhD/workspace-no"
-        "~/PhD/papers"
         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-        "~/Projects/foss"))
+        ("~/Projects/foss" . 2))) ;; ("dir" . depth)
 
 (setq projectile-ignored-projects
       '("/tmp"
@@ -873,26 +873,41 @@ current buffer's, reload dir-locals."
   :when (and (featurep! :tools lsp) (not (featurep! :tools lsp +eglot)))
   :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
-
   (defun +lsp-grammarly-load ()
     "Load Grammarly LSP server for LSP Mode."
     (interactive)
     (require 'lsp-grammarly)
     (lsp-deferred)) ;; or (lsp)
 
+  (defun +lsp-grammarly-enabled-p ()
+    (not (member 'grammarly-ls lsp-disabled-clients)))
+
+  (defun +lsp-grammarly-enable ()
+    "Enable Grammarly LSP."
+    (interactive)
+    (when (not (+lsp-grammarly-enabled-p))
+      (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
+      (message "Enabled grammarly-ls"))
+    (+lsp-grammarly-load))
+
+  (defun +lsp-grammarly-disable ()
+    "Disable Grammarly LSP."
+    (interactive)
+    (when (+lsp-grammarly-enabled-p)
+      (add-to-list 'lsp-disabled-clients 'grammarly-ls)
+      (lsp-disconnect)
+      (message "Disabled grammarly-ls")))
+
   (defun +lsp-grammarly-toggle ()
     "Enable/disable Grammarly LSP."
     (interactive)
-    (if (member 'grammarly-ls lsp-disabled-clients)
-        (progn
-          (setq lsp-disabled-clients (remove 'grammarly-ls lsp-disabled-clients))
-          (message "Enabled grammarly-ls"))
-      (progn
-        (add-to-list 'lsp-disabled-clients 'grammarly-ls)
-        (message "Disabled grammarly-ls"))))
+    (if (+lsp-grammarly-enabled-p)
+        (+lsp-grammarly-disable)
+      (+lsp-grammarly-enable)))
+
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'grammarly-ls))
 
   :config
   (set-lsp-priority! 'grammarly-ls 1))
@@ -939,13 +954,12 @@ current buffer's, reload dir-locals."
 (after! langtool
   (when LANGUAGETOOL-P
     ;; Use the server
-    (setq langtool-language-tool-server-jar nil
+    (setq langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
           langtool-http-server-host "localhost"
-          langtool-http-server-port 8081))
-
-  (setq langtool-default-language "auto"
-        langtool-mother-tongue "ar"
-        langtool-disabled-rules nil))
+          langtool-http-server-port 9091 ;; To avoid conflict with the LTeX server
+          langtool-default-language "auto"
+          langtool-mother-tongue "ar"
+          langtool-disabled-rules nil)))
 
 ;; Keybinding for `langtool' (of module `:checkers grammar')
 (map! :leader :prefix ("l" . "custom")
@@ -966,31 +980,34 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*LTeX][LTeX:2]]
 (use-package! lsp-ltex
   :commands (+lsp-ltex-load
+             +lsp-ltex-enable
+             +lsp-ltex-disable
              +lsp-ltex-toggle)
   :init
-  (defun +serialize-symbol (some-symbol)
+  (defun +serialize-symbol (some-symbol to-directory)
     (when (boundp some-symbol)
-      (let ((out-file (expand-file-name
-                       (format "lsp-ltex/%s.el"
-                               (symbol-name some-symbol))
-                       doom-etc-dir)))
+      (let ((out-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
+                                        out-directory)))
         (with-temp-buffer
-          (prin1 (eval some-symbol)
-                 (current-buffer))
-          (write-file (expand-file-name out-file doom-etc-dir)))
+          (prin1 (eval some-symbol) (current-buffer))
+          (write-file out-file))
         out-file)))
 
-  (defun +deserialize-symbol (some-symbol)
-    (let ((in-file (expand-file-name
-                    (format "lsp-ltex/%s.el"
-                            (symbol-name some-symbol))
-                    doom-etc-dir)))
+  (defun +deserialize-symbol (some-symbol from-directory)
+    (let ((in-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
+                                     from-directory)))
       (when (file-exists-p in-file)
         (message "Loading `%s' from file \"%s\"" (symbol-name some-symbol) in-file)
         (with-temp-buffer
           (insert-file-contents in-file)
           (goto-char (point-min))
           (ignore-errors (set some-symbol (read (current-buffer))))))))
+
+  (defvar +lsp-ltex-serialization-path
+    (let ((path (expand-file-name "lsp-ltex" doom-etc-dir)))
+      (unless (and (file-exists-p path) (file-directory-p path))
+        (mkdir path t))
+      path))
 
   (defun +add-to-plist (lang word plist-symbol)
     (let* ((lang-key (intern (concat ":" lang))))
@@ -999,7 +1016,7 @@ current buffer's, reload dir-locals."
       (plist-put (eval plist-symbol) lang-key
                  (vconcat (list word) ;; Add word to the rest
                           (plist-get (eval plist-symbol) lang-key)))
-      (+serialize-symbol plist-symbol)))
+      (+serialize-symbol plist-symbol +lsp-ltex-serialization-path)))
 
   (setq lsp-ltex-java-force-try-system-wide t
         lsp-ltex-server-store-path nil
@@ -1011,9 +1028,9 @@ current buffer's, reload dir-locals."
         lsp-ltex-log-level "warning"
         lsp-ltex-trace-server "off")
 
-  (+deserialize-symbol 'lsp-ltex-dictionary)
-  (+deserialize-symbol 'lsp-ltex-disabled-rules)
-  (+deserialize-symbol 'lsp-ltex-hidden-false-positives)
+  (+deserialize-symbol 'lsp-ltex-dictionary +lsp-ltex-serialization-path)
+  (+deserialize-symbol 'lsp-ltex-disabled-rules +lsp-ltex-serialization-path)
+  (+deserialize-symbol 'lsp-ltex-hidden-false-positives +lsp-ltex-serialization-path)
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
@@ -1310,8 +1327,6 @@ current buffer's, reload dir-locals."
 ;; The Silver Searcher:2 ends here
 
 ;; [[file:config.org::*Emacs Application Framework][Emacs Application Framework:1]]
-(defconst EAF-DIR (expand-file-name "emacs-application-framework" doom-etc-dir))
-
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
@@ -1322,6 +1337,9 @@ current buffer's, reload dir-locals."
   ;;  file-manager file-browser
   ;;  file-sender music-player video-player
   ;;  git image-viewer
+
+  (defun +eaf-enabled-p (app-symbol)
+    (member app-symbol +eaf-enabled-apps))
 
   :config
   ;; Generic
@@ -1350,7 +1368,7 @@ current buffer's, reload dir-locals."
     (require 'eaf-all-the-icons))
 
   ;; Browser settings
-  (when (member 'browser +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'browser)
     (setq eaf-browser-continue-where-left-off t
           eaf-browser-dark-mode "follow"
           eaf-browser-enable-adblocker t
@@ -1371,7 +1389,7 @@ current buffer's, reload dir-locals."
     (defalias 'browse-web #'eaf-open-browser))
 
   ;; File manager settings
-  (when (member 'file-manager +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'file-manager)
     (setq eaf-file-manager-show-preview nil
           eaf-find-alternate-file-in-dired t
           eaf-file-manager-show-hidden-file t
@@ -1379,11 +1397,11 @@ current buffer's, reload dir-locals."
     (require 'eaf-file-manager))
 
   ;; File Browser
-  (when (member 'file-browser +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'file-browser)
     (require 'eaf-file-browser))
 
   ;; PDF Viewer settings
-  (when (member 'pdf-viewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'pdf-viewer)
     (setq eaf-pdf-dark-mode "follow"
           eaf-pdf-show-progress-on-page nil
           eaf-pdf-dark-exclude-image t
@@ -1409,60 +1427,60 @@ current buffer's, reload dir-locals."
       (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
 
   ;; Org
-  (when (member 'rss-reader +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'rss-reader)
     (setq eaf-rss-reader-split-horizontally nil
           eaf-rss-reader-web-page-other-window t)
     (require 'eaf-org))
 
   ;; Org
-  (when (member 'org +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'org)
     (require 'eaf-org))
 
   ;; Mail
-  (when (member 'mail +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'mail)
     (require 'eaf-mail))
 
   ;; Org Previewer
-  (when (member 'org-previewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'org-previewer)
     (setq eaf-org-dark-mode "follow")
     (require 'eaf-org-previewer))
 
   ;; Markdown Previewer
-  (when (member 'markdown-previewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'markdown-previewer)
     (setq eaf-markdown-dark-mode "follow")
     (require 'eaf-markdown-previewer))
 
   ;; Jupyter
-  (when (member 'jupyter +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'jupyter)
     (setq eaf-jupyter-dark-mode "follow"
           eaf-jupyter-font-family "JuliaMono"
           eaf-jupyter-font-size 13)
     (require 'eaf-jupyter))
 
   ;; Mindmap
-  (when (member 'mindmap +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'mindmap)
     (setq eaf-mindmap-dark-mode "follow"
           eaf-mindmap-save-path "~/Dropbox/Mindmap")
     (require 'eaf-mindmap))
 
   ;; File Sender
-  (when (member 'file-sender +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'file-sender)
     (require 'eaf-file-sender))
 
   ;; Music Player
-  (when (member 'music-player +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'music-player)
     (require 'eaf-music-player))
 
   ;; Video Player
-  (when (member 'video-player +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'video-player)
     (require 'eaf-video-player))
 
   ;; Image Viewer
-  (when (member 'image-viewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'image-viewer)
     (require 'eaf-image-viewer))
 
   ;; Git
-  (when (member 'git +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'git)
     (require 'eaf-git))
 
   ;; EVIL keybindings for Doom
@@ -3927,7 +3945,7 @@ current buffer's, reload dir-locals."
 ;; Quarto:2 ends here
 
 ;; [[file:config.org::*French apostrophes][French apostrophes:1]]
-(defun +clear-french-apostrophes ()
+(defun +helper-clear-french-apostrophes ()
   "Replace french apostrophes (’) by regular quotes (')."
   (interactive)
   (save-excursion
@@ -3941,7 +3959,7 @@ current buffer's, reload dir-locals."
 ;; French apostrophes:1 ends here
 
 ;; [[file:config.org::*Yanking multi-lines paragraphs][Yanking multi-lines paragraphs:1]]
-(defun +yank-paragraphize ()
+(defun +helper-paragraphized-yank ()
   "Copy, then remove newlines and Org styling (/*_~)."
   (interactive)
   (copy-region-as-kill nil nil t)
@@ -3956,5 +3974,5 @@ current buffer's, reload dir-locals."
 
 (map! :localleader
       :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
-      :desc "Paragraphized yank" "y" #'+yank-paragraphize)
+      :desc "Paragraphized yank" "y" #'+helper-paragraphized-yank)
 ;; Yanking multi-lines paragraphs:1 ends here

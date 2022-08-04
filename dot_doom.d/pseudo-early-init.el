@@ -1,5 +1,5 @@
 ;; [[file:config.org::*Pseudo early-init][Pseudo early-init:1]]
-;;; pseudo-early-init.el -*- lexical-binding: t; -*-
+;;; pseudo-early-init.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 ;; Pseudo early-init:1 ends here
 
 ;; [[file:config.org::*Fixes][Fixes:1]]
@@ -17,7 +17,8 @@
 (defconst IS-LUCID (bool (string-search "LUCID" system-configuration-features)))
 
 (defconst AG-P (bool (executable-find "ag")))
-(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p (expand-file-name "eaf/eaf-repo" doom-etc-dir)))))
+(defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-etc-dir))
+(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p EAF-DIR))))
 (defconst MPD-P (bool (and (executable-find "mpc") (executable-find "mpd"))))
 (defconst MPV-P (bool (executable-find "mpv")))
 (defconst REPO-P (bool (executable-find "repo")))

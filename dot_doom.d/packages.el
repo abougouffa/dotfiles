@@ -1,5 +1,5 @@
 ;; [[file:config.org::*Additional packages (=packages.el=)][Additional packages (=packages.el=):1]]
-;; -*- no-byte-compile: t; -*-
+;; -*- coding: utf-8-unix; no-byte-compile: t; -*-
 ;; Additional packages (=packages.el=):1 ends here
 
 ;; [[file:config.org::*SVG tag][SVG tag:1]]
@@ -96,7 +96,7 @@
 ;; Grammalecte:1 ends here
 
 ;; [[file:config.org::*LTeX][LTeX:1]]
-;; Needed, but not installed automatically
+;; Needed for automatic installation, but not installed automatically
 (package! github-tags
   :recipe (:host github
            :repo "jcs-elpa/github-tags"))
@@ -318,7 +318,7 @@
 ;; [[file:config.org::*Disaster][Disaster:1]]
 (package! disaster
   :recipe (:host github
-           :repo "abougouffa/disaster")) ;; :local-repo "~/Projects/foss/disaster"
+           :repo "abougouffa/disaster"))
 ;; Disaster:1 ends here
 
 ;; [[file:config.org::*Devdocs][Devdocs:1]]
