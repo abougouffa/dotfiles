@@ -99,17 +99,21 @@
 
 ;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
 (when LANGUAGETOOL-P
-  (defvar +languagetool--process-name "ltex-languagetool-server")
+  (defvar +languagetool--process-name "languagetool-server")
+
+  (defun +languagetool-server-running-p ()
+    (and LANGUAGETOOL-P
+         (process-live-p (get-process +languagetool--process-name))))
 
   (defun +languagetool-server-start (&optional port)
     "Start LanguageTool server with PORT."
     (interactive)
-    (if (process-live-p (get-process +languagetool--process-name))
+    (if (+languagetool-server-running-p)
         (message "LanguageTool server already running.")
       (when (start-process
              +languagetool--process-name
              " *LanguageTool server*"
-             "languagetool"
+             (executable-find "languagetool")
              "--http"
              "--port" (format "%s" (or port 8081))
              "--languageModel" "/usr/share/ngrams")
@@ -118,7 +122,7 @@
   (defun +languagetool-server-stop ()
     "Stop the LanguageTool server."
     (interactive)
-    (if (process-live-p (get-process +languagetool--process-name))
+    (if (+languagetool-server-running-p)
         (when (kill-process +languagetool--process-name)
           (message "Stopped LanguageTool server."))
       (message "No LanguageTool server running.")))
@@ -126,7 +130,7 @@
   (defun +languagetool-server-restart (&optional port)
     "Restart the LanguageTool server with PORT, start new instance if not running."
     (interactive)
-    (when (process-live-p (get-process +languagetool--process-name))
+    (when (+languagetool-server-running-p)
       (+languagetool-server-stop))
     (sit-for 5)
     (+languagetool-server-start port)))
@@ -989,19 +993,17 @@ current buffer's, reload dir-locals."
           (ignore-errors (set some-symbol (read (current-buffer))))))))
 
   (defun +add-to-plist (lang word plist-symbol)
-    (let* ((lang-key (make-symbol (concat ":" lang))))
+    (let* ((lang-key (intern (concat ":" lang))))
       (when (null (eval plist-symbol))
         (set plist-symbol (list lang-key [])))
       (plist-put (eval plist-symbol) lang-key
-       (vconcat (list word) ;; Add word to the rest
-                (plist-get (eval plist-symbol) lang-key)))
+                 (vconcat (list word) ;; Add word to the rest
+                          (plist-get (eval plist-symbol) lang-key)))
       (+serialize-symbol plist-symbol)))
 
   (setq lsp-ltex-java-force-try-system-wide t
-        lsp-ltex-server-store-path (executable-find "ltex-ls")
-        lsp-ltex-version
-        (gethash "ltex-ls"
-                 (json-parse-string (shell-command-to-string "ltex-ls -V")))
+        lsp-ltex-server-store-path nil
+        lsp-ltex-version (gethash "ltex-ls" (json-parse-string (shell-command-to-string "ltex-ls -V")))
         lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
         lsp-ltex-check-frequency "save"
         lsp-ltex-language "fr"
@@ -1027,8 +1029,8 @@ current buffer's, reload dir-locals."
            ((equal command "_ltex.disableRules") 'lsp-ltex-disabled-rules)
            ((equal command "_ltex.hideFalsePositives") 'lsp-ltex-hidden-false-positives))))
 
-  (defun +lsp-ltex--execute-action (orig-fn &optional orig-args)
-    (let* ((command-ht (gethash "command" orig-args))
+  (defun +lsp-ltex--execute-action (r)
+    (let* ((command-ht (gethash "command" r))
            (command (gethash "command" command-ht))
            (title (gethash "title" command-ht))
            (arguments-ht (aref (gethash "arguments" command-ht) 0))
@@ -1042,9 +1044,7 @@ current buffer's, reload dir-locals."
               (mapc
                (lambda (arg)
                  (+lsp-ltex--emulate-action command lang arg title))
-               (gethash lang args-ht))))
-        ;; For other actions, apply the original function call
-        (apply orig-fn orig-args))))
+               (gethash lang args-ht)))))))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -1052,24 +1052,39 @@ current buffer's, reload dir-locals."
     (require 'lsp-ltex)
     (lsp-deferred))
 
+  (defun +lsp-ltex-enabled-p ()
+    (not (member 'ltex-ls lsp-disabled-clients)))
+
+  (defun +lsp-ltex-enable ()
+    "Enable LTeX LSP."
+    (interactive)
+    (when (not (+lsp-ltex-enabled-p))
+      (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+      (message "Enabled ltex-ls"))
+    (unless (+languagetool-server-running-p)
+      (+languagetool-server-start)
+      (sit-for 1))
+    (+lsp-ltex-load))
+
+  (defun +lsp-ltex-disable ()
+    "Disable LTeX LSP."
+    (interactive)
+    (when (+lsp-ltex-enabled-p)
+      (add-to-list 'lsp-disabled-clients 'ltex-ls)
+      (lsp-disconnect)
+      (message "Disabled ltex-ls")))
+
   (defun +lsp-ltex-toggle ()
     "Enable/disable LTeX LSP."
     (interactive)
-    (if (member 'ltex-ls lsp-disabled-clients)
-        (progn
-          (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
-          (when LANGUAGETOOL-P (+languagetool-server-start))
-          (+lsp-ltex-load)
-          (message "Enabled ltex-ls"))
-      (progn
-        (add-to-list 'lsp-disabled-clients 'ltex-ls)
-        (lsp-disconnect)
-        (message "Disabled ltex-ls"))))
+    (if (+lsp-ltex-enabled-p)
+        (+lsp-ltex-disable)
+      (+lsp-ltex-enable)))
 
   (after! lsp-mode
     ;; Disable by default
     (add-to-list 'lsp-disabled-clients 'ltex-ls)
-    (advice-add 'lsp-execute-code-action :around '+lsp-ltex--execute-action))
+    (advice-add 'lsp-execute-code-action :after '+lsp-ltex--execute-action))
 
   (map! :leader :prefix ("l" . "custom")
         (:prefix "l"
@@ -3910,3 +3925,36 @@ current buffer's, reload dir-locals."
 (use-package! quarto-mode
   :when QUARTO-P)
 ;; Quarto:2 ends here
+
+;; [[file:config.org::*French apostrophes][French apostrophes:1]]
+(defun +clear-french-apostrophes ()
+  "Replace french apostrophes (’) by regular quotes (')."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((count 0)
+          (case-fold-search nil))
+      (while (re-search-forward "’" nil t)
+        (replace-match "'" t)
+        (setq count (1+ count)))
+      (message "Replaced %d apostrophes" count))))
+;; French apostrophes:1 ends here
+
+;; [[file:config.org::*Yanking multi-lines paragraphs][Yanking multi-lines paragraphs:1]]
+(defun +yank-paragraphize ()
+  "Copy, then remove newlines and Org styling (/*_~)."
+  (interactive)
+  (copy-region-as-kill nil nil t)
+  (with-temp-buffer
+    (yank)
+    ;; Remove newlines, and Org styling (/*_~)
+    (goto-char (point-min))
+    (let ((case-fold-search nil))
+      (while (re-search-forward "[\n/*_~]" nil t)
+        (replace-match (if (s-matches-p (match-string 0) "\n") " " "") t)))
+    (kill-region (point-min) (point-max))))
+
+(map! :localleader
+      :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
+      :desc "Paragraphized yank" "y" #'+yank-paragraphize)
+;; Yanking multi-lines paragraphs:1 ends here
