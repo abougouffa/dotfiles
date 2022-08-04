@@ -6193,6 +6193,22 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
   :when QUARTO-P)
 #+end_src
 
+*** French apostrophes
+
+#+begin_src emacs-lisp
+(defun +clear-french-apostrophes ()
+  "Replace french apostrophes (’) by regular quotes (')."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((count 0)
+          (case-fold-search nil))
+      (while (re-search-forward "’" nil t)
+        (replace-match "'" t)
+        (setq count (1+ count)))
+      (message "Replaced %d apostrophes" count))))
+#+end_src
+
 * System configuration :linux:system:
 ** Mime types :mime:
 *** Org mode files :org:
