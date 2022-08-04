@@ -6232,7 +6232,7 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
 *** French apostrophes
 
 #+begin_src emacs-lisp
-(defun +clear-french-apostrophes ()
+(defun +helper-clear-french-apostrophes ()
   "Replace french apostrophes (’) by regular quotes (')."
   (interactive)
   (save-excursion
@@ -6248,7 +6248,7 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
 *** Yanking multi-lines paragraphs
 
 #+begin_src emacs-lisp
-(defun +yank-paragraphize ()
+(defun +helper-paragraphized-yank ()
   "Copy, then remove newlines and Org styling (/*_~)."
   (interactive)
   (copy-region-as-kill nil nil t)
@@ -6263,7 +6263,7 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
 
 (map! :localleader
       :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
-      :desc "Paragraphized yank" "y" #'+yank-paragraphize)
+      :desc "Paragraphized yank" "y" #'+helper-paragraphized-yank)
 #+end_src
 
 * System configuration :linux:system:
