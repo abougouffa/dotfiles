@@ -81,7 +81,7 @@ Make =config.el= run (slightly) faster with lexical binding (see [[https://nullp
 for more info).
 
 #+begin_src emacs-lisp :comments no
-;;; config.el -*- lexical-binding: t; -*-
+;;; config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 #+end_src
 
 Add the shebang and the description to the =setup.sh= file, which will be used to
@@ -111,7 +111,7 @@ This file will be loaded before the content of Doom's private =init.el=, I add
 some special stuff which I want to load very early.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
-;;; pseudo-early-init.el -*- lexical-binding: t; -*-
+;;; pseudo-early-init.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 #+end_src
 
@@ -172,7 +172,7 @@ syntax to include subsections specified as ~<<sub-section-name>>~.
 
 #+name: init.el
 #+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
-;;; init.el -*- lexical-binding: t; -*-
+;;; init.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 ;; This file controls what Doom modules are enabled and what order they load in.
 ;; Press 'K' on a module to view its documentation, and 'gd' to browse its directory.
@@ -424,7 +424,7 @@ This section generates Doom's =packages.el=, with the associated configurations
 This file shouldn't be byte compiled.
 
 #+begin_src emacs-lisp :tangle packages.el
-;; -*- no-byte-compile: t; -*-
+;; -*- coding: utf-8-unix; no-byte-compile: t; -*-
 #+end_src
 
 * General Emacs settings :global:
