@@ -2394,6 +2394,9 @@ dependencies.
   ;;  file-sender music-player video-player
   ;;  git image-viewer
 
+  (defun +eaf-enabled-p (app-symbol)
+    (member app-symbol +eaf-enabled-apps))
+
   :config
   ;; Generic
   (setq eaf-start-python-process-when-require t
@@ -2421,7 +2424,7 @@ dependencies.
     (require 'eaf-all-the-icons))
 
   ;; Browser settings
-  (when (member 'browser +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'browser)
     (setq eaf-browser-continue-where-left-off t
           eaf-browser-dark-mode "follow"
           eaf-browser-enable-adblocker t
@@ -2442,7 +2445,7 @@ dependencies.
     (defalias 'browse-web #'eaf-open-browser))
 
   ;; File manager settings
-  (when (member 'file-manager +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'file-manager)
     (setq eaf-file-manager-show-preview nil
           eaf-find-alternate-file-in-dired t
           eaf-file-manager-show-hidden-file t
@@ -2450,11 +2453,11 @@ dependencies.
     (require 'eaf-file-manager))
 
   ;; File Browser
-  (when (member 'file-browser +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'file-browser)
     (require 'eaf-file-browser))
 
   ;; PDF Viewer settings
-  (when (member 'pdf-viewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'pdf-viewer)
     (setq eaf-pdf-dark-mode "follow"
           eaf-pdf-show-progress-on-page nil
           eaf-pdf-dark-exclude-image t
@@ -2480,60 +2483,60 @@ dependencies.
       (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
 
   ;; Org
-  (when (member 'rss-reader +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'rss-reader)
     (setq eaf-rss-reader-split-horizontally nil
           eaf-rss-reader-web-page-other-window t)
     (require 'eaf-org))
 
   ;; Org
-  (when (member 'org +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'org)
     (require 'eaf-org))
 
   ;; Mail
-  (when (member 'mail +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'mail)
     (require 'eaf-mail))
 
   ;; Org Previewer
-  (when (member 'org-previewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'org-previewer)
     (setq eaf-org-dark-mode "follow")
     (require 'eaf-org-previewer))
 
   ;; Markdown Previewer
-  (when (member 'markdown-previewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'markdown-previewer)
     (setq eaf-markdown-dark-mode "follow")
     (require 'eaf-markdown-previewer))
 
   ;; Jupyter
-  (when (member 'jupyter +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'jupyter)
     (setq eaf-jupyter-dark-mode "follow"
           eaf-jupyter-font-family "JuliaMono"
           eaf-jupyter-font-size 13)
     (require 'eaf-jupyter))
 
   ;; Mindmap
-  (when (member 'mindmap +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'mindmap)
     (setq eaf-mindmap-dark-mode "follow"
           eaf-mindmap-save-path "~/Dropbox/Mindmap")
     (require 'eaf-mindmap))
 
   ;; File Sender
-  (when (member 'file-sender +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'file-sender)
     (require 'eaf-file-sender))
 
   ;; Music Player
-  (when (member 'music-player +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'music-player)
     (require 'eaf-music-player))
 
   ;; Video Player
-  (when (member 'video-player +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'video-player)
     (require 'eaf-video-player))
 
   ;; Image Viewer
-  (when (member 'image-viewer +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'image-viewer)
     (require 'eaf-image-viewer))
 
   ;; Git
-  (when (member 'git +eaf-enabled-apps)
+  (when (+eaf-enabled-p 'git)
     (require 'eaf-git))
 
   ;; EVIL keybindings for Doom
