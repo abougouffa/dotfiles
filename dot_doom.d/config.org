@@ -136,7 +136,8 @@ tools and store the result in global constants.
 (defconst IS-LUCID (bool (string-search "LUCID" system-configuration-features)))
 
 (defconst AG-P (bool (executable-find "ag")))
-(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p (expand-file-name "eaf/eaf-repo" doom-etc-dir)))))
+(defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-etc-dir))
+(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p EAF-DIR))))
 (defconst MPD-P (bool (and (executable-find "mpc") (executable-find "mpd"))))
 (defconst MPV-P (bool (executable-find "mpv")))
 (defconst REPO-P (bool (executable-find "repo")))
@@ -2382,8 +2383,6 @@ eaf-install-and-update)= in Emacs. This updates EAF, applications and their
 dependencies.
 
 #+begin_src emacs-lisp
-(defconst EAF-DIR (expand-file-name "emacs-application-framework" doom-etc-dir))
-
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
