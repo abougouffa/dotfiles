@@ -97,45 +97,6 @@
       (expand-file-name "~/Softwares/src/emacs"))
 ;; Emacs sources:1 ends here
 
-;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
-(when LANGUAGETOOL-P
-  (defvar +languagetool--process-name "languagetool-server")
-
-  (defun +languagetool-server-running-p ()
-    (and LANGUAGETOOL-P
-         (process-live-p (get-process +languagetool--process-name))))
-
-  (defun +languagetool-server-start (&optional port)
-    "Start LanguageTool server with PORT."
-    (interactive)
-    (if (+languagetool-server-running-p)
-        (message "LanguageTool server already running.")
-      (when (start-process
-             +languagetool--process-name
-             " *LanguageTool server*"
-             (executable-find "languagetool")
-             "--http"
-             "--port" (format "%s" (or port 8081))
-             "--languageModel" "/usr/share/ngrams")
-        (message "Started LanguageTool server."))))
-
-  (defun +languagetool-server-stop ()
-    "Stop the LanguageTool server."
-    (interactive)
-    (if (+languagetool-server-running-p)
-        (when (kill-process +languagetool--process-name)
-          (message "Stopped LanguageTool server."))
-      (message "No LanguageTool server running.")))
-
-  (defun +languagetool-server-restart (&optional port)
-    "Restart the LanguageTool server with PORT, start new instance if not running."
-    (interactive)
-    (when (+languagetool-server-running-p)
-      (+languagetool-server-stop))
-    (sit-for 5)
-    (+languagetool-server-start port)))
-;; LanguageTool Server:1 ends here
-
 ;; [[file:config.org::*Initialization][Initialization:1]]
 (defun +greedily-do-daemon-setup ()
   (require 'org)
@@ -148,12 +109,7 @@
 
   ;; RSS
   (when (and (featurep! :app rss) (require 'elfeed nil t))
-    (run-at-time nil (* 8 60 60) #'elfeed-update))
-
-  ;; LanguageTool
-  (when (and LANGUAGETOOL-P nil) ;; disabled, too heavy, enable on demand
-    (unless (ignore-errors (+languagetool-server-start))
-      (message "LanguageTool Server cannot be launched at daemon startup."))))
+    (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
@@ -191,7 +147,7 @@
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
   (setq display-time-string-forms
-        '((propertize (concat " ⌛ " 24-hours ":" minutes))))
+        '((propertize (concat " 🕘 " 24-hours ":" minutes))))
   (display-time-mode 1)) ; Enable time in the mode-line
 ;; Clock:1 ends here
 
@@ -950,32 +906,52 @@ current buffer's, reload dir-locals."
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 ;; Grammalecte:2 ends here
 
-;; [[file:config.org::*Doom's =:checkers grammar=][Doom's =:checkers grammar=:1]]
-(after! langtool
-  (when LANGUAGETOOL-P
-    ;; Use the server
-    (setq langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
-          langtool-http-server-host "localhost"
-          langtool-http-server-port 9091 ;; To avoid conflict with the LTeX server
-          langtool-default-language "auto"
-          langtool-mother-tongue "ar"
-          langtool-disabled-rules nil)))
+;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
+(when LANGUAGETOOL-P
+  (defvar +languagetool--process-name "languagetool-server")
 
-;; Keybinding for `langtool' (of module `:checkers grammar')
+  (defun +languagetool-server-running-p ()
+    (and LANGUAGETOOL-P
+         (process-live-p (get-process +languagetool--process-name))))
+
+  (defun +languagetool-server-start (&optional port)
+    "Start LanguageTool server with PORT."
+    (interactive)
+    (if (+languagetool-server-running-p)
+        (message "LanguageTool server already running.")
+      (when (start-process
+             +languagetool--process-name
+             " *LanguageTool server*"
+             (executable-find "languagetool")
+             "--http"
+             "--port" (format "%s" (or port 8081))
+             "--languageModel" "/usr/share/ngrams")
+        (message "Started LanguageTool server."))))
+
+  (defun +languagetool-server-stop ()
+    "Stop the LanguageTool server."
+    (interactive)
+    (if (+languagetool-server-running-p)
+        (when (kill-process +languagetool--process-name)
+          (message "Stopped LanguageTool server."))
+      (message "No LanguageTool server running.")))
+
+  (defun +languagetool-server-restart (&optional port)
+    "Restart the LanguageTool server with PORT, start new instance if not running."
+    (interactive)
+    (when (+languagetool-server-running-p)
+      (+languagetool-server-stop))
+    (sit-for 5)
+    (+languagetool-server-start port)))
+
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :checkers grammar)
-       :prefix ("l" . "langtool")
-       :desc "Check"             "l" #'langtool-check
-       :desc "Correct buffer"    "b" #'langtool-correct-buffer
-       :desc "Done checking"     "d" #'langtool-check-done
-       :desc "Show msg at point" "m" #'langtool-show-message-at-point
-       :desc "Next error"        "n" #'langtool-goto-next-error
-       :desc "Previous error"    "p" #'langtool-goto-previous-error
+      (:when LANGUAGETOOL-P
+       :prefix ("l" . "languagetool")
        (:prefix ("s" . "server")
         :desc "Start server"     "s" #'+languagetool-server-start
         :desc "Stop server"      "q" #'+languagetool-server-stop
         :desc "Restart server"   "r" #'+languagetool-server-restart)))
-;; Doom's =:checkers grammar=:1 ends here
+;; LanguageTool Server:1 ends here
 
 ;; [[file:config.org::*LTeX][LTeX:2]]
 (use-package! lsp-ltex
@@ -1003,7 +979,7 @@ current buffer's, reload dir-locals."
           (goto-char (point-min))
           (ignore-errors (set some-symbol (read (current-buffer))))))))
 
-  (defvar +lsp-ltex-serialization-path
+  (defvar +lsp-ltex-data-path
     (let ((path (expand-file-name "lsp-ltex" doom-etc-dir)))
       (unless (and (file-exists-p path) (file-directory-p path))
         (mkdir path t))
@@ -1015,22 +991,19 @@ current buffer's, reload dir-locals."
         (set plist-symbol (list lang-key [])))
       (plist-put (eval plist-symbol) lang-key
                  (vconcat (list word) (plist-get (eval plist-symbol) lang-key)))
-      (when-let (out-file (+serialize-symbol plist-symbol +lsp-ltex-serialization-path))
-        (message "Word \"%s\" (%d) saved to file \"%s\"" word lang out-file))))
+      (when-let (out-file (+serialize-symbol plist-symbol +lsp-ltex-data-path))
+        (message "Rule for language %s saved to file \"%s\"" lang out-file))))
 
-  (setq lsp-ltex-java-force-try-system-wide t
-        lsp-ltex-server-store-path nil
-        lsp-ltex-version (gethash "ltex-ls" (json-parse-string (shell-command-to-string "ltex-ls -V")))
-        lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
+  (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
         lsp-ltex-check-frequency "save"
         lsp-ltex-language "fr"
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-log-level "warning"
         lsp-ltex-trace-server "off")
 
-  (+deserialize-symbol 'lsp-ltex-dictionary +lsp-ltex-serialization-path)
-  (+deserialize-symbol 'lsp-ltex-disabled-rules +lsp-ltex-serialization-path)
-  (+deserialize-symbol 'lsp-ltex-hidden-false-positives +lsp-ltex-serialization-path)
+  (+deserialize-symbol 'lsp-ltex-dictionary +lsp-ltex-data-path)
+  (+deserialize-symbol 'lsp-ltex-disabled-rules +lsp-ltex-data-path)
+  (+deserialize-symbol 'lsp-ltex-hidden-false-positives +lsp-ltex-data-path)
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   ;; In this way, I can configure it to use the extra stuff installed from the
@@ -1038,30 +1011,21 @@ current buffer's, reload dir-locals."
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
-  (defun +lsp-ltex--emulate-action (command lang element &optional title)
-    (message "Emulating LSP action \"%s\" [%s], adding \"%s\"." title command element)
-    (+add-to-plist
-     lang element
-     (cond ((equal command "_ltex.addToDictionary") 'lsp-ltex-dictionary)
-           ((equal command "_ltex.disableRules") 'lsp-ltex-disabled-rules)
-           ((equal command "_ltex.hideFalsePositives") 'lsp-ltex-hidden-false-positives))))
-
   (defun +lsp-ltex--execute-action (r)
     (let* ((command-ht (gethash "command" r))
            (command (gethash "command" command-ht))
            (title (gethash "title" command-ht))
            (arguments-ht (aref (gethash "arguments" command-ht) 0))
-           (args-key (cond ((equal command "_ltex.addToDictionary") "words")
-                           ((equal command "_ltex.disableRules") "ruleIds")
-                           ((equal command "_ltex.hideFalsePositives") "falsePositives"))))
-      (if (and args-key
-               (not (equal args-key "falsePositives"))) ;; TODO: process the "falsePositives" case
-          (let ((args-ht (gethash args-key arguments-ht)))
+           (args-key
+            (cond ((equal command "_ltex.addToDictionary") '("words" . lsp-ltex-dictionary))
+                  ((equal command "_ltex.disableRules") '("ruleIds" . lsp-ltex-disabled-rules))
+                  ((equal command "_ltex.hideFalsePositives") '("falsePositives" . lsp-ltex-hidden-false-positives)))))
+      (if args-key
+          (let ((args-ht (gethash (car args-key) arguments-ht)))
             (dolist (lang (hash-table-keys args-ht))
-              (mapc
-               (lambda (arg)
-                 (+lsp-ltex--emulate-action command lang arg title))
-               (gethash lang args-ht)))))))
+              (mapc (lambda (arg)
+                      (+add-to-plist lang arg (cdr args-key)))
+                    (gethash lang args-ht)))))))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -1104,8 +1068,10 @@ current buffer's, reload dir-locals."
     (advice-add 'lsp-execute-code-action :after '+lsp-ltex--execute-action))
 
   (map! :leader :prefix ("l" . "custom")
-        (:prefix "l"
-         :desc "Toggle LTeX LS" "t" #'+lsp-ltex-toggle))
+        (:prefix ("l" . "languagetool")
+         :desc "Toggle LTeX"    "t" #'+lsp-ltex-toggle
+         :desc "Enable LTeX"       "l" #'+lsp-ltex-enable
+         :desc "Disable LTeX"      "q" #'+lsp-ltex-disable))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
@@ -2579,20 +2545,21 @@ current buffer's, reload dir-locals."
   (blamer-author-formatter " %s ")
   (blamer-datetime-formatter "[%s], ")
   (blamer-commit-formatter "“%s”")
-
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
                    :background nil
                    :height 125
                    :italic t)))
-
-  :hook ((prog-mode . blamer-mode)
-         (text-mode . blamer-mode))
-
+  :hook ((prog-mode . blamer-mode))
   :config
   (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
-    (add-hook! 'writeroom-mode-enable-hook (blamer-mode -1))
-    (add-hook! 'writeroom-mode-disable-hook (blamer-mode 1))))
+    (add-hook 'writeroom-mode-enable-hook
+              (when (bound-and-true-p blamer-mode)
+                (setq +blamer-mode--was-active-p t)
+                (blamer-mode -1)))
+    (add-hook 'writeroom-mode-disable-hook
+              (when (bound-and-true-p +blamer-mode--was-active-p)
+                (blamer-mode 1)))))
 ;; Blamer:2 ends here
 
 ;; [[file:config.org::*Assembly][Assembly:2]]
@@ -3945,17 +3912,25 @@ current buffer's, reload dir-locals."
 ;; Quarto:2 ends here
 
 ;; [[file:config.org::*French apostrophes][French apostrophes:1]]
-(defun +helper-clear-french-apostrophes ()
-  "Replace french apostrophes (’) by regular quotes (')."
-  (interactive)
+(defun +helper--in-buffer-replace (old new)
+  "Replace OLD with NEW in the current buffer."
   (save-excursion
     (goto-char (point-min))
-    (let ((count 0)
-          (case-fold-search nil))
-      (while (re-search-forward "’" nil t)
-        (replace-match "'" t)
-        (setq count (1+ count)))
-      (message "Replaced %d apostrophes" count))))
+    (let ((case-fold-search nil)
+          (cnt 0))
+      (while (re-search-forward old nil t)
+        (replace-match new)
+        (setq cnt (1+ cnt)))
+      cnt)))
+
+(defun +helper-clear-frenchy-ponctuations ()
+  "Replace french apostrophes (’) by regular quotes (')."
+  (interactive)
+  (let ((chars '((" " . "") ("’" . "'")))
+        (cnt 0))
+    (dolist (pair chars)
+      (setq cnt (+ cnt (+helper--in-buffer-replace (car pair) (cdr pair)))))
+    (message "Replaced %d matche(s)." cnt)))
 ;; French apostrophes:1 ends here
 
 ;; [[file:config.org::*Yanking multi-lines paragraphs][Yanking multi-lines paragraphs:1]]
