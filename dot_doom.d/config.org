@@ -2692,7 +2692,7 @@ Let it snow in Emacs!
                  (if time-zone " (") time-zone (if time-zone ")")))
 #+end_src
 
-** e-Books =nov= :ebook:epub:
+** e-Books =nov= :book:epub:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! nov)
@@ -2700,7 +2700,7 @@ Let it snow in Emacs!
 
 Use =nov= to read EPUB e-books.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! nov
   :mode ("\\.epub\\'" . nov-mode)
   :config
@@ -3513,7 +3513,6 @@ Lastly, lets define keybindings for these commands, under ~<leader> l m~.
        :desc "Start"                       "S" #'emms-start
        :desc "Start"                       "S" #'emms-start
        :desc "Stop"                        "s" #'emms-stop))
-
 #+end_src
 
 Then we add MPD related keybindings if MPD is used.
