@@ -6245,17 +6245,25 @@ Integration of [[https://quarto.org/][Quarto]] in Emacs.
 *** French apostrophes
 
 #+begin_src emacs-lisp
-(defun +helper-clear-french-apostrophes ()
-  "Replace french apostrophes (’) by regular quotes (')."
-  (interactive)
+(defun +helper--in-buffer-replace (old new)
+  "Replace OLD with NEW in the current buffer."
   (save-excursion
     (goto-char (point-min))
-    (let ((count 0)
-          (case-fold-search nil))
-      (while (re-search-forward "’" nil t)
-        (replace-match "'" t)
-        (setq count (1+ count)))
-      (message "Replaced %d apostrophes" count))))
+    (let ((case-fold-search nil)
+          (cnt 0))
+      (while (re-search-forward old nil t)
+        (replace-match new)
+        (setq cnt (1+ cnt)))
+      cnt)))
+
+(defun +helper-clear-frenchy-ponctuations ()
+  "Replace french apostrophes (’) by regular quotes (')."
+  (interactive)
+  (let ((chars '((" " . "") ("’" . "'")))
+        (cnt 0))
+    (dolist (pair chars)
+      (setq cnt (+ cnt (+helper--in-buffer-replace (car pair) (cdr pair)))))
+    (message "Replaced %d matche(s)." cnt)))
 #+end_src
 
 *** Yanking multi-lines paragraphs
