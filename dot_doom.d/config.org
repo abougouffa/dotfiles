@@ -1,4 +1,4 @@
-# -*- coding: utf-8-unix; -*-
+# -*- coding: utf-8-unix; lsp-ltex-language: "en"; -*-
 #+title: Doom Emacs Configuration
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
@@ -23,7 +23,7 @@ If you want to reuse some of these configurations, you will need to modify some
 directories and add some user specific information (usernames, passwords...)
 
 This is the main configuration file [[https://github.com/abougouffa/dotfiles/dot_doom.d/config.org][.doom.d/config.org]], (available also as a [[https://raw.githubusercontent.com/abougouffa/dotfiles/main/dot_doom.d/config.pdf][PDF
-file]], it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to
+file]]), it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to
 generate some other user configuration files (define aliases, environment
 variables, user tools, Git configuration...).
 
@@ -96,7 +96,7 @@ set system settings and install some missing dependencies.
 # Abdelhak BOUGOUFFA (c) 2022
 #+end_src
 
-Add the an initial comment to the =~/.zshrc= file.
+Add an initial comment to the =~/.zshrc= file.
 
 #+begin_src shell :comments no :tangle ~/.zshrc
 # -*- mode: sh; -*-
@@ -126,8 +126,8 @@ some special stuff which I want to load very early.
 #+end_src
 
 *** Check for external tools :external:
-Some of the added packages require external tools, I like to check for these
-tools and store the result in global constants.
+Some added packages require external tools, I like to check for these tools and
+store the result in global constants.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
 (defun bool (val) (not (null val)))
