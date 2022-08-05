@@ -323,7 +323,6 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 #+begin_src emacs-lisp
 (syntax +childframe)
 (spell +aspell)
-grammar
 #+end_src
 
 *** Tools (=:tools=)
@@ -608,49 +607,6 @@ stealing prevention* to /None/ in the KDE Settings.
 #+end_src
 
 * Emacs daemon :daemon:
-** LanguageTool Server :languagetool:
-This will launch the LanguageTool Server at startup, this server will be used
-then by both =langtool= and =ltex-ls=.
-
-#+begin_src emacs-lisp
-(when LANGUAGETOOL-P
-  (defvar +languagetool--process-name "languagetool-server")
-
-  (defun +languagetool-server-running-p ()
-    (and LANGUAGETOOL-P
-         (process-live-p (get-process +languagetool--process-name))))
-
-  (defun +languagetool-server-start (&optional port)
-    "Start LanguageTool server with PORT."
-    (interactive)
-    (if (+languagetool-server-running-p)
-        (message "LanguageTool server already running.")
-      (when (start-process
-             +languagetool--process-name
-             " *LanguageTool server*"
-             (executable-find "languagetool")
-             "--http"
-             "--port" (format "%s" (or port 8081))
-             "--languageModel" "/usr/share/ngrams")
-        (message "Started LanguageTool server."))))
-
-  (defun +languagetool-server-stop ()
-    "Stop the LanguageTool server."
-    (interactive)
-    (if (+languagetool-server-running-p)
-        (when (kill-process +languagetool--process-name)
-          (message "Stopped LanguageTool server."))
-      (message "No LanguageTool server running.")))
-
-  (defun +languagetool-server-restart (&optional port)
-    "Restart the LanguageTool server with PORT, start new instance if not running."
-    (interactive)
-    (when (+languagetool-server-running-p)
-      (+languagetool-server-stop))
-    (sit-for 5)
-    (+languagetool-server-start port)))
-#+end_src
-
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
 with it, so I may as well eat the load time at startup. We also want to keep
@@ -672,12 +628,7 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
   ;; RSS
   (when (and (featurep! :app rss) (require 'elfeed nil t))
-    (run-at-time nil (* 8 60 60) #'elfeed-update))
-
-  ;; LanguageTool
-  (when (and LANGUAGETOOL-P nil) ;; disabled, too heavy, enable on demand
-    (unless (ignore-errors (+languagetool-server-start))
-      (message "LanguageTool Server cannot be launched at daemon startup."))))
+    (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
@@ -1881,31 +1832,52 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 #+end_src
 
-*** LanguageTool :langtool:
-**** Doom's =:checkers grammar=
-This section defines some shortcuts to check the grammar.
+*** LanguageTool :languagetool:
+**** LanguageTool Server :server:
+This will launch the LanguageTool Server at startup, this server will be used
+then by both =langtool= and =ltex-ls=.
 
 #+begin_src emacs-lisp
-(after! langtool
-  (when LANGUAGETOOL-P
-    ;; Use the server
-    (setq langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
-          langtool-http-server-host "localhost"
-          langtool-http-server-port 9091 ;; To avoid conflict with the LTeX server
-          langtool-default-language "auto"
-          langtool-mother-tongue "ar"
-          langtool-disabled-rules nil)))
+(when LANGUAGETOOL-P
+  (defvar +languagetool--process-name "languagetool-server")
 
-;; Keybinding for `langtool' (of module `:checkers grammar')
+  (defun +languagetool-server-running-p ()
+    (and LANGUAGETOOL-P
+         (process-live-p (get-process +languagetool--process-name))))
+
+  (defun +languagetool-server-start (&optional port)
+    "Start LanguageTool server with PORT."
+    (interactive)
+    (if (+languagetool-server-running-p)
+        (message "LanguageTool server already running.")
+      (when (start-process
+             +languagetool--process-name
+             " *LanguageTool server*"
+             (executable-find "languagetool")
+             "--http"
+             "--port" (format "%s" (or port 8081))
+             "--languageModel" "/usr/share/ngrams")
+        (message "Started LanguageTool server."))))
+
+  (defun +languagetool-server-stop ()
+    "Stop the LanguageTool server."
+    (interactive)
+    (if (+languagetool-server-running-p)
+        (when (kill-process +languagetool--process-name)
+          (message "Stopped LanguageTool server."))
+      (message "No LanguageTool server running.")))
+
+  (defun +languagetool-server-restart (&optional port)
+    "Restart the LanguageTool server with PORT, start new instance if not running."
+    (interactive)
+    (when (+languagetool-server-running-p)
+      (+languagetool-server-stop))
+    (sit-for 5)
+    (+languagetool-server-start port)))
+
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :checkers grammar)
-       :prefix ("l" . "langtool")
-       :desc "Check"             "l" #'langtool-check
-       :desc "Correct buffer"    "b" #'langtool-correct-buffer
-       :desc "Done checking"     "d" #'langtool-check-done
-       :desc "Show msg at point" "m" #'langtool-show-message-at-point
-       :desc "Next error"        "n" #'langtool-goto-next-error
-       :desc "Previous error"    "p" #'langtool-goto-previous-error
+      (:when LANGUAGETOOL-P
+       :prefix ("l" . "languagetool")
        (:prefix ("s" . "server")
         :desc "Start server"     "s" #'+languagetool-server-start
         :desc "Stop server"      "q" #'+languagetool-server-stop
