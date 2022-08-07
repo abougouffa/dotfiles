@@ -5889,6 +5889,15 @@ set palette defined ( 0 '%s',\
   (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
   (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
+
+**** Large tables
+Use [[https://github.com/misohena/phscroll][/Partial Horizontal Scroll/]].
+
+#+begin_src emacs-lisp
+(use-package! org-phscroll
+  :commands org-phscroll-activate)
+#+end_src
+
 *** Bibliography
 **** BibTeX
 #+begin_src emacs-lisp
