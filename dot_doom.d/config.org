@@ -1912,8 +1912,7 @@ then by =ltex-ls=.
              +languagetool--process-name
              " *LanguageTool server*"
              (executable-find "languagetool")
-             "--http"
-             "--port" (format "%s" (or port 8081))
+             "--http" "--port" (format "%s" (or port 8081))
              "--languageModel" "/usr/share/ngrams")
         (message "Started LanguageTool server."))))
 
@@ -1963,7 +1962,7 @@ reduces the false positives due to the marking and special commands.
            :repo "jcs-elpa/github-tags"))
 
 (package! lsp-ltex
-  :disable (and (featurep! :tools lsp) (featurep! :tools lsp +eglot))
+ :disable (and (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/lsp-ltex"))
 
@@ -1975,77 +1974,23 @@ reduces the false positives due to the marking and special commands.
 
 #+begin_src emacs-lisp
 (use-package! lsp-ltex
-  :commands (+lsp-ltex-load
-             +lsp-ltex-enable
-             +lsp-ltex-disable
-             +lsp-ltex-toggle)
+  :commands (+lsp-ltex-load +lsp-ltex-enable +lsp-ltex-disable +lsp-ltex-toggle)
   :init
-  (defun +serialize-symbol (some-symbol to-directory)
-    (when (boundp some-symbol)
-      (let ((out-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
-                                        to-directory)))
-        (with-temp-buffer
-          (prin1 (eval some-symbol) (current-buffer))
-          (write-file out-file))
-        out-file)))
-
-  (defun +deserialize-symbol (some-symbol from-directory)
-    (let ((in-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
-                                     from-directory)))
-      (when (file-exists-p in-file)
-        (message "Loading `%s' from file \"%s\"" (symbol-name some-symbol) in-file)
-        (with-temp-buffer
-          (insert-file-contents in-file)
-          (goto-char (point-min))
-          (ignore-errors (set some-symbol (read (current-buffer))))))))
-
-  (defvar +lsp-ltex-data-path
-    (let ((path (expand-file-name "lsp-ltex" doom-etc-dir)))
-      (unless (and (file-exists-p path) (file-directory-p path))
-        (mkdir path t))
-      path))
-
-  (defun +add-to-plist (lang word plist-symbol)
-    (let* ((lang-key (intern (concat ":" lang))))
-      (when (null (eval plist-symbol))
-        (set plist-symbol (list lang-key [])))
-      (plist-put (eval plist-symbol) lang-key
-                 (vconcat (list word) (plist-get (eval plist-symbol) lang-key)))
-      (when-let (out-file (+serialize-symbol plist-symbol +lsp-ltex-data-path))
-        (message "Rule for language %s saved to file \"%s\"" lang out-file))))
-
   (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
-        lsp-ltex-check-frequency "save"
+        lsp-ltex-check-frequency "edit" ;; or "save"
         lsp-ltex-language "fr"
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-log-level "warning"
-        lsp-ltex-trace-server "off")
-
-  (+deserialize-symbol 'lsp-ltex-dictionary +lsp-ltex-data-path)
-  (+deserialize-symbol 'lsp-ltex-disabled-rules +lsp-ltex-data-path)
-  (+deserialize-symbol 'lsp-ltex-hidden-false-positives +lsp-ltex-data-path)
+        lsp-ltex-trace-server "off"
+        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-etc-dir))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
-  ;; In this way, I can configure it to use the extra stuff installed from the
-  ;; pacakge manager (like ngrams)
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
-  (defun +lsp-ltex--execute-action (r)
-    (let* ((command-ht (gethash "command" r))
-           (command (gethash "command" command-ht))
-           (title (gethash "title" command-ht))
-           (arguments-ht (aref (gethash "arguments" command-ht) 0))
-           (args-key
-            (cond ((equal command "_ltex.addToDictionary") '("words" . lsp-ltex-dictionary))
-                  ((equal command "_ltex.disableRules") '("ruleIds" . lsp-ltex-disabled-rules))
-                  ((equal command "_ltex.hideFalsePositives") '("falsePositives" . lsp-ltex-hidden-false-positives)))))
-      (if args-key
-          (let ((args-ht (gethash (car args-key) arguments-ht)))
-            (dolist (lang (hash-table-keys args-ht))
-              (mapc (lambda (arg)
-                      (+add-to-plist lang arg (cdr args-key)))
-                    (gethash lang args-ht)))))))
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'ltex-ls))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -2059,7 +2004,7 @@ reduces the false positives due to the marking and special commands.
   (defun +lsp-ltex-enable ()
     "Enable LTeX LSP."
     (interactive)
-    (when (not (+lsp-ltex-enabled-p))
+    (unless (+lsp-ltex-enabled-p)
       (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
     (unless (+languagetool-server-running-p)
@@ -2082,16 +2027,11 @@ reduces the false positives due to the marking and special commands.
         (+lsp-ltex-disable)
       (+lsp-ltex-enable)))
 
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'ltex-ls)
-    (advice-add 'lsp-execute-code-action :after '+lsp-ltex--execute-action))
-
   (map! :leader :prefix ("l" . "custom")
         (:prefix ("l" . "languagetool")
-         :desc "Toggle LTeX"    "t" #'+lsp-ltex-toggle
-         :desc "Enable LTeX"       "l" #'+lsp-ltex-enable
-         :desc "Disable LTeX"      "q" #'+lsp-ltex-disable))
+         :desc "Enable LTeX"   "l" #'+lsp-ltex-enable
+         :desc "Disable LTeX"  "q" #'+lsp-ltex-disable
+         :desc "Toggle LTeX"   "t" #'+lsp-ltex-toggle))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
