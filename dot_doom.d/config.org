@@ -604,24 +604,6 @@ There is a package [[https://github.com/bbatsov/super-save][bbatsov/super-save]]
 #+end_src
 
 *** Frame :frame:
-**** Maximizing :maximize:
-
-#+begin_src emacs-lisp :tangle no
-;; NOTE: Not tangled, replaced with params passed to emacsclient
-;; start the initial frame maximized
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
-
-;; start every frame maximized
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+end_src
-
-To avoid conflict when launching Emacs in =emacs-everywhere= mode. I'm using it in
-command line when calling =emacsclient=, by adding this:
-
-#+begin_example shell :tangle no
---frame-parameters="'(fullscreen . maximized)"
-#+end_example
-
 **** Focus created frame :focus:
 The problem is, every time I launch an Emacs frame (from KDE), Emacs starts
 with no focus, I need each time to =Alt-TAB= to get Emacs under focus, and then
@@ -638,22 +620,6 @@ Got from [[https://emacs.stackexchange.com/a/34740][this comment]], not working 
 After some investigations, I found that this issue is probably KDE specific, the
 issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
 stealing prevention* to /None/ in the KDE Settings.
-
-**** Margins :margins:
-
-#+begin_src emacs-lisp :tangle no
-;; (set-frame-parameter nil 'internal-border-width 15)
-
-;; Add frame borders and window dividers
-(modify-all-frames-parameters '((right-divider-width . 10)
-                                (internal-border-width . 10)))
-
-(dolist (face '(window-divider window-divider-first-pixel window-divider-last-pixel))
-  (face-spec-reset-face face)
-  (set-face-foreground face (face-attribute 'default :background)))
-
-(set-face-background 'fringe (face-attribute 'default :background))
-#+end_src
 
 * Emacs daemon :daemon:
 ** Initialization :init:
@@ -826,60 +792,8 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-(add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
+(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1)) ;; (hide-mode-line-mode 1)
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
-
-(defun +doom/open-private-config-org ()
-  (interactive)
-  (when (file-directory-p doom-private-dir)
-    (find-file (expand-file-name "config.org" doom-private-dir))))
-
-;; (setq +doom-dashboard-menu-sections
-;;   '(("Reload last session"
-;;      :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
-;;      :when (cond ((featurep! :ui workspaces)
-;;                   (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
-;;                  ((require 'desktop nil t)
-;;                   (file-exists-p (desktop-full-file-name))))
-;;      :face (:inherit (doom-dashboard-menu-title bold))
-;;      :action doom/quickload-session)
-;;     ("Open mailbox"
-;;      :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
-;;      :action =mu4e)
-;;     ("Open org-agenda"
-;;      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
-;;      :when (fboundp 'org-agenda)
-;;      :action org-agenda)
-;;     ("Jump to bookmark"
-;;      :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
-;;      :action bookmark-jump)
-;;     ("Open config.org"
-;;      :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
-;;      :when (file-directory-p doom-private-dir)
-;;      :action +doom/open-private-config-org)))
-
-(defun +doom-dashboard-setup-modified-keymap ()
-  (setq +doom-dashboard-mode-map (make-sparse-keymap))
-  (map! :map +doom-dashboard-mode-map
-        :desc "Find file" :ne "f" #'find-file
-        :desc "Recent files" :ne "r" #'consult-recent-file
-        :desc "Config dir" :ne "C" #'doom/open-private-config
-        :desc "Open config.org" :ne "c" #'+doom/open-private-config-org
-        :desc "Open dotfile" :ne "." (cmd! (doom-project-find-file "~/.config/"))
-        :desc "Notes (roam)" :ne "n" #'org-roam-node-find
-        :desc "Switch buffer" :ne "b" #'+vertico/switch-workspace-buffer
-        :desc "Switch buffers (all)" :ne "B" #'consult-buffer
-        :desc "IBuffer" :ne "i" #'ibuffer
-        :desc "Previous buffer" :ne "p" #'previous-buffer
-        :desc "Email" :ne "m" #'=mu4e
-        :desc "Quit" :ne "Q" #'save-buffers-kill-terminal
-        :desc "Show keybindings" :ne "h" (cmd! (which-key-show-keymap '+doom-dashboard-mode-map))))
-
-(add-transient-hook! #'+doom-dashboard-mode (+doom-dashboard-setup-modified-keymap))
-(add-transient-hook! #'+doom-dashboard-mode :append (+doom-dashboard-setup-modified-keymap))
-(add-hook! 'doom-init-ui-hook :append (+doom-dashboard-setup-modified-keymap))
-
-(map! :leader :desc "Dashboard" "d" #'+doom-dashboard/open)
 #+end_src
 
 *** Which key :key:
