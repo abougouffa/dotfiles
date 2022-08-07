@@ -4296,6 +4296,14 @@ the builtin =gdb-many-windows= layout.
   (setq magit-diff-refine-hunk 'all))
 #+end_src
 
+**** Gravatars
+
+#+begin_src emacs-lisp
+(after! magit
+  ;; Show gravatars
+  (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")))
+#+end_src
+
 **** WIP Company for commit messages
 
 #+begin_src emacs-lisp :tangle packages.el
