@@ -4483,6 +4483,18 @@ For editing systemd unit files.
         :nv "K" #'journalctl-previous-chunk))
 #+end_src
 
+** PKGBUILD
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! pkgbuild-mode)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! pkgbuild-mode
+  :commands (pkgbuild-mode)
+  :mode ("/PKGBUILD$"))
+#+end_src
+
 ** Franca IDL :franca:
 Add support for /[[https://github.com/franca/franca][Franca Interface Definition Language]]/.
 
