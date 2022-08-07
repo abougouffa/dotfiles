@@ -180,28 +180,27 @@ Some added packages require external tools, I like to check for these tools and
 store the result in global constants.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
-(defun bool (val) (not (null val)))
-
 ;; Some packages do not work correctly on Emacs built with the LUCID feature
-(defconst IS-LUCID (bool (string-search "LUCID" system-configuration-features)))
-
-(defconst AG-P (bool (executable-find "ag")))
+(defconst IS-LUCID (+bool (string-search "LUCID" system-configuration-features)))
 (defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-etc-dir))
-(defconst EAF-P (bool (and (not IS-LUCID) (file-directory-p EAF-DIR))))
-(defconst MPD-P (bool (and (executable-find "mpc") (executable-find "mpd"))))
-(defconst MPV-P (bool (executable-find "mpv")))
-(defconst REPO-P (bool (executable-find "repo")))
-(defconst FRICAS-P (bool (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs"))))
-(defconst MAXIMA-P (bool (executable-find "maxima")))
-(defconst QUARTO-P (bool (executable-find "quarto")))
-(defconst ROSBAG-P (bool (executable-find "rosbag")))
-(defconst ZOTERO-P (bool (executable-find "zotero")))
-(defconst CHEZMOI-P (bool (executable-find "chezmoi")))
-(defconst BITWARDEN-P (bool (executable-find "bw")))
-(defconst YOUTUBE-DL-P (bool (or (executable-find "yt-dlp") (executable-find "youtube-dl"))))
-(defconst NETEXTENDER-P (bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
-(defconst CLANG-FORMAT-P (bool (executable-find "clang-format")))
-(defconst LANGUAGETOOL-P (bool (and (executable-find "languagetool") (string-match "\\(?:MANJARO\\|ARCH\\)" operating-system-release))))
+
+(defconst AG-P (+bool (executable-find "ag")))
+(defconst EAF-P (+bool (and (not IS-LUCID) (file-directory-p EAF-DIR))))
+(defconst MPD-P (+all (mapcar 'executable-find '("mpc" "mpd"))))
+(defconst MPV-P (+bool (executable-find "mpv")))
+(defconst REPO-P (+bool (executable-find "repo")))
+(defconst FRICAS-P (+bool (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs"))))
+(defconst MAXIMA-P (+bool (executable-find "maxima")))
+(defconst QUARTO-P (+bool (executable-find "quarto")))
+(defconst ROSBAG-P (+bool (executable-find "rosbag")))
+(defconst ZOTERO-P (+bool (executable-find "zotero")))
+(defconst CHEZMOI-P (+bool (executable-find "chezmoi")))
+(defconst ECRYPTFS-P (+all (mapcar 'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
+(defconst BITWARDEN-P (+bool (executable-find "bw")))
+(defconst YOUTUBE-DL-P (+bool (+some (mapcar 'executable-find '("yt-dlp" "youtube-dl")))))
+(defconst NETEXTENDER-P (+bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
+(defconst CLANG-FORMAT-P (+bool (executable-find "clang-format")))
+(defconst LANGUAGETOOL-P (+bool (and (executable-find "languagetool") (string-match "\\(?:MANJARO\\|ARCH\\)" operating-system-release))))
 #+end_src
 
 ** Doom modules (=init.el=) :module:
