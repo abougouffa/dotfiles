@@ -2848,7 +2848,7 @@ fi
 MY_LOGIN_PARAMS_FILE="$HOME/.ssh/sslvpn.gpg"
 
 echo "Y\n" | netExtender --auto-reconnect \
-  $(gpg -q --for-your-eyes-only --no-tty -d ${MY_LOGIN_PARAMS_FILE})
+  $(gpg -q --for-your-eyes-only --no-tty -d "${MY_LOGIN_PARAMS_FILE}")
 #+end_src
 
 *** Emacs + NetExtender
@@ -3501,8 +3501,8 @@ Install =yt-rss= from Git:
 
 #+begin_src sh :noeval
 YT_RSS_DIR=~/.local/share/yt-rss
-git clone https://github.com/SqrtMinusOne/yt-rss.git $YT_RSS_DIR
-cd $TY_RSS_DIR
+git clone https://github.com/SqrtMinusOne/yt-rss.git "$YT_RSS_DIR"
+cd "$TY_RSS_DIR"
 pip install -r requirements.txt
 gunicorn main:app
 #+end_src
@@ -4323,8 +4323,8 @@ or directly with:
 
 #+begin_example shell :tangle no :eval no
 REPO_PATH="$HOME/.local/bin/repo"
-curl "https://storage.googleapis.com/git-repo-downloads/repo" > ${REPO_PATH}
-chmod a+x ${REPO_PATH}
+curl "https://storage.googleapis.com/git-repo-downloads/repo" > "${REPO_PATH}"
+chmod a+x "${REPO_PATH}"
 #+end_example
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -6369,7 +6369,7 @@ this file gets deleted.
 #+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "setup.sh")
 read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
 
-if [[ $INSTALL_CONFIRM == "Y" ]]
+if [[ "$INSTALL_CONFIRM" == "Y" ]]
 then
   sudo mkdir -p /etc/opt/chrome/policies/managed/
 
@@ -6557,9 +6557,9 @@ First, let's add a custom script to run =tika-app=:
 #!/bin/sh
 APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
 
-if [ -f ${APACHE_TIKA_JAR} ]
+if [ -f "${APACHE_TIKA_JAR}" ]
 then
-  exec java -Dfile.encoding=UTF-8 -jar ${APACHE_TIKA_JAR} "$@" 2>/dev/null
+  exec java -Dfile.encoding=UTF-8 -jar "${APACHE_TIKA_JAR}" "$@" 2>/dev/null
 else
   echo "JAR file not found at ${APACHE_TIKA_JAR}"
 fi
@@ -6569,11 +6569,11 @@ Add =tika='s installation instructions to the =setup.sh= file.
 
 #+begin_src shell
 update_apache_tika () {
-  TIKA_JAR_PATH=$HOME/.local/share/tika
+  TIKA_JAR_PATH="$HOME/.local/share/tika"
 
-  if [ ! -d ${TIKA_JAR_PATH} ]
+  if [ ! -d "${TIKA_JAR_PATH}" ]
   then
-    mkdir -p ${TIKA_JAR_PATH}
+    mkdir -p "${TIKA_JAR_PATH}"
   fi
 
   TIKA_BASE_URL=https://archive.apache.org/dist/tika/
@@ -6583,14 +6583,14 @@ update_apache_tika () {
 
   # Get the lastest version
   TIKA_VERSION=$(
-    curl -s ${TIKA_BASE_URL} | # Get the page
+    curl -s "${TIKA_BASE_URL}" | # Get the page
     pandoc -f html -t plain | # Convert HTML page to plain text.
     awk '/([0-9]+\.)+[0-1]\// {print substr($1, 0, length($1)-1)}' | # Get the versions directories (pattern: X.X.X/)
     sort -rV | # Sort versions, the newest first
     head -n 1 # Get the first (newest) version
   )
 
-  if [ -z ${TIKA_VERSION} ]
+  if [ -z "${TIKA_VERSION}" ]
   then
     echo "Failed, check your internet connection."
     exit 1
@@ -6601,26 +6601,26 @@ update_apache_tika () {
   TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
   TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
 
-  if [ ! -f ${TIKA_JAR} ]
+  if [ ! -f "${TIKA_JAR}" ]
   then
     echo "New version available!"
     read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
-    if [[ $INSTALL_CONFIRM == "Y" ]]
+    if [[ "$INSTALL_CONFIRM" == "Y" ]]
     then
-      curl -o ${TIKA_JAR} ${TIKA_JAR_URL} && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
+      curl -o "${TIKA_JAR}" "${TIKA_JAR_URL}" && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
     fi
   else
     echo "Apache Tika App is up-to-date, version ${TIKA_VERSION} already downloaded to '${TIKA_JAR}'"
   fi
 
   # Check the existance of the symbolic link
-  if [ -L ${TIKA_JAR_LINK} ]
+  if [ -L "${TIKA_JAR_LINK}" ]
   then
-    unlink ${TIKA_JAR_LINK}
+    unlink "${TIKA_JAR_LINK}"
   fi
 
   # Create a symbolic link to the installed version
-  ln -s ${TIKA_JAR} ${TIKA_JAR_LINK}
+  ln -s "${TIKA_JAR}" "${TIKA_JAR_LINK}"
 }
 
 update_apache_tika;
@@ -6829,7 +6829,7 @@ e -w "$@"
 #+end_src
 
 #+begin_src shell :tangle ~/.zshrc
-export EDITOR=$HOME/.local/bin/et
+export EDITOR="$HOME/.local/bin/et"
 # export VISUAL=$HOME/.local/bin/ev
 #+end_src
 
@@ -6843,22 +6843,22 @@ update_appimageupdatetool () {
   APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
   APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
 
-  if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ] && $APPIMAGE_UPDATE_TOOL_PATH -j ${APPIMAGE_UPDATE_TOOL_PATH} 2&>/dev/null
+  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null
   then
     echo "${TOOL_NAME} already up to date"
   else
-    if [ -f ${APPIMAGE_UPDATE_TOOL_PATH} ]
+    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]
     then
       echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-      mv ${APPIMAGE_UPDATE_TOOL_PATH} "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+      mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
     else
       echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
     fi
-    wget -O ${APPIMAGE_UPDATE_TOOL_PATH} ${APPIMAGE_UPDATE_TOOL_URL} && # 2&>/dev/null
+    wget -O "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_URL}" && # 2&>/dev/null
         echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
         [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
         rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    chmod a+x ${APPIMAGE_UPDATE_TOOL_PATH}
+    chmod a+x "${APPIMAGE_UPDATE_TOOL_PATH}"
   fi
 }
 
@@ -7047,7 +7047,7 @@ fi
 Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
 
 #+begin_src shell :tangle ~/.zshrc
-if [ -d $HOME/Softwares/src/esp-idf/ ]
+if [ -d "$HOME/Softwares/src/esp-idf/" ]
 then
   alias esp-prepare-env='source $HOME/Softwares/src/esp-idf/export.sh'
   alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/src/esp-idf && git pull --all && echo "Updated successfully"'
