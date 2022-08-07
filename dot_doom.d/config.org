@@ -4617,6 +4617,10 @@ To avoid problems in the src_elisp{(after! org)} section.
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+
+(package! phscroll
+  :recipe (:host github
+           :repo "misohena/phscroll"))
 #+end_src
 
 ** Org mode :org:
