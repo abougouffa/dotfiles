@@ -760,8 +760,8 @@ Show battery level unless battery is not present or battery information is unkno
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
-(set-frame-parameter (selected-frame) 'alpha '(98 100))
-(add-to-list 'default-frame-alist '(alpha 98 100))
+(set-frame-parameter (selected-frame) 'alpha '(97 100))
+(add-to-list 'default-frame-alist '(alpha 97 100))
 #+end_src
 
 *** Dashboard :splash:dashboard:
@@ -832,7 +832,7 @@ I'd like to have just the buffer name, then if applicable the project folder.
         (:eval
          (let ((project-name (projectile-project-name)))
            (unless (string= "-" project-name)
-             (format (if (buffer-modified-p) " ◉ %s" " ● %s") project-name))))))
+             (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 #+end_src
 
 *** Fringe :fringe:
@@ -840,11 +840,15 @@ Increase the left fringe width, to enable rendering breakpoints (in debug modes)
 correctly.
 
 #+begin_src emacs-lisp
-;; (after! lsp-mode
-;;   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
+(after! lsp-mode
+  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
 
-(setq-default left-fringe-width 25
-              right-fringe-width 25)
+(after! org-modern
+  (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
+
+;; Use slightly larger fringes, useful for `gutter'
+(setq-default left-fringe-width 10
+              right-fringe-width 10)
 #+end_src
 
 *** Vertico :vertico:posframe:
