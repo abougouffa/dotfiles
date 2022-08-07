@@ -720,6 +720,99 @@ Set Doom's theme, some good choices:
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
  #+end_src
 
+**** Modus :modus:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! modus-themes)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; NOTE: Not tangled, needs further customization for my taste
+(use-package! modus-themes
+  :init
+  (setq modus-themes-hl-line '(accented)
+        modus-themes-subtle-line-numbers nil
+        modus-themes-region '(accented bg-only no-extend)
+        modus-themes-variable-pitch-ui nil
+        modus-themes-diffs nil
+        modus-themes-italic-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-intense-mouseovers t
+        modus-themes-paren-match '(bold intense)
+        modus-themes-syntax '(green-strings)
+        modus-themes-mode-line '(borderless padded)
+        modus-themes-tabs-accented nil ;; default
+        modus-themes-completions
+        '((matches . (extrabold intense accented))
+          (selection . (semibold accented intense))
+          (popup . (accented)))
+        modus-themes-headings '((1 . (rainbow 1.4))
+                                (2 . (rainbow 1.3))
+                                (3 . (rainbow 1.2))
+                                (4 . (rainbow bold 1.1))
+                                (t . (rainbow bold)))
+        modus-themes-org-blocks 'gray-background
+        modus-themes-org-agenda
+        '((header-block . (semibold 1.4))
+          (header-date . (workaholic bold-today 1.2))
+          (event . (accented italic varied))
+          (scheduled . rainbow)
+          (habit . traffic-light))
+        modus-themes-markup '(intense background)
+        modus-themes-mail-citations 'intense
+        modus-themes-lang-checkers '(background))
+
+  (defun +modus-themes-tweak-packages ()
+    (modus-themes-with-colors
+      (custom-set-faces
+       ;; Tweak `git-gutter-mode'
+       `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
+       `(git-gutter-fr:deleted ((,class :foreground ,red-fringe-bg)))
+       `(git-gutter-fr:modified ((,class :foreground ,yellow-fringe-bg)))
+       ;; Tweak `solaire-mode'
+       `(solaire-default-face ((,class :inherit default :background ,bg-alt :foreground ,fg-dim)))
+       `(solaire-line-number-face ((,class :inherit solaire-default-face :foreground ,fg-unfocused)))
+       `(solaire-hl-line-face ((,class :background ,bg-active)))
+       `(solaire-org-hide-face ((,class :background ,bg-alt :foreground ,bg-alt)))
+       ;; Tweak `display-fill-column-indicator-mode'
+       `(fill-column-indicator ((,class :height 0.3 :background ,bg-inactive :foreground ,bg-inactive)))
+       ;; Tweak `mmm-mode'
+       `(mmm-cleanup-submode-face ((,class :background ,yellow-refine-bg)))
+       `(mmm-code-submode-face ((,class :background ,bg-active)))
+       `(mmm-comment-submode-face ((,class :background ,blue-refine-bg)))
+       `(mmm-declaration-submode-face ((,class :background ,cyan-refine-bg)))
+       `(mmm-default-submode-face ((,class :background ,bg-alt)))
+       `(mmm-init-submode-face ((,class :background ,magenta-refine-bg)))
+       `(mmm-output-submode-face ((,class :background ,red-refine-bg)))
+       `(mmm-special-submode-face ((,class :background ,green-refine-bg))))))
+
+  (add-hook 'modus-themes-after-load-theme-hook #'+modus-themes-tweak-packages)
+
+  :config
+  (modus-themes-load-operandi)
+  (map! :leader
+        :prefix "t" ;; toggle
+        :desc "Toggle Modus theme" "m" #'modus-themes-toggle))
+#+end_src
+
+**** COMMENT Lambda
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lambda-themes
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-themes"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lambda-themes
+  :custom
+  (lambda-themes-set-italic-comments t)
+  (lambda-themes-set-italic-keywords t)
+  (lambda-themes-set-variable-pitch t)
+  :config
+  ;; load preferred theme
+  (load-theme 'lambda-light))
+#+end_src
 
 *** Mode line :modeline:
 **** Clock
