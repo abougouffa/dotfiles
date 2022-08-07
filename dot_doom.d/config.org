@@ -4282,6 +4282,12 @@ the builtin =gdb-many-windows= layout.
 
 ** Git & VC :git:vc:
 *** Magit :magit:
+
+#+begin_src emacs-lisp
+(after! code-review
+  (setq code-review-auth-login-marker 'forge))
+#+end_src
+
 **** WIP Company for commit messages
 
 #+begin_src emacs-lisp :tangle packages.el
