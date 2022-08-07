@@ -4288,6 +4288,14 @@ the builtin =gdb-many-windows= layout.
   (setq code-review-auth-login-marker 'forge))
 #+end_src
 
+**** Granular diff-highlights for /all/ hunks
+
+#+begin_src emacs-lisp
+(after! magit
+  ;; Disable if it causes performance issues
+  (setq magit-diff-refine-hunk 'all))
+#+end_src
+
 **** WIP Company for commit messages
 
 #+begin_src emacs-lisp :tangle packages.el
