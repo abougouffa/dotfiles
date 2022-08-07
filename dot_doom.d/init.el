@@ -99,7 +99,7 @@
   (python +lsp +pyenv +conda +pyright +tree-sitter)
   (racket +lsp +xp)
   (scheme +mit +guile +racket +chez +gambit +gauche +chibi +chicken)
-  (org +dragndrop +gnuplot +jupyter +pandoc +noter +hugo +present +pomodoro +roam2)
+  (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
   (web +tree-sitter)
 
   :email

@@ -114,6 +114,7 @@
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
   (add-hook! 'server-after-make-frame-hook
+    #'doom/reload-theme
     (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
       (switch-to-buffer +doom-dashboard-name))))
 ;; Initialization:1 ends here
@@ -125,7 +126,7 @@
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font][Font:1]]
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 20 :weight 'light)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 20) ;; :weight 'light)
       doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
       doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
@@ -133,15 +134,10 @@
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Theme][Theme:1]]
-(setq doom-theme 'doom-vibrant)
+(setq doom-theme 'doom-one-light)
+;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
-(delq! t custom-theme-load-path)
-
-;; By default 'doom-vibrant' uses red faces to mark modified file in modeline,
-;; lets change it to orange.
-(custom-set-faces!
-  '(doom-modeline-buffer-modified :foreground "orange"))
 ;; Theme:1 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
@@ -172,60 +168,8 @@
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-(add-hook!   '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
+(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1)) ;; (hide-mode-line-mode 1)
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
-
-(defun +doom/open-private-config-org ()
-  (interactive)
-  (when (file-directory-p doom-private-dir)
-    (find-file (expand-file-name "config.org" doom-private-dir))))
-
-;; (setq +doom-dashboard-menu-sections
-;;   '(("Reload last session"
-;;      :icon (all-the-icons-octicon "history" :face 'doom-dashboard-menu-title)
-;;      :when (cond ((featurep! :ui workspaces)
-;;                   (file-exists-p (expand-file-name persp-auto-save-fname persp-save-dir)))
-;;                  ((require 'desktop nil t)
-;;                   (file-exists-p (desktop-full-file-name))))
-;;      :face (:inherit (doom-dashboard-menu-title bold))
-;;      :action doom/quickload-session)
-;;     ("Open mailbox"
-;;      :icon (all-the-icons-octicon "mail" :face 'doom-dashboard-menu-title)
-;;      :action =mu4e)
-;;     ("Open org-agenda"
-;;      :icon (all-the-icons-octicon "calendar" :face 'doom-dashboard-menu-title)
-;;      :when (fboundp 'org-agenda)
-;;      :action org-agenda)
-;;     ("Jump to bookmark"
-;;      :icon (all-the-icons-octicon "bookmark" :face 'doom-dashboard-menu-title)
-;;      :action bookmark-jump)
-;;     ("Open config.org"
-;;      :icon (all-the-icons-fileicon "config" :face 'doom-dashboard-menu-title)
-;;      :when (file-directory-p doom-private-dir)
-;;      :action +doom/open-private-config-org)))
-
-(defun +doom-dashboard-setup-modified-keymap ()
-  (setq +doom-dashboard-mode-map (make-sparse-keymap))
-  (map! :map +doom-dashboard-mode-map
-        :desc "Find file" :ne "f" #'find-file
-        :desc "Recent files" :ne "r" #'consult-recent-file
-        :desc "Config dir" :ne "C" #'doom/open-private-config
-        :desc "Open config.org" :ne "c" #'+doom/open-private-config-org
-        :desc "Open dotfile" :ne "." (cmd! (doom-project-find-file "~/.config/"))
-        :desc "Notes (roam)" :ne "n" #'org-roam-node-find
-        :desc "Switch buffer" :ne "b" #'+vertico/switch-workspace-buffer
-        :desc "Switch buffers (all)" :ne "B" #'consult-buffer
-        :desc "IBuffer" :ne "i" #'ibuffer
-        :desc "Previous buffer" :ne "p" #'previous-buffer
-        :desc "Email" :ne "m" #'=mu4e
-        :desc "Quit" :ne "Q" #'save-buffers-kill-terminal
-        :desc "Show keybindings" :ne "h" (cmd! (which-key-show-keymap '+doom-dashboard-mode-map))))
-
-(add-transient-hook! #'+doom-dashboard-mode (+doom-dashboard-setup-modified-keymap))
-(add-transient-hook! #'+doom-dashboard-mode :append (+doom-dashboard-setup-modified-keymap))
-(add-hook! 'doom-init-ui-hook :append (+doom-dashboard-setup-modified-keymap))
-
-(map! :leader :desc "Dashboard" "d" #'+doom-dashboard/open)
 ;; Dashboard:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
@@ -254,15 +198,19 @@
         (:eval
          (let ((project-name (projectile-project-name)))
            (unless (string= "-" project-name)
-             (format (if (buffer-modified-p) " ◉ %s" " ● %s") project-name))))))
+             (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
 
 ;; [[file:config.org::*Fringe][Fringe:1]]
-;; (after! lsp-mode
-;;   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(15 . 15)))))
+(after! lsp-mode
+  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
 
-(setq-default left-fringe-width 25
-              right-fringe-width 25)
+(after! org-modern
+  (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
+
+;; Use slightly larger fringes, useful for `gutter'
+(setq-default left-fringe-width 10
+              right-fringe-width 10)
 ;; Fringe:1 ends here
 
 ;; [[file:config.org::*Vertico][Vertico:1]]
@@ -923,8 +871,7 @@ current buffer's, reload dir-locals."
              +languagetool--process-name
              " *LanguageTool server*"
              (executable-find "languagetool")
-             "--http"
-             "--port" (format "%s" (or port 8081))
+             "--http" "--port" (format "%s" (or port 8081))
              "--languageModel" "/usr/share/ngrams")
         (message "Started LanguageTool server."))))
 
@@ -955,77 +902,23 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*LTeX][LTeX:2]]
 (use-package! lsp-ltex
-  :commands (+lsp-ltex-load
-             +lsp-ltex-enable
-             +lsp-ltex-disable
-             +lsp-ltex-toggle)
+  :commands (+lsp-ltex-load +lsp-ltex-enable +lsp-ltex-disable +lsp-ltex-toggle)
   :init
-  (defun +serialize-symbol (some-symbol to-directory)
-    (when (boundp some-symbol)
-      (let ((out-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
-                                        to-directory)))
-        (with-temp-buffer
-          (prin1 (eval some-symbol) (current-buffer))
-          (write-file out-file))
-        out-file)))
-
-  (defun +deserialize-symbol (some-symbol from-directory)
-    (let ((in-file (expand-file-name (format "%s.el" (symbol-name some-symbol))
-                                     from-directory)))
-      (when (file-exists-p in-file)
-        (message "Loading `%s' from file \"%s\"" (symbol-name some-symbol) in-file)
-        (with-temp-buffer
-          (insert-file-contents in-file)
-          (goto-char (point-min))
-          (ignore-errors (set some-symbol (read (current-buffer))))))))
-
-  (defvar +lsp-ltex-data-path
-    (let ((path (expand-file-name "lsp-ltex" doom-etc-dir)))
-      (unless (and (file-exists-p path) (file-directory-p path))
-        (mkdir path t))
-      path))
-
-  (defun +add-to-plist (lang word plist-symbol)
-    (let* ((lang-key (intern (concat ":" lang))))
-      (when (null (eval plist-symbol))
-        (set plist-symbol (list lang-key [])))
-      (plist-put (eval plist-symbol) lang-key
-                 (vconcat (list word) (plist-get (eval plist-symbol) lang-key)))
-      (when-let (out-file (+serialize-symbol plist-symbol +lsp-ltex-data-path))
-        (message "Rule for language %s saved to file \"%s\"" lang out-file))))
-
   (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
-        lsp-ltex-check-frequency "save"
+        lsp-ltex-check-frequency "edit" ;; or "save"
         lsp-ltex-language "fr"
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-log-level "warning"
-        lsp-ltex-trace-server "off")
-
-  (+deserialize-symbol 'lsp-ltex-dictionary +lsp-ltex-data-path)
-  (+deserialize-symbol 'lsp-ltex-disabled-rules +lsp-ltex-data-path)
-  (+deserialize-symbol 'lsp-ltex-hidden-false-positives +lsp-ltex-data-path)
+        lsp-ltex-trace-server "off"
+        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-etc-dir))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
-  ;; In this way, I can configure it to use the extra stuff installed from the
-  ;; pacakge manager (like ngrams)
   (when LANGUAGETOOL-P
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
-  (defun +lsp-ltex--execute-action (r)
-    (let* ((command-ht (gethash "command" r))
-           (command (gethash "command" command-ht))
-           (title (gethash "title" command-ht))
-           (arguments-ht (aref (gethash "arguments" command-ht) 0))
-           (args-key
-            (cond ((equal command "_ltex.addToDictionary") '("words" . lsp-ltex-dictionary))
-                  ((equal command "_ltex.disableRules") '("ruleIds" . lsp-ltex-disabled-rules))
-                  ((equal command "_ltex.hideFalsePositives") '("falsePositives" . lsp-ltex-hidden-false-positives)))))
-      (if args-key
-          (let ((args-ht (gethash (car args-key) arguments-ht)))
-            (dolist (lang (hash-table-keys args-ht))
-              (mapc (lambda (arg)
-                      (+add-to-plist lang arg (cdr args-key)))
-                    (gethash lang args-ht)))))))
+  (after! lsp-mode
+    ;; Disable by default
+    (add-to-list 'lsp-disabled-clients 'ltex-ls))
 
   (defun +lsp-ltex-load ()
     "Load LTeX LSP server."
@@ -1039,7 +932,7 @@ current buffer's, reload dir-locals."
   (defun +lsp-ltex-enable ()
     "Enable LTeX LSP."
     (interactive)
-    (when (not (+lsp-ltex-enabled-p))
+    (unless (+lsp-ltex-enabled-p)
       (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
     (unless (+languagetool-server-running-p)
@@ -1062,16 +955,11 @@ current buffer's, reload dir-locals."
         (+lsp-ltex-disable)
       (+lsp-ltex-enable)))
 
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'ltex-ls)
-    (advice-add 'lsp-execute-code-action :after '+lsp-ltex--execute-action))
-
   (map! :leader :prefix ("l" . "custom")
         (:prefix ("l" . "languagetool")
-         :desc "Toggle LTeX"    "t" #'+lsp-ltex-toggle
-         :desc "Enable LTeX"       "l" #'+lsp-ltex-enable
-         :desc "Disable LTeX"      "q" #'+lsp-ltex-disable))
+         :desc "Enable LTeX"   "l" #'+lsp-ltex-enable
+         :desc "Disable LTeX"  "q" #'+lsp-ltex-disable
+         :desc "Toggle LTeX"   "t" #'+lsp-ltex-toggle))
 
   :config
   (set-lsp-priority! 'ltex-ls 2)
@@ -1167,60 +1055,66 @@ current buffer's, reload dir-locals."
 ;; Lemon:2 ends here
 
 ;; [[file:config.org::*eCryptfs][eCryptfs:1]]
-(defvar +ecryptfs-private-dir "Private")
-(defvar +ecryptfs-buffer-name "*emacs-ecryptfs*")
-(defvar +ecryptfs-config-dir (expand-file-name "~/.ecryptfs"))
-(defvar +ecryptfs-passphrase-gpg (expand-file-name "~/.ecryptfs/my-pass.gpg"))
-(defvar +ecryptfs--wrapping-independent-p (not (null (expand-file-name "wrapping-independent" +ecryptfs-config-dir))))
-(defvar +ecryptfs--wrapped-passphrase-file (expand-file-name "wrapped-passphrase" +ecryptfs-config-dir))
-(defvar +ecryptfs--mount-passphrase-sig-file (concat (expand-file-name +ecryptfs-private-dir +ecryptfs-config-dir) ".sig"))
-(defvar +ecryptfs--mount-private-cmd "/sbin/mount.ecryptfs_private")
-(defvar +ecryptfs--umount-private-cmd "/sbin/umount.ecryptfs_private")
-(defvar +ecryptfs--passphrase
-  (lambda ()
-    (s-trim-right ;; To remove the new line
-     (epg-decrypt-file (epg-make-context)
-                       +ecryptfs-passphrase-gpg
-                       nil))))
-(defvar +ecryptfs--encrypt-filenames-p
-  (not (eq 1
-           (with-temp-buffer
-             (insert-file-contents +ecryptfs--mount-passphrase-sig-file)
-             (count-lines (point-min) (point-max))))))
-(defvar +ecryptfs--command-format
-  (if +ecryptfs--encrypt-filenames-p
-      "ecryptfs-insert-wrapped-passphrase-into-keyring %s '%s'"
-    "ecryptfs-unwrap-passphrase %s '%s' | ecryptfs-add-passphrase -"))
+(when ECRYPTFS-P
+  (defvar +ecryptfs-private-dir "Private")
+  (defvar +ecryptfs-buffer-name "*emacs-ecryptfs*")
+  (defvar +ecryptfs-config-dir (expand-file-name "~/.ecryptfs"))
+  (defvar +ecryptfs-passphrase-gpg (expand-file-name "~/.ecryptfs/my-pass.gpg"))
+  (defvar +ecryptfs--wrapping-independent-p (not (null (expand-file-name "wrapping-independent" +ecryptfs-config-dir))))
+  (defvar +ecryptfs--wrapped-passphrase-file (expand-file-name "wrapped-passphrase" +ecryptfs-config-dir))
+  (defvar +ecryptfs--mount-passphrase-sig-file (concat (expand-file-name +ecryptfs-private-dir +ecryptfs-config-dir) ".sig"))
+  (defvar +ecryptfs--mount-private-cmd "/sbin/mount.ecryptfs_private")
+  (defvar +ecryptfs--umount-private-cmd "/sbin/umount.ecryptfs_private")
+  (defvar +ecryptfs--passphrase
+    (lambda ()
+      (s-trim-right ;; To remove the new line
+       (epg-decrypt-file (epg-make-context)
+                         +ecryptfs-passphrase-gpg
+                         nil))))
+  (defvar +ecryptfs--encrypt-filenames-p
+    (not (eq 1
+             (with-temp-buffer
+               (insert-file-contents +ecryptfs--mount-passphrase-sig-file)
+               (count-lines (point-min) (point-max))))))
+  (defvar +ecryptfs--command-format
+    (if +ecryptfs--encrypt-filenames-p
+        "ecryptfs-insert-wrapped-passphrase-into-keyring %s '%s'"
+      "ecryptfs-unwrap-passphrase %s '%s' | ecryptfs-add-passphrase -"))
 
-(defun +ecryptfs-mount-private ()
-  (interactive)
-  (unless (and (file-exists-p +ecryptfs--wrapped-passphrase-file)
-               (file-exists-p +ecryptfs--mount-passphrase-sig-file))
-    (error "Encrypted private directory \"%s\" is not setup properly."
-           +ecryptfs-private-dir)
-    (return))
+  (defun +ecryptfs-mount-private ()
+    (interactive)
+    (unless (and (file-exists-p +ecryptfs--wrapped-passphrase-file)
+                 (file-exists-p +ecryptfs--mount-passphrase-sig-file))
+      (error "Encrypted private directory \"%s\" is not setup properly."
+             +ecryptfs-private-dir)
+      (return))
 
-  (let ((try-again t))
-    (while (and
-            ;; In the first iteration, we try to silently mount the ecryptfs private directory,
-            ;; this would succeed if the key is available in the keyring.
-            (shell-command +ecryptfs--mount-private-cmd
-                           +ecryptfs-buffer-name)
-            try-again)
-      (setq try-again nil)
-      (message "Encrypted filenames mode [%s]." (if +ecryptfs--encrypt-filenames-p "ENABLED" "DISABLED"))
-      (shell-command
-       (format +ecryptfs--command-format
-               +ecryptfs--wrapped-passphrase-file
-               (funcall +ecryptfs--passphrase))
-       +ecryptfs-buffer-name))
-    (message "Ecryptfs mount private.")))
+    (let ((try-again t))
+      (while (and
+              ;; In the first iteration, we try to silently mount the ecryptfs private directory,
+              ;; this would succeed if the key is available in the keyring.
+              (shell-command +ecryptfs--mount-private-cmd
+                             +ecryptfs-buffer-name)
+              try-again)
+        (setq try-again nil)
+        (message "Encrypted filenames mode [%s]." (if +ecryptfs--encrypt-filenames-p "ENABLED" "DISABLED"))
+        (shell-command
+         (format +ecryptfs--command-format
+                 +ecryptfs--wrapped-passphrase-file
+                 (funcall +ecryptfs--passphrase))
+         +ecryptfs-buffer-name))
+      (message "Ecryptfs mount private.")))
 
-(defun +ecryptfs-umount-private ()
-  (interactive)
-  (while (string-match-p "Sessions still open, not unmounting"
-                         (shell-command-to-string +ecryptfs--umount-private-cmd)))
-  (message "Unmounted private directory."))
+  (defun +ecryptfs-umount-private ()
+    (interactive)
+    (while (string-match-p "Sessions still open, not unmounting"
+                           (shell-command-to-string +ecryptfs--umount-private-cmd)))
+    (message "Unmounted private directory."))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:prefix ("t" . "tools")
+         :desc "eCryptfs mount private"    "e" #'+ecryptfs-mount-private
+         :desc "eCryptfs un-mount private"  "E" #'+ecryptfs-umount-private)))
 ;; eCryptfs:1 ends here
 
 ;; [[file:config.org::*Weather][Weather:2]]
@@ -1489,7 +1383,55 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Dark mode][Dark mode:1]]
 (after! pdf-tools
-  (add-hook! 'pdf-view-mode-hook (pdf-view-midnight-minor-mode 1)))
+  (add-hook! 'pdf-view-mode-hook
+    (when (member doom-theme '(modus-vivandi doom-one doom-dark+ doom-vibrant))
+      ;; TODO: find a more generic way to detect if we are in a dark theme
+      (pdf-view-midnight-minor-mode 1)))
+
+  ;; Color the background, so we can see the PDF page borders
+  ;; https://protesilaos.com/emacs/modus-themes#h:ff69dfe1-29c0-447a-915c-b5ff7c5509cd
+  (defun +pdf-tools-backdrop ()
+    (face-remap-add-relative
+     'default
+     `(:background ,(modus-themes-color 'bg-alt))))
+
+  (add-hook 'pdf-tools-enabled-hook #'+pdf-tools-backdrop))
+
+(after! pdf-links
+  ;; Tweak for Modus and `pdf-links'
+  (when (string-match-p "modus-" (symbol-name doom-theme))
+    ;; https://protesilaos.com/emacs/modus-themes#h:2659d13e-b1a5-416c-9a89-7c3ce3a76574
+    (let ((spec (apply #'append
+                       (mapcar
+                        (lambda (name)
+                          (list name
+                                (face-attribute 'pdf-links-read-link
+                                                name nil 'default)))
+                        '(:family :width :weight :slant)))))
+      (setq pdf-links-read-link-convert-commands
+            `("-density"    "96"
+              "-family"     ,(plist-get spec :family)
+              "-stretch"    ,(let* ((width (plist-get spec :width))
+                                    (name (symbol-name width)))
+                               (replace-regexp-in-string "-" ""
+                                                         (capitalize name)))
+              "-weight"     ,(pcase (plist-get spec :weight)
+                               ('ultra-light "Thin")
+                               ('extra-light "ExtraLight")
+                               ('light       "Light")
+                               ('semi-bold   "SemiBold")
+                               ('bold        "Bold")
+                               ('extra-bold  "ExtraBold")
+                               ('ultra-bold  "Black")
+                               (_weight      "Normal"))
+              "-style"      ,(pcase (plist-get spec :slant)
+                               ('italic  "Italic")
+                               ('oblique "Oblique")
+                               (_slant   "Normal"))
+              "-pointsize"  "%P"
+              "-undercolor" "%f"
+              "-fill"       "%b"
+              "-draw"       "text %X,%Y '%c'")))))
 ;; Dark mode:1 ends here
 
 ;; [[file:config.org::*LTDR][LTDR:2]]
@@ -2412,7 +2354,7 @@ current buffer's, reload dir-locals."
          :desc "rr replay" "R" #'+debugger/rr-replay)))
 ;; Record and replay =rr=:1 ends here
 
-;; [[file:config.org::*Emacs GDB][Emacs GDB:2]]
+;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:2]]
 (use-package! gdb-mi
   :init
   (fmakunbound 'gdb)
@@ -2436,7 +2378,7 @@ current buffer's, reload dir-locals."
       (comint-read-input-ring t)))
 
   (add-hook 'gud-gdb-mode-hook '+gud-gdb-mode-hook-setup))
-;; Emacs GDB:2 ends here
+;; Emacs GDB /a.k.a./ =gdb-mi=:2 ends here
 
 ;; [[file:config.org::*Custom layout for =gdb-many-windows=][Custom layout for =gdb-many-windows=:1]]
 (setq gdb-many-windows nil)
@@ -2510,6 +2452,23 @@ current buffer's, reload dir-locals."
 (use-package! valgrind
   :commands valgrind)
 ;; Valgrind:2 ends here
+
+;; [[file:config.org::*Magit][Magit:1]]
+(after! code-review
+  (setq code-review-auth-login-marker 'forge))
+;; Magit:1 ends here
+
+;; [[file:config.org::*Granular diff-highlights for /all/ hunks][Granular diff-highlights for /all/ hunks:1]]
+(after! magit
+  ;; Disable if it causes performance issues
+  (setq magit-diff-refine-hunk 'all))
+;; Granular diff-highlights for /all/ hunks:1 ends here
+
+;; [[file:config.org::*Gravatars][Gravatars:1]]
+(after! magit
+  ;; Show gravatars
+  (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")))
+;; Gravatars:1 ends here
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:2]]
 (use-package! company-gitcommit
@@ -2614,6 +2573,12 @@ current buffer's, reload dir-locals."
         :nv "J" #'journalctl-next-chunk
         :nv "K" #'journalctl-previous-chunk))
 ;; Systemd:2 ends here
+
+;; [[file:config.org::*PKGBUILD][PKGBUILD:2]]
+(use-package! pkgbuild-mode
+  :commands (pkgbuild-mode)
+  :mode ("/PKGBUILD$"))
+;; PKGBUILD:2 ends here
 
 ;; [[file:config.org::*Franca IDL][Franca IDL:2]]
 (use-package! franca-idl
@@ -3364,9 +3329,7 @@ current buffer's, reload dir-locals."
     (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "✸" "▶")
           org-modern-table-vertical 1
           org-modern-table-horizontal 1
-          org-modern-list '((43 . "➤")
-                            (45 . "–")
-                            (42 . "•"))
+          org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
           org-modern-footnote (cons nil (cadr org-script-display))
           org-modern-priority nil
           org-modern-horizontal-rule t
@@ -3427,6 +3390,9 @@ current buffer's, reload dir-locals."
             ("created" . "⏱")
             ("export_select_tags" . "✔")
             ("export_exclude_tags" . "❌")))
+  
+    ;; Change faces
+    (custom-set-faces! '(org-modern-tag :inherit (region org-modern-label)))
     (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
   (defadvice! +org-init-appearance-h--no-ligatures-a ()
     :after #'+org-init-appearance-h
@@ -3668,6 +3634,8 @@ current buffer's, reload dir-locals."
               (doom-color 'bg)))
     (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
     (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
+  (use-package! org-phscroll
+    :commands org-phscroll-activate)
   (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
         bibtex-completion-library-path '("~/Zotero/storage/")
         bibtex-completion-notes-path "~/PhD/bibliography/notes/"

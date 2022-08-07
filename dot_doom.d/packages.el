@@ -2,6 +2,10 @@
 ;; -*- coding: utf-8-unix; no-byte-compile: t; -*-
 ;; Additional packages (=packages.el=):1 ends here
 
+;; [[file:config.org::*Modus][Modus:1]]
+(package! modus-themes)
+;; Modus:1 ends here
+
 ;; [[file:config.org::*SVG tag][SVG tag:1]]
 (package! svg-tag-mode)
 ;; SVG tag:1 ends here
@@ -102,7 +106,7 @@
            :repo "jcs-elpa/github-tags"))
 
 (package! lsp-ltex
-  :disable (and (featurep! :tools lsp) (featurep! :tools lsp +eglot))
+ :disable (and (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/lsp-ltex"))
 
@@ -273,12 +277,12 @@
 (unpin! dap-mode)
 ;; DAP:1 ends here
 
-;; [[file:config.org::*Emacs GDB][Emacs GDB:1]]
+;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:1]]
 (package! gdb-mi
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile")))
-;; Emacs GDB:1 ends here
+;; Emacs GDB /a.k.a./ =gdb-mi=:1 ends here
 
 ;; [[file:config.org::*Valgrind][Valgrind:1]]
 (package! valgrind
@@ -316,9 +320,7 @@
 ;; Assembly:1 ends here
 
 ;; [[file:config.org::*Disaster][Disaster:1]]
-(package! disaster
-  :recipe (:host github
-           :repo "abougouffa/disaster"))
+(package! disaster)
 ;; Disaster:1 ends here
 
 ;; [[file:config.org::*Devdocs][Devdocs:1]]
@@ -333,6 +335,10 @@
 
 (package! journalctl-mode)
 ;; Systemd:1 ends here
+
+;; [[file:config.org::*PKGBUILD][PKGBUILD:1]]
+(package! pkgbuild-mode)
+;; PKGBUILD:1 ends here
 
 ;; [[file:config.org::*Franca IDL][Franca IDL:1]]
 (package! franca-idl
@@ -404,6 +410,10 @@
 (package! academic-phrases
   :recipe (:host github
            :repo "nashamri/academic-phrases"))
+
+(package! phscroll
+  :recipe (:host github
+           :repo "misohena/phscroll"))
 ;; Org mode additional packages:1 ends here
 
 ;; [[file:config.org::*Quarto][Quarto:1]]
