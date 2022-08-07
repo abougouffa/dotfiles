@@ -32,7 +32,7 @@ variables, user tools, Git configuration...).
 Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][*chezmoi*]] to manage my Dotfiles.
 
 Now the Dotfiles can be installed using the following command; however, I don't
-recommend to install all of my dotfiles, try instead to adapt them or to copy
+recommend installing all of my dotfiles, try instead to adapt them or to copy
 some interesting chunks.
 
 #+begin_src sh
@@ -841,8 +841,9 @@ Make =which-key= popup faster.
       which-key-idle-secondary-delay 0.05) ;; Default is nil
 #+end_src
 
-I stol this chunk from [[https://tecosaur.github.io/emacs-config/config.html#interface][tecosaur's config]], it helps replacing the =evil-= prefix
-with a unicode char, making =which-key='s candidate list less verbose.
+I've stolen this chunk (like many others) from [[https://tecosaur.github.io/emacs-config/config.html#interface][tecosaur's config]], it helps to
+replace the =evil-= prefix with a unicode symbol, making =which-key='s candidate
+list less verbose.
 
 #+begin_src emacs-lisp
 (setq which-key-allow-multiple-replacements t)
@@ -1334,9 +1335,9 @@ it work with =projectile=:
 
 **** LSP mode :ide:lsp:
 ***** Enable some useful UI stuff :diagnostics:ui:
-LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]], Doom Emacs disables some of
-the UI components; however, I like to enable some less intrusive, more useful UI
-stuff.
+LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]]. By default, Doom Emacs
+disables some UI components; however, I like to enable some less intrusive, more
+useful UI stuff.
 
 #+begin_src emacs-lisp
 (after! lsp-ui
@@ -1621,10 +1622,10 @@ Email and IRC.
 #+end_src
 
 *** Ligatures :ligatures:
-Extra ligatures are good, however, I'd like to see my keywords! Lets disable
+Extra ligatures are good, however, I'd like to see my keywords! Let's disable
 them in C/C++, Rust and Python modes. In addition to that, Lisps do replace
 lambdas with the greek symbol λ, however, this cause miss formatting and
-sometimes messes up with the parenthesis, so lets disable ligatures on Lisps.
+sometimes messes up with the parenthesis, so let's disable ligatures on Lisps.
 
 #+begin_src emacs-lisp
 (setq +ligatures-extras-in-modes
@@ -1651,7 +1652,7 @@ Install the =aspell= back-end and the dictionaries to use with =spell-fu=
 sudo pacman -S aspell aspell-en aspell-fr
 #+end_example
 
-Now, =spell-fu= supports multiple languages! Lets add English, French and Arabic.
+Now, =spell-fu= supports multiple languages! Let's add English, French and Arabic.
 So I can "mélanger les langues sans avoir de problèmes!".
 
 #+begin_src emacs-lisp
@@ -1835,7 +1836,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 *** LanguageTool :languagetool:
 **** LanguageTool Server :server:
 This will launch the LanguageTool Server at startup, this server will be used
-then by both =langtool= and =ltex-ls=.
+then by =ltex-ls=.
 
 #+begin_src emacs-lisp
 (when LANGUAGETOOL-P
@@ -2563,7 +2564,7 @@ dependencies.
 *** PDF tools
 **** Dark mode
 The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
-and read PDF documents, so lets make it dark by default, this can be toggled
+and read PDF documents, so let's make it dark by default, this can be toggled
 using the =m z=.
 
 #+begin_src emacs-lisp
@@ -2830,8 +2831,7 @@ echo "Y\n" | netExtender --auto-reconnect \
 Configuring =mu4e= email accounts, note that you need to have a proper
 =mbsyncrc= file in the right directory.
 
-*** mbsync 
-
+*** mbsync
 You will need to:
 - Install =mu= and =isync= (=sudo pacman -S mu isync=)
 - Set up a proper configuration file for your accounts at =~/.mbsyncrc=
@@ -3238,7 +3238,8 @@ Regards,
 #+end_src
 
 ** Multimedia :media:music:
-I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music.
+I like to use an MPD powered EMMS, so when I restart Emacs I do not lose my
+music.
 
 *** MPD, MPC, and MPV :mpd:mpc:mpv:
 
@@ -3248,7 +3249,7 @@ I like to use a MPD powered EMMS, so when I restart Emacs I do not lost my music
   (setq mpc-host "localhost:6600"))
 #+end_src
 
-I like to launch the music daemon =mpd= using Systemd, lets define some commands
+I like to launch the music daemon =mpd= using Systemd, let's define some commands
 in Emacs to start/kill the server:
 
 #+begin_src emacs-lisp
@@ -3487,7 +3488,7 @@ gunicorn main:app
 #+end_src
 
 *** Keybindings
-Lastly, lets define keybindings for these commands, under ~<leader> l m~.
+Lastly, let's define the keybindings for these commands, under ~<leader> l m~.
 
 #+begin_src emacs-lisp :tangle yes
 (map! :leader :prefix ("l" . "custom")
@@ -3573,7 +3574,7 @@ The Maxima CAS cames bundled with three Emacs modes: =maxima=, =imaxima= and
 
 *** Maxima :maxima:
 The [[https://github.com/emacsmirror/maxima][emacsmirror/maxima]] seems more up-to-date, and supports completion via
-Company, so lets install it from Github. Note that, normally, we don't need to
+Company, so let's install it from GitHub. Note that, normally, we don't need to
 specify a recipe; however, installing it directly seems to not install
 =company-maxima.el= and =poly-maxima.el=.
 
@@ -3605,9 +3606,9 @@ specify a recipe; however, installing it directly seems to not install
 *** IMaxima :imaxima:imath:
 For the =imaxima= (Maxima with image support), the [[https://github.com/emacsattic/imaxima][emacsattic/imaxima]] seems
 outdated compared to the =imaxima= package of the official Maxima distribution, so
-lets install =imaxima= from the source code of Maxima, hosted on Sourceforge
+let's install =imaxima= from the source code of Maxima, hosted on Sourceforge
 [[https://git.code.sf.net/p/maxima/code][git.code.sf.net/p/maxima/code]]. The package files are stored in the repository's
-sub-directory ~interfaces/emacs/imaxima~.
+subdirectory ~interfaces/emacs/imaxima~.
 
 #+begin_src emacs-lisp :tangle packages.el
 ;; Use the `imaxima' package bundled with the official Maxima distribution.
@@ -3630,7 +3631,7 @@ sub-directory ~interfaces/emacs/imaxima~.
 #+end_src
 
 ** FriCAS :math:cas:algebra:
-The FriCAS cames bundled with an Emacs mode, lets load it.
+The FriCAS cames bundled with an Emacs mode, let's load it.
 
 #+begin_src emacs-lisp
 (use-package! fricas
@@ -3641,8 +3642,7 @@ The FriCAS cames bundled with an Emacs mode, lets load it.
 
 * Programming :programming:
 ** File templates :template:
-For some file types, we overwrite defaults in the [[file:./snippets][snippets]] directory, others
-need to have a template assigned.
+For some file types, we can overwrite the defaults in the [[file:./snippets][snippets']] directory.
 
 #+begin_src emacs-lisp
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
@@ -3701,8 +3701,9 @@ View data frames better with
 #+end_src
 
 ** GNU Octave :octave:
-Files with =.m= extension gets recognized automatically as Objective C files. Lets
-change this to be recognized as Octave/Matlab files.
+Files with the =.m= extension gets recognized automatically as Objective-C files.
+I've never used Objective-C before, so let's change it to be recognized as
+Octave/Matlab files.
 
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
@@ -3916,10 +3917,10 @@ In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it sto
 and disconnect while debugging, making it a double pain.
 
 **** Additional commands :hydra:
-There is no best than using pure GDB, it makes debugging more flexible. Lets
-define some missing GDB commands, add them to Hydra keys, and define some
+There is no better than using pure GDB, it makes debugging extremely flexible.
+Let's define some missing GDB commands, add them to Hydra keys, and define some
 reverse debugging commands for usage with [[https://rr-project.org][rr]] (which we can use by substituting
-=gdb= by =rr replay= when starting the session).
+=gdb= by =rr replay= when starting a debug session).
 
 #+begin_src emacs-lisp
 (after! realgud
@@ -4016,7 +4017,7 @@ a list of string arguments to pass to the program.
 (defvar +realgud:launch-plist nil)
 #+end_src
 
-This variable is set in a per-project basis thanks to =.dir-locals.el=, some thing
+This variable is set in a per-project basis thanks to =.dir-locals.el=, something
 like this:
 
 #+begin_src lisp-data :tangle no
@@ -4100,10 +4101,10 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
 #+end_src
 
 *** GDB :gdb:
-**** Emacs GDB :gdb:
+**** Emacs GDB /a.k.a./ =gdb-mi= :gdb:
 DAP mode is great, however, it is not mature for C/C++ debugging, it does not
-support some basic features like /Run until cursor/, /Show disassembled code/...
-etc. Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+support some basic features like /Run until cursor/, /Show disassembled code/, etc.
+Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
 
 The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
 to it's C module), and it defines some easy to use UI, with Visual Studio like
@@ -4600,9 +4601,9 @@ default.
 #+end_src
 
 Babel is really annoying when it comes to working with Scheme (via Geiser), it
-keeps asking about which Scheme implementation to use, I tried to set this in
-file local variables (with the src_org{# -*- geiser-scheme-implementation:
-'guile; -*-}) and dir-locals but it didn't work. This should work now!
+keeps asking about which Scheme implementation to use, I tried to set this as a
+local variable (using src_org{# -*- geiser-scheme-implementation: 'guile; -*-})
+and =.dir-locals.el=, but it didn't work. This hack should solve the problem now!
 
 #+begin_src emacs-lisp
 ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
@@ -4612,7 +4613,7 @@ file local variables (with the src_org{# -*- geiser-scheme-implementation:
 (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 #+end_src
 
-***** Visual line / auto fill
+***** Visual line & autofill
 By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
 However, this messes with tables in Org-mode, and other plain text files (e.g.
 markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
@@ -4785,7 +4786,7 @@ I store my =org-gcal= configuration privately, it contains something like this:
 #+end_src
 
 ***** TODO CalDAV :calendar:caldav:
-Need to be configured, see the [[https://github.com/dengste/org-caldav][github repo]].
+Need to be configured, see the [[https://github.com/dengste/org-caldav][GitHub repo]].
 
 #+begin_src emacs-lisp
 (use-package! caldav
@@ -4801,7 +4802,7 @@ Set capture files
       +org-capture-projects-file (expand-file-name "projects.org" org-directory))
 #+end_src
 
-Lets set up some org-capture templates, and make them visually nice to access.
+Let's set up some =org-capture= templates, and make them visually nice to access.
 
 #+begin_src emacs-lisp
 (use-package! doct
@@ -5632,8 +5633,14 @@ let's make it transparent.
 
 ***** Better equation numbering
 Numbered equations all have (1) as the number for fragments with vanilla
-org-mode. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews
-so they look good. *Not working right now!*
+=org-mode=. This code (from [[https://github.com/jkitchin/scimax][scimax]]) injects the correct numbers into the previews,
+so they look good.
+
+#+begin_quote
+This hack is not properly working right now!, it seems to work only with =align=
+blocks. *NEEDS INVESTIGATION.*
+#+end_quote
+
 
 #+begin_src emacs-lisp
 (defun +scimax-org-renumber-environment (orig-func &rest args)
@@ -5917,13 +5924,13 @@ Use Org as LaTeX!
 
 *** Exporting
 **** General settings
-By default Org only exports the first three levels of headings as ... headings.
+By default, Org only exports the first three levels of headings as ... headings.
 This is rather unfortunate as my documents frequently stray far beyond three
 levels of depth. The two main formats I care about exporting to are LaTeX and
 HTML. When using an =article= class, LaTeX headlines go from =\section=,
-=\subsection=, =\subsubsection=, and =\paragraph= to =\subgraph= --- /five/ levels.
-HTML5 has six levels of headings (=<h1>= to =<h6>=), but first level Org headings
-get exported as ~<h2>~ elements --- leaving /five/ usable levels.
+=\subsection=, =\subsubsection=, and =\paragraph= to =\subgraph= --- /five/ levels. HTML5
+has six levels of headings (=<h1>= to =<h6>=), but first level Org headings get
+exported as ~<h2>~ elements - leaving /five/ usable levels.
 
 As such, it would seem to make sense to recognize the first /five/ levels of Org
 headings when exporting.
@@ -5953,9 +5960,9 @@ the creator string.
 
 **** LaTeX export
 ***** Compiling
-By default Org uses ~pdflatex~ \times 3 + ~bibtex~. This simply won't do in our
-modern world. ~latexmk~ + ~biber~ (which is used automatically with ~latexmk~) is a
-simply superior combination.
+By default, Org uses the classical ~pdflatex~ \times 3 + ~bibtex~. This simply won't
+do in our modern world. ~latexmk~ + ~biber~ (which is used automatically with
+~latexmk~) is a simply superior combination.
 
 #+begin_src emacs-lisp
 ;; `org-latex-compilers' contains a list of possible values ("pdflatex" "xelatex" "lualatex")
@@ -6097,8 +6104,8 @@ simply superior combination.
 #+end_src
 
 ***** Export multi-files Org documents
-Lets say we have a multi-files document, with =main.org= as the entry point.
-Supposing we have a structure like this:
+Let's say we have a multi-files document, with =main.org= as the entry point.
+Supposing a document with a structure like this:
 
 #+name: multi-files-org
 #+begin_src dot :results value file graphics :file "assets/multi-files-org.svg" :exports none
@@ -6121,12 +6128,12 @@ digraph G {
 #+attr_latex: :width 0.55\linewidth
 [[file:assets/multi-files-org.svg]]
 
-Files =intro.org=, =chap1.org=, ... are included in =main.org= like src_org{#+include:
-chapt1.org}. Most of the time, we will spent our time writing in a chapter
-files, and not the =main.org=, and if we want to export the document, we need to
-open and export the =main.org= file.
+Files =intro.org=, =chap1.org=, ... are included in =main.org= using the Org command
+src_org{#+include: chapt1.org}. In such a setup, we will spend most of our time
+writing in a chapter files, and not the =main.org=, where when want to export the
+document, we would need to open the top-level file =main.org= before exporting.
 
-A solution to this is *to admit the convention* of:
+A solution to this is *to admit the following convention*:
 
 #+begin_quote
 If a file named =main.org= is present beside any other Org file, it should be
@@ -6135,7 +6142,7 @@ Org files like: =intro.org=, =chap1.org=, ...), we automatically jump to the
 =main.org=, and run the export there.
 #+end_quote
 
-This can be achieved by adding an advice around the
+This can be achieved by adding an Emacs-Lisp /advice/ around the
 src_elisp{(org-latex-export-to-pdf)} to switch to =main.org= (if it exists) before
 running the export.
 
@@ -7333,10 +7340,11 @@ set startup-quietly
 
 *** Init
 GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
-this file, this is a WIP, but won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to keep
-the =.gdbinit= simple]]. For the moment, it does just enable pretty printing,
-and defines =c= and =n= commands to wrap =continue= and =next= with a post =refresh=, this
-is just to avoid the annoying TUI when the program outputs to the stdout.
+this file, this is a WIP, but it won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to
+keep the =.gdbinit= clean and simple]]. For the moment, it does just enable pretty
+printing, and defines the =c= and =n= commands to wrap =continue= and =next= with a post
+=refresh=, which is helpful with the annoying TUI when the program outputs to the
+stdout.
 
 #+begin_src gdb-script :tangle ~/.gdbinit :noweb no-export
 # GDB init file
@@ -7362,22 +7370,26 @@ define nn
 end
 
 guile
+# The code from the next sub-section is will be included here
 <<guile-check-for-script>>
 end
 #+end_src
 
-**** WIP: Guile Scheme per program/project script
-I often debug programs with a lot of arguments, I like to be able to set the
-arguments and the binary file to be launched in a per project script (currently
-using Guile Scheme). This bit of code checks if the =gdb.scm= file exists in
-the working directory, and if so, loads it.
+**** WIP: Guile Scheme per-program or per-project script
+I often debug programs with a lot of arguments, I would like to be able to set
+the arguments and the binary file to be launched in a per-project basis. GDB
+support scripting in GDB Script, Python and Guile Scheme (currently I'm using
+the latter).
 
-A more flexible way is to provide a per program config files (to debug a program
-named =fft=, I like to create a script named =fft.scm= which gets loaded after the
-file). The following is a WIP, for the moment, I need to call my custom command
-=dbg-guile= when GDB done loading symbols from the file, otherwise, the used
-=(current-progspace)= returns an object with no filename. I need a mechanism to
-hook the =(dbg-find-and-load)= to GDB's load file functionality.
+This bit of code checks if the =gdb.scm= file exists in the working directory, and
+if so, loads it.
+
+A more flexible way is to provide per-program configuration files (to debug a
+program named =fft=, I like to create a script named =fft.scm= which gets loaded
+after the file). The following is a WIP, for the moment, I need to call my
+custom command =dbg-guile= when GDB done loading symbols from the file, otherwise,
+the used =(current-progspace)= returns an object with no filename. I need a
+mechanism to hook the =(dbg-find-and-load)= to GDB's load file functionality.
 
 #+name: guile-check-for-script
 #+begin_src scheme :tangle no :output no :exports code
@@ -7452,12 +7464,12 @@ check_and_install_pkg beamer-theme-metropolis
 #+end_src
 
 ** KDE Plasma :kde:
-On KDE, there is a good support for HiDPI displays, however, an annoying thing
-is the small icons in some contexts (for example, a right click on desktop).
-[[https://www.reddit.com/r/kde/comments/o8bb4s/comment/h33z7bp/?utm_source=share&utm_medium=web2x&context=3][This can be fixed]] by setting ~PLASMA_USE_QT_SCALING=1~. KDE sources the files
-with =.sh= extension found on =~/.config/plasma-workspace/env=, so lets create
-our's.
+On KDE, there is a good support for HiDPI displays, however, I faced annoying
+small icons in some contexts (for example, a right click on desktop). [[https://www.reddit.com/r/kde/comments/o8bb4s/comment/h33z7bp/?utm_source=share&utm_medium=web2x&context=3][This can
+be fixed]] by setting ~PLASMA_USE_QT_SCALING=1~ before starting KDE Plasma. KDE
+sources the files with =.sh= extension found on =~/.config/plasma-workspace/env=, so
+let's create ours.
 
-#+begin_src shell :tangle ~/.config/plasma-workspace/env/fix_scaling.sh :mkdirp yes
-# export PLASMA_USE_QT_SCALING=1
+#+begin_src shell :tangle (if nil "~/.config/plasma-workspace/env/fix_scaling.sh" "no") :mkdirp yes
+export PLASMA_USE_QT_SCALING=1
 #+end_src
