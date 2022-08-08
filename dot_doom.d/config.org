@@ -118,11 +118,7 @@ some special stuff which I want to load very early.
 *** Fixes
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
-;; Fix for #2386 until further investigation
-;; From https://git.sr.ht/~gagbo/doom-config
-(when noninteractive
-  (after! undo-tree
-    (global-undo-tree-mode -1)))
+;; Fixes to apply early
 #+end_src
 
 *** Useful functions
