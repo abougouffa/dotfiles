@@ -151,7 +151,7 @@ some special stuff which I want to load very early.
 ;; (+some '(nil nil "text" nil 2))
 ;; --> t
 (defun +some (seq)
-  (+bool (+foldr (lambda (r l) (or r l)) t seq)))
+  (+bool (+foldr (lambda (r l) (or r l)) nil seq)))
 
 ;; (+filter 'stringp '("A" 2 "C" nil 3))
 ;; --> ("A" "C")
