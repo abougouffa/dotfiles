@@ -122,12 +122,14 @@ some special stuff which I want to load very early.
 #+end_src
 
 *** Useful functions
+Here we define some useful functions, some of them are available via other
+packages like ~cl-lib~, ~dash.el~ or ~s.el~, but I don't like to load too much third
+party libraries, particulary in early stage, so let's define here.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
+;; (+bool "someval")
+;; --> t
 (defun +bool (val) (not (null val)))
-
-;; Some useful higher order functions
-;; From https://caiorss.github.io/Emacs-Elisp-Programming/Elisp_Programming.html#sec-1-15
 
 ;; (+foldr (lambda (a b) (message "(%d + %d)" a b) (+ a b)) 0 '(1 2 3 4 5))
 ;; --> 15
@@ -162,6 +164,20 @@ some special stuff which I want to load very early.
       (if (funcall fun head)
           (cons head (+filter fun tail))
         (+filter fun tail)))))
+
+;; (+str-join ", " '("foo" "10" "bar"))
+;; --> "foo, 10, bar"
+(defun +str-join (sep seq)
+  (+foldl (lambda (l r) (concat l sep r))
+          (car seq) (cdr seq)))
+
+;; (+str-split "foo, 10, bar" ", ")
+;; --> ("foo" "10" "bar")
+(defun +str-split (str sep)
+  (let ((s (string-search sep str)))
+    (if s (cons (substring str 0 s)
+                (+str-split (substring str (+ s (length sep))) sep))
+      (list str))))
 
 ;; (+zip '(1 2 3 4) '(a b c d) '("A" "B" "C" "D"))
 ;; --> ((1 a "A") (2 b "B") (3 c "C") (4 d "D"))
