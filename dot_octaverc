@@ -6,4 +6,5 @@
 ## This file contains commands that should be executed each time Octave starts
 ## for every user at this site.
 
-pkg prefix "~/sources-and-libs/octave";
+# When I run `pkg install something`, I want it to go to this directory
+pkg prefix "~/Softwares/octave";
