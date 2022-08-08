@@ -323,10 +323,10 @@ doom-dashboard
 hl-todo
 hydra
 modeline
-vc-gutter
 zen
 ophints
 nav-flash
+(vc-gutter +diff-hl +pretty)
 (window-select +numbers)
 (ligatures +extra)
 (popup +all +defaults)
