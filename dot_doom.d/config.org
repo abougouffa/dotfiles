@@ -447,7 +447,7 @@ coq
 (ess +lsp)
 (yaml +lsp)
 (sh +lsp +tree-sitter)
-(python +lsp +pyenv +conda +pyright +tree-sitter)
+(python +lsp +pyenv +pyright +tree-sitter)
 (racket +lsp +xp)
 (scheme +mit +guile +racket +chez +gambit +gauche +chibi +chicken)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
