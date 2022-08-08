@@ -4507,7 +4507,7 @@ For editing systemd unit files.
 #+begin_src emacs-lisp :tangle yes
 (use-package! pkgbuild-mode
   :commands (pkgbuild-mode)
-  :mode ("/PKGBUILD$"))
+  :mode "/PKGBUILD$")
 #+end_src
 
 ** Franca IDL :franca:
@@ -4584,7 +4584,7 @@ description language (~*.dot~ / ~*.gv~ files).
 #+begin_src emacs-lisp
 (use-package! mermaid-mode
   :commands mermaid-mode
-  :mode ("\\.mmd\\'"))
+  :mode "\\.mmd\\'")
 
 (use-package! ob-mermaid
   :after org
