@@ -1697,20 +1697,23 @@ lambdas with the greek symbol λ, however, this cause miss formatting and
 sometimes messes up with the parenthesis, so let's disable ligatures on Lisps.
 
 #+begin_src emacs-lisp
+(defun +appened-to-negation-list (head tail)
+  (if (sequencep head)
+    (delete-dups
+     (if (eq (car tail) 'not)
+         (append head tail)
+       (append tail head)))
+    tail))
+
 (setq +ligatures-extras-in-modes
-      (if (and (listp +ligatures-extras-in-modes)
-               (eq 'not (car +ligatures-extras-in-modes)))
-          (delete-dups
-           (append +ligatures-extras-in-modes
-                   '(c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
-        '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+      (+appened-to-negation-list
+       +ligatures-extras-in-modes
+       '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
 
 (setq +ligatures-in-modes
-      (if (and (listp +ligatures-in-modes)
-               (eq 'not (car +ligatures-in-modes)))
-          (delete-dups
-           (append +ligatures-in-modes '(emacs-lisp-mode scheme-mode racket-mode)))
-        '(not emacs-lisp-mode scheme-mode racket-mode)))
+      (+appened-to-negation-list
+       +ligatures-in-modes
+       '(not emacs-lisp-mode scheme-mode racket-mode)))
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
