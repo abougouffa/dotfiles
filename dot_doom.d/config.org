@@ -3169,7 +3169,7 @@ I configure my email accounts in a private file in
         +mu4e-min-header-frame-width 142
         mu4e-headers-date-format "%d/%m/%y"
         mu4e-headers-time-format "⧖ %H:%M"
-        mu4e-headers-results-limit 1000
+        mu4e-search-results-limit 1000
         mu4e-index-cleanup t)
 
   (defvar +mu4e-header--folder-colors nil)
