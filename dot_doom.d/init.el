@@ -59,22 +59,22 @@
   (spell +aspell)
 
   :tools
-  direnv
-  editorconfig
   ein
-  gist
-  make
   pdf
   rgb
+  gist
+  make
   tmux
+  direnv
   upload
+  tree-sitter
+  editorconfig
   (lsp +peek)
-  (debugger +lsp)
   (docker +lsp)
+  (magit +forge)
+  (debugger +lsp)
   (eval +overlay)
   (lookup +docsets +dictionary +offline)
-  (magit +forge)
-  tree-sitter
 
   :os
   (tty +osc)

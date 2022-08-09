@@ -13,7 +13,12 @@
       password-cache-expiry 86400)
 
 ;; Set my GPG key as the default key
-(setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
+(after! epa
+  ;; Doom sets this to `loopback' to prompt for password in the minibuffer
+  ;; however, as I'm using the Daemon and I'm starting `mu4e' at startup,
+  ;; I need to see the dialog box, instead of a password in the background.
+  (set epg-pinentry-mode (if (daemonp) 'ask 'loopback))
+  (setq-default epa-file-encrypt-to '("F808A020A3E1AC37")))
 ;; Secrets:1 ends here
 
 ;; [[file:config.org::*File deletion][File deletion:1]]
@@ -130,12 +135,12 @@
       doom-serif-font (font-spec :family "Input Serif" :weight 'light))
 ;; Font:1 ends here
 
-;; [[file:config.org::*Theme][Theme:1]]
+;; [[file:config.org::*Doom][Doom:1]]
 (setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
-;; Theme:1 ends here
+;; Doom:1 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
@@ -465,6 +470,7 @@ is binary, activate `hexl-mode'."
       '("/tmp"
         "~/"
         "~/.cache"
+        "~/.doom.d"
         "~/.emacs.d/.local/straight/repos/"))
 
 (setq +projectile-ignored-roots
@@ -610,7 +616,7 @@ current buffer's, reload dir-locals."
 
   :config
   ;; Required unless vhdl_ls is on the $PATH
-  (setq lsp-vhdl-server-path "~/Projects/foss/rust_hdl/target/release/vhdl_ls"
+  (setq lsp-vhdl-server-path "~/Projects/foss/repos/rust_hdl/target/release/vhdl_ls"
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
   (require 'lsp-vhdl))
@@ -979,6 +985,51 @@ current buffer's, reload dir-locals."
         '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
           ("motherTongue" . "ar"))))
 ;; Flycheck:2 ends here
+
+;; [[file:config.org::*Google Translate][Google Translate:2]]
+(use-package! go-translate
+  :commands (gts-do-translate
+             +gts-yank-translated-region)
+  :init
+  ;; Your languages pairs
+  (setq gts-translate-list '(("en" "fr")
+                             ("en" "ar")
+                             ("fr" "en")
+                             ("fr" "ar")))
+
+  (map! :localleader
+      :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
+      :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+
+  :config
+  ;; Config the default translator, which will be used by the command `gts-do-translate'
+  (setq gts-default-translator
+        (gts-translator
+         ;; Used to pick source text, from, to. choose one.
+         :picker
+         (gts-prompt-picker)
+
+         ;; One or more engines.
+         ;; Provide a parser to give different output.
+         :engines (list
+                   (gts-bing-engine)
+                   (gts-google-engine :parser (gts-google-summary-parser)))
+
+         ;; (gts-deepl-engine :auth-key (funcall (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1)) :secret))
+         ;;               :pro nil)
+
+         ;; Render, only one, used to consumer the output result.
+         :render
+         (gts-buffer-render)))
+
+  (defun +gts-yank-translated-region ()
+    (interactive)
+    (gts-translate (gts-translator
+                    :picker (gts-noprompt-picker)
+                    :engines (list (gts-google-engine)
+                                   (gts-bing-engine))
+                    :render (gts-kill-ring-render)))))
+;; Google Translate:2 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:2]]
 (use-package! disk-usage
@@ -1607,7 +1658,6 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):2]]
 (after! mu4e
   (require 'org-msg)
-  (require 'smtpmail)
   (require 'mu4e-contrib)
   (require 'mu4e-icalendar)
   (require 'org-agenda)
@@ -1628,7 +1678,6 @@ current buffer's, reload dir-locals."
         message-sendmail-envelope-from 'header
         message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
         message-send-mail-function #'message-send-mail-with-sendmail
-        send-mail-function #'smtpmail-send-it
         mail-specify-envelope-from t
         mail-envelope-from 'header)
 
@@ -1671,7 +1720,7 @@ current buffer's, reload dir-locals."
   (when (bound-and-true-p +my-addresses)
     ;; I like always to add myself in BCC, Lets add a bookmark to show all my BCC mails
     (defun +mu-long-query (query oper arg-list)
-      (concat "(" (s-join (concat " " oper " ") (mapcar (lambda (addr) (format "%s:%s" query addr)) arg-list)) ")"))
+      (concat "(" (+str-join (concat " " oper " ") (mapcar (lambda (addr) (format "%s:%s" query addr)) arg-list)) ")"))
 
     ;; Build a query to match mails send from "me" with "me" in BCC
     (let ((bcc-query (+mu-long-query "bcc" "or" +my-addresses))
@@ -1684,10 +1733,14 @@ current buffer's, reload dir-locals."
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
 
-  (defun +mu4e-alert-grouped-mail-notif-formatter (mail-group _all-mails)
-    "Default function to format MAIL-GROUP for notification.
+  (defun +mu4e-alert-helper-name-or-email (msg)
+    (let* ((from (car (plist-get msg :from)))
+           (name (plist-get from :name)))
+      (if (or (null name) (eq name ""))
+          (plist-get from :email)
+        name)))
 
-_ALL-MAILS are the all the unread emails."
+  (defun +mu4e-alert-grouped-mail-notif-formatter (mail-group _all-mails)
     (when +mu4e-alert-bell-cmd
       (start-process "mu4e-alert-bell" nil (car +mu4e-alert-bell-cmd) (cdr +mu4e-alert-bell-cmd)))
     (let* ((filtered-mails (+filter
@@ -1706,15 +1759,10 @@ _ALL-MAILS are the all the unread emails."
                (mapcar
                 (lambda (msg)
                   (format "<b>%s</b>: %s"
-                          (let* ((from (car (plist-get msg :from)))
-                                 (name (plist-get from :name)))
-                            (if (or (null name) (eq name ""))
-                                (plist-get from :email)
-                              name))
+                          (+mu4e-alert-helper-name-or-email msg)
                           (plist-get msg :subject)))
                 filtered-mails))))))
 
-  ;; (mu4e-alert-set-default-style 'notifications)
   (setq mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
 
   ;; Org-Msg stuff
