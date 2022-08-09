@@ -2890,22 +2890,54 @@ echo "Y\n" | netExtender --auto-reconnect \
 #+end_src
 
 ** Email =mu4e= :mail:mu4e:
-Configuring =mu4e= email accounts, note that you need to have a proper
-=mbsyncrc= file in the right directory.
+Configuring =mu4e= as email client needs three parts:
+- Incoming mail configuration IMAP (using =mbsync=)
+- Outgoing mail configuration SMTP (using =smtpmail= or =msmtp=)
+- Email indexer and viewer (via =mu= and =mu4e=)
 
-*** mbsync
+*** IMAP (=mbsync=)
 You will need to:
 - Install =mu= and =isync= (=sudo pacman -S mu isync=)
 - Set up a proper configuration file for your accounts at =~/.mbsyncrc=
 - Run =mu init --maildir=~/Maildir --my-address=user@host1 --my-address=user@host2=
 - Run =mbsync -c ~/.mbsyncrc -a=
 - For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
-  this format =machine MAIL.DOMAIN.TLD port 587 login USER password PASSWD=
+  this format =machine MAIL.DOMAIN.TLD login USER port 587 password PASSWD=
 - Encrypt the =~/.authinfo= file using GPG =gpg -c ~/.authinfo= and delete the
   original unencrypted file.
 
 I use a =mbsyncrc= file for multi-accounts, with some hacks for Gmail accounts (to
 rename the =[Gmail]/...= folders). Here is an explained configuration example.
+
+In the configuration file, there is an parameter named =Pass= which should be set
+to the password in plain text. Most of the examples you can find online uses
+this parameter, but in real life, nobody uses it, it is extremely unsafe to put
+the password in plain text configuration file. Instead, =mbsync= configuration
+file provides the alternative =PassCmd= parameter, which can be set to an
+arbitrary shell command which gets the password for you. You can set it for
+example to call the =pass= password manager to output the account password, or to
+=bw= command (for Bitwarden users). For me, I'm using it with Emacs'
+=~/.authinfo.gpg=, the =PassCmd= in my configuration uses GPG and =awk= to decrypt and
+filter the file content to find the required account's password. I set =PassCmd=
+to something like this:
+
+
+#+begin_src shell :tangle no
+gpg -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg | awk '/machine smtp\.googlemail\.com login username@gmail\.com/ {print $NF}'
+#+end_src
+
+Remember the line format in the =~/.authinfo.gpg= file:
+
+#+begin_src authinfo
+machine smtp.googlemail.com login username@gmail.com port 587 password PASSWD
+#+end_src
+
+This =PassCmd= command above, decrypts the =~/.authinfo.gpg=, passes it to =awk= to
+search the line containing ="machine smtp.googlemail.com login
+username@gmail.com"= and prints the last field (the last field =$NF= in the =awk=
+command corresponds to the password, as you can see in the line format).
+
+The whole =~/.mbsync= file should look like this:
 
 #+begin_src conf-space :tangle no
 # mbsync config file
@@ -3032,21 +3064,23 @@ Channel gmail-spam
 # END OF SECTION
 #+end_src
 
-*** msmtp
+*** SMTP (=msmtp=)
 I was using the standard =smtpmail= to send mails; but recently, I'm getting
 problems when sending mails. I passed a whole day trying to fix mail sending for
 one of my accounts, at the end of the day, I got a working setup; BUT, sending
 the first mail always ask me about password! I need to enter the password to be
 able to send the mail, Emacs asks me then if I want to save it to
-=~/.authifo.gpg=, when I confirm saving it, it got duplicated in the =authinfo.gpg=
+=~/.authifo.gpg=, when I confirm saving it, it got duplicated in the =.authinfo.gpg=
 file.
 
-This seems to be a bug; and I found somewhere that =smtpmai= is buggy, and that
-=msmtp= seems to be a good alternative, so now I'm using a =msmtp=-based setup.
+This seems to be a bug; I also found somewhere that =smtpmail= is buggy, and that
+=msmtp= seems to be a good alternative, so now I'm using a =msmtp=-based setup, and
+it works like a charm!
 
 For this, we will need an additional configuration file, =~/.msmtprc=, I configure
-it the same way as =mbsync=, I extract the passwords from =~/.authinfo.gpg= using
-GPG and =awk=.
+it the same way as =mbsync=, specifying this time SMTP servers instead of IMAP
+ones. I extract the passwords from =~/.authinfo.gpg= using GPG and =awk=, the same
+way we did in =mbsync='s configuration.
 
 The following is a sample file =~/.msmtprc=.
 
@@ -3087,7 +3121,7 @@ passwordeval            "gpg -q --for-your-eyes-only --no-tty --logger-file /dev
 tls_nocertcheck # ignore TLS certificate errors
 #+end_src
 
-*** mu4e
+*** Mail client and indexer (=mu= and =mu4e=)
 Add =mu4e= to path if it exists on the file system.
 
 #+begin_src emacs-lisp :tangle (if (file-directory-p "/usr/local/share/emacs/site-lisp/mu4e") "yes" "no")
