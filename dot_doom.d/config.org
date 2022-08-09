@@ -3194,7 +3194,6 @@ I configure my email accounts in a private file in
 #+begin_src emacs-lisp
 (after! mu4e
   (require 'org-msg)
-  (require 'smtpmail)
   (require 'mu4e-contrib)
   (require 'mu4e-icalendar)
   (require 'org-agenda)
@@ -3215,7 +3214,6 @@ I configure my email accounts in a private file in
         message-sendmail-envelope-from 'header
         message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
         message-send-mail-function #'message-send-mail-with-sendmail
-        send-mail-function #'smtpmail-send-it
         mail-specify-envelope-from t
         mail-envelope-from 'header)
 
