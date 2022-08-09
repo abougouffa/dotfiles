@@ -4635,6 +4635,17 @@ description language (~*.dot~ / ~*.gv~ files).
   :after graphviz-dot-mode)
 #+end_src
 
+** Modula-II
+Gaius Mulley is doing a great job, bringing Modula-II support to GCC, he also
+created a new mode for Modula-II with extended features. The mode is included
+with the GNU Modula 2 source code, and can be downloaded separately from the Git
+repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-versionno/gcc/m2/el/gm2-mode.el][gm2-mode.el]].
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! gm2-mode
+  :recipe (:local-repo "lisp/gm2-mode"))
+#+end_src
+
 ** Mermaid :graph:mermaid:
 
 #+begin_src emacs-lisp :tangle packages.el
