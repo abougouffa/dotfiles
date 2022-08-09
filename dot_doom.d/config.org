@@ -6157,23 +6157,28 @@ do in our modern world. ~latexmk~ + ~biber~ (which is used automatically with
 #+end_src
 
 ***** Export PDFs with syntax highlighting
+This is for code syntax highlighting in export. You need to use =-shell-escape=
+with latex, and install the =python-pygments= package.
 
 #+begin_src emacs-lisp
-;; this is for code syntax highlighting in export. you need to use
-;; -shell-escape with latex, and install pygments.
-;; (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+(add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+
+;; Should be configured per document, as a local variable
+;; (setq org-latex-listings 'minted)
 ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
 
-;; (setq org-latex-listings 'minted) ;; Per document, in local variables
-(setq org-latex-minted-options '(("frame" "lines")
-                                 ("fontsize" "\\footnotesize")
-                                 ("tabsize" "2")
-                                 ("breaklines" "")
-                                 ("breakanywhere" "") ;; break anywhere, no just on spaces
-                                 ("style" "default")
-                                 ("bgcolor" "GhostWhite")
-                                 ("linenos" "")))
+(setq org-latex-minted-options '(("frame"          "lines")
+                                 ("fontsize"       "\\footnotesize")
+                                 ("tabsize"        "2")
+                                 ("breaklines"     "")
+                                 ("breakanywhere"  "") ;; break anywhere, no just on spaces
+                                 ("style"          "default")
+                                 ("bgcolor"        "GhostWhite")
+                                 ("linenos"        "")))
 
+;; Link some org-mode blocks languages to lexers supported by minted
+;; via (pygmentize), you can see supported lexers by running this command
+;; in a terminal: `pygmentize -L lexers'
 (dolist (pair '((ipython    "python")
                 (jupyter    "python")
                 (scheme     "scheme")
@@ -6181,10 +6186,11 @@ do in our modern world. ~latexmk~ + ~biber~ (which is used automatically with
                 (conf       "ini")
                 (conf-unix  "unixconfig")
                 (conf-space "unixconfig")
+                (authinfo   "unixconfig")
                 (conf-toml  "yaml")
                 (gitconfig  "ini")
                 (systemd    "ini")
-                (gdb-script "text")))
+                (gdb-script "unixconfig")))
   (unless (member pair org-latex-minted-langs)
     (add-to-list 'org-latex-minted-langs pair)))
 #+end_src
