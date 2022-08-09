@@ -1323,6 +1323,7 @@ wrapper function which calls Doom's one, with an extra check.
       '("/tmp"
         "~/"
         "~/.cache"
+        "~/.doom.d"
         "~/.emacs.d/.local/straight/repos/"))
 
 (setq +projectile-ignored-roots
