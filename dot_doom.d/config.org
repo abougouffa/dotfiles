@@ -715,6 +715,7 @@ Some good fonts:
 #+end_src
 
 *** Theme :theme:
+**** Doom
 Set Doom's theme, some good choices:
 - =doom-palenight=
 - =doom-one=
