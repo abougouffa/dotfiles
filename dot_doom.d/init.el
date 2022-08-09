@@ -21,10 +21,10 @@
   hl-todo
   hydra
   modeline
-  vc-gutter
   zen
   ophints
   nav-flash
+  (vc-gutter +diff-hl +pretty)
   (window-select +numbers)
   (ligatures +extra)
   (popup +all +defaults)
@@ -96,7 +96,7 @@
   (ess +lsp)
   (yaml +lsp)
   (sh +lsp +tree-sitter)
-  (python +lsp +pyenv +conda +pyright +tree-sitter)
+  (python +lsp +pyenv +pyright +tree-sitter)
   (racket +lsp +xp)
   (scheme +mit +guile +racket +chez +gambit +gauche +chibi +chicken)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)

@@ -362,6 +362,11 @@
 (package! graphviz-dot-mode)
 ;; Graphviz:1 ends here
 
+;; [[file:config.org::*Modula-II][Modula-II:1]]
+(package! gm2-mode
+  :recipe (:local-repo "lisp/gm2-mode"))
+;; Modula-II:1 ends here
+
 ;; [[file:config.org::*Mermaid][Mermaid:1]]
 (package! mermaid-mode)
 

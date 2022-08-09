@@ -3,18 +3,13 @@
 ;; Pseudo early-init:1 ends here
 
 ;; [[file:config.org::*Fixes][Fixes:1]]
-;; Fix for #2386 until further investigation
-;; From https://git.sr.ht/~gagbo/doom-config
-(when noninteractive
-  (after! undo-tree
-    (global-undo-tree-mode -1)))
+;; Fixes to apply early
 ;; Fixes:1 ends here
 
 ;; [[file:config.org::*Useful functions][Useful functions:1]]
+;; (+bool "someval")
+;; --> t
 (defun +bool (val) (not (null val)))
-
-;; Some useful higher order functions
-;; From https://caiorss.github.io/Emacs-Elisp-Programming/Elisp_Programming.html#sec-1-15
 
 ;; (+foldr (lambda (a b) (message "(%d + %d)" a b) (+ a b)) 0 '(1 2 3 4 5))
 ;; --> 15
@@ -38,7 +33,7 @@
 ;; (+some '(nil nil "text" nil 2))
 ;; --> t
 (defun +some (seq)
-  (+bool (+foldr (lambda (r l) (or r l)) t seq)))
+  (+bool (+foldr (lambda (r l) (or r l)) nil seq)))
 
 ;; (+filter 'stringp '("A" 2 "C" nil 3))
 ;; --> ("A" "C")
@@ -49,6 +44,20 @@
       (if (funcall fun head)
           (cons head (+filter fun tail))
         (+filter fun tail)))))
+
+;; (+str-join ", " '("foo" "10" "bar"))
+;; --> "foo, 10, bar"
+(defun +str-join (sep seq)
+  (+foldl (lambda (l r) (concat l sep r))
+          (car seq) (cdr seq)))
+
+;; (+str-split "foo, 10, bar" ", ")
+;; --> ("foo" "10" "bar")
+(defun +str-split (str sep)
+  (let ((s (string-search sep str)))
+    (if s (cons (substring str 0 s)
+                (+str-split (substring str (+ s (length sep))) sep))
+      (list str))))
 
 ;; (+zip '(1 2 3 4) '(a b c d) '("A" "B" "C" "D"))
 ;; --> ((1 a "A") (2 b "B") (3 c "C") (4 d "D"))
@@ -65,7 +74,7 @@
 
 (defconst AG-P (+bool (executable-find "ag")))
 (defconst EAF-P (+bool (and (not IS-LUCID) (file-directory-p EAF-DIR))))
-(defconst MPD-P (+all (mapcar 'executable-find '("mpc" "mpd"))))
+(defconst MPD-P (+all (mapcar #'executable-find '("mpc" "mpd"))))
 (defconst MPV-P (+bool (executable-find "mpv")))
 (defconst REPO-P (+bool (executable-find "repo")))
 (defconst FRICAS-P (+bool (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs"))))
@@ -74,9 +83,9 @@
 (defconst ROSBAG-P (+bool (executable-find "rosbag")))
 (defconst ZOTERO-P (+bool (executable-find "zotero")))
 (defconst CHEZMOI-P (+bool (executable-find "chezmoi")))
-(defconst ECRYPTFS-P (+all (mapcar 'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
+(defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
 (defconst BITWARDEN-P (+bool (executable-find "bw")))
-(defconst YOUTUBE-DL-P (+bool (+some (mapcar 'executable-find '("yt-dlp" "youtube-dl")))))
+(defconst YOUTUBE-DL-P (+bool (+some (mapcar #'executable-find '("yt-dlp" "youtube-dl")))))
 (defconst NETEXTENDER-P (+bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
 (defconst CLANG-FORMAT-P (+bool (executable-find "clang-format")))
 (defconst LANGUAGETOOL-P (+bool (and (executable-find "languagetool") (string-match "\\(?:MANJARO\\|ARCH\\)" operating-system-release))))

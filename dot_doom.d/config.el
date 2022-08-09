@@ -25,6 +25,17 @@
 (setq-default window-combination-resize t)
 ;; Window:1 ends here
 
+;; [[file:config.org::*Split defaults][Split defaults:1]]
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+;; Split defaults:1 ends here
+
+;; [[file:config.org::*Split defaults][Split defaults:2]]
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (consult-buffer))
+;; Split defaults:2 ends here
+
 ;; [[file:config.org::*Messages buffer][Messages buffer:1]]
 (defvar +messages-buffer-auto-tail--enabled nil)
 
@@ -62,17 +73,6 @@
          (message "+messages-buffer-auto-tail: Enabled."))))
 ;; Messages buffer:1 ends here
 
-;; [[file:config.org::*Split defaults][Split defaults:1]]
-(setq evil-vsplit-window-right t
-      evil-split-window-below t)
-;; Split defaults:1 ends here
-
-;; [[file:config.org::*Split defaults][Split defaults:2]]
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (consult-buffer))
-;; Split defaults:2 ends here
-
 ;; [[file:config.org::*Undo and auto-save][Undo and auto-save:1]]
 (setq undo-limit 80000000   ;; Raise undo-limit to 80Mb
       evil-want-fine-undo t ;; By default while in insert all changes are one big blob. Be more granular
@@ -99,24 +99,21 @@
 
 ;; [[file:config.org::*Initialization][Initialization:1]]
 (defun +greedily-do-daemon-setup ()
-  (require 'org)
   ;; mu4e
-  (when (and (featurep! :email mu4e) (require 'mu4e nil t))
-    (setq mu4e-confirm-quit t
-          +mu4e-lock-greedy t
-          +mu4e-lock-relaxed t)
-    (+mu4e-lock-start 'mu4e--start))
+  (when (require 'mu4e nil t)
+    (setq mu4e-confirm-quit t)
+    (mu4e--start))
 
   ;; RSS
-  (when (and (featurep! :app rss) (require 'elfeed nil t))
+  (when (require 'elfeed nil t)
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
   (add-hook! 'server-after-make-frame-hook
-    #'doom/reload-theme
-    (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-      (switch-to-buffer +doom-dashboard-name))))
+             #'doom/reload-theme
+             (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
+               (switch-to-buffer +doom-dashboard-name))))
 ;; Initialization:1 ends here
 
 ;; [[file:config.org::*Save recent files][Save recent files:1]]
@@ -205,12 +202,13 @@
 (after! lsp-mode
   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
 
-(after! org-modern
-  (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
+;; The new `+pretty' flag in `vc-gutter' should fix this
+;; (after! org-modern
+;;   (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
 
-;; Use slightly larger fringes, useful for `gutter'
-(setq-default left-fringe-width 10
-              right-fringe-width 10)
+;; ;; Use slightly larger fringes, useful for `gutter'
+;; (setq-default left-fringe-width 10
+;;               right-fringe-width 10)
 ;; Fringe:1 ends here
 
 ;; [[file:config.org::*Vertico][Vertico:1]]
@@ -705,20 +703,23 @@ current buffer's, reload dir-locals."
 ;; Emojify:4 ends here
 
 ;; [[file:config.org::*Ligatures][Ligatures:1]]
+(defun +appened-to-negation-list (head tail)
+  (if (sequencep head)
+    (delete-dups
+     (if (eq (car tail) 'not)
+         (append head tail)
+       (append tail head)))
+    tail))
+
 (setq +ligatures-extras-in-modes
-      (if (and (listp +ligatures-extras-in-modes)
-               (eq 'not (car +ligatures-extras-in-modes)))
-          (delete-dups
-           (append +ligatures-extras-in-modes
-                   '(c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
-        '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+      (+appened-to-negation-list
+       +ligatures-extras-in-modes
+       '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
 
 (setq +ligatures-in-modes
-      (if (and (listp +ligatures-in-modes)
-               (eq 'not (car +ligatures-in-modes)))
-          (delete-dups
-           (append +ligatures-in-modes '(emacs-lisp-mode scheme-mode racket-mode)))
-        '(not emacs-lisp-mode scheme-mode racket-mode)))
+      (+appened-to-negation-list
+       +ligatures-in-modes
+       '(not emacs-lisp-mode scheme-mode racket-mode)))
 ;; Ligatures:1 ends here
 
 ;; [[file:config.org::*Spell-Fu][Spell-Fu:1]]
@@ -1603,7 +1604,7 @@ current buffer's, reload dir-locals."
         (message "Cannot kill NetExtender")))))
 ;; Emacs + NetExtender:1 ends here
 
-;; [[file:config.org::*mu4e][mu4e:2]]
+;; [[file:config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):2]]
 (after! mu4e
   (require 'org-msg)
   (require 'smtpmail)
@@ -1641,7 +1642,7 @@ current buffer's, reload dir-locals."
         +mu4e-min-header-frame-width 142
         mu4e-headers-date-format "%d/%m/%y"
         mu4e-headers-time-format "⧖ %H:%M"
-        mu4e-headers-results-limit 1000
+        mu4e-search-results-limit 1000
         mu4e-index-cleanup t)
 
   (defvar +mu4e-header--folder-colors nil)
@@ -1679,8 +1680,42 @@ current buffer's, reload dir-locals."
        'mu4e-bookmarks
        (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?k) t)))
 
+  ;; `mu4e-alert' configuration
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
+
+  (defun +mu4e-alert-grouped-mail-notif-formatter (mail-group _all-mails)
+    "Default function to format MAIL-GROUP for notification.
+
+_ALL-MAILS are the all the unread emails."
+    (when +mu4e-alert-bell-cmd
+      (start-process "mu4e-alert-bell" nil (car +mu4e-alert-bell-cmd) (cdr +mu4e-alert-bell-cmd)))
+    (let* ((filtered-mails (+filter
+                            (lambda (msg)
+                              (not (string-match-p "\\(junk\\|spam\\|trash\\|deleted\\)"
+                                                   (downcase (plist-get msg :maildir)))))
+                            mail-group))
+           (mail-count (length filtered-mails)))
+      (list
+       :title (format "You have %d unread email%s"
+                      mail-count (if (> mail-count 1) "s" ""))
+       :body (concat
+              "• "
+              (+str-join
+               "\n• "
+               (mapcar
+                (lambda (msg)
+                  (format "<b>%s</b>: %s"
+                          (let* ((from (car (plist-get msg :from)))
+                                 (name (plist-get from :name)))
+                            (if (or (null name) (eq name ""))
+                                (plist-get from :email)
+                              name))
+                          (plist-get msg :subject)))
+                filtered-mails))))))
+
+  ;; (mu4e-alert-set-default-style 'notifications)
+  (setq mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
 
   ;; Org-Msg stuff
   ;; org-msg-[signature|greeting-fmt] are separately set for each account
@@ -1718,7 +1753,7 @@ current buffer's, reload dir-locals."
   ;; To enable optional iCalendar->Org sync functionality
   ;; NOTE: both the capture file and the headline(s) inside must already exist
   (gnus-icalendar-org-setup))
-;; mu4e:2 ends here
+;; Mail client and indexer (=mu= and =mu4e=):2 ends here
 
 ;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
 ;; Not sure if it is required!
@@ -2577,7 +2612,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*PKGBUILD][PKGBUILD:2]]
 (use-package! pkgbuild-mode
   :commands (pkgbuild-mode)
-  :mode ("/PKGBUILD$"))
+  :mode "/PKGBUILD$")
 ;; PKGBUILD:2 ends here
 
 ;; [[file:config.org::*Franca IDL][Franca IDL:2]]
@@ -2610,7 +2645,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Mermaid][Mermaid:2]]
 (use-package! mermaid-mode
   :commands mermaid-mode
-  :mode ("\\.mmd\\'"))
+  :mode "\\.mmd\\'")
 
 (use-package! ob-mermaid
   :after org
@@ -3332,6 +3367,7 @@ current buffer's, reload dir-locals."
           org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
           org-modern-footnote (cons nil (cadr org-script-display))
           org-modern-priority nil
+          org-modern-block t
           org-modern-horizontal-rule t
           org-modern-todo-faces
           '(("TODO" :inverse-video t :inherit org-todo)
@@ -3729,21 +3765,24 @@ current buffer's, reload dir-locals."
   ;; (add-to-list 'org-latex-packages-alist '("" "svg"))
   ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex
   ;; (add-to-list 'org-latex-packages-alist '("utf8" "inputenc"))
-  ;; this is for code syntax highlighting in export. you need to use
-  ;; -shell-escape with latex, and install pygments.
-  ;; (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+  (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+  
+  ;; Should be configured per document, as a local variable
+  ;; (setq org-latex-listings 'minted)
   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
   
-  ;; (setq org-latex-listings 'minted) ;; Per document, in local variables
-  (setq org-latex-minted-options '(("frame" "lines")
-                                   ("fontsize" "\\footnotesize")
-                                   ("tabsize" "2")
-                                   ("breaklines" "")
-                                   ("breakanywhere" "") ;; break anywhere, no just on spaces
-                                   ("style" "default")
-                                   ("bgcolor" "GhostWhite")
-                                   ("linenos" "")))
+  (setq org-latex-minted-options '(("frame"          "lines")
+                                   ("fontsize"       "\\footnotesize")
+                                   ("tabsize"        "2")
+                                   ("breaklines"     "")
+                                   ("breakanywhere"  "") ;; break anywhere, no just on spaces
+                                   ("style"          "default")
+                                   ("bgcolor"        "GhostWhite")
+                                   ("linenos"        "")))
   
+  ;; Link some org-mode blocks languages to lexers supported by minted
+  ;; via (pygmentize), you can see supported lexers by running this command
+  ;; in a terminal: `pygmentize -L lexers'
   (dolist (pair '((ipython    "python")
                   (jupyter    "python")
                   (scheme     "scheme")
@@ -3751,10 +3790,11 @@ current buffer's, reload dir-locals."
                   (conf       "ini")
                   (conf-unix  "unixconfig")
                   (conf-space "unixconfig")
+                  (authinfo   "unixconfig")
                   (conf-toml  "yaml")
                   (gitconfig  "ini")
                   (systemd    "ini")
-                  (gdb-script "text")))
+                  (gdb-script "unixconfig")))
     (unless (member pair org-latex-minted-langs)
       (add-to-list 'org-latex-minted-langs pair)))
   (after! ox-latex
