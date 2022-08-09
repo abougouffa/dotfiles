@@ -7693,6 +7693,13 @@ default-cache-ttl 86400
 max-cache-ttl 86400
 #+end_src
 
+As specified in =gpg-agent= man page, we need to export the current =tty='s command
+output to the environnement variable =GPG_TTY=:
+
+#+begin_src shell :tangle ~/.zshrc
+export GPG_TTY=$(tty)
+#+end_src
+
 ** Packages
 I like to use the BMC class, however, I do not like to manually install stuff in
 system directories, so I made an Arch Linux AUR package [[https://aur.archlinux.org/packages/bmc-git][=bmc-git=]] for it.
