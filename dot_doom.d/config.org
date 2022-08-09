@@ -643,24 +643,21 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
 #+begin_src emacs-lisp
 (defun +greedily-do-daemon-setup ()
-  (require 'org)
   ;; mu4e
-  (when (and (featurep! :email mu4e) (require 'mu4e nil t))
-    (setq mu4e-confirm-quit t
-          +mu4e-lock-greedy t
-          +mu4e-lock-relaxed t)
-    (+mu4e-lock-start 'mu4e--start))
+  (when (require 'mu4e nil t)
+    (setq mu4e-confirm-quit t)
+    (mu4e--start))
 
   ;; RSS
-  (when (and (featurep! :app rss) (require 'elfeed nil t))
+  (when (require 'elfeed nil t)
     (run-at-time nil (* 8 60 60) #'elfeed-update)))
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
   (add-hook! 'server-after-make-frame-hook
-    #'doom/reload-theme
-    (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-      (switch-to-buffer +doom-dashboard-name))))
+             #'doom/reload-theme
+             (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
+               (switch-to-buffer +doom-dashboard-name))))
 #+end_src
 
 ** Tweaks :tweak:
