@@ -28,7 +28,6 @@ generate some other user configuration files (define aliases, environment
 variables, user tools, Git configuration...).
 
 ** How to install
-
 Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][*chezmoi*]] to manage my Dotfiles.
 
 Now the Dotfiles can be installed using the following command; however, I don't
@@ -41,9 +40,8 @@ chezmoi init --apply abougouffa
 #+end_src
 
 ** Emacs stuff
-To install my Doom Emacs configuration:
-
-- Install [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to =~/.config/emacs= or =.emacs.d=:
+To use my Doom Emacs configuration, you need first to install [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to
+=~/.config/emacs= or =.emacs.d=:
 
 #+begin_src sh
 git clone https://github.com/doomemacs/doomemacs.git ~/.config/emacs
@@ -527,6 +525,22 @@ Take new window space from all other windows (not just current).
 (setq-default window-combination-resize t)
 #+end_src
 
+**** Split defaults
+Split horizontally to right, vertically below the current window.
+
+#+begin_src emacs-lisp
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+#+end_src
+
+Show list of buffers when splitting.
+
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (consult-buffer))
+#+end_src
+
 *** Messages buffer :messages:buffer:
 Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://stackoverflow.com/a/6341139/3058915][this answer]].
 
@@ -565,22 +579,6 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
          (advice-add 'message :after '+messages-buffer-auto-tail--advice)
          (setq +messages-buffer-auto-tail--enabled t)
          (message "+messages-buffer-auto-tail: Enabled."))))
-#+end_src
-
-**** Split defaults
-Split horizontally to right, vertically below the current window.
-
-#+begin_src emacs-lisp
-(setq evil-vsplit-window-right t
-      evil-split-window-below t)
-#+end_src
-
-Show list of buffers when splitting.
-
-#+begin_src emacs-lisp
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (consult-buffer))
 #+end_src
 
 *** Undo and auto-save :save:undo:
@@ -731,7 +729,7 @@ Set Doom's theme, some good choices:
 ;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
- #+end_src
+#+end_src
 
 **** Modus :modus:
 
@@ -1301,7 +1299,7 @@ straightforward, I'll just redefine it to a simpler, async, function.
             (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
 
   (add-to-list 'treemacs-ignored-file-predicates #'+treemacs-ignore-filter))
-  #+end_src
+#+end_src
 
 *** Projectile :projectile:
 Doom Emacs defined a function src_elisp{(doom-project-ignored-p path)} and uses
@@ -4207,7 +4205,7 @@ keybindings.
       (comint-read-input-ring t)))
 
   (add-hook 'gud-gdb-mode-hook '+gud-gdb-mode-hook-setup))
-        #+end_src
+#+end_src
 
 **** Custom layout for =gdb-many-windows=
 Stolen from https://stackoverflow.com/a/41326527/3058915. I used it to change
@@ -4684,7 +4682,7 @@ src_elisp{(after! ...)} block.
       org-special-ctrl-a/e t
       org-startup-indented t ;; Enable 'org-indent-mode' by default, override with '+#startup: noindent' for big files
       org-insert-heading-respect-content t)
-      #+end_src
+#+end_src
 
 ***** Babel
 I also like the src_elisp{:comments} header-argument, so let's make that a
@@ -6293,7 +6291,7 @@ on that.
       ;; Apply ANSI color codes
       (with-silent-modifications
         (ansi-color-apply-on-region (point-min) (point-max) t)))))
-        #+end_src
+#+end_src
 
 *** Academic phrases
 When writing your academic paper, you might get stuck trying to find the right
