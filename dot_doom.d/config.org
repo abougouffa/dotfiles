@@ -1527,7 +1527,7 @@ useful UI stuff.
 ***** VHDL
 By default, LSP uses the proprietary VHDL-Tool to provide LSP features; however,
 there is free and open source alternatives: =ghdl-ls= and =rust_hdl=. I have some
-issues running =ghdl-ls= installed form =pip= through the =pyghdl= package, so lets
+issues running =ghdl-ls= installed form =pip= through the =pyghdl= package, so let's
 use =rust_hdl= instead.
 
 #+begin_src emacs-lisp :tangle yes
@@ -1541,7 +1541,7 @@ use =rust_hdl= instead.
 
   :config
   ;; Required unless vhdl_ls is on the $PATH
-  (setq lsp-vhdl-server-path "~/Projects/foss/rust_hdl/target/release/vhdl_ls"
+  (setq lsp-vhdl-server-path "~/Projects/foss/repos/rust_hdl/target/release/vhdl_ls"
         lsp-vhdl-server 'vhdl-ls
         lsp-vhdl--params nil)
   (require 'lsp-vhdl))
