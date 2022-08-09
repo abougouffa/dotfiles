@@ -3207,8 +3207,42 @@ I configure my email accounts in a private file in
        'mu4e-bookmarks
        (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?k) t)))
 
+  ;; `mu4e-alert' configuration
   ;; Use a nicer icon in alerts
   (setq mu4e-alert-icon "/usr/share/icons/Papirus/64x64/apps/mail-client.svg")
+
+  (defun +mu4e-alert-grouped-mail-notif-formatter (mail-group _all-mails)
+    "Default function to format MAIL-GROUP for notification.
+
+_ALL-MAILS are the all the unread emails."
+    (when +mu4e-alert-bell-cmd
+      (start-process "mu4e-alert-bell" nil (car +mu4e-alert-bell-cmd) (cdr +mu4e-alert-bell-cmd)))
+    (let* ((filtered-mails (+filter
+                            (lambda (msg)
+                              (not (string-match-p "\\(junk\\|spam\\|trash\\|deleted\\)"
+                                                   (downcase (plist-get msg :maildir)))))
+                            mail-group))
+           (mail-count (length filtered-mails)))
+      (list
+       :title (format "You have %d unread email%s"
+                      mail-count (if (> mail-count 1) "s" ""))
+       :body (concat
+              "• "
+              (+str-join
+               "\n• "
+               (mapcar
+                (lambda (msg)
+                  (format "<b>%s</b>: %s"
+                          (let* ((from (car (plist-get msg :from)))
+                                 (name (plist-get from :name)))
+                            (if (or (null name) (eq name ""))
+                                (plist-get from :email)
+                              name))
+                          (plist-get msg :subject)))
+                filtered-mails))))))
+
+  ;; (mu4e-alert-set-default-style 'notifications)
+  (setq mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
 
   ;; Org-Msg stuff
   ;; org-msg-[signature|greeting-fmt] are separately set for each account
