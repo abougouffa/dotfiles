@@ -940,12 +940,13 @@ correctly.
 (after! lsp-mode
   (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
 
-(after! org-modern
-  (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
+;; The new `+pretty' flag in `vc-gutter' should fix this
+;; (after! org-modern
+;;   (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
 
-;; Use slightly larger fringes, useful for `gutter'
-(setq-default left-fringe-width 10
-              right-fringe-width 10)
+;; ;; Use slightly larger fringes, useful for `gutter'
+;; (setq-default left-fringe-width 10
+;;               right-fringe-width 10)
 #+end_src
 
 *** Vertico :vertico:posframe:
