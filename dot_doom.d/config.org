@@ -506,7 +506,12 @@ instead of the default 2 hours.
       password-cache-expiry 86400)
 
 ;; Set my GPG key as the default key
-(setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
+(after! epa
+  ;; Doom sets this to `loopback' to prompt for password in the minibuffer
+  ;; however, as I'm using the Daemon and I'm starting `mu4e' at startup,
+  ;; I need to see the dialog box, instead of a password in the background.
+  (set epg-pinentry-mode (if (daemonp) 'ask 'loopback))
+  (setq-default epa-file-encrypt-to '("F808A020A3E1AC37")))
 #+end_src
 
 ** Better defaults :default:
