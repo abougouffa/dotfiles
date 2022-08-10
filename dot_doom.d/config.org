@@ -6863,7 +6863,7 @@ Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
 
 [Service]
 Type=forking
-ExecStart=sh -c 'emacs --daemon && emacsclient -c --eval "(delete-frame)"'
+ExecStart=sh -c 'gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > \dev\null; emacs --daemon && emacsclient -c --eval "(delete-frame)"'
 ExecStop=/usr/bin/emacsclient --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
 Restart=on-failure
 
@@ -6880,6 +6880,12 @@ systemctl --user enable emacs.service
 For some reason if a frame isn't opened early in the initialization process, the
 daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
 part of the =ExecStart= value.
+
+#+begin_quote
+NOTE: I'm calling =gpg= before =emacs --daemon= to get asked for my GPG passphrase
+early, as it prevents Emacs' daemon from starting when it is trying to decrypt
+=~/.authinfo.gpg=.
+#+end_quote
 
 ** Emacs Client :emacsclient:
 *** Desktop integration :desktop:
@@ -7696,17 +7702,11 @@ In my project, I create a =gdb.scm= (or =<program-name>.scm=) with something lik
 ** GnuPG
 I add this to my =~/.gnupg/gpg-agent.conf=, to set the time-to-live to one day.
 
-#+begin_src conf-unix :tangle no
+#+begin_src conf-space :tangle no
 # Do not ask me about entered passwords for 24h (during the same session)
 default-cache-ttl 86400
 max-cache-ttl 86400
-#+end_src
-
-As specified in =gpg-agent= man page, we need to export the current =tty='s command
-output to the environnement variable =GPG_TTY=:
-
-#+begin_src shell :tangle ~/.zshrc
-export GPG_TTY=$(tty)
+pinentry-program /usr/bin/pinentry-qt
 #+end_src
 
 ** Packages
