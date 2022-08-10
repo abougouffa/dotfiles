@@ -3320,6 +3320,9 @@ I configure my email accounts in a private file in
                           (plist-get msg :subject)))
                 filtered-mails))))))
 
+  ;; I use auto-hiding task manager, setting window
+  ;; urgency shows the entier task bar (in KDE), which I find annoying.
+  (setq mu4e-alert-set-window-urgency nil)
   (setq mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
 
   ;; Org-Msg stuff
