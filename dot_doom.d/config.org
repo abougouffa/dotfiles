@@ -6428,6 +6428,7 @@ Update files with last modified date, when ~#+lastmod:~ is available
 
 (add-hook 'before-save-hook 'time-stamp nil)
 #+end_src
+
 ** Text editing :text:
 *** Plain text :text:
 It's nice to see ANSI color codes displayed. However, until Emacs 28 it's not
