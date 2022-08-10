@@ -12,12 +12,7 @@
       password-cache t
       password-cache-expiry 86400)
 
-;; Set my GPG key as the default key
 (after! epa
-  ;; Doom sets this to `loopback' to prompt for password in the minibuffer
-  ;; however, as I'm using the Daemon and I'm starting `mu4e' at startup,
-  ;; I need to see the dialog box, instead of a password in the background.
-  (set epg-pinentry-mode (if (daemonp) 'ask 'loopback))
   (setq-default epa-file-encrypt-to '("F808A020A3E1AC37")))
 ;; Secrets:1 ends here
 
@@ -106,8 +101,10 @@
 (defun +greedily-do-daemon-setup ()
   ;; mu4e
   (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (mu4e--start))
+    ;; Differ starting `mu4e'
+    (run-at-time 30 nil (lambda ()
+                          (setq mu4e-confirm-quit t)
+                          (mu4e--start))))
 
   ;; RSS
   (when (require 'elfeed nil t)
@@ -986,20 +983,27 @@ current buffer's, reload dir-locals."
           ("motherTongue" . "ar"))))
 ;; Flycheck:2 ends here
 
-;; [[file:config.org::*Google Translate][Google Translate:2]]
+;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
 (use-package! go-translate
   :commands (gts-do-translate
-             +gts-yank-translated-region)
+             +gts-yank-translated-region
+             +gts-translate-with)
   :init
   ;; Your languages pairs
   (setq gts-translate-list '(("en" "fr")
-                             ("en" "ar")
                              ("fr" "en")
+                             ("en" "ar")
                              ("fr" "ar")))
 
   (map! :localleader
-      :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
-      :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+        :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
+        :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+
+  (map! :leader :prefix "l"
+        (:prefix ("G" . "go-translate")
+         :desc "Bing" "b" (lambda () (interactive) (+gts-translate-with 'bing))
+         :desc "DeepL" "d" (lambda () (interactive) (+gts-translate-with 'deepl))
+         :desc "Google" "g" (lambda () (interactive) (+gts-translate-with))))
 
   :config
   ;; Config the default translator, which will be used by the command `gts-do-translate'
@@ -1012,11 +1016,7 @@ current buffer's, reload dir-locals."
          ;; One or more engines.
          ;; Provide a parser to give different output.
          :engines (list
-                   (gts-bing-engine)
                    (gts-google-engine :parser (gts-google-summary-parser)))
-
-         ;; (gts-deepl-engine :auth-key (funcall (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1)) :secret))
-         ;;               :pro nil)
 
          ;; Render, only one, used to consumer the output result.
          :render
@@ -1028,8 +1028,18 @@ current buffer's, reload dir-locals."
                     :picker (gts-noprompt-picker)
                     :engines (list (gts-google-engine)
                                    (gts-bing-engine))
-                    :render (gts-kill-ring-render)))))
-;; Google Translate:2 ends here
+                    :render (gts-kill-ring-render))))
+
+  (defun +gts-translate-with (&optional engine)
+    (interactive)
+    (gts-translate (gts-translator
+                    :picker (gts-prompt-picker)
+                    :engines (cond ((eq engine 'deepl) (gts-deepl-engine :auth-key (funcall (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1)) :secret))
+                                                                    :pro nil))
+                                   ((eq engine 'bing) (gts-bing-engine))
+                                   (t (gts-google-engine)))
+                    :render (gts-buffer-render)))))
+;; Go Translate (Google, Bing and DeepL):2 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:2]]
 (use-package! disk-usage
@@ -1422,7 +1432,6 @@ current buffer's, reload dir-locals."
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
-          (require 'auth-source)
           (if-let* ((matches (auth-source-search :host "bitwarden.com" :max 1))
                     (entry (nth 0 matches))
                     (email (plist-get entry :user))
@@ -3933,12 +3942,11 @@ current buffer's, reload dir-locals."
   ;; org-latex-reference-command "\\cref{%s}")
   (advice-add 'org-latex-export-to-pdf :around
               (lambda (orig-fn &rest orig-args)
-                (message "Export to PDF %s."
+                (message "PDF exported to: %s."
                          (if (file-exists-p (expand-file-name "main.org"))
                              (with-current-buffer (find-file-noselect "main.org")
                                (apply orig-fn orig-args))
-                           (apply orig-fn orig-args))
-                         "succeeded" "failed")))
+                           (apply orig-fn orig-args)))))
   (setq time-stamp-active t
         time-stamp-start "#\\+lastmod:[ \t]*"
         time-stamp-end "$"

@@ -123,11 +123,11 @@
            :repo "emacs-languagetool/flycheck-languagetool"))
 ;; Flycheck:1 ends here
 
-;; [[file:config.org::*Google Translate][Google Translate:1]]
+;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):1]]
 (package! go-translate
   :recipe (:host github
            :repo "lorniu/go-translate"))
-;; Google Translate:1 ends here
+;; Go Translate (Google, Bing and DeepL):1 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:1]]
 (package! disk-usage)
