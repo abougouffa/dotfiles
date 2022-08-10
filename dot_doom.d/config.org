@@ -2073,7 +2073,7 @@ reduces the false positives due to the marking and special commands.
           ("motherTongue" . "ar"))))
 #+end_src
 
-*** Google Translate
+*** Go Translate (Google, Bing and DeepL)
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! go-translate
@@ -2084,17 +2084,24 @@ reduces the false positives due to the marking and special commands.
 #+begin_src emacs-lisp
 (use-package! go-translate
   :commands (gts-do-translate
-             +gts-yank-translated-region)
+             +gts-yank-translated-region
+             +gts-translate-with)
   :init
   ;; Your languages pairs
   (setq gts-translate-list '(("en" "fr")
-                             ("en" "ar")
                              ("fr" "en")
+                             ("en" "ar")
                              ("fr" "ar")))
 
   (map! :localleader
-      :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
-      :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+        :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
+        :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+
+  (map! :leader :prefix "l"
+        (:prefix ("G" . "go-translate")
+         :desc "Bing" "b" (lambda () (interactive) (+gts-translate-with 'bing))
+         :desc "DeepL" "d" (lambda () (interactive) (+gts-translate-with 'deepl))
+         :desc "Google" "g" (lambda () (interactive) (+gts-translate-with))))
 
   :config
   ;; Config the default translator, which will be used by the command `gts-do-translate'
@@ -2107,11 +2114,7 @@ reduces the false positives due to the marking and special commands.
          ;; One or more engines.
          ;; Provide a parser to give different output.
          :engines (list
-                   (gts-bing-engine)
                    (gts-google-engine :parser (gts-google-summary-parser)))
-
-         ;; (gts-deepl-engine :auth-key (funcall (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1)) :secret))
-         ;;               :pro nil)
 
          ;; Render, only one, used to consumer the output result.
          :render
@@ -2123,7 +2126,17 @@ reduces the false positives due to the marking and special commands.
                     :picker (gts-noprompt-picker)
                     :engines (list (gts-google-engine)
                                    (gts-bing-engine))
-                    :render (gts-kill-ring-render)))))
+                    :render (gts-kill-ring-render))))
+
+  (defun +gts-translate-with (&optional engine)
+    (interactive)
+    (gts-translate (gts-translator
+                    :picker (gts-prompt-picker)
+                    :engines (cond ((eq engine 'deepl) (gts-deepl-engine :auth-key (funcall (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1)) :secret))
+                                                                    :pro nil))
+                                   ((eq engine 'bing) (gts-bing-engine))
+                                   (t (gts-google-engine)))
+                    :render (gts-buffer-render)))))
 #+end_src
 
 ** System tools :system:
