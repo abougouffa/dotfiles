@@ -645,8 +645,10 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 (defun +greedily-do-daemon-setup ()
   ;; mu4e
   (when (require 'mu4e nil t)
-    (setq mu4e-confirm-quit t)
-    (mu4e--start))
+    ;; Differ starting `mu4e'
+    (run-at-time 30 nil (lambda ()
+                          (setq mu4e-confirm-quit t)
+                          (mu4e--start))))
 
   ;; RSS
   (when (require 'elfeed nil t)
