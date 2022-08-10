@@ -1983,7 +1983,7 @@ reduces the false positives due to the marking and special commands.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-etc-dir))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
-  (when LANGUAGETOOL-P
+  (when (and nil LANGUAGETOOL-P) ;; FIXME: Disabled
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   (after! lsp-mode
@@ -2005,9 +2005,10 @@ reduces the false positives due to the marking and special commands.
     (unless (+lsp-ltex-enabled-p)
       (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
-    (unless (+languagetool-server-running-p)
+    (unless (or (string-empty-p lsp-ltex-languagetool-http-server-uri)
+                (+languagetool-server-running-p))
       (+languagetool-server-start)
-      (sit-for 1))
+      (sit-for 5))
     (+lsp-ltex-load))
 
   (defun +lsp-ltex-disable ()
