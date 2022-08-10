@@ -935,23 +935,6 @@ I'd like to have just the buffer name, then if applicable the project folder.
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 #+end_src
 
-*** Fringe :fringe:
-Increase the left fringe width, to enable rendering breakpoints (in debug modes)
-correctly.
-
-#+begin_src emacs-lisp
-(after! lsp-mode
-  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
-
-;; The new `+pretty' flag in `vc-gutter' should fix this
-;; (after! org-modern
-;;   (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
-
-;; ;; Use slightly larger fringes, useful for `gutter'
-;; (setq-default left-fringe-width 10
-;;               right-fringe-width 10)
-#+end_src
-
 *** Vertico :vertico:posframe:
 Since [[https://github.com/hlissner/doom-emacs/commit/ece4a74a9b2ac84a4e85be3d094ceb4f0a441e39][doom-emacs@ece4a74]], Doom supports the =+childframe= for =:completion vertico=.
 This can be used to adjust the left and right fringes.
