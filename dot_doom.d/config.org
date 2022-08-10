@@ -6410,12 +6410,11 @@ running the export.
 #+begin_src emacs-lisp
 (advice-add 'org-latex-export-to-pdf :around
             (lambda (orig-fn &rest orig-args)
-              (message "Export to PDF %s."
+              (message "PDF exported to: %s."
                        (if (file-exists-p (expand-file-name "main.org"))
                            (with-current-buffer (find-file-noselect "main.org")
                              (apply orig-fn orig-args))
-                         (apply orig-fn orig-args))
-                       "succeeded" "failed")))
+                         (apply orig-fn orig-args)))))
 #+end_src
 
 **** Hugo
