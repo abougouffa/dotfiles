@@ -6,6 +6,12 @@
 (package! modus-themes)
 ;; Modus:1 ends here
 
+;; [[file:config.org::*Lambda][Lambda:1]]
+(package! lambda-themes
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-themes"))
+;; Lambda:1 ends here
+
 ;; [[file:config.org::*SVG tag][SVG tag:1]]
 (package! svg-tag-mode)
 ;; SVG tag:1 ends here
@@ -214,9 +220,9 @@
            :repo "vibhavp/emacs-xkcd"))
 ;; =xkcd=:1 ends here
 
-;; [[file:config.org::*e-Books =nov=][e-Books =nov=:1]]
+;; [[file:config.org::*e-Books (=nov=)][e-Books (=nov=):1]]
 (package! nov)
-;; e-Books =nov=:1 ends here
+;; e-Books (=nov=):1 ends here
 
 ;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:1]]
 (package! emms-mode-line-cycle
@@ -251,6 +257,10 @@
 ;; [[file:config.org::*ESS][ESS:1]]
 (package! ess-view)
 ;; ESS:1 ends here
+
+;; [[file:config.org::*Python IDE][Python IDE:1]]
+(package! elpy)
+;; Python IDE:1 ends here
 
 ;; [[file:config.org::*=ros.el=][=ros.el=:1]]
 ;; `ros.el' depends on `with-shell-interpreter' among other packages

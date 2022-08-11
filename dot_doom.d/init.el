@@ -11,7 +11,7 @@
   bidi
 
   :completion
-  (vertico +icons)
+  (vertico +icons +childframe)
   company
 
   :ui
@@ -24,7 +24,7 @@
   zen
   ophints
   nav-flash
-  (vc-gutter +diff-hl +pretty)
+  (vc-gutter +diff-hl) ;; +pretty
   (window-select +numbers)
   (ligatures +extra)
   (popup +all +defaults)

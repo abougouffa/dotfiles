@@ -133,11 +133,79 @@
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
-(setq doom-theme 'doom-one-light)
-;; (setq doom-theme 'modus-operandi)
+;; (setq doom-theme 'doom-one-light)
+(setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 ;; Doom:1 ends here
+
+;; [[file:config.org::*Modus][Modus:2]]
+(use-package! modus-themes
+  :init
+  (setq modus-themes-hl-line '(accented)
+        modus-themes-subtle-line-numbers nil
+        modus-themes-region '(accented bg-only no-extend)
+        modus-themes-variable-pitch-ui nil
+        modus-themes-diffs nil
+        modus-themes-italic-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-intense-mouseovers t
+        modus-themes-paren-match '(bold intense)
+        modus-themes-syntax '(green-strings)
+        modus-themes-mode-line '(borderless padded)
+        modus-themes-tabs-accented nil ;; default
+        modus-themes-completions
+        '((matches . (extrabold intense accented))
+          (selection . (semibold accented intense))
+          (popup . (accented)))
+        modus-themes-headings '((1 . (rainbow 1.4))
+                                (2 . (rainbow 1.3))
+                                (3 . (rainbow 1.2))
+                                (4 . (rainbow bold 1.1))
+                                (t . (rainbow bold)))
+        modus-themes-org-blocks 'gray-background
+        modus-themes-org-agenda
+        '((header-block . (semibold 1.4))
+          (header-date . (workaholic bold-today 1.2))
+          (event . (accented italic varied))
+          (scheduled . rainbow)
+          (habit . traffic-light))
+        modus-themes-markup '(intense background)
+        modus-themes-mail-citations 'intense
+        modus-themes-lang-checkers '(background))
+
+  (defun +modus-themes-tweak-packages ()
+    (modus-themes-with-colors
+      (custom-set-faces
+       ;; Tweak `git-gutter-mode'
+       `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
+       `(git-gutter-fr:deleted ((,class :foreground ,red-fringe-bg)))
+       `(git-gutter-fr:modified ((,class :foreground ,yellow-fringe-bg)))
+       ;; Tweak `solaire-mode'
+       `(solaire-default-face ((,class :inherit default :background ,bg-alt :foreground ,fg-dim)))
+       `(solaire-line-number-face ((,class :inherit solaire-default-face :foreground ,fg-unfocused)))
+       `(solaire-hl-line-face ((,class :background ,bg-active)))
+       `(solaire-org-hide-face ((,class :background ,bg-alt :foreground ,bg-alt)))
+       ;; Tweak `display-fill-column-indicator-mode'
+       `(fill-column-indicator ((,class :height 0.3 :background ,bg-inactive :foreground ,bg-inactive)))
+       ;; Tweak `mmm-mode'
+       `(mmm-cleanup-submode-face ((,class :background ,yellow-refine-bg)))
+       `(mmm-code-submode-face ((,class :background ,bg-active)))
+       `(mmm-comment-submode-face ((,class :background ,blue-refine-bg)))
+       `(mmm-declaration-submode-face ((,class :background ,cyan-refine-bg)))
+       `(mmm-default-submode-face ((,class :background ,bg-alt)))
+       `(mmm-init-submode-face ((,class :background ,magenta-refine-bg)))
+       `(mmm-output-submode-face ((,class :background ,red-refine-bg)))
+       `(mmm-special-submode-face ((,class :background ,green-refine-bg))))))
+
+  (add-hook 'modus-themes-after-load-theme-hook #'+modus-themes-tweak-packages)
+
+  :config
+  (modus-themes-load-operandi)
+  (map! :leader
+        :prefix "t" ;; toggle
+        :desc "Toggle Modus theme" "m" #'modus-themes-toggle))
+;; Modus:2 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
@@ -167,7 +235,7 @@
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1)) ;; (hide-mode-line-mode 1)
+(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
 (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 ;; Dashboard:1 ends here
 
@@ -199,19 +267,6 @@
            (unless (string= "-" project-name)
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
-
-;; [[file:config.org::*Fringe][Fringe:1]]
-(after! lsp-mode
-  (add-hook 'lsp-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
-
-;; The new `+pretty' flag in `vc-gutter' should fix this
-;; (after! org-modern
-;;   (add-hook 'org-modern-mode-hook (lambda () (set-fringe-mode '(20 . 20)))))
-
-;; ;; Use slightly larger fringes, useful for `gutter'
-;; (setq-default left-fringe-width 10
-;;               right-fringe-width 10)
-;; Fringe:1 ends here
 
 ;; [[file:config.org::*Vertico][Vertico:1]]
 (after! vertico-posframe
@@ -917,7 +972,7 @@ current buffer's, reload dir-locals."
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-etc-dir))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
-  (when LANGUAGETOOL-P
+  (when (and nil LANGUAGETOOL-P) ;; FIXME: Disabled
     (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   (after! lsp-mode
@@ -939,9 +994,10 @@ current buffer's, reload dir-locals."
     (unless (+lsp-ltex-enabled-p)
       (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
-    (unless (+languagetool-server-running-p)
+    (unless (or (string-empty-p lsp-ltex-languagetool-http-server-uri)
+                (+languagetool-server-running-p))
       (+languagetool-server-start)
-      (sit-for 1))
+      (sit-for 5))
     (+lsp-ltex-load))
 
   (defun +lsp-ltex-disable ()
@@ -990,10 +1046,7 @@ current buffer's, reload dir-locals."
              +gts-translate-with)
   :init
   ;; Your languages pairs
-  (setq gts-translate-list '(("en" "fr")
-                             ("fr" "en")
-                             ("en" "ar")
-                             ("fr" "ar")))
+  (setq gts-translate-list '(("en" "fr") ("fr" "en") ("en" "ar") ("fr" "ar")))
 
   (map! :localleader
         :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
@@ -1001,44 +1054,74 @@ current buffer's, reload dir-locals."
 
   (map! :leader :prefix "l"
         (:prefix ("G" . "go-translate")
-         :desc "Bing" "b" (lambda () (interactive) (+gts-translate-with 'bing))
-         :desc "DeepL" "d" (lambda () (interactive) (+gts-translate-with 'deepl))
-         :desc "Google" "g" (lambda () (interactive) (+gts-translate-with))))
+         :desc "Bing"              "b" (lambda () (interactive) (+gts-translate-with 'bing))
+         :desc "DeepL"             "d" (lambda () (interactive) (+gts-translate-with 'deepl))
+         :desc "Google"            "g" (lambda () (interactive) (+gts-translate-with))
+         :desc "gts-do-translate"  "t" #'gts-do-translate))
 
   :config
   ;; Config the default translator, which will be used by the command `gts-do-translate'
   (setq gts-default-translator
         (gts-translator
          ;; Used to pick source text, from, to. choose one.
-         :picker
-         (gts-prompt-picker)
-
-         ;; One or more engines.
-         ;; Provide a parser to give different output.
-         :engines (list
-                   (gts-google-engine :parser (gts-google-summary-parser)))
-
+         :picker (gts-prompt-picker)
+         ;; One or more engines, provide a parser to give different output.
+         :engines (gts-google-engine :parser (gts-google-summary-parser))
          ;; Render, only one, used to consumer the output result.
-         :render
-         (gts-buffer-render)))
+         :render (gts-buffer-render)))
+
+  ;; Custom texter which remove newlines in the same paragraph
+  (defclass +gts-translate-paragraph (gts-texter) ())
+
+  (cl-defmethod gts-text ((_ +gts-translate-paragraph))
+    (when (use-region-p)
+      (let ((text (buffer-substring-no-properties (region-beginning) (region-end))))
+        (with-temp-buffer
+          (insert text)
+          (goto-char (point-min))
+          (let ((case-fold-search nil))
+            (while (re-search-forward "\n[^\n]" nil t)
+              (replace-region-contents
+               (- (point) 2) (- (point) 1)
+               (lambda (&optional a b) " ")))
+            (buffer-string))))))
+
+  ;; Custom picker to use the paragraph texter
+  (defclass +gts-paragraph-picker (gts-picker)
+    ((texter :initarg :texter :initform (+gts-translate-paragraph))))
+
+  (cl-defmethod gts-pick ((o +gts-paragraph-picker))
+    (let ((text (gts-text (oref o texter))))
+      (when (or (null text) (zerop (length text)))
+        (user-error "Make sure there is any word at point, or selection exists"))
+      (let ((path (gts-path o text)))
+        (setq gts-picker-current-path path)
+        (cl-values text path))))
 
   (defun +gts-yank-translated-region ()
     (interactive)
-    (gts-translate (gts-translator
-                    :picker (gts-noprompt-picker)
-                    :engines (list (gts-google-engine)
-                                   (gts-bing-engine))
-                    :render (gts-kill-ring-render))))
+    (gts-translate
+     (gts-translator
+      :picker (+gts-paragraph-picker)
+      :engines (gts-google-engine)
+      :render (gts-kill-ring-render))))
 
   (defun +gts-translate-with (&optional engine)
     (interactive)
-    (gts-translate (gts-translator
-                    :picker (gts-prompt-picker)
-                    :engines (cond ((eq engine 'deepl) (gts-deepl-engine :auth-key (funcall (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1)) :secret))
-                                                                    :pro nil))
-                                   ((eq engine 'bing) (gts-bing-engine))
-                                   (t (gts-google-engine)))
-                    :render (gts-buffer-render)))))
+    (gts-translate
+     (gts-translator
+      :picker (+gts-paragraph-picker)
+      :engines
+      (cond ((eq engine 'deepl)
+             (gts-deepl-engine
+              :auth-key ;; Get API key from ~/.authinfo.gpg (machine api-free.deepl.com)
+              (funcall
+               (plist-get (car (auth-source-search :host "api-free.deepl.com" :max 1))
+                          :secret))
+              :pro nil))
+            ((eq engine 'bing) (gts-bing-engine))
+            (t (gts-google-engine)))
+      :render (gts-buffer-render)))))
 ;; Go Translate (Google, Bing and DeepL):2 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:2]]
@@ -1432,6 +1515,7 @@ current buffer's, reload dir-locals."
   :init
   (setq bitwarden-automatic-unlock
         (lambda ()
+          (require 'auth-source)
           (if-let* ((matches (auth-source-search :host "bitwarden.com" :max 1))
                     (entry (nth 0 matches))
                     (email (plist-get entry :user))
@@ -1561,7 +1645,7 @@ current buffer's, reload dir-locals."
                  (if time-zone " (") time-zone (if time-zone ")")))
 ;; Calendar:1 ends here
 
-;; [[file:config.org::*e-Books =nov=][e-Books =nov=:2]]
+;; [[file:config.org::*e-Books (=nov=)][e-Books (=nov=):2]]
 (use-package! nov
   :mode ("\\.epub\\'" . nov-mode)
   :config
@@ -1623,9 +1707,9 @@ current buffer's, reload dir-locals."
                   (:eval (doom-modeline-segment--major-mode)))))
 
   (add-hook 'nov-mode-hook #'+nov-mode-setup))
-;; e-Books =nov=:2 ends here
+;; e-Books (=nov=):2 ends here
 
-;; [[file:config.org::*News feed =elfeed=][News feed =elfeed=:1]]
+;; [[file:config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (setq elfeed-feeds
       '("https://this-week-in-rust.org/rss.xml"
         "https://www.omgubuntu.co.uk/feed"
@@ -1637,7 +1721,7 @@ current buffer's, reload dir-locals."
         "https://spectrum.ieee.org/rss/blog/automaton/fulltext"
         "https://developers.redhat.com/blog/feed"
         "https://lwn.net/headlines/rss"))
-;; News feed =elfeed=:1 ends here
+;; News feed (=elfeed=):1 ends here
 
 ;; [[file:config.org::*Emacs + NetExtender][Emacs + NetExtender:1]]
 (when NETEXTENDER-P
@@ -1772,6 +1856,9 @@ current buffer's, reload dir-locals."
                           (plist-get msg :subject)))
                 filtered-mails))))))
 
+  ;; I use auto-hiding task manager, setting window
+  ;; urgency shows the entier task bar (in KDE), which I find annoying.
+  (setq mu4e-alert-set-window-urgency nil)
   (setq mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
 
   ;; Org-Msg stuff
@@ -2171,6 +2258,17 @@ current buffer's, reload dir-locals."
 (use-package! vimrc-mode
   :mode "\\.vim\\(rc\\)?\\'")
 ;; Vim:2 ends here
+
+;; [[file:config.org::*Python IDE][Python IDE:2]]
+(use-package! elpy
+  :hook ((elpy-mode . flycheck-mode)
+         (elpy-mode . (lambda ()
+                        (set (make-local-variable 'company-backends)
+                             '((elpy-company-backend :with company-yasnippet))))))
+  :config
+  ;;:init
+  (elpy-enable))
+;; Python IDE:2 ends here
 
 ;; [[file:config.org::*GNU Octave][GNU Octave:1]]
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
@@ -3940,13 +4038,19 @@ current buffer's, reload dir-locals."
   (setq org-latex-default-class "article")
   ;; org-latex-tables-booktabs t
   ;; org-latex-reference-command "\\cref{%s}")
-  (advice-add 'org-latex-export-to-pdf :around
-              (lambda (orig-fn &rest orig-args)
-                (message "PDF exported to: %s."
-                         (if (file-exists-p (expand-file-name "main.org"))
-                             (with-current-buffer (find-file-noselect "main.org")
-                               (apply orig-fn orig-args))
-                           (apply orig-fn orig-args)))))
+  (defvar +org-export-to-pdf-main-file nil
+    "The main (entry point) Org file for a multi-files document.")
+  
+  (advice-add
+   'org-latex-export-to-pdf :around
+   (lambda (orig-fn &rest orig-args)
+     (message
+      "PDF exported to: %s."
+      (let ((main-file (or (bound-and-true-p +org-export-to-pdf-main-file) "main.org")))
+        (if (file-exists-p (expand-file-name main-file))
+            (with-current-buffer (find-file-noselect main-file)
+              (apply orig-fn orig-args))
+          (apply orig-fn orig-args))))))
   (setq time-stamp-active t
         time-stamp-start "#\\+lastmod:[ \t]*"
         time-stamp-end "$"
