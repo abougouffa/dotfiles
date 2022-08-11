@@ -875,7 +875,7 @@ Set Doom's theme, some good choices:
   (load-theme 'lambda-light))
 #+end_src
 
-*** Mode line :modeline:
+*** Modeline :modeline:
 **** Clock
 Display time and set the format to 24h.
 
@@ -901,16 +901,17 @@ Show battery level unless battery is not present or battery information is unkno
 **** Mode line customization
 
 #+begin_src emacs-lisp
-(setq doom-modeline-major-mode-icon t
-      doom-modeline-major-mode-color-icon t
-      doom-modeline-buffer-state-icon t)
+(after! doom-modeline
+  (setq doom-modeline-major-mode-icon t
+        doom-modeline-major-mode-color-icon t
+        doom-modeline-buffer-state-icon t))
 #+end_src
 
 *** Set transparency :transparent:
 
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: Not tangled
-(set-frame-parameter (selected-frame) 'alpha '(97 100))
+(set-frame-parameter (selected-frame) 'alpha '(85 100))
 (add-to-list 'default-frame-alist '(alpha 97 100))
 #+end_src
 
