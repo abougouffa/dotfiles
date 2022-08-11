@@ -294,8 +294,8 @@ I'm lazy, I like Emacs to complete my writings.
 
 #+name: doom-completion
 #+begin_src emacs-lisp
-(vertico +icons +childframe)
-company
+(vertico +icons)
+(company +childframe)
 #+end_src
 
 *** User interface (=:ui=)
