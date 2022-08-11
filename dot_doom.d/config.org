@@ -3396,9 +3396,10 @@ I configure my email accounts in a private file in
   ;; It is triggered by the 'message-sent-hook', so lets remove the 'undo'
   ;; command from the hook, we can do this before sending the message via
   ;; the 'message-send-hook'.
-  (add-hook 'message-send-hook ;; Befor sending the message
-            ;; Remove the problematic 'undo' hook.
-            (lambda () (remove-hook 'message-sent-hook 'undo t)))
+  ;; NOTE: I'm no more using `undo-tree'
+  ;; (add-hook 'message-send-hook ;; Befor sending the message
+  ;;           ;; Remove the problematic 'undo' hook.
+  ;;           (lambda () (remove-hook 'message-sent-hook 'undo t)))
 
   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el")
