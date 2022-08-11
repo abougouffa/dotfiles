@@ -2826,7 +2826,7 @@ Let it snow in Emacs!
                  (if time-zone " (") time-zone (if time-zone ")")))
 #+end_src
 
-** e-Books =nov= :book:epub:
+** e-Books (=nov=) :book:epub:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! nov)
@@ -2898,7 +2898,7 @@ Use =nov= to read EPUB e-books.
   (add-hook 'nov-mode-hook #'+nov-mode-setup))
 #+end_src
 
-** News feed =elfeed= :rss:news:
+** News feed (=elfeed=) :rss:news:
 Set RSS news feeds
 
 #+begin_src emacs-lisp
@@ -2970,7 +2970,7 @@ echo "Y\n" | netExtender --auto-reconnect \
         (message "Cannot kill NetExtender")))))
 #+end_src
 
-** Email =mu4e= :mail:mu4e:
+** Email (=mu4e=) :mail:mu4e:
 Configuring =mu4e= as email client needs three parts:
 - Incoming mail configuration IMAP (using =mbsync=)
 - Outgoing mail configuration SMTP (using =smtpmail= or =msmtp=)
