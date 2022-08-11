@@ -779,9 +779,9 @@ Set Doom's theme, some good choices:
 #+begin_src emacs-lisp
 (use-package! modus-themes
   :init
-  (setq modus-themes-hl-line '(accented)
+  (setq modus-themes-hl-line '(accented intense)
         modus-themes-subtle-line-numbers nil
-        modus-themes-region '(accented bg-only no-extend)
+        modus-themes-region '(bg-only no-extend) ;; accented
         modus-themes-variable-pitch-ui nil
         modus-themes-diffs nil
         modus-themes-italic-constructs t
