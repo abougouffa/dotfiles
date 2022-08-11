@@ -678,10 +678,13 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 (defun +greedily-do-daemon-setup ()
   ;; mu4e
   (when (require 'mu4e nil t)
-    ;; Differ starting `mu4e'
-    (run-at-time 30 nil (lambda ()
-                          (setq mu4e-confirm-quit t)
-                          (mu4e--start))))
+    ;; Automatically start `mu4e' in background after 30s,
+    ;; Check each 5m, if `mu4e' if closed, start it in background.
+    (run-at-time 30 (* 60 5)
+                 (lambda ()
+                   (unless (mu4e-running-p)
+                     (mu4e--start)
+                     (message "Started `mu4e' in background.")))))
 
   ;; RSS
   (when (require 'elfeed nil t)
