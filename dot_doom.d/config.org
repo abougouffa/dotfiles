@@ -3911,6 +3911,23 @@ View data frames better with
 (package! ess-view)
 #+end_src
 
+** Python IDE :python:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! elpy)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! elpy
+  :hook ((elpy-mode . flycheck-mode)
+         (elpy-mode . (lambda ()
+                        (set (make-local-variable 'company-backends)
+                             '((elpy-company-backend :with company-yasnippet))))))
+  :config
+  ;;:init
+  (elpy-enable))
+#+end_src
+
 ** GNU Octave :octave:
 Files with the =.m= extension gets recognized automatically as Objective-C files.
 I've never used Objective-C before, so let's change it to be recognized as
