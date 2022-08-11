@@ -1081,6 +1081,9 @@ Map extra mouse buttons to jump between buffers
 #+begin_src emacs-lisp
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
+
+;; Enable horizontal scrolling with the second mouse wheel or the touchpad
+(setq mouse-wheel-tilt-scroll t)
 #+end_src
 
 *** Page break lines :editor:
