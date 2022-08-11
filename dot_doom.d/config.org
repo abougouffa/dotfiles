@@ -1057,12 +1057,12 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
 *** Smooth scrolling
 
 #+begin_src emacs-lisp :tangle packages.el
-(when (<= emacs-major-version 28)
+(unless EMACS29+
   (package! good-scroll))
 #+end_src
 
 #+begin_src emacs-lisp
-(if (> emacs-major-version 28)
+(if EMACS29+
     (pixel-scroll-precision-mode 1)
   (use-package! good-scroll
     :config (good-scroll-mode 1)))
