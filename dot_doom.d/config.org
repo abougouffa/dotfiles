@@ -5812,6 +5812,9 @@ sacrificing visual amenities with the =org-appear= package.
           ("export_select_tags" . "✔")
           ("export_exclude_tags" . "❌")))
 
+  ;; Workaround to disable drawing on fringes
+  (advice-add 'org-modern--block-fringe :override (lambda ()))
+
   ;; Change faces
   (custom-set-faces! '(org-modern-tag :inherit (region org-modern-label)))
   (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
