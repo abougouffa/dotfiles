@@ -587,6 +587,7 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
         super-save-remote-files nil
         super-save-auto-save-when-idle t)
   (super-save-mode +1))
+#+end_src
 
 #+begin_src emacs-lisp
 (setq auto-save-default t ;; enable built-in `auto-save-mode'
@@ -594,6 +595,35 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
       scroll-margin 2) ;; It's nice to maintain a little margin
 #+end_src
 
+**** Undo
+Tweak =undo-fu= and other stuff from Doom's =:emacs undo=.
+
+#+begin_src emacs-lisp
+;; Increase undo history limits even more
+(after! undo-fu
+  (setq undo-limit        10000000     ;; 1MB   (default is 160kB, Doom's default is 400kB)
+        undo-strong-limit 100000000    ;; 100MB (default is 240kB, Doom's default is 3MB)
+        undo-outer-limit  1000000000)) ;; 1GB   (default is 24MB,  Doom's default is 48MB)
+
+(after! evil
+  (setq evil-want-fine-undo t)) ;; By default while in insert all changes are one big blob
+#+end_src
+
+**** Visual Undo (=vundo=)
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! vundo
+  :recipe (:host github
+           :repo "casouri/vundo"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! vundo
+  :defer t
+  :custom
+  (vundo-glyph-alist vundo-unicode-symbols)
+  (vundo-compact-display t)
+  (vundo-window-max-height 5))
 #+end_src
 
 *** Editing :edit:cursor:
