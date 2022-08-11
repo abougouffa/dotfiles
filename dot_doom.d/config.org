@@ -6421,14 +6421,20 @@ This can be achieved by adding an Emacs-Lisp /advice/ around the
 src_elisp{(org-latex-export-to-pdf)} to switch to =main.org= (if it exists) before
 running the export.
 
+You can also set the variable =+org-export-to-pdf-main-file= to the main file, in
+=.dir-locals.el= or as a file local variable.
+
 #+begin_src emacs-lisp
-(advice-add 'org-latex-export-to-pdf :around
-            (lambda (orig-fn &rest orig-args)
-              (message "PDF exported to: %s."
-                       (if (file-exists-p (expand-file-name "main.org"))
-                           (with-current-buffer (find-file-noselect "main.org")
-                             (apply orig-fn orig-args))
-                         (apply orig-fn orig-args)))))
+(advice-add
+ 'org-latex-export-to-pdf :around
+ (lambda (orig-fn &rest orig-args)
+   (message
+    "PDF exported to: %s."
+    (let ((main-file (or (bound-and-true-p +org-export-to-pdf-main-file) "main.org")))
+      (if (file-exists-p (expand-file-name file))
+          (with-current-buffer (find-file-noselect main-file)
+            (apply orig-fn orig-args))
+        (apply orig-fn orig-args))))))
 #+end_src
 
 **** Hugo
