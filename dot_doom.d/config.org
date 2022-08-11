@@ -7803,7 +7803,13 @@ I add this to my =~/.gnupg/gpg-agent.conf=, to set the time-to-live to one day.
 # Do not ask me about entered passwords for 24h (during the same session)
 default-cache-ttl 86400
 max-cache-ttl 86400
+
+# As I'm using KDE, use Qt based pinentry tool instead of default GTK+
 pinentry-program /usr/bin/pinentry-qt
+
+# Allow pinentry in Emacs minibuffer (combined with epg-pinentry-mode)
+allow-loopback-pinentry
+allow-emacs-pinentry
 #+end_src
 
 ** Packages
