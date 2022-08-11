@@ -347,7 +347,7 @@ Beautify Emacs builtin packages.
 #+begin_src emacs-lisp
 (dired +dirvish +icons)
 (ibuffer +icons)
-(undo +tree)
+undo
 vc
 #+end_src
 
