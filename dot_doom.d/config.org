@@ -2056,7 +2056,8 @@ reduces the false positives due to the marking and special commands.
     (unless (+lsp-ltex-enabled-p)
       (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
-    (unless (or (string-empty-p lsp-ltex-languagetool-http-server-uri)
+    (unless (or (string-empty-p
+                 (bound-and-true-p lsp-ltex-languagetool-http-server-uri))
                 (+languagetool-server-running-p))
       (+languagetool-server-start)
       (sit-for 5))
