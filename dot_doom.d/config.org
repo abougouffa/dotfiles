@@ -818,6 +818,13 @@ Set Doom's theme, some good choices:
        `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
        `(git-gutter-fr:deleted ((,class :foreground ,red-fringe-bg)))
        `(git-gutter-fr:modified ((,class :foreground ,yellow-fringe-bg)))
+       ;; Tweak `doom-modeline'
+       `(doom-modeline-evil-normal-state ((,class :foreground ,green-alt-other)))
+       `(doom-modeline-evil-insert-state ((,class :foreground ,red-alt-other)))
+       `(doom-modeline-evil-visual-state ((,class :foreground ,magenta-alt)))
+       `(doom-modeline-evil-operator-state ((,class :foreground ,blue-alt)))
+       `(doom-modeline-evil-motion-state ((,class :foreground ,blue-alt-other)))
+       `(doom-modeline-evil-replace-state ((,class :foreground ,yellow-alt)))
        ;; Tweak `solaire-mode'
        `(solaire-default-face ((,class :inherit default :background ,bg-alt :foreground ,fg-dim)))
        `(solaire-line-number-face ((,class :inherit solaire-default-face :foreground ,fg-unfocused)))
