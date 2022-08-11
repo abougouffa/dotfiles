@@ -6442,13 +6442,16 @@ You can also set the variable =+org-export-to-pdf-main-file= to the main file, i
 =.dir-locals.el= or as a file local variable.
 
 #+begin_src emacs-lisp
+(defvar +org-export-to-pdf-main-file nil
+  "The main (entry point) Org file for a multi-files document.")
+
 (advice-add
  'org-latex-export-to-pdf :around
  (lambda (orig-fn &rest orig-args)
    (message
     "PDF exported to: %s."
     (let ((main-file (or (bound-and-true-p +org-export-to-pdf-main-file) "main.org")))
-      (if (file-exists-p (expand-file-name file))
+      (if (file-exists-p (expand-file-name main-file))
           (with-current-buffer (find-file-noselect main-file)
             (apply orig-fn orig-args))
         (apply orig-fn orig-args))))))
