@@ -986,16 +986,6 @@ I'd like to have just the buffer name, then if applicable the project folder.
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 #+end_src
 
-*** Vertico :vertico:posframe:
-Since [[https://github.com/hlissner/doom-emacs/commit/ece4a74a9b2ac84a4e85be3d094ceb4f0a441e39][doom-emacs@ece4a74]], Doom supports the =+childframe= for =:completion vertico=.
-This can be used to adjust the left and right fringes.
-
-#+begin_src emacs-lisp
-(after! vertico-posframe
-  (setq vertico-posframe-parameters '((left-fringe . 12) (right-fringe . 14))
-        vertico-posframe-border-width 3))
-#+end_src
-
 *** Company
 I do not find =company= useful in Org files.
 
