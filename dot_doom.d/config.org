@@ -764,8 +764,8 @@ Set Doom's theme, some good choices:
 - =doom-tomorrow-night=
 
 #+begin_src emacs-lisp
-;; (setq doom-theme 'doom-one-light)
-(setq doom-theme 'modus-operandi)
+(setq doom-theme 'doom-one-light)
+;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 #+end_src
@@ -776,7 +776,8 @@ Set Doom's theme, some good choices:
 (package! modus-themes)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
+;; NOTE: not tangled
 (use-package! modus-themes
   :init
   (setq modus-themes-hl-line '(accented intense)
