@@ -424,7 +424,6 @@ emacs-lisp
 common-lisp
 data
 qt
-coq
 (markdown +grip)
 (ocaml +tree-sitter)
 (cc +lsp +tree-sitter)
