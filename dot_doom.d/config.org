@@ -685,7 +685,7 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
   ;; RSS
   (when (require 'elfeed nil t)
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+    (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check each 2h
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
