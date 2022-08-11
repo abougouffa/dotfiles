@@ -1,4 +1,4 @@
-# -*- mode: org; -*-
+# -*- mode: org; +org-export-to-pdf-main-file: "../config.org"; -*-
 
 #+latex_class: article
 #+latex_class_options: [10pt]
@@ -14,7 +14,7 @@
 #+latex_header: \usepackage{svg}
 # To support named colors like LightGray...
 #+latex_header: \usepackage[svgnames]{xcolor}
-#+latex_header: \definecolor{MyBGGray}{gray}{0.9}
+#+latex_header: \definecolor{MyBGGray}{gray}{0.975}
 #+latex_header: \pagestyle{fancyplain}
 #+latex_header: \emergencystretch 5em%
 #+latex_header: \rfoot{\small{Abdelhak Bougouffa~\textcopyright~2022}}
