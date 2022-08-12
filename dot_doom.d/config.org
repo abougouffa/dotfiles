@@ -445,7 +445,7 @@ qt
 (sh +lsp +tree-sitter)
 (python +lsp +pyenv +pyright +tree-sitter)
 (racket +lsp +xp)
-(scheme +mit +guile +racket +chez +gambit +gauche +chibi +chicken)
+(scheme +chez +mit +chicken +gauche +guile +chibi)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
 (web +tree-sitter)
 #+end_src
