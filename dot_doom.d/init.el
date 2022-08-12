@@ -11,7 +11,7 @@
   bidi
 
   :completion
-  (vertico +icons +childframe)
+  (vertico +icons)
   company
 
   :ui
@@ -24,7 +24,7 @@
   zen
   ophints
   nav-flash
-  (vc-gutter +diff-hl) ;; +pretty
+  (vc-gutter +diff-hl +pretty)
   (window-select +numbers)
   (ligatures +extra)
   (popup +all +defaults)
@@ -45,7 +45,7 @@
   :emacs
   (dired +dirvish +icons)
   (ibuffer +icons)
-  (undo +tree)
+  undo
   vc
 
   :term
@@ -85,7 +85,6 @@
   common-lisp
   data
   qt
-  coq
   (markdown +grip)
   (ocaml +tree-sitter)
   (cc +lsp +tree-sitter)
@@ -98,7 +97,7 @@
   (sh +lsp +tree-sitter)
   (python +lsp +pyenv +pyright +tree-sitter)
   (racket +lsp +xp)
-  (scheme +mit +guile +racket +chez +gambit +gauche +chibi +chicken)
+  (scheme +chez +mit +chicken +gauche +guile +chibi)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
   (web +tree-sitter)
 

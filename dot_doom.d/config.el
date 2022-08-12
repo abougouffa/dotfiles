@@ -73,13 +73,40 @@
          (message "+messages-buffer-auto-tail: Enabled."))))
 ;; Messages buffer:1 ends here
 
-;; [[file:config.org::*Undo and auto-save][Undo and auto-save:1]]
-(setq undo-limit 80000000   ;; Raise undo-limit to 80Mb
-      evil-want-fine-undo t ;; By default while in insert all changes are one big blob. Be more granular
-      auto-save-default t   ;; Nobody likes to lose work, I certainly don't
-      scroll-preserve-screen-position 'always ;; Don't have `point' jump around
-      scroll-margin 2)      ;; It's nice to maintain a little margin
-;; Undo and auto-save:1 ends here
+;; [[file:config.org::*Auto-save][Auto-save:2]]
+(use-package! super-save
+  :ensure t
+  :config
+  (setq auto-save-default t ;; nil to switch off the built-in `auto-save-mode', maybe leave it t to have a backup!
+        super-save-exclude '(".gpg")
+        super-save-remote-files nil
+        super-save-auto-save-when-idle t)
+  (super-save-mode +1))
+;; Auto-save:2 ends here
+
+;; [[file:config.org::*Auto-save][Auto-save:3]]
+(setq auto-save-default t) ;; enable built-in `auto-save-mode'
+;; Auto-save:3 ends here
+
+;; [[file:config.org::*Undo][Undo:1]]
+;; Increase undo history limits even more
+(after! undo-fu
+  (setq undo-limit        10000000     ;; 1MB   (default is 160kB, Doom's default is 400kB)
+        undo-strong-limit 100000000    ;; 100MB (default is 240kB, Doom's default is 3MB)
+        undo-outer-limit  1000000000)) ;; 1GB   (default is 24MB,  Doom's default is 48MB)
+
+(after! evil
+  (setq evil-want-fine-undo t)) ;; By default while in insert all changes are one big blob
+;; Undo:1 ends here
+
+;; [[file:config.org::*Visual Undo (=vundo=)][Visual Undo (=vundo=):2]]
+(use-package! vundo
+  :defer t
+  :custom
+  (vundo-glyph-alist vundo-unicode-symbols)
+  (vundo-compact-display t)
+  (vundo-window-max-height 5))
+;; Visual Undo (=vundo=):2 ends here
 
 ;; [[file:config.org::*Editing][Editing:1]]
 ;; Stretch cursor to the glyph width
@@ -101,14 +128,17 @@
 (defun +greedily-do-daemon-setup ()
   ;; mu4e
   (when (require 'mu4e nil t)
-    ;; Differ starting `mu4e'
-    (run-at-time 30 nil (lambda ()
-                          (setq mu4e-confirm-quit t)
-                          (mu4e--start))))
+    ;; Automatically start `mu4e' in background after 30s,
+    ;; Check each 5m, if `mu4e' if closed, start it in background.
+    (run-at-time 30 (* 60 5)
+                 (lambda ()
+                   (unless (mu4e-running-p)
+                     (mu4e--start)
+                     (message "Started `mu4e' in background.")))))
 
   ;; RSS
   (when (require 'elfeed nil t)
-    (run-at-time nil (* 8 60 60) #'elfeed-update)))
+    (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check each 2h
 
 (when (daemonp)
   (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
@@ -121,7 +151,9 @@
 ;; [[file:config.org::*Save recent files][Save recent files:1]]
 (when (daemonp)
   (add-hook! '(delete-frame-functions delete-terminal-functions)
-    (recentf-save-list)))
+    (let ((inhibit-message t))
+      (recentf-save-list)
+      (savehist-save))))
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font][Font:1]]
@@ -133,79 +165,11 @@
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
-;; (setq doom-theme 'doom-one-light)
-(setq doom-theme 'modus-operandi)
+(setq doom-theme 'doom-one-light)
+;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 ;; Doom:1 ends here
-
-;; [[file:config.org::*Modus][Modus:2]]
-(use-package! modus-themes
-  :init
-  (setq modus-themes-hl-line '(accented)
-        modus-themes-subtle-line-numbers nil
-        modus-themes-region '(accented bg-only no-extend)
-        modus-themes-variable-pitch-ui nil
-        modus-themes-diffs nil
-        modus-themes-italic-constructs t
-        modus-themes-bold-constructs t
-        modus-themes-intense-mouseovers t
-        modus-themes-paren-match '(bold intense)
-        modus-themes-syntax '(green-strings)
-        modus-themes-mode-line '(borderless padded)
-        modus-themes-tabs-accented nil ;; default
-        modus-themes-completions
-        '((matches . (extrabold intense accented))
-          (selection . (semibold accented intense))
-          (popup . (accented)))
-        modus-themes-headings '((1 . (rainbow 1.4))
-                                (2 . (rainbow 1.3))
-                                (3 . (rainbow 1.2))
-                                (4 . (rainbow bold 1.1))
-                                (t . (rainbow bold)))
-        modus-themes-org-blocks 'gray-background
-        modus-themes-org-agenda
-        '((header-block . (semibold 1.4))
-          (header-date . (workaholic bold-today 1.2))
-          (event . (accented italic varied))
-          (scheduled . rainbow)
-          (habit . traffic-light))
-        modus-themes-markup '(intense background)
-        modus-themes-mail-citations 'intense
-        modus-themes-lang-checkers '(background))
-
-  (defun +modus-themes-tweak-packages ()
-    (modus-themes-with-colors
-      (custom-set-faces
-       ;; Tweak `git-gutter-mode'
-       `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
-       `(git-gutter-fr:deleted ((,class :foreground ,red-fringe-bg)))
-       `(git-gutter-fr:modified ((,class :foreground ,yellow-fringe-bg)))
-       ;; Tweak `solaire-mode'
-       `(solaire-default-face ((,class :inherit default :background ,bg-alt :foreground ,fg-dim)))
-       `(solaire-line-number-face ((,class :inherit solaire-default-face :foreground ,fg-unfocused)))
-       `(solaire-hl-line-face ((,class :background ,bg-active)))
-       `(solaire-org-hide-face ((,class :background ,bg-alt :foreground ,bg-alt)))
-       ;; Tweak `display-fill-column-indicator-mode'
-       `(fill-column-indicator ((,class :height 0.3 :background ,bg-inactive :foreground ,bg-inactive)))
-       ;; Tweak `mmm-mode'
-       `(mmm-cleanup-submode-face ((,class :background ,yellow-refine-bg)))
-       `(mmm-code-submode-face ((,class :background ,bg-active)))
-       `(mmm-comment-submode-face ((,class :background ,blue-refine-bg)))
-       `(mmm-declaration-submode-face ((,class :background ,cyan-refine-bg)))
-       `(mmm-default-submode-face ((,class :background ,bg-alt)))
-       `(mmm-init-submode-face ((,class :background ,magenta-refine-bg)))
-       `(mmm-output-submode-face ((,class :background ,red-refine-bg)))
-       `(mmm-special-submode-face ((,class :background ,green-refine-bg))))))
-
-  (add-hook 'modus-themes-after-load-theme-hook #'+modus-themes-tweak-packages)
-
-  :config
-  (modus-themes-load-operandi)
-  (map! :leader
-        :prefix "t" ;; toggle
-        :desc "Toggle Modus theme" "m" #'modus-themes-toggle))
-;; Modus:2 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
@@ -224,9 +188,10 @@
 ;; Battery:1 ends here
 
 ;; [[file:config.org::*Mode line customization][Mode line customization:1]]
-(setq doom-modeline-major-mode-icon t
-      doom-modeline-major-mode-color-icon t
-      doom-modeline-buffer-state-icon t)
+(after! doom-modeline
+  (setq doom-modeline-major-mode-icon t
+        doom-modeline-major-mode-color-icon t
+        doom-modeline-buffer-state-icon t))
 ;; Mode line customization:1 ends here
 
 ;; [[file:config.org::*Custom splash image][Custom splash image:1]]
@@ -234,9 +199,9 @@
 ;; Custom splash image:1 ends here
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
-(setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
+;; (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+;; (add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
+;; (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 ;; Dashboard:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
@@ -267,12 +232,6 @@
            (unless (string= "-" project-name)
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
-
-;; [[file:config.org::*Vertico][Vertico:1]]
-(after! vertico-posframe
-  (setq vertico-posframe-parameters '((left-fringe . 12) (right-fringe . 14))
-        vertico-posframe-border-width 3))
-;; Vertico:1 ends here
 
 ;; [[file:config.org::*Company][Company:1]]
 (setq company-global-modes
@@ -317,10 +276,23 @@
 ;; Focus:2 ends here
 
 ;; [[file:config.org::*Smooth scrolling][Smooth scrolling:2]]
-(if (> emacs-major-version 28)
+(if EMACS29+
     (pixel-scroll-precision-mode 1)
   (use-package! good-scroll
     :config (good-scroll-mode 1)))
+
+(setq scroll-step 1
+      scroll-margin 2
+      hscroll-step 1
+      hscroll-margin 2
+      scroll-conservatively 101
+      scroll-up-aggressively 0.01
+      scroll-down-aggressively 0.01
+      auto-window-vscroll nil
+      fast-but-imprecise-scrolling nil
+      mouse-wheel-scroll-amount '(1 ((shift) . 1))
+      mouse-wheel-progressive-speed nil
+      scroll-preserve-screen-position 'always)
 ;; Smooth scrolling:2 ends here
 
 ;; [[file:config.org::*All the icons][All the icons:1]]
@@ -336,6 +308,9 @@
 ;; [[file:config.org::*Mouse buttons][Mouse buttons:1]]
 (map! :n [mouse-8] #'better-jumper-jump-backward
       :n [mouse-9] #'better-jumper-jump-forward)
+
+;; Enable horizontal scrolling with the second mouse wheel or the touchpad
+(setq mouse-wheel-tilt-scroll t)
 ;; Mouse buttons:1 ends here
 
 ;; [[file:config.org::*Page break lines][Page break lines:2]]
@@ -713,6 +688,13 @@ current buffer's, reload dir-locals."
   :defer t)
 ;; Emacs Refactor:2 ends here
 
+;; [[file:config.org::*Lorem ipsum][Lorem ipsum:2]]
+(use-package! lorem-ipsum
+  :commands (lorem-ipsum-insert-sentences
+             lorem-ipsum-insert-paragraphs
+             lorem-ipsum-insert-list))
+;; Lorem ipsum:2 ends here
+
 ;; [[file:config.org::*Emojify][Emojify:1]]
 (setq emojify-emoji-set "twemoji-v2")
 ;; Emojify:1 ends here
@@ -983,7 +965,7 @@ current buffer's, reload dir-locals."
     "Load LTeX LSP server."
     (interactive)
     (require 'lsp-ltex)
-    (lsp-deferred))
+    (lsp))
 
   (defun +lsp-ltex-enabled-p ()
     (not (member 'ltex-ls lsp-disabled-clients)))
@@ -994,7 +976,8 @@ current buffer's, reload dir-locals."
     (unless (+lsp-ltex-enabled-p)
       (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
-    (unless (or (string-empty-p lsp-ltex-languagetool-http-server-uri)
+    (unless (or (not (boundp 'lsp-ltex-languagetool-http-server-uri))
+                (string-empty-p lsp-ltex-languagetool-http-server-uri)
                 (+languagetool-server-running-p))
       (+languagetool-server-start)
       (sit-for 5))
@@ -1760,7 +1743,7 @@ current buffer's, reload dir-locals."
         mu4e-index-update-error-warning nil ;; Do not show warning after update
         mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
-        mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
+        mu4e-attachment-dir (expand-file-name "~/Downloads/mu4e-attachements")
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
@@ -1858,8 +1841,8 @@ current buffer's, reload dir-locals."
 
   ;; I use auto-hiding task manager, setting window
   ;; urgency shows the entier task bar (in KDE), which I find annoying.
-  (setq mu4e-alert-set-window-urgency nil)
-  (setq mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
+  (setq mu4e-alert-set-window-urgency nil
+        mu4e-alert-grouped-mail-notification-formatter #'+mu4e-alert-grouped-mail-notif-formatter)
 
   ;; Org-Msg stuff
   ;; org-msg-[signature|greeting-fmt] are separately set for each account
@@ -1873,16 +1856,6 @@ current buffer's, reload dir-locals."
     (save-excursion (message-add-header (format "Bcc: %s\n" user-mail-address))))
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
-
-  ;; FIXME: I constantly get a non systematic error after sending a mail.
-  ;; >> Error (message-sent-hook): Error running hook "undo" because:
-  ;; >> (error Unrecognized entry in undo list undo-tree-canary)
-  ;; It is triggered by the 'message-sent-hook', so lets remove the 'undo'
-  ;; command from the hook, we can do this before sending the message via
-  ;; the 'message-send-hook'.
-  (add-hook 'message-send-hook ;; Befor sending the message
-            ;; Remove the problematic 'undo' hook.
-            (lambda () (remove-hook 'message-sent-hook 'undo t)))
 
   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el")
@@ -3581,6 +3554,9 @@ current buffer's, reload dir-locals."
             ("created" . "⏱")
             ("export_select_tags" . "✔")
             ("export_exclude_tags" . "❌")))
+  
+    ;; Workaround to disable drawing on fringes
+    (advice-add 'org-modern--block-fringe :override (lambda ()))
   
     ;; Change faces
     (custom-set-faces! '(org-modern-tag :inherit (region org-modern-label)))

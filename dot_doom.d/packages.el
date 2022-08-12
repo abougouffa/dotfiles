@@ -2,6 +2,17 @@
 ;; -*- coding: utf-8-unix; no-byte-compile: t; -*-
 ;; Additional packages (=packages.el=):1 ends here
 
+;; [[file:config.org::*Auto-save][Auto-save:1]]
+(package! super-save
+  :disable t)
+;; Auto-save:1 ends here
+
+;; [[file:config.org::*Visual Undo (=vundo=)][Visual Undo (=vundo=):1]]
+(package! vundo
+  :recipe (:host github
+           :repo "casouri/vundo"))
+;; Visual Undo (=vundo=):1 ends here
+
 ;; [[file:config.org::*Modus][Modus:1]]
 (package! modus-themes)
 ;; Modus:1 ends here
@@ -21,7 +32,7 @@
 ;; Focus:1 ends here
 
 ;; [[file:config.org::*Smooth scrolling][Smooth scrolling:1]]
-(when (<= emacs-major-version 28)
+(unless EMACS29+
   (package! good-scroll))
 ;; Smooth scrolling:1 ends here
 
@@ -72,6 +83,12 @@
   :recipe (:host github
            :repo "mhayashi1120/Emacs-erefactor"))
 ;; Emacs Refactor:1 ends here
+
+;; [[file:config.org::*Lorem ipsum][Lorem ipsum:1]]
+(package! emacs-lorem-ipsum
+  :recipe (:host github
+           :repo "jschaf/emacs-lorem-ipsum"))
+;; Lorem ipsum:1 ends here
 
 ;; [[file:config.org::*Guess language][Guess language:1]]
 (package! guess-language
