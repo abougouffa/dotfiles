@@ -95,9 +95,9 @@
    no explicit dialect tag is in the first n lines of the file.
    The choices are pim (1985), iso (1995) and r10 (2010)."
   :type '(radio
-	  (const pim)
-	  (const iso)
-	  (const r10))
+          (const pim)
+          (const iso)
+          (const r10))
   :group 'gm2)
 
 (defcustom m2-dialect-comment-search-limit 200
@@ -181,20 +181,20 @@
     (let (epath)
       (setq epath nil)
       (let (i)
-	(setq i 0)
-	(let (l)
-	  (setq l (length path))
-	  (let (start)
-	    (setq start 0)
-	    (while (< i l)
-	      (progn
-		(if (string-equal (substring path i (+ i 1)) ":")
-		    (progn
-		      (add-to-list 'epath (substring path start i))
-		      (setq start (+ i 1))))
-		(setq i (+ i 1))))
-	    (if (< start l)
-		(add-to-list 'epath (substring path start l))))))
+        (setq i 0)
+        (let (l)
+          (setq l (length path))
+          (let (start)
+            (setq start 0)
+            (while (< i l)
+              (progn
+                (if (string-equal (substring path i (+ i 1)) ":")
+                    (progn
+                      (add-to-list 'epath (substring path start i))
+                      (setq start (+ i 1))))
+                (setq i (+ i 1))))
+            (if (< start l)
+                (add-to-list 'epath (substring path start l))))))
       epath)))
 
 (defvar m2-auto-compile-default-path-emacs
@@ -209,8 +209,8 @@
   (define-key m2-auto-map "D" 'm2-test-end)
   (define-key m2-auto-map "N" 'm2-test-then)
   (define-key m2-auto-map "E" 'm2-test-else)
-;;  (define-key m2-auto-map "%" 'm2-local-test)
-;;  (define-key m2-auto-map "!" 'm2-local-recompile)
+  ;;  (define-key m2-auto-map "%" 'm2-local-test)
+  ;;  (define-key m2-auto-map "!" 'm2-local-recompile)
   (define-key m2-auto-map (kbd "DEL") 'm2-backspace)
   (define-key m2-auto-map "\C-d" 'm2-delete)
   (define-key m2-auto-map (kbd "<delete>") 'm2-delete)
@@ -279,23 +279,23 @@
   (save-excursion
     (progn
       (let (count)
-	(setq count 1)
-	(forward-char -1)
-	(if (> (point) (point-min))
-	    (progn
-	      (forward-char -1)
-	      (while (and (> (point) (point-min))
-			  (not (= count 0)))
-		(progn
-		  (if (looking-at "(")
-		      (setq count (- count 1))
-		    (if (looking-at ")")
-			(setq count (+ count 1))))
-		  (if (not (= count 0))
-		      (m2-backward-to-token)))))))
+        (setq count 1)
+        (forward-char -1)
+        (if (> (point) (point-min))
+            (progn
+              (forward-char -1)
+              (while (and (> (point) (point-min))
+                          (not (= count 0)))
+                (progn
+                  (if (looking-at "(")
+                      (setq count (- count 1))
+                    (if (looking-at ")")
+                        (setq count (+ count 1))))
+                  (if (not (= count 0))
+                      (m2-backward-to-token)))))))
       (if (looking-at "(")
-	  (sit-for 1)
-	(message "No matching (")))))
+          (sit-for 1)
+        (message "No matching (")))))
 
 (defun forward-or-backward-sexp (&optional arg)
   "Go to the matching parenthesis character if one is adjacent to point."
@@ -317,13 +317,13 @@
     (let (m2-start)
       (setq m2-start (point))
       (while (looking-at "[A-Za-z0-9]")
-	(forward-char 1))
+        (forward-char 1))
       (let (m2-end)
-	(setq m2-end (point))
-	(let (m2-object)
-	  (setq m2-object (buffer-substring m2-start m2-end))
-	  (if (not (m2-find-declaration m2-object))
-	      (message "cannot find declaration of: %s" m2-object)))))))
+        (setq m2-end (point))
+        (let (m2-object)
+          (setq m2-object (buffer-substring m2-start m2-end))
+          (if (not (m2-find-declaration m2-object))
+              (message "cannot find declaration of: %s" m2-object)))))))
 
 (defun m2-complete ()
   "m2-complete - expands the string the cursor is currently on."
@@ -350,18 +350,18 @@
       (setq m2-insert (point))
       (forward-char (- 0 (length m2-object)))
       (if (search-backward m2-object (point-min) t nil)
-	  (progn
-	    (forward-char (length m2-object))
-	    (let (m2-start)
-	      (setq m2-start (point))
-	      (while (looking-at "[A-Za-z0-9]")
-		(forward-char 1))
-	      (let (m2-end)
-		(setq m2-end (point))
-		(goto-char m2-insert)
-		(insert (buffer-substring m2-start m2-end)))))
-	(progn
-	  (message "cannot complete: %s" m2-object)))))
+          (progn
+            (forward-char (length m2-object))
+            (let (m2-start)
+              (setq m2-start (point))
+              (while (looking-at "[A-Za-z0-9]")
+                (forward-char 1))
+              (let (m2-end)
+                (setq m2-end (point))
+                (goto-char m2-insert)
+                (insert (buffer-substring m2-start m2-end)))))
+        (progn
+          (message "cannot complete: %s" m2-object)))))
   (while (looking-at "[A-Za-z0-9]")
     (forward-char 1)))
 
@@ -375,37 +375,37 @@
       (delete-other-windows)
       (split-window)
       (if (m2-find-declaration-procedure m2-object)
-	  (progn
-	    (m2-move-to-procedure-start)
-	    (other-window 1)
-	    t)
-	(if (m2-find-type-or-var m2-object)
-	    (progn
-	      (m2-move-to-type-or-var-start)
-	      (other-window 1)
-	      t)
-	  (if (m2-find-import-declaration m2-object ".mod")
-	      (if (m2-find-declaration m2-object)
-		  (progn
-		    (switch-to-buffer source-buffer)
-		    t)
-		(progn
-		  (delete-other-windows)
-		  (select-window source-window)
-		  (switch-to-buffer source-buffer)
-		  (split-window)
-		  (if (m2-find-import-declaration m2-object ".def")
-		      (progn
-			(m2-find-declaration m2-object)
-			t)
-		    (progn
-		      (message "not found in the definition module")
-		      (sit-for 1)
-		      nil))))
-	    (progn
-	      (message (concat "cannot find declaration of " m2-object))
-	      (sit-for 1)
-	      nil)))))))
+          (progn
+            (m2-move-to-procedure-start)
+            (other-window 1)
+            t)
+        (if (m2-find-type-or-var m2-object)
+            (progn
+              (m2-move-to-type-or-var-start)
+              (other-window 1)
+              t)
+          (if (m2-find-import-declaration m2-object ".mod")
+              (if (m2-find-declaration m2-object)
+                  (progn
+                    (switch-to-buffer source-buffer)
+                    t)
+                (progn
+                  (delete-other-windows)
+                  (select-window source-window)
+                  (switch-to-buffer source-buffer)
+                  (split-window)
+                  (if (m2-find-import-declaration m2-object ".def")
+                      (progn
+                        (m2-find-declaration m2-object)
+                        t)
+                    (progn
+                      (message "not found in the definition module")
+                      (sit-for 1)
+                      nil))))
+            (progn
+              (message (concat "cannot find declaration of " m2-object))
+              (sit-for 1)
+              nil)))))))
 
 (defun m2-find-type-or-var (m2-object)
   "searches for an object defined as CONST, TYPE or VAR."
@@ -414,17 +414,17 @@
   (let (m2-value)
     (setq m2-value nil)
     (while (and (not m2-value)
-		(re-search-forward-keyword "TYPE\\|CONST\\|VAR" nil t))
+                (re-search-forward-keyword "TYPE\\|CONST\\|VAR" nil t))
       (progn
-	(m2-forward-to-token)
-	(while (and (not (looking-at-keyword "BEGIN\\|END"))
-		    (not (looking-at m2-object)))
-	  (m2-forward-to-token))
-	(if (looking-at m2-object)
-	    (progn
-	      (m2-forward-to-token)
-	      (if (looking-at "[=:,]")
-		  (setq m2-value t))))))
+        (m2-forward-to-token)
+        (while (and (not (looking-at-keyword "BEGIN\\|END"))
+                    (not (looking-at m2-object)))
+          (m2-forward-to-token))
+        (if (looking-at m2-object)
+            (progn
+              (m2-forward-to-token)
+              (if (looking-at "[=:,]")
+                  (setq m2-value t))))))
     m2-value))
 
 (defun m2-move-to-type-or-var-start ()
@@ -439,16 +439,16 @@
 
 (defun m2-move-to-procedure-start ()
   "moves to the start of the procedure implementation (before the
-							      comments start - if they exist)."
+                                                              comments start - if they exist)."
   (beginning-of-line)
   (let (m2-point)
     (setq m2-point (point))
     (skip-chars-backward " \t\n\f" (point-min))
     (if (and (> (point) 2)
-	     (save-excursion (forward-char -2) (looking-at "\\*)")))
-	(progn
-	  (m2-run-back-over-comments (point-min))
-	  (forward-char 1)))
+             (save-excursion (forward-char -2) (looking-at "\\*)")))
+        (progn
+          (m2-run-back-over-comments (point-min))
+          (forward-char 1)))
     (set-window-start (selected-window) (point))))
 
 (defun m2-find-declaration-procedure (m2-object)
@@ -459,11 +459,11 @@
     (setq m2-value nil)
     (setq m2-object (concat m2-object " "))
     (while (and (not m2-value)
-		(re-search-forward-keyword "PROCEDURE" nil t))
+                (re-search-forward-keyword "PROCEDURE" nil t))
       (progn
-	(m2-forward-to-token)
-	(if (and (looking-at m2-object) (not (m2-is-forward-declaration)))
-	    (setq m2-value t))))
+        (m2-forward-to-token)
+        (if (and (looking-at m2-object) (not (m2-is-forward-declaration)))
+            (setq m2-value t))))
     m2-value))
 
 (defun m2-is-forward-declaration ()
@@ -473,13 +473,13 @@
   (save-excursion
     (m2-forward-to-token)
     (if (looking-at "(")
-	(progn
-	  (while (and (< (point) (point-max))
-		      (not (looking-at ")")))
-	    (m2-forward-to-token))))
+        (progn
+          (while (and (< (point) (point-max))
+                      (not (looking-at ")")))
+            (m2-forward-to-token))))
     (while (and (< (point) (point-max))
-		(not (looking-at ";")))	;
-  (m2-forward-to-token))
+                (not (looking-at ";")))         ;
+      (m2-forward-to-token))
     (m2-forward-to-token)
     (looking-at-keyword "FORWARD")))
 
@@ -494,37 +494,37 @@
     (setq m2-success nil)
     (let (m2-module-name)
       (let (m2-continue)
-	(setq m2-module-name nil)
-	(setq m2-continue t)
-	(while (and (< (point) (point-max))
-		    (not m2-success)
-		    m2-continue
-		    (not (m2-indent-commencer)))
-	  (progn
-	    (if (re-search-forward-keyword "[ ;\n\t]\\(BEGIN\\|FINALLY\\|EXCEPT\\|CONST\\|TYPE\\|VAR\\|FROM\\|PROCEDURE\\)" nil t)
-		(progn
-		  (forward-char -1)
-		  (while (looking-at "[A-Za-z0-9]")
-		    (forward-char -1))
-		  (forward-char 1)))
-	    (if (looking-at-keyword "FROM")
-		(progn
-		  (m2-forward-until-white (point-max))
-		  (m2-forward-to-token)
-		  (let (m2-start)
-		    (setq m2-start (point))
-		    (while (looking-at "[A-Za-z0-9]")
-		      (forward-char 1))
-		    (setq m2-module-name (buffer-substring m2-start (point)))
-		    (setq m2-success (m2-found-import-ident m2-object))
-		    (if m2-success
-			(progn
-			  (message "found %s in module %s" m2-object m2-module-name)
-			  (m2-find-module m2-module-name)))))
-	      (progn
-		(setq m2-continue (not (m2-indent-commencer)))
-		(m2-forward-until-white (point-max))
-		(m2-forward-to-token)))))))
+        (setq m2-module-name nil)
+        (setq m2-continue t)
+        (while (and (< (point) (point-max))
+                    (not m2-success)
+                    m2-continue
+                    (not (m2-indent-commencer)))
+          (progn
+            (if (re-search-forward-keyword "[ ;\n\t]\\(BEGIN\\|FINALLY\\|EXCEPT\\|CONST\\|TYPE\\|VAR\\|FROM\\|PROCEDURE\\)" nil t)
+                (progn
+                  (forward-char -1)
+                  (while (looking-at "[A-Za-z0-9]")
+                    (forward-char -1))
+                  (forward-char 1)))
+            (if (looking-at-keyword "FROM")
+                (progn
+                  (m2-forward-until-white (point-max))
+                  (m2-forward-to-token)
+                  (let (m2-start)
+                    (setq m2-start (point))
+                    (while (looking-at "[A-Za-z0-9]")
+                      (forward-char 1))
+                    (setq m2-module-name (buffer-substring m2-start (point)))
+                    (setq m2-success (m2-found-import-ident m2-object))
+                    (if m2-success
+                        (progn
+                          (message "found %s in module %s" m2-object m2-module-name)
+                          (m2-find-module m2-module-name)))))
+              (progn
+                (setq m2-continue (not (m2-indent-commencer)))
+                (m2-forward-until-white (point-max))
+                (m2-forward-to-token)))))))
     m2-success))
 
 (defun m2-found-import-ident (m2-object)
@@ -535,10 +535,10 @@
     (let (m2-success)
       (setq m2-success nil)
       (while (and (not (looking-at-keyword ";\\|BEGIN\\|CONST\\|TYPE\\|VAR\\|FROM\\|PROCEDURE"))
-		  (not m2-success))
-	(progn
-	  (setq m2-success (looking-at-keyword m2-object))
-	  (m2-forward-to-token)))
+                  (not m2-success))
+        (progn
+          (setq m2-success (looking-at-keyword m2-object))
+          (m2-forward-to-token)))
       m2-success)))
 
 (defun m2-help ()
@@ -547,11 +547,11 @@
   (let (m2-buffer)
     (setq m2-buffer (current-buffer))
     (if (get-buffer "*Modula-2-Help*")
-	(kill-buffer "*Modula-2-Help*"))
+        (kill-buffer "*Modula-2-Help*"))
     (switch-to-buffer "*Modula-2-Help*")
 
     (insert (concat
-"This is a mode intended to support program development in Modula-2.
+             "This is a mode intended to support program development in Modula-2.
 All control constructs of Modula-2 can be reached by typing
 Control-C followed by the first character of the construct.
 
@@ -653,24 +653,24 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (interactive)
   (if m2-assign-future
       (let ((type (read-string "which kind of license (g)GPL or (l)LGPL? ")))
-	(if (string-equal type "l")
-	    (m2-fsf-lgpl-notice)
-	  (m2-fsf-gpl-notice)))))
+        (if (string-equal type "l")
+            (m2-fsf-lgpl-notice)
+          (m2-fsf-gpl-notice)))))
 
 (defun m2-dialect-tag ()
   "Insert m2 dialect comment tag."
   (interactive)
   (if m2-dialect-known
       (progn
-	(if (m2-auto-dialect-pim)
-	    (insert "(*!m2pim"))
-	(if (m2-auto-dialect-iso)
-	    (insert "(*!m2iso"))
-	(if (m2-auto-dialect-r10)
-	    (insert "(*!m2r10"))
-	(if (m2-auto-dialect-gm2-extensions)
-	    (insert "+gm2"))
-	(insert "*)"))))
+        (if (m2-auto-dialect-pim)
+            (insert "(*!m2pim"))
+        (if (m2-auto-dialect-iso)
+            (insert "(*!m2iso"))
+        (if (m2-auto-dialect-r10)
+            (insert "(*!m2r10"))
+        (if (m2-auto-dialect-gm2-extensions)
+            (insert "+gm2"))
+        (insert "*)"))))
 
 (defun m2-definition ()
   "Build skeleton DEFINITION MODULE, prompting for the <module name>."
@@ -697,7 +697,7 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (insert "FOR " (read-string "init: ") " TO " (read-string "end: "))
   (let ((by (read-string "by: ")))
     (if (not (string-equal by ""))
-	(insert " BY " by)))
+        (insert " BY " by)))
   (insert " DO")
   (m2-tab)
   (m2-newline)
@@ -711,7 +711,7 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (interactive)
   (insert "(*\n    Title      : ")
   (if (or (string-equal (substring (buffer-name) -4) ".def")
-	  (string-equal (substring (buffer-name) -4) ".mod"))
+          (string-equal (substring (buffer-name) -4) ".mod"))
       (insert (substring (buffer-name) 0 (- (length (buffer-name)) 4)))
     (insert (buffer-name)))
   (insert "\n    Author     : ")
@@ -760,12 +760,12 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (m2-fsf-notice)
   (let ((type (read-string "(i)mplementation or (m)odule: ")))
     (if (string-equal type "i")
-	(insert "IMPLEMENTATION "))
+        (insert "IMPLEMENTATION "))
     (insert "MODULE " (substring (buffer-name) 0 -4) " ;  ")
     (m2-dialect-tag)
     (insert "\n\n\n")
     (if (string-equal type "m")
-	(insert "BEGIN\n\n"))
+        (insert "BEGIN\n\n"))
     (insert "END " (substring (buffer-name) 0 -4) ".\n"))
   (previous-line 3))
 
@@ -781,7 +781,7 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (insert "(*\n")
   (m2-indent-comment)
   (let ((name (read-string "Procedure name: " ))
-	args)
+        args)
     (insert name " - \n")
     (insert "*)")
     (m2-indent-comment)
@@ -793,10 +793,10 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
       (setq results (read-string "Result Type: "))
       (insert name)
       (if (or (not (string-equal args ""))
-	      (not (string-equal results "")))
-	  (insert " (" args ")"))
+              (not (string-equal results "")))
+          (insert " (" args ")"))
       (if (not (string-equal results ""))
-	  (insert " : " results))
+          (insert " : " results))
       (insert " ;")
       (m2-newline)
       (insert "BEGIN")
@@ -931,27 +931,27 @@ m2r10 imports go here
           (setq m2-file (concat (substring (buffer-name) 0 -4) ".s"))
           (setq source-line (substring (what-line) 5 (length (what-line))))
           (delete-other-windows)
-	  (split-window)
-	  (if (not (or (get-buffer m2-file)
-		       (find-file  m2-file)))
-	      (progn
-		(let (old-compile-command)
-		  (setq old-compile-command compile-command)
-		  (compile (generate-assembler-command m2-file))
-		  (setq compile-command old-compile-command)))
-	    (m2-search-for-line m2-file source-line)))))))
+          (split-window)
+          (if (not (or (get-buffer m2-file)
+                       (find-file  m2-file)))
+              (progn
+                (let (old-compile-command)
+                  (setq old-compile-command compile-command)
+                  (compile (generate-assembler-command m2-file))
+                  (setq compile-command old-compile-command)))
+            (m2-search-for-line m2-file source-line)))))))
 
 (defun m2-search-for-line (m2-file source-line)
   "search for the source code equivalent, source-line, in assembly file, m2-file"
   (interactive)
   (save-excursion
     (if (switch-to-buffer m2-file)
-	(if (search-forward (concat ".stabn 68,0," source-line))
-	    (progn
-	      (beginning-of-line)
-	      (while (and (< (point) (point-max))
-			  (looking-at "^\\."))
-		(next-line 1))))))
+        (if (search-forward (concat ".stabn 68,0," source-line))
+            (progn
+              (beginning-of-line)
+              (while (and (< (point) (point-max))
+                          (looking-at "^\\."))
+                (next-line 1))))))
   (message "failed to compile module %s" (buffer-name)))
 
 (defun generate-assembler-command (assembly-file)
@@ -966,18 +966,18 @@ m2r10 imports go here
   (let (modulename)
     (setq modulename (buffer-name))
     (cond ((string-equal (substring (buffer-name) -4) ".def")
-	   (compile (concat m2-link-command " "
-			    (substring (buffer-name) 0 -4))))
-	  ((string-equal (substring (buffer-name) -4) ".mod")
-	   (compile (concat m2-link-command " "
-			    (substring (buffer-name) 0 -4)))))))
+           (compile (concat m2-link-command " "
+                            (substring (buffer-name) 0 -4))))
+          ((string-equal (substring (buffer-name) -4) ".mod")
+           (compile (concat m2-link-command " "
+                            (substring (buffer-name) 0 -4)))))))
 
 (defun m2-visit ()
   (interactive)
   (let (modulename)
     (save-excursion
       (setq modulename
-	    (read-string "Module name: "))
+            (read-string "Module name: "))
       (m2-find-module modulename))))
 
 (defun m2-find-module (name)
@@ -987,44 +987,44 @@ m2r10 imports go here
     (let (m2-found)
       (setq m2-found (locate-file name m2-auto-compile-default-path-emacs '(".def" ".mod" ".md" ".mi")))
       (if m2-found
-	  (find-file m2-found))
+          (find-file m2-found))
       m2-found)))
 
 (defun m2-toggle ()
   "Toggle between .mod and .def files for the module."
   (interactive)
   (cond ((string-equal (substring (buffer-name) -4) ".def")
-	 (find-file-other-window
-	  (concat (substring (buffer-name) 0 -4) ".mod")))
-	((string-equal (substring (buffer-name) -4) ".mod")
-	 (find-file-other-window
-	  (concat (substring (buffer-name) 0 -4)  ".def")))
-	((string-equal (substring (buffer-name) -3) ".mi")
-	 (find-file-other-window
-	  (concat (substring (buffer-name) 0 -3)  ".md")))
-	((string-equal (substring (buffer-name) -3) ".md")
-	 (find-file-other-window
-	  (concat (substring (buffer-name) 0 -3)  ".mi")))))
+         (find-file-other-window
+          (concat (substring (buffer-name) 0 -4) ".mod")))
+        ((string-equal (substring (buffer-name) -4) ".mod")
+         (find-file-other-window
+          (concat (substring (buffer-name) 0 -4)  ".def")))
+        ((string-equal (substring (buffer-name) -3) ".mi")
+         (find-file-other-window
+          (concat (substring (buffer-name) 0 -3)  ".md")))
+        ((string-equal (substring (buffer-name) -3) ".md")
+         (find-file-other-window
+          (concat (substring (buffer-name) 0 -3)  ".mi")))))
 
 (defun m2-tab ()
   "tab moves to the correct indentation for the current line."
   (interactive)
   (let (m2-point)
     (if (and (> (point) 1)
-	     (save-excursion (forward-char -1) (looking-at "(\\*")))
-	(progn
-	  (setq m2-point 1)
-	  (forward-char -1))
+             (save-excursion (forward-char -1) (looking-at "(\\*")))
+        (progn
+          (setq m2-point 1)
+          (forward-char -1))
       (setq m2-point 0))
     (if (m2-in-parameter)
-	(progn
-	  (message "Formatting parameter block")
-	  (m2-format-expression))
+        (progn
+          (message "Formatting parameter block")
+          (m2-format-expression))
       (if (m2-in-expression)
-	  (progn
-	    (message "Formatting expression")
-	    (m2-format-expression))
-	(m2-indent))
+          (progn
+            (message "Formatting expression")
+            (m2-format-expression))
+        (m2-indent))
       (forward-char m2-point))))
 
 (defun m2-in-parameter ()
@@ -1035,17 +1035,17 @@ m2r10 imports go here
     (save-excursion
       (m2-backward-to-token)
       (if (looking-at-keyword "PROCEDURE[ \n]")
-	  nil
-	(while (and (> (point) 1) (not (m2-is-parameter-commencer))
-		    (not (m2-is-parameter-terminator)))
-	  (m2-backward-to-token))
-	(if (looking-at-keyword "PROCEDURE[ \n]")
-	    (progn
-	      (goto-char m2-point)
-	      (while (not (m2-is-parameter-terminator))
-		(m2-forward-to-token))
-	      (looking-at ")"))
-	  nil)))))
+          nil
+        (while (and (> (point) 1) (not (m2-is-parameter-commencer))
+                    (not (m2-is-parameter-terminator)))
+          (m2-backward-to-token))
+        (if (looking-at-keyword "PROCEDURE[ \n]")
+            (progn
+              (goto-char m2-point)
+              (while (not (m2-is-parameter-terminator))
+                (m2-forward-to-token))
+              (looking-at ")"))
+          nil)))))
 
 (defun m2-is-parameter-commencer ()
   "returns true if we are looking at a parameter block commencer"
@@ -1061,19 +1061,19 @@ m2r10 imports go here
   (let (m2-point-end)
     (let (m2-indent)
       (let (m2-start-line)
-	(save-excursion
-	  (save-excursion
-	    (beginning-of-line)
-	    (setq m2-start-line (point)))
-	  (m2-backward-to-comment-start)
-	  (setq m2-point-end (point))
-	  (beginning-of-line)
-	  (setq m2-indent (- m2-point-end (point))))
-	(m2-remove-leading-spaces)
-	(if (and (not (looking-at "\\*)"))
-		 (>= m2-start-line m2-point-end))
-	    (setq m2-indent (+ m2-indent m2-indent-level)))
-	(m2-create-indent m2-indent)))))
+        (save-excursion
+          (save-excursion
+            (beginning-of-line)
+            (setq m2-start-line (point)))
+          (m2-backward-to-comment-start)
+          (setq m2-point-end (point))
+          (beginning-of-line)
+          (setq m2-indent (- m2-point-end (point))))
+        (m2-remove-leading-spaces)
+        (if (and (not (looking-at "\\*)"))
+                 (>= m2-start-line m2-point-end))
+            (setq m2-indent (+ m2-indent m2-indent-level)))
+        (m2-create-indent m2-indent)))))
 
 (defun m2-backward-to-comment-start ()
   "moves back to the start of a comment."
@@ -1081,21 +1081,21 @@ m2r10 imports go here
   (let (m2-point)
     (let (carry-on)
       (if (and (> (point) 1)
-	       (looking-at "\\*)"))
-	  (forward-char -1))
+               (looking-at "\\*)"))
+          (forward-char -1))
       (setq m2-point (point))
       (setq carry-on t)
       (while carry-on
-	(setq m2-point (point))
-	(if (and (>= (point) 3)
-		 (save-excursion
-		   (forward-char -2)
-		   (looking-at "\\*)")))
-	    (m2-run-back-over-comments 1))
-	(if (> (point) 1)
-	    (forward-char -1))
-	(setq carry-on (and (> (point) 1)
-			    (not (looking-at "(\\*"))))))))
+        (setq m2-point (point))
+        (if (and (>= (point) 3)
+                 (save-excursion
+                   (forward-char -2)
+                   (looking-at "\\*)")))
+            (m2-run-back-over-comments 1))
+        (if (> (point) 1)
+            (forward-char -1))
+        (setq carry-on (and (> (point) 1)
+                            (not (looking-at "(\\*"))))))))
 
 (defun m2-indent ()
   "calculates the indentation for the current line."
@@ -1117,7 +1117,7 @@ m2r10 imports go here
   (beginning-of-line)
   (if (looking-at "[\t| ]")
       (progn (delete-char 1)
-	     (m2-remove-leading-spaces))))
+             (m2-remove-leading-spaces))))
 
 (defun m2-create-indent (num)
   "generates num indent."
@@ -1131,37 +1131,37 @@ m2r10 imports go here
   "calculates the indentation required for the current source line."
   (interactive)
   (let ((m2-level)
-	(m2-found-record))
+        (m2-found-record))
     (if (m2-indent-terminator)
-	(setq m2-level (- m2-indent-level))
+        (setq m2-level (- m2-indent-level))
       (setq m2-level 0))
     (save-excursion
       (m2-backward-to-token)
       (while (and (> (point) 1)
-		  (or (and (m2-in-parameter)
-			   (looking-at-keyword "VAR"))
-		      (not (or (m2-indent-terminator)
-			       (m2-indent-commencer)
-			       (looking-at-keyword "CASE")))))
-	(m2-backward-to-token))
+                  (or (and (m2-in-parameter)
+                           (looking-at-keyword "VAR"))
+                      (not (or (m2-indent-terminator)
+                               (m2-indent-commencer)
+                               (looking-at-keyword "CASE")))))
+        (m2-backward-to-token))
       (if (looking-at-keyword "CASE")
-	  (setq m2-level  0)
-	(if (m2-indent-commencer)
-	    (setq m2-level  (+ m2-level m2-indent-level))))
+          (setq m2-level  0)
+        (if (m2-indent-commencer)
+            (setq m2-level  (+ m2-level m2-indent-level))))
       (setq m2-found-record nil)
       (if (looking-at-keyword "END")
-	  (progn
-	    (save-excursion
-	      (m2-match-end)
-	      (if (looking-at-keyword "RECORD")
-		  (progn
-		    (setq m2-level (+ m2-level (m2-calculate-indent)))
-		    (setq m2-found-record t))))))
+          (progn
+            (save-excursion
+              (m2-match-end)
+              (if (looking-at-keyword "RECORD")
+                  (progn
+                    (setq m2-level (+ m2-level (m2-calculate-indent)))
+                    (setq m2-found-record t))))))
       (if (not m2-found-record)
-	  (progn
-	    (setq m2-level (+ m2-level (point)))
-	    (beginning-of-line)
-	    (setq m2-level (- m2-level (point))))))
+          (progn
+            (setq m2-level (+ m2-level (point)))
+            (beginning-of-line)
+            (setq m2-level (- m2-level (point))))))
     m2-level))
 
 (defun m2-in-expression ()
@@ -1171,20 +1171,20 @@ m2r10 imports go here
     (save-excursion
       (beginning-of-line)
       (if (looking-at "[\t ]")
-	  (progn
-	    (m2-forward-to-token)
-	    (if (looking-at ")")
-		(progn
-		  (forward-char -1)
-		  (message "found )")))))
+          (progn
+            (m2-forward-to-token)
+            (if (looking-at ")")
+                (progn
+                  (forward-char -1)
+                  (message "found )")))))
       (while (and (> (point) 1)
-		  (not (or (m2-expression-commencer)
-			   (m2-expression-terminator))))
-	(if (looking-at ")")
-	    (m2-skip-brackets ")" "(")
-	  (m2-backward-to-token)))
+                  (not (or (m2-expression-commencer)
+                           (m2-expression-terminator))))
+        (if (looking-at ")")
+            (m2-skip-brackets ")" "(")
+          (m2-backward-to-token)))
       (setq m2-level (and (not (looking-at "(\\*"))
-			  (m2-expression-commencer))))
+                          (m2-expression-commencer))))
     m2-level))
 
 (defun m2-skip-brackets (m2-open m2-close)
@@ -1192,10 +1192,10 @@ m2r10 imports go here
   (interactive)
   (m2-backward-to-token)
   (while (and (> (point) 1)
-	      (not (or (m2-expression-terminator)
-		       (looking-at m2-close))))
+              (not (or (m2-expression-terminator)
+                       (looking-at m2-close))))
     (if (looking-at m2-open)
-	(m2-skip-brackets m2-open m2-close)
+        (m2-skip-brackets m2-open m2-close)
       (m2-backward-to-token))))
 
 (defun m2-expression-backstop ()
@@ -1243,39 +1243,39 @@ m2r10 imports go here
   (let (m2-spaces)
     (let (m2-cursor)
       (let (m2-end)
-	(let (m2-start)
-	  (let (m2-start-exp)
-	    (let (m2-next-tok)
-	      (setq m2-cursor (point))
-	      (save-excursion
-		(m2-find-beginning-of-expression)
-		(setq m2-start-exp (point))
-		(save-excursion
-		  (beginning-of-line)
-		  (setq m2-start (point))
-		  (end-of-line)
-		  (setq m2-end (point)))
-		(m2-forward-to-token)
-		(setq m2-next-tok (point)))
-	      (if (> m2-next-tok m2-end)
-		  (progn
-		    (setq m2-spaces (+ (- m2-start-exp m2-start) 1))
-		    (goto-char m2-cursor)
-		    (beginning-of-line)
-		    (m2-remove-leading-spaces)
-		    (if (looking-at "[\])]")
-			(progn
-			  (setq m2-spaces (- m2-start-exp m2-start))))
-		    (if (or (m2-indent-commencer)
-			    (m2-indent-terminator))
-			(m2-indent)
-		      (m2-create-indent m2-spaces)))
-		(progn
-		  (m2-remove-leading-spaces)
-		  (if (looking-at "[\])]")
-		      (progn
-			(m2-create-indent (- m2-start-exp m2-start)))
-		    (m2-create-indent (- m2-next-tok m2-start))))))))))))
+        (let (m2-start)
+          (let (m2-start-exp)
+            (let (m2-next-tok)
+              (setq m2-cursor (point))
+              (save-excursion
+                (m2-find-beginning-of-expression)
+                (setq m2-start-exp (point))
+                (save-excursion
+                  (beginning-of-line)
+                  (setq m2-start (point))
+                  (end-of-line)
+                  (setq m2-end (point)))
+                (m2-forward-to-token)
+                (setq m2-next-tok (point)))
+              (if (> m2-next-tok m2-end)
+                  (progn
+                    (setq m2-spaces (+ (- m2-start-exp m2-start) 1))
+                    (goto-char m2-cursor)
+                    (beginning-of-line)
+                    (m2-remove-leading-spaces)
+                    (if (looking-at "[\])]")
+                        (progn
+                          (setq m2-spaces (- m2-start-exp m2-start))))
+                    (if (or (m2-indent-commencer)
+                            (m2-indent-terminator))
+                        (m2-indent)
+                      (m2-create-indent m2-spaces)))
+                (progn
+                  (m2-remove-leading-spaces)
+                  (if (looking-at "[\])]")
+                      (progn
+                        (m2-create-indent (- m2-start-exp m2-start)))
+                    (m2-create-indent (- m2-next-tok m2-start))))))))))))
 
 (defun m2-find-beginning-of-expression ()
   "positions the cursor on the start of the current subexpression."
@@ -1283,14 +1283,14 @@ m2r10 imports go here
   (let (m2-level)
     (setq m2-level 1)
     (while (and
-	    (not (and (= m2-level 0)
-		      (m2-expression-commencer)))
-	    (not (m2-expression-backstop)))
+            (not (and (= m2-level 0)
+                      (m2-expression-commencer)))
+            (not (m2-expression-backstop)))
       (m2-backward-to-token)
       (if (looking-at ")")
-	  (setq m2-level (+ m2-level 1))
-	(if (looking-at "(")
-	    (setq m2-level (- m2-level 1)))))))
+          (setq m2-level (+ m2-level 1))
+        (if (looking-at "(")
+            (setq m2-level (- m2-level 1)))))))
 
 (defun m2-delete-indent-spaces ()
   "removes 3 spaces from the beginning of the line if they exist."
@@ -1304,11 +1304,11 @@ m2r10 imports go here
   (save-excursion
     (beginning-of-line)
     (if (looking-at "\t")
-	(progn
-	  (delete-char 1)
-	  (insert "       "))
+        (progn
+          (delete-char 1)
+          (insert "       "))
       (if (looking-at " ")
-	  (delete-char 1)))))
+          (delete-char 1)))))
 
 (defun m2-old-calculate-indent ()
   "calculates the indentation required for the current source line."
@@ -1317,15 +1317,15 @@ m2r10 imports go here
     (save-excursion
       (setq m2-level 0)
       (while (> (point) 1)
-	(if (m2-indent-terminator)
-	    (setq m2-level (- m2-level 1)))
-	(m2-backward-to-token)
-	(if (m2-indent-commencer)
-	    (setq m2-level (+ m2-level 1)))))
+        (if (m2-indent-terminator)
+            (setq m2-level (- m2-level 1)))
+        (m2-backward-to-token)
+        (if (m2-indent-commencer)
+            (setq m2-level (+ m2-level 1)))))
     (while (> m2-level 0)
       (progn
-	(insert "   ")
-	(setq m2-level (- m2-level 1))))))
+        (insert "   ")
+        (setq m2-level (- m2-level 1))))))
 
 (defun m2-indent-commencer ()
   "returns true if a token representing the beginning of an indent sequence was found."
@@ -1363,11 +1363,11 @@ m2r10 imports go here
       (looking-at-keyword "UNTIL")))
 
 (defun m2-local-recompile ()
- "recompile the gm2-mode and load the file"
- (interactive)
- (byte-compile-file (concat (getenv "HOME") "/m2/comp/el/gm2-mode.el"))
- (read-abbrev-file  (concat (getenv "HOME") "/m2/comp/el/gm2-mode.elc"))
- (message "Compilation complete"))
+  "recompile the gm2-mode and load the file"
+  (interactive)
+  (byte-compile-file (concat (getenv "HOME") "/m2/comp/el/gm2-mode.el"))
+  (read-abbrev-file  (concat (getenv "HOME") "/m2/comp/el/gm2-mode.elc"))
+  (message "Compilation complete"))
 
 (defvar m2-auto-syntax-table nil
   "Syntax table in use in gm2-mode buffers.")
@@ -1401,12 +1401,12 @@ m2r10 imports go here
   (insert "D")
   (setq case-fold-search nil)
   (if (and (not (m2-is-in-string))
-	   (> (point) 4))
+           (> (point) 4))
       (save-excursion
-	(forward-char -4)
-	(if (looking-at-keyword "[; \t\n]END[; \t\n]")
-	    (progn
-	      (m2-found-end))))))
+        (forward-char -4)
+        (if (looking-at-keyword "[; \t\n]END[; \t\n]")
+            (progn
+              (m2-found-end))))))
 
 (defun m2-found-end ()
   "found END now attempt to line up code"
@@ -1415,7 +1415,7 @@ m2r10 imports go here
       (m2-tab))
   (save-excursion
     (if (m2-match-end)
-	(m2-display-match (point))
+        (m2-display-match (point))
       (message "no matching statement found"))))
 
 (defun m2-test-then ()
@@ -1424,11 +1424,11 @@ m2r10 imports go here
   (insert "N")
   (setq case-fold-search nil)
   (if (and (not (m2-is-in-string))
-	   (> (point) 5))
+           (> (point) 5))
       (save-excursion
-	(forward-char -5)
-	(if (looking-at-keyword "[; \t\n]THEN[; \t\n]")
-	    (m2-found-then)))))
+        (forward-char -5)
+        (if (looking-at-keyword "[; \t\n]THEN[; \t\n]")
+            (m2-found-then)))))
 
 (defun m2-found-then ()
   "found THEN now attempt to line up code"
@@ -1442,11 +1442,11 @@ m2r10 imports go here
   (insert "E")
   (setq case-fold-search nil)
   (if (and (not (m2-is-in-string))
-	   (> (point) 5))
+           (> (point) 5))
       (save-excursion
-	(forward-char -5)
-	(if (looking-at-keyword "[; \t\n]ELSE[; \t\n]")
-	    (m2-found-else)))))
+        (forward-char -5)
+        (if (looking-at-keyword "[; \t\n]ELSE[; \t\n]")
+            (m2-found-else)))))
 
 (defun m2-found-else ()
   "found ELSE now attempt to line up code"
@@ -1455,24 +1455,24 @@ m2r10 imports go here
       (m2-tab)))
 
 (defun m2-local-test ()
- "simple test hook."
- (interactive)
- (let ((m2-success (m2-testing)))
-   (if (numberp m2-success)
-       (message "number found")
-     (if (stringp m2-success)
-	 (message "Error found missing: %s" m2-success)
-       (if (bufferp m2-success)
-	   (message "buffer found")
-	 (if (symbolp m2-success)
-	     (if m2-success
-		 (message "No error found")
-	       (message "FALSE returned %s" m2-success))))))))
+  "simple test hook."
+  (interactive)
+  (let ((m2-success (m2-testing)))
+    (if (numberp m2-success)
+        (message "number found")
+      (if (stringp m2-success)
+          (message "Error found missing: %s" m2-success)
+        (if (bufferp m2-success)
+            (message "buffer found")
+          (if (symbolp m2-success)
+              (if m2-success
+                  (message "No error found")
+                (message "FALSE returned %s" m2-success))))))))
 
 (defun m2-testing ()
   "simple function which returns a number of different symbols"
   nil
-)
+  )
 
 (defun m2-match-end ()
   "finds the start of the statement matching the END returns true if found."
@@ -1481,27 +1481,27 @@ m2r10 imports go here
     (let (beginning)
       (setq m2-level 1)
       (while (and (> m2-level 0) (> (point) 1))
-	(re-search-backward-keyword "[ ;\n\t]\\(END\\|IF\\|LOOP\\|WITH\\|WHILE\\|RECORD\\|CASE\\|FOR\\|MODULE\\|PROCEDURE\\)" nil t)
-	(forward-char 1)
-	(if (not (m2-is-in-string))
-	    (if (looking-at-keyword "END")
-		(setq m2-level (+ m2-level 1))
-	      (setq m2-level (- m2-level 1)
-		    beginning (point)))))
+        (re-search-backward-keyword "[ ;\n\t]\\(END\\|IF\\|LOOP\\|WITH\\|WHILE\\|RECORD\\|CASE\\|FOR\\|MODULE\\|PROCEDURE\\)" nil t)
+        (forward-char 1)
+        (if (not (m2-is-in-string))
+            (if (looking-at-keyword "END")
+                (setq m2-level (+ m2-level 1))
+              (setq m2-level (- m2-level 1)
+                    beginning (point)))))
       (= m2-level 0))))
 
 (defun m2-end-commencer ()
   "returns true if a token representing the beginning of an END was found."
   (and (> (point) 1)
        (or (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]IF"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]LOOP"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]WITH"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]WHILE"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]RECORD"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]CASE"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]FOR"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]MODULE"))
-	   (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]PROCEDURE")))))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]LOOP"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]WITH"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]WHILE"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]RECORD"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]CASE"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]FOR"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]MODULE"))
+           (save-excursion (forward-char -1) (looking-at-keyword "[ ;\n\t]PROCEDURE")))))
 
 (defun m2-is-end()
   "returns true if END is found."
@@ -1513,70 +1513,70 @@ m2r10 imports go here
   (interactive)
   (if (<= (window-start) m2-beginning)
       (progn
-	(goto-char m2-beginning)
-	(sit-for 1))
+        (goto-char m2-beginning)
+        (sit-for 1))
     (progn
       (save-excursion
-	(let (m2-start)
-	  (let (m2-end)
-	    (beginning-of-line)
-	    (setq m2-start (point))
-	    (end-of-line)
-	    (setq m2-end (point))
-	(message "matches: %s" (buffer-substring m2-start m2-end))))))))
+        (let (m2-start)
+          (let (m2-end)
+            (beginning-of-line)
+            (setq m2-start (point))
+            (end-of-line)
+            (setq m2-end (point))
+            (message "matches: %s" (buffer-substring m2-start m2-end))))))))
 
 (defun m2-backward-to-token ()
   "moves back to the beginning of the last token"
   (interactive)
   (if (> (point) 1)
       (progn
-	(forward-char -1)
-	(while (or (and (> (point) 1)
-			(save-excursion (forward-char -1) (looking-at "\\*)")))
-		   (looking-at "[ \t\n]"))
-	  (if (looking-at "[ \t\n]")
-	      (forward-char -1)
-	    (progn
-	      (m2-backward-to-comment-start)
-	      (if (> (point) 1)
-		  (forward-char -1)))))
-	(if (save-excursion (forward-char -1) (or (looking-at ":=")
-						  (looking-at "<=")
-						  (looking-at ">=")
-						  (looking-at "\\.\\.")
-						  (looking-at "<>")))
-	    (forward-char -1)
-	  (if (looking-at "'")
-	      (m2-move-backward-over-quotes)
-	    (if (looking-at "[0-9a-zA-Z]")
-		(progn
-		  (while (and (> (point) 1)
-			      (looking-at "[0-9a-zA-Z]"))
-		    (forward-char -1))
-		  (if (> (point) 1)
-		      (forward-char 1)))))))))
+        (forward-char -1)
+        (while (or (and (> (point) 1)
+                        (save-excursion (forward-char -1) (looking-at "\\*)")))
+                   (looking-at "[ \t\n]"))
+          (if (looking-at "[ \t\n]")
+              (forward-char -1)
+            (progn
+              (m2-backward-to-comment-start)
+              (if (> (point) 1)
+                  (forward-char -1)))))
+        (if (save-excursion (forward-char -1) (or (looking-at ":=")
+                                                  (looking-at "<=")
+                                                  (looking-at ">=")
+                                                  (looking-at "\\.\\.")
+                                                  (looking-at "<>")))
+            (forward-char -1)
+          (if (looking-at "'")
+              (m2-move-backward-over-quotes)
+            (if (looking-at "[0-9a-zA-Z]")
+                (progn
+                  (while (and (> (point) 1)
+                              (looking-at "[0-9a-zA-Z]"))
+                    (forward-char -1))
+                  (if (> (point) 1)
+                      (forward-char 1)))))))))
 
 (defun m2-backward-until-ident-delimeter ()
   "moves the cursor back until an ident delimeter is found."
   (interactive)
   (while (and (> (point) 1)
-	      (save-excursion
-		(forward-char -1)
-		(not (looking-at "[ \n\t=:,;]"))))
+              (save-excursion
+                (forward-char -1)
+                (not (looking-at "[ \n\t=:,;]"))))
     (forward-char -1))
   (if (and (> (point) 1)
-	   (save-excursion
-	     (forward-char -1)
-	     (looking-at "[=:,;]")))
+           (save-excursion
+             (forward-char -1)
+             (looking-at "[=:,;]")))
       (forward-char -1)))
 
 (defun m2-backward-until-white ()
   "moves the cursor back until white space is found."
   (interactive)
   (while (and (> (point) 1)
-	      (save-excursion
-		(forward-char -1)
-		(not (looking-at "[ \t\n]"))))
+              (save-excursion
+                (forward-char -1)
+                (not (looking-at "[ \t\n]"))))
     (forward-char -1)))
 
 (defun m2-backward-to-noncomment (lim)
@@ -1587,14 +1587,14 @@ m2r10 imports go here
     (while carry-on
       (skip-chars-backward " \t\n\f" lim)
       (if (and (>= (point) (+ 2 lim))
-	       (save-excursion
-		 (forward-char -2)
-		 (looking-at "\\*)")))
-	  (m2-run-back-over-comments lim))
+               (save-excursion
+                 (forward-char -2)
+                 (looking-at "\\*)")))
+          (m2-run-back-over-comments lim))
       (setq carry-on (and (> (point) lim)
-			  (or (and (>= (point) (+ 2 lim))
-				   (save-excursion (forward-char -2) (looking-at "\\*)")))
-			      (save-excursion (forward-char -1) (looking-at "[\n\t ]"))))))))
+                          (or (and (>= (point) (+ 2 lim))
+                                   (save-excursion (forward-char -2) (looking-at "\\*)")))
+                              (save-excursion (forward-char -1) (looking-at "[\n\t ]"))))))))
 
 (defun m2-run-back-over-comments (lim)
   "moves over a comment."
@@ -1602,18 +1602,18 @@ m2r10 imports go here
   (let (m2-comment-level)
     (forward-char -2)
     (if (looking-at "(\\*")
-	(setq m2-comment-level 1)
+        (setq m2-comment-level 1)
       (if (looking-at "\\*)")
-	  (setq m2-comment-level -1)
-	(message "run-over-comments assumes it is on a comment")))
+          (setq m2-comment-level -1)
+        (message "run-over-comments assumes it is on a comment")))
     (forward-char -1)
     (while (and
-	    (not (= m2-comment-level 0))
-	    (> (point) lim))
+            (not (= m2-comment-level 0))
+            (> (point) lim))
       (if (looking-at "(\\*")
-	  (setq m2-comment-level (+ m2-comment-level 1)))
+          (setq m2-comment-level (+ m2-comment-level 1)))
       (if (looking-at "\\*)")
-	  (setq m2-comment-level (- m2-comment-level 1)))
+          (setq m2-comment-level (- m2-comment-level 1)))
       (forward-char -1))))
 
 (defun m2-is-in-string ()
@@ -1624,13 +1624,13 @@ m2r10 imports go here
       (setq m2-in-quotes nil)
       (setq m2-point (point))
       (save-excursion
-	(beginning-of-line)
-	(while (< (point) m2-point)
-	  (if (looking-at "\"")
-	      (setq m2-in-quotes (not (m2-run-over-double-quotes m2-point)))
-	    (if (looking-at "'")
-		(setq m2-in-quotes (not (m2-run-over-single-quotes m2-point)))))
-	  (forward-char 1)))
+        (beginning-of-line)
+        (while (< (point) m2-point)
+          (if (looking-at "\"")
+              (setq m2-in-quotes (not (m2-run-over-double-quotes m2-point)))
+            (if (looking-at "'")
+                (setq m2-in-quotes (not (m2-run-over-single-quotes m2-point)))))
+          (forward-char 1)))
       m2-in-quotes)))
 
 (defun m2-run-over-double-quotes (m2-opoint)
@@ -1638,7 +1638,7 @@ m2r10 imports go here
   (interactive)
   (forward-char 1)
   (while (and (< (point) m2-opoint)
-	      (not (looking-at "\"")))
+              (not (looking-at "\"")))
     (forward-char 1))
   (and (looking-at "\"") (< (point) m2-opoint)))
 
@@ -1647,7 +1647,7 @@ m2r10 imports go here
   (interactive)
   (forward-char 1)
   (while (and (< (point) m2-opoint)
-	      (not (looking-at "'")))
+              (not (looking-at "'")))
     (forward-char 1))
   (and (looking-at "'") (< (point) m2-opoint)))
 
@@ -1659,34 +1659,34 @@ m2r10 imports go here
       (setq m2-point (point))
       (setq m2-in-comment nil)
       (save-excursion
-	(goto-char (point-min))
-	(while (< (point) m2-point)
-	  (if (looking-at "\"")
-	      (m2-run-over-double-quotes m2-point)
-	    (if (looking-at "'")
-	    (m2-run-over-single-quotes m2-point)
-	    (if (looking-at "(\\*")
-		(setq m2-in-comment (not (m2-run-forward-over-comments m2-point))))))
-      (forward-char 1)))
-  m2-in-comment)))
+        (goto-char (point-min))
+        (while (< (point) m2-point)
+          (if (looking-at "\"")
+              (m2-run-over-double-quotes m2-point)
+            (if (looking-at "'")
+                (m2-run-over-single-quotes m2-point)
+              (if (looking-at "(\\*")
+                  (setq m2-in-comment (not (m2-run-forward-over-comments m2-point))))))
+          (forward-char 1)))
+      m2-in-comment)))
 
 (defun m2-run-forward-over-comments (lim)
   "moves over a comment and returns true if we are not in a comment"
   (interactive)
   (let (m2-comment-level)
     (if (looking-at "(\\*")
-	(setq m2-comment-level 1)
+        (setq m2-comment-level 1)
       (if (looking-at "\\*)")
-	  (setq m2-comment-level -1)
-	(message "run-over-comments assumes it is on a comment")))
+          (setq m2-comment-level -1)
+        (message "run-over-comments assumes it is on a comment")))
     (forward-char 1)
     (while (and
-	    (not (= m2-comment-level 0))
-	    (< (point) (- lim 1)))
+            (not (= m2-comment-level 0))
+            (< (point) (- lim 1)))
       (if (looking-at "(\\*")
-	  (setq m2-comment-level (+ m2-comment-level 1)))
+          (setq m2-comment-level (+ m2-comment-level 1)))
       (if (looking-at "\\*)")
-	  (setq m2-comment-level (- m2-comment-level 1)))
+          (setq m2-comment-level (- m2-comment-level 1)))
       (forward-char 1))
     (forward-char 1)
     (= m2-comment-level 0)))
@@ -1696,40 +1696,40 @@ m2r10 imports go here
   (if (looking-at "[][=,;)--+#\\*\\|\\^\\%\\$@]")
       (forward-char 1)
     (if (or (looking-at ":=")
-	    (looking-at "<=")
-	    (looking-at ">=")
-	    (looking-at "\\.\\.")
-	    (looking-at "<>"))
-	(forward-char 2)
+            (looking-at "<=")
+            (looking-at ">=")
+            (looking-at "\\.\\.")
+            (looking-at "<>"))
+        (forward-char 2)
       (if (looking-at "[><:\\.]")
-	  (forward-char 1)
-	(if (looking-at "[A-Z|a-z|0-9]")
-	    (while (looking-at "[A-Z|a-z|0-9]")
-	      (forward-char 1))
-	  (if (and (looking-at "(") (not (looking-at "(\\*")))
-	      (forward-char 1)
-	    (if (looking-at "'")
-		(progn
-		  (m2-move-over-quotes)
-		  (forward-char 1))))))))
+          (forward-char 1)
+        (if (looking-at "[A-Z|a-z|0-9]")
+            (while (looking-at "[A-Z|a-z|0-9]")
+              (forward-char 1))
+          (if (and (looking-at "(") (not (looking-at "(\\*")))
+              (forward-char 1)
+            (if (looking-at "'")
+                (progn
+                  (m2-move-over-quotes)
+                  (forward-char 1))))))))
   (while (or (looking-at "(\\*")
-	     (looking-at "[ \t\n]"))
+             (looking-at "[ \t\n]"))
     (m2-forward-to-noncomment (point-max))))
 
 (defun m2-forward-until-white (lim)
   "moves the cursor forward until white space is found."
   (while (and (< (point) lim)
-	      (save-excursion
-		(forward-char 1)
-		(not (looking-at "[ \t\n]"))))
+              (save-excursion
+                (forward-char 1)
+                (not (looking-at "[ \t\n]"))))
     (forward-char 1)))
 
 (defun m2-forward-until-non-white (lim)
   "moves the cursor forward until non white space is found."
   (while (and (< (point) lim)
-	      (save-excursion
-		(forward-char 1)
-		(looking-at "[ \t\n]|(\\*")))
+              (save-excursion
+                (forward-char 1)
+                (looking-at "[ \t\n]|(\\*")))
     (forward-char 1)))
 
 (defun m2-forward-to-noncomment (lim)
@@ -1740,14 +1740,14 @@ m2r10 imports go here
       (setq m2-point (point))
       (setq m2-carry-on (< (point) lim))
       (while m2-carry-on
-	(skip-chars-forward "[ \t\n]" lim)
-	(setq m2-point (point))
-	(if (and (< (point) lim)
-		 (looking-at "(\\*"))
-	    (m2-run-forward-over-comments lim))
-	(setq m2-carry-on (and (< (point) lim)
-			       (or (looking-at "(\\*")
-				   (looking-at "[\n\t ]")))))
+        (skip-chars-forward "[ \t\n]" lim)
+        (setq m2-point (point))
+        (if (and (< (point) lim)
+                 (looking-at "(\\*"))
+            (m2-run-forward-over-comments lim))
+        (setq m2-carry-on (and (< (point) lim)
+                               (or (looking-at "(\\*")
+                                   (looking-at "[\n\t ]")))))
       (< (point) lim))))
 
 (defun m2-is-token (string)
@@ -1757,12 +1757,12 @@ m2r10 imports go here
       (setq m2-point (point))
       (setq m2-found-noncom (m2-forward-to-noncomment (point-max)))
       (if m2-found-noncom
-	  (if (looking-at string)
-	      t
-	    nil)
-	(progn
-	  (goto-char m2-point)
-	  nil)))))
+          (if (looking-at string)
+              t
+            nil)
+        (progn
+          (goto-char m2-point)
+          nil)))))
 
 (defun m2-token-is (string)
   "returns true if we can see a token string. It does eat the token."
@@ -1771,14 +1771,14 @@ m2r10 imports go here
       (setq m2-point (point))
       (setq m2-found-noncom (m2-forward-to-noncomment (point-max)))
       (if m2-found-noncom
-	  (if (looking-at string)
-	      (progn
-		(forward-char (length string))
-		t)
-	    nil)
-	(progn
-	  (goto-char m2-point)
-	  nil)))))
+          (if (looking-at string)
+              (progn
+                (forward-char (length string))
+                t)
+            nil)
+        (progn
+          (goto-char m2-point)
+          nil)))))
 
 (defun m2-ident ()
   "derived from EBNF for ident"
@@ -1787,17 +1787,17 @@ m2r10 imports go here
       (setq m2-point (point))
       (setq m2-found-noncom (m2-forward-to-noncomment (point-max)))
       (if m2-found-noncom
-	  (progn
-	    (if (and (looking-at "[A-Za-z][A-Za-z]*[0-9]*")
-		     (progn (skip-chars-forward "[A-Za-z][A-Za-z]*[0-9]*")
-			    (or (looking-at "[ \n\t]")
-				(looking-at "(\\*"))))
-		(progn
-		  (skip-chars-forward "[A-Za-z][A-Za-z]*[0-9]*")
-		  t)
-	      "Identifier"))
-	(goto-char m2-point)
-	"Identifier"))))
+          (progn
+            (if (and (looking-at "[A-Za-z][A-Za-z]*[0-9]*")
+                     (progn (skip-chars-forward "[A-Za-z][A-Za-z]*[0-9]*")
+                            (or (looking-at "[ \n\t]")
+                                (looking-at "(\\*"))))
+                (progn
+                  (skip-chars-forward "[A-Za-z][A-Za-z]*[0-9]*")
+                  t)
+              "Identifier"))
+        (goto-char m2-point)
+        "Identifier"))))
 
 (defun m2-string ()
   "derived from EBNF for a modula-2 string"
@@ -1806,12 +1806,12 @@ m2r10 imports go here
       (setq m2-point (point))
       (setq m2-found-noncom (m2-forward-to-noncomment (point-max)))
       (if m2-found-noncom
-	  (if (looking-at "'")
-	      (m2-move-over-quotes)
-	    nil)
-	(progn
-	  (goto-char m2-point)
-	  nil)))))
+          (if (looking-at "'")
+              (m2-move-over-quotes)
+            nil)
+        (progn
+          (goto-char m2-point)
+          nil)))))
 
 (defun m2-move-over-quotes ()
   "moves the cursor over the quoted string, nil is returned if
@@ -1820,30 +1820,30 @@ m2r10 imports go here
     (let (m2-carry-on)
       (setq m2-qpoint (point))
       (if (looking-at "'")
-	  (progn
-	    (forward-char 1)
-	    (setq m2-carry-on (not (looking-at "['\n]")))
-	    (while m2-carry-on
-	      (progn
-		(forward-char 1)
-		(setq m2-carry-on (not (looking-at "['\n]")))))
-	    (if (looking-at "\n")
-		(progn
-		  (goto-char m2-qpoint)
-		  "missing end quote before newline")
-	      t))
-	(progn
-	  (forward-char 1)
-	  (set m2-carry-on (not (looking-at "[\"\n]")))
-	  (while m2-carry-on
-	    (progn
-	      (forward-char 1)
-	      (setq m2-carry-on (not (looking-at "[\"\n]")))))
-	  (if (looking-at "\n")
-	      (progn
-		(goto-char m2-qpoint)
-		"missing end quote before newline")
-	    t))))))
+          (progn
+            (forward-char 1)
+            (setq m2-carry-on (not (looking-at "['\n]")))
+            (while m2-carry-on
+              (progn
+                (forward-char 1)
+                (setq m2-carry-on (not (looking-at "['\n]")))))
+            (if (looking-at "\n")
+                (progn
+                  (goto-char m2-qpoint)
+                  "missing end quote before newline")
+              t))
+        (progn
+          (forward-char 1)
+          (set m2-carry-on (not (looking-at "[\"\n]")))
+          (while m2-carry-on
+            (progn
+              (forward-char 1)
+              (setq m2-carry-on (not (looking-at "[\"\n]")))))
+          (if (looking-at "\n")
+              (progn
+                (goto-char m2-qpoint)
+                "missing end quote before newline")
+            t))))))
 
 (defun m2-move-backward-over-quotes ()
   "moves the cursor over the quoted string, nil is returned if
@@ -1852,36 +1852,36 @@ m2r10 imports go here
     (let (m2-carry-on)
       (setq m2-qpoint (point))
       (if (looking-at "'")
-	  (progn
-	    (forward-char -1)
-	    (setq m2-carry-on (not (looking-at "['\n]")))
-	    (while m2-carry-on
-	      (progn
-		(forward-char -1)
-		(setq m2-carry-on (not (looking-at "['\n]")))))
-	    (if (looking-at "\n")
-		(progn
-		  (goto-char m2-qpoint)
-		  "missing end quote before newline")
-	      t))
-	(progn
-	  (forward-char -1)
-	  (setq m2-carry-on (not (looking-at "[\"\n]")))
-	  (while m2-carry-on
-	    (progn
-	      (forward-char -1)
-	      (setq m2-carry-on (not (looking-at "[\"\n]")))))
-	  (if (looking-at "\n")
-	      (progn
-		(goto-char m2-qpoint)
-		"missing end quote before newline")
-	    t))))))
+          (progn
+            (forward-char -1)
+            (setq m2-carry-on (not (looking-at "['\n]")))
+            (while m2-carry-on
+              (progn
+                (forward-char -1)
+                (setq m2-carry-on (not (looking-at "['\n]")))))
+            (if (looking-at "\n")
+                (progn
+                  (goto-char m2-qpoint)
+                  "missing end quote before newline")
+              t))
+        (progn
+          (forward-char -1)
+          (setq m2-carry-on (not (looking-at "[\"\n]")))
+          (while m2-carry-on
+            (progn
+              (forward-char -1)
+              (setq m2-carry-on (not (looking-at "[\"\n]")))))
+          (if (looking-at "\n")
+              (progn
+                (goto-char m2-qpoint)
+                "missing end quote before newline")
+            t))))))
 
 (defun interactive-blink-matching-open ()
   "Indicate momentarily the start of sexp before point."
   (interactive)
   (let ((blink-matching-paren-distance (buffer-size))
-	(blink-matching-paren t))
+        (blink-matching-paren t))
     (blink-matching-open)))
 
 ;; define several class of keywords, longest similar string first
@@ -2004,13 +2004,13 @@ m2r10 imports go here
     (let (result)
       (setq result (copy-tree a))
       (let (l)
-	(setq l (length b))
-	(let (i)
-	  (setq i 0)
-	  (while (< i l)
-	    (progn
-	      (add-to-list 'result (nth i b))
-	      (setq i (+ i 1))))))
+        (setq l (length b))
+        (let (i)
+          (setq i 0)
+          (while (< i l)
+            (progn
+              (add-to-list 'result (nth i b))
+              (setq i (+ i 1))))))
       result)))
 
 (defun m2-generate-keywords ()
@@ -2024,8 +2024,8 @@ m2r10 imports go here
   (if m2-auto-default-gm2-extensions
       (setq m2-auto-keywords (m2-union m2-auto-keywords m2-auto-keywords-gm2)))
   (setq m2-auto-keyword-regexp (concat "\\(\\.\\|(\\|,\\|;\\|^\\| \\|\t\\)\\("
-				       (mapconcat 'identity m2-auto-keywords "\\|")
-				       "\\)\\(,\\|)\\|(\\|;\\| \\|$\\)"))
+                                       (mapconcat 'identity m2-auto-keywords "\\|")
+                                       "\\)\\(,\\|)\\|(\\|;\\| \\|$\\)"))
   (setq m2-auto-traditional-keywords-regexp (regexp-opt m2-auto-keywords 'words)))
 
 (defun m2-generate-types ()
@@ -2061,13 +2061,13 @@ m2r10 imports go here
   (interactive)
   (if (m2-auto-on-upper begin)
       (progn
-	(let (was-modified)
-	  (setq was-modified (buffer-modified-p))
-	  (upcase-region begin end)
-	  (remove-text-properties begin end '(font-lock-face nil))
-	  (remove-text-properties begin end '(upper nil))
-	  (remove-text-properties begin end '(face nil))
-	  (set-buffer-modified-p was-modified)))))
+        (let (was-modified)
+          (setq was-modified (buffer-modified-p))
+          (upcase-region begin end)
+          (remove-text-properties begin end '(font-lock-face nil))
+          (remove-text-properties begin end '(upper nil))
+          (remove-text-properties begin end '(face nil))
+          (set-buffer-modified-p was-modified)))))
 
 (defun m2-auto-restore-upper-case ()
   "."
@@ -2082,20 +2082,20 @@ m2r10 imports go here
     (let (m2-auto-min)
       (setq m2-auto-min (point))
       (let (seen-upper)
-	(setq seen-upper (m2-auto-on-upper (point)))
-	(while (< (point) end)
-	  (progn
-	    (if (not (eq seen-upper (m2-auto-on-upper (point))))
-		(progn
-		  (setq seen-upper (m2-auto-on-upper (point)))
-		  (if (m2-auto-on-upper (point))
-		      ;; just moved onto an uppercase
-		      (setq m2-auto-min (point))
-		    ;; just moved off an uppercase
-		    (restore-upper m2-auto-min (point)))))
-	    (forward-char 1)))
-	(if (m2-auto-on-upper m2-auto-min)
-	    (restore-upper m2-auto-min (point)))))))
+        (setq seen-upper (m2-auto-on-upper (point)))
+        (while (< (point) end)
+          (progn
+            (if (not (eq seen-upper (m2-auto-on-upper (point))))
+                (progn
+                  (setq seen-upper (m2-auto-on-upper (point)))
+                  (if (m2-auto-on-upper (point))
+                      ;; just moved onto an uppercase
+                      (setq m2-auto-min (point))
+                    ;; just moved off an uppercase
+                    (restore-upper m2-auto-min (point)))))
+            (forward-char 1)))
+        (if (m2-auto-on-upper m2-auto-min)
+            (restore-upper m2-auto-min (point)))))))
 
 (defun remove-upper-highlight-right ()
   "."
@@ -2103,19 +2103,19 @@ m2r10 imports go here
   ;; (message "insert hook executed")
   (if (< (point) (point-max))
       (progn
-	(save-excursion
-	  (forward-char 1)
-	  (if (< (point) (point-max))
-	      (progn
-		(let (start)
-		  (setq start (point))
-		  (forward-char 1)
-		  (while (and (< (point) (point-max))
-			      (m2-auto-on-upper (point)))
-		    (forward-char 1))
-		  (forward-char -1)
-		  (if (m2-auto-on-upper (point))
-		      (restore-upper start (point))))))))))
+        (save-excursion
+          (forward-char 1)
+          (if (< (point) (point-max))
+              (progn
+                (let (start)
+                  (setq start (point))
+                  (forward-char 1)
+                  (while (and (< (point) (point-max))
+                              (m2-auto-on-upper (point)))
+                    (forward-char 1))
+                  (forward-char -1)
+                  (if (m2-auto-on-upper (point))
+                      (restore-upper start (point))))))))))
 
 (defun remove-upper-highlight-left ()
   "."
@@ -2125,29 +2125,29 @@ m2r10 imports go here
     (let (bol)
       (setq bol (line-beginning-position))
       (if (> (point) bol)
-	  (progn
-	    (save-excursion
-	      (forward-char -1)
-	      (let (start)
-		(setq start -1)
-		(while (and (>= (point) bol)
-			    (m2-auto-on-upper (point)))
-		  (progn
-		    (setq start (point))
-		    (forward-char -1)))
-		(if (> start -1)
-		    (progn
-		      (let (end)
-			(goto-char start)
-			(setq bol (line-end-position))
-			(setq end -1)
-			(while (and (<= (point) bol)
-				    (m2-auto-on-upper (point)))
-			  (progn
-			    (forward-char 1)
-			    (setq end (point))))
-			(if (> end -1)
-			    (restore-upper start end))))))))))))
+          (progn
+            (save-excursion
+              (forward-char -1)
+              (let (start)
+                (setq start -1)
+                (while (and (>= (point) bol)
+                            (m2-auto-on-upper (point)))
+                  (progn
+                    (setq start (point))
+                    (forward-char -1)))
+                (if (> start -1)
+                    (progn
+                      (let (end)
+                        (goto-char start)
+                        (setq bol (line-end-position))
+                        (setq end -1)
+                        (while (and (<= (point) bol)
+                                    (m2-auto-on-upper (point)))
+                          (progn
+                            (forward-char 1)
+                            (setq end (point))))
+                        (if (> end -1)
+                            (restore-upper start end))))))))))))
 
 (defun m2-auto-check-on-insertion ()
   "."
@@ -2194,16 +2194,16 @@ m2r10 imports go here
   (progn
     (save-excursion
       (let (l)
-	;; (message (concat "m2-auto-keywordise <" all-matched ">"))
-	(setq l (length token))
-	(goto-char (match-beginning 0))
-	;; (message (format "value of l is %d, keyword %d and all-matched %d" l (length keyword) (length all-matched)))
-	(forward-char (length left-leader))
-	(insert (propertize (downcase token)
-			    'font-lock-face face
-			    'rear-nonsticky t
-			    'upper t))
-	(delete-char (length token))))
+        ;; (message (concat "m2-auto-keywordise <" all-matched ">"))
+        (setq l (length token))
+        (goto-char (match-beginning 0))
+        ;; (message (format "value of l is %d, keyword %d and all-matched %d" l (length keyword) (length all-matched)))
+        (forward-char (length left-leader))
+        (insert (propertize (downcase token)
+                            'font-lock-face face
+                            'rear-nonsticky t
+                            'upper t))
+        (delete-char (length token))))
     nil))
 
 (defun m2-auto-lowerise-block (all-matched left-leader token face)
@@ -2214,9 +2214,9 @@ m2r10 imports go here
       (goto-char (match-beginning 0))
       (forward-char (length left-leader))
       (insert (propertize (downcase token)
-			  'font-lock-face face
-			  'rear-nonsticky t
-			  'upper t))
+                          'font-lock-face face
+                          'rear-nonsticky t
+                          'upper t))
       (delete-char (length token)))
     nil))
 
@@ -2226,23 +2226,23 @@ m2r10 imports go here
   (progn
     (save-excursion
       (let (l)
-	;; (message (concat "m2-auto-lowerise-block-ident <" all-matched "> ident <" ident ">"))
-	(setq l (length token))
-	(goto-char (match-beginning 0))
-	;; (message (format "value of l is %d, keyword %d and all-matched %d" l (length keyword) (length all-matched)))
-	(forward-char (length left-leader))
-	(insert (propertize (downcase token)
-			    'font-lock-face keyword-face
-			    'rear-nonsticky t
-			    'upper t))
-	(delete-char (length token))
-	(setq l (- (length all-matched) (length ident)))
-	(setq l (- l (length token)))
-	(forward-char l)
-	(insert (propertize ident
-			    'font-lock-face function-face
-			    'rear-nonsticky t))
-	(delete-char (length ident))))
+        ;; (message (concat "m2-auto-lowerise-block-ident <" all-matched "> ident <" ident ">"))
+        (setq l (length token))
+        (goto-char (match-beginning 0))
+        ;; (message (format "value of l is %d, keyword %d and all-matched %d" l (length keyword) (length all-matched)))
+        (forward-char (length left-leader))
+        (insert (propertize (downcase token)
+                            'font-lock-face keyword-face
+                            'rear-nonsticky t
+                            'upper t))
+        (delete-char (length token))
+        (setq l (- (length all-matched) (length ident)))
+        (setq l (- l (length token)))
+        (forward-char l)
+        (insert (propertize ident
+                            'font-lock-face function-face
+                            'rear-nonsticky t))
+        (delete-char (length ident))))
     nil))
 
 (defun m2-all-upper-case-region (begin end)
@@ -2252,16 +2252,16 @@ m2r10 imports go here
     (save-excursion
       (goto-char begin)
       (let (m2-auto-min)
-	(setq m2-auto-min (point))
-	(let (is-upper)
-	  (setq is-upper nil)
-	  (while (and (< (point) end)
-		      is-upper)
-	    (progn
-	      (if (not (m2-auto-on-upper (point)))
-		  (setq seen-upper nil))
-	      (forward-char 1)))
-	  is-upper)))))
+        (setq m2-auto-min (point))
+        (let (is-upper)
+          (setq is-upper nil)
+          (while (and (< (point) end)
+                      is-upper)
+            (progn
+              (if (not (m2-auto-on-upper (point)))
+                  (setq seen-upper nil))
+              (forward-char 1)))
+          is-upper)))))
 
 (defun dbg (kind s)
   "."
@@ -2274,31 +2274,31 @@ m2r10 imports go here
   (interactive)
   (save-excursion
     (if (re-search-forward "(*!m2" nil t)
-	(progn
-	  (while (and (< (point) (point-max))
-		      (not (looking-at "*)")))
-	    (progn
-	      ;; (message (concat "while: " (buffer-substring (point) (+ (point) 3))))
-	      (if (looking-at "pim")
-		  (progn
-		    (forward-char 3)
-		    (setq m2-dialect-known t)
-		    (add-to-list 'm2-dialect 'pim))
-		(if (looking-at "iso")
-		    (progn
-		      (forward-char 3)
-		      (setq m2-dialect-known t)
-		      (add-to-list 'm2-dialect 'iso))
-		  (if (looking-at "r10")
-		      (progn
-			(forward-char 3)
-			(setq m2-dialect-known t)
-			(add-to-list 'm2-dialect 'r10))
-		  (if (looking-at "gm2")
-		      (progn
-			(forward-char 3)
-			(add-to-list 'm2-dialect 'gm2))
-		    (forward-char 1)))))))))))
+        (progn
+          (while (and (< (point) (point-max))
+                      (not (looking-at "*)")))
+            (progn
+              ;; (message (concat "while: " (buffer-substring (point) (+ (point) 3))))
+              (if (looking-at "pim")
+                  (progn
+                    (forward-char 3)
+                    (setq m2-dialect-known t)
+                    (add-to-list 'm2-dialect 'pim))
+                (if (looking-at "iso")
+                    (progn
+                      (forward-char 3)
+                      (setq m2-dialect-known t)
+                      (add-to-list 'm2-dialect 'iso))
+                  (if (looking-at "r10")
+                      (progn
+                        (forward-char 3)
+                        (setq m2-dialect-known t)
+                        (add-to-list 'm2-dialect 'r10))
+                    (if (looking-at "gm2")
+                        (progn
+                          (forward-char 3)
+                          (add-to-list 'm2-dialect 'gm2))
+                      (forward-char 1)))))))))))
 
 (defun m2-auto-dialect-pim ()
   "return t if m2pim dialect was configured or detected."
@@ -2371,19 +2371,19 @@ m2r10 imports go here
   (interactive)
   (if m2-auto-keywords-underlined
       (progn
-	(make-variable-buffer-local 'font-lock-keyword-face)
-	(copy-face 'font-lock-keyword-face 'm2-auto-keyword-face)
-	;; (set-face-foreground 'm2-auto-keyword-face "green4")
-	(set-face-bold 'm2-auto-keyword-face t)
-	(set-face-underline 'm2-auto-keyword-face t)
-	(setq font-lock-keyword-face 'm2-auto-keyword-face)))
+        (make-variable-buffer-local 'font-lock-keyword-face)
+        (copy-face 'font-lock-keyword-face 'm2-auto-keyword-face)
+        ;; (set-face-foreground 'm2-auto-keyword-face "green4")
+        (set-face-bold 'm2-auto-keyword-face t)
+        (set-face-underline 'm2-auto-keyword-face t)
+        (setq font-lock-keyword-face 'm2-auto-keyword-face)))
   (if m2-auto-functions-italic
       (progn
-	(make-variable-buffer-local 'font-lock-builtin-face)
-	(copy-face 'font-lock-builtin-face 'm2-auto-builtin-face)
-	(set-face-bold 'm2-auto-builtin-face t)
-	(set-face-italic 'm2-auto-builtin-face t)
-	(setq font-lock-builtin-face 'm2-auto-builtin-face))))
+        (make-variable-buffer-local 'font-lock-builtin-face)
+        (copy-face 'font-lock-builtin-face 'm2-auto-builtin-face)
+        (set-face-bold 'm2-auto-builtin-face t)
+        (set-face-italic 'm2-auto-builtin-face t)
+        (setq font-lock-builtin-face 'm2-auto-builtin-face))))
 
 ;;(make-variable-buffer-local 'font-lock-keyword-face) (copy-face
 ;;'font-lock-keyword-face 'm2-auto-keyword-face) (set-face-foreground
@@ -2411,42 +2411,42 @@ m2r10 imports go here
   (m2-generate-functions)
   (if m2-auto-use-algol-style
       (progn
-	`(
-	  (,m2-auto-type-regexp "\\(.*$\\)"
-			       (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-type-face) nil
-			       (1 font-lock-type-face))
-	  (,m2-auto-constant-regexp "\\(.*$\\)"
-				   (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-constant-face) nil
-				   (1 font-lock-constant-face))
-	  (,m2-auto-builtin-regexp "\\(.*$\\)"
-				  (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-builtin-face) nil
-				  (1 font-lock-builtin-face))
-	  ;; (,m2-auto-procedure-regexp "\\(.*$\\)"
-	  ;; (m2-auto-function-name-test (match-string 0))
-	  ;; (1 font-lock-function-face))
-	  ;;
-	  ;;  got to here
-	  ;;
-	  (,m2-auto-block-ident-regexp "\\(.*$\\)"
-				       (m2-auto-lowerise-block-ident
-					(match-string 0) (match-string 1) (match-string 2) (match-string 4)
-					font-lock-keyword-face font-lock-function-name-face) nil
-				       (1 font-lock-keyword-face))
-	  (,m2-auto-block-regexp "\\(.*$\\)"
-				 (m2-auto-lowerise-block (match-string 0) (match-string 1) (match-string 2) font-lock-keyword-face) nil
-				 (1 font-lock-keyword-face))
-	  ;; end here
-	  (,m2-auto-keyword-regexp "\\(.*$\\)"
-				  (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-keyword-face) nil
-				  (1 font-lock-keyword-face))))
+        `(
+          (,m2-auto-type-regexp "\\(.*$\\)"
+                                (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-type-face) nil
+                                (1 font-lock-type-face))
+          (,m2-auto-constant-regexp "\\(.*$\\)"
+                                    (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-constant-face) nil
+                                    (1 font-lock-constant-face))
+          (,m2-auto-builtin-regexp "\\(.*$\\)"
+                                   (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-builtin-face) nil
+                                   (1 font-lock-builtin-face))
+          ;; (,m2-auto-procedure-regexp "\\(.*$\\)"
+          ;; (m2-auto-function-name-test (match-string 0))
+          ;; (1 font-lock-function-face))
+          ;;
+          ;;  got to here
+          ;;
+          (,m2-auto-block-ident-regexp "\\(.*$\\)"
+                                       (m2-auto-lowerise-block-ident
+                                        (match-string 0) (match-string 1) (match-string 2) (match-string 4)
+                                        font-lock-keyword-face font-lock-function-name-face) nil
+                                       (1 font-lock-keyword-face))
+          (,m2-auto-block-regexp "\\(.*$\\)"
+                                 (m2-auto-lowerise-block (match-string 0) (match-string 1) (match-string 2) font-lock-keyword-face) nil
+                                 (1 font-lock-keyword-face))
+          ;; end here
+          (,m2-auto-keyword-regexp "\\(.*$\\)"
+                                   (m2-auto-lowerise (match-string 0) (match-string 1) (match-string 2) font-lock-keyword-face) nil
+                                   (1 font-lock-keyword-face))))
     (progn
       `(
-	(,m2-auto-traditional-type-regexp . font-lock-type-face)
-	(,m2-auto-traditional-constant-regexp . font-lock-constant-face)
-	(,m2-auto-traditional-functions-regexp . font-lock-function-name-face)
-	(,m2-auto-traditional-keywords-regexp . font-lock-keyword-face)
-	;; note: order above matters.
-	))))
+        (,m2-auto-traditional-type-regexp . font-lock-type-face)
+        (,m2-auto-traditional-constant-regexp . font-lock-constant-face)
+        (,m2-auto-traditional-functions-regexp . font-lock-function-name-face)
+        (,m2-auto-traditional-keywords-regexp . font-lock-keyword-face)
+        ;; note: order above matters.
+        ))))
 
 (defun gm2-mode ()
   "Major mode for editing M2 code. User definable variables:
@@ -2475,10 +2475,10 @@ m2r10 imports go here
   (setq case-fold-search nil)
   (setq indent-tabs-mode nil)
   (setq m2-auto-hook
-	'(lambda ()
-	   (progn (make-local-variable 'compile-command)
-		  (setq compile-command (concat (m2-auto-get-compile-command) " " (concat (substring (buffer-name) 0 -4) ".mod")))
-		  (linum-mode 0))))
+        '(lambda ()
+           (progn (make-local-variable 'compile-command)
+                  (setq compile-command (concat (m2-auto-get-compile-command) " " (concat (substring (buffer-name) 0 -4) ".mod")))
+                  (linum-mode 0))))
 
   (add-hook 'before-save-hook 'm2-auto-restore-upper-case)
   (add-hook 'post-self-insert-hook 'm2-auto-check-on-insertion nil 'local)
