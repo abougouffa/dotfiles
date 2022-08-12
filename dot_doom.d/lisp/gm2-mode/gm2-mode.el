@@ -2499,3 +2499,5 @@ m2r10 imports go here
 ;;
 ;;  M-x package-install gm2
 ;;
+
+(provide 'gm2-mode)
