@@ -599,9 +599,7 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
 #+end_src
 
 #+begin_src emacs-lisp
-(setq auto-save-default t ;; enable built-in `auto-save-mode'
-      scroll-preserve-screen-position 'always ;; Don't have `point' jump around
-      scroll-margin 2) ;; It's nice to maintain a little margin
+(setq auto-save-default t) ;; enable built-in `auto-save-mode'
 #+end_src
 
 **** Undo
