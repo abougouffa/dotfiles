@@ -207,7 +207,7 @@ store the result in global constants.
 (defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
 (defconst BITWARDEN-P (+bool (executable-find "bw")))
 (defconst YOUTUBE-DL-P (+bool (+some (mapcar #'executable-find '("yt-dlp" "youtube-dl")))))
-(defconst NETEXTENDER-P (+bool (and (executable-find "netExtender") (file-exists-p "~/.local/bin/netextender") (file-exists-p "~/.ssh/sslvpn.gpg"))))
+(defconst NETEXTENDER-P (+bool (and (executable-find "netExtender") (+all (mapcar #'file-exists-p '("~/.local/bin/netextender" "~/.ssh/sslvpn.gpg"))))))
 (defconst CLANG-FORMAT-P (+bool (executable-find "clang-format")))
 (defconst LANGUAGETOOL-P (+bool (executable-find "languagetool")))
 #+end_src
