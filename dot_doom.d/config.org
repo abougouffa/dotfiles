@@ -1676,6 +1676,21 @@ together =project=, =eglot=, =cmake= and =clangd=.
   :defer t)
 #+end_src
 
+*** Lorem ipsum
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! emacs-lorem-ipsum
+  :recipe (:host github
+           :repo "jschaf/emacs-lorem-ipsum"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lorem-ipsum
+  :commands (lorem-ipsum-insert-sentences
+             lorem-ipsum-insert-paragraphs
+             lorem-ipsum-insert-list))
+#+end_src
+
 ** Symbols :symbol:
 *** Emojify :emoji:
 For starters, twitter's emojis look nicer than emoji-one.
