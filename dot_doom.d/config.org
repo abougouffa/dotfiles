@@ -821,6 +821,8 @@ Set Doom's theme, some good choices:
 
   (defun +modus-themes-tweak-packages ()
     (modus-themes-with-colors
+      (set-face-attribute 'cursor nil :background (modus-themes-color 'blue))
+      (set-face-attribute 'font-lock-type-face nil :foreground (modus-themes-color 'magenta-alt))
       (custom-set-faces
        ;; Tweak `git-gutter-mode'
        `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
