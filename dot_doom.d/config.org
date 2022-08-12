@@ -117,6 +117,15 @@ some special stuff which I want to load very early.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
 ;; Fixes to apply early
+
+(when (daemonp)
+  ;; When starting Emacs in daemon mode,
+  ;; I need to have a valid passphrase in the gpg-agent.
+  (let ((try-again 3))
+    (while (not (or (zerop try-again)
+                    (zerop (shell-command "gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > /dev/null" nil nil))))
+      (setq try-again (1- try-again))
+      (message "GPG: Failed to unlock, please try again (%d)" try-again))))
 #+end_src
 
 *** Useful functions
@@ -6953,8 +6962,8 @@ Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
 
 [Service]
 Type=forking
-ExecStart=sh -c 'gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > \dev\null; emacs --daemon && emacsclient -c --eval "(delete-frame)"'
-ExecStop=/usr/bin/emacsclient --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
+ExecStart=sh -c 'emacs --daemon && emacsclient -c --eval "(delete-frame)"'
+ExecStop=emacsclient --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
 Restart=on-failure
 
 [Install]
@@ -6970,12 +6979,6 @@ systemctl --user enable emacs.service
 For some reason if a frame isn't opened early in the initialization process, the
 daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
 part of the =ExecStart= value.
-
-#+begin_quote
-NOTE: I'm calling =gpg= before =emacs --daemon= to get asked for my GPG passphrase
-early, as it prevents Emacs' daemon from starting when it is trying to decrypt
-=~/.authinfo.gpg=.
-#+end_quote
 
 ** Emacs Client :emacsclient:
 *** Desktop integration :desktop:
