@@ -3392,17 +3392,6 @@ I configure my email accounts in a private file in
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
-  ;; FIXME: I constantly get a non systematic error after sending a mail.
-  ;; >> Error (message-sent-hook): Error running hook "undo" because:
-  ;; >> (error Unrecognized entry in undo list undo-tree-canary)
-  ;; It is triggered by the 'message-sent-hook', so lets remove the 'undo'
-  ;; command from the hook, we can do this before sending the message via
-  ;; the 'message-send-hook'.
-  ;; NOTE: I'm no more using `undo-tree'
-  ;; (add-hook 'message-send-hook ;; Befor sending the message
-  ;;           ;; Remove the problematic 'undo' hook.
-  ;;           (lambda () (remove-hook 'message-sent-hook 'undo t)))
-
   ;; Load my accounts
   (load! "lisp/private/+mu4e-accounts.el")
 
