@@ -1067,7 +1067,20 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
     (pixel-scroll-precision-mode 1)
   (use-package! good-scroll
     :config (good-scroll-mode 1)))
-#+end_src
+
+(setq scroll-step 1
+      scroll-margin 2
+      hscroll-step 1
+      hscroll-margin 2
+      scroll-conservatively 101
+      scroll-up-aggressively 0.01
+      scroll-down-aggressively 0.01
+      auto-window-vscroll nil
+      fast-but-imprecise-scrolling nil
+      mouse-wheel-scroll-amount '(1 ((shift) . 1))
+      mouse-wheel-progressive-speed nil
+      scroll-preserve-screen-position 'always)
+    #+end_src
 
 *** All the icons :icon:
 Set some custom icons for some file extensions, basically for =.m= files.
