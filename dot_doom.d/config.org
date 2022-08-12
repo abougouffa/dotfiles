@@ -824,6 +824,8 @@ Set Doom's theme, some good choices:
       (set-face-attribute 'cursor nil :background (modus-themes-color 'blue))
       (set-face-attribute 'font-lock-type-face nil :foreground (modus-themes-color 'magenta-alt))
       (custom-set-faces
+       ;; Tweak `evil-mc-mode'
+       `(evil-mc-cursor-default-face ((,class :background ,magenta-intense-bg)))
        ;; Tweak `git-gutter-mode'
        `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
        `(git-gutter-fr:deleted ((,class :foreground ,red-fringe-bg)))
