@@ -3308,7 +3308,7 @@ I configure my email accounts in a private file in
         mu4e-index-update-error-warning nil ;; Do not show warning after update
         mu4e-get-mail-command "mbsync -a" ;; Not needed, as +mu4e-backend is 'mbsync by default
         mu4e-main-hide-personal-addresses t ;; No need to display a long list of my own addresses!
-        mu4e-attachment-dir (expand-file-name "~/Maildir/attachements")
+        mu4e-attachment-dir (expand-file-name "~/Downloads/mu4e-attachements")
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
