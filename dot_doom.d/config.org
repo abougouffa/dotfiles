@@ -113,21 +113,6 @@ some special stuff which I want to load very early.
 
 #+end_src
 
-*** Fixes
-
-#+begin_src emacs-lisp :tangle pseudo-early-init.el
-;; Fixes to apply early
-
-(when (daemonp)
-  ;; When starting Emacs in daemon mode,
-  ;; I need to have a valid passphrase in the gpg-agent.
-  (let ((try-again 3))
-    (while (not (or (zerop try-again)
-                    (zerop (shell-command "gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > /dev/null" nil nil))))
-      (setq try-again (1- try-again))
-      (message "GPG: Failed to unlock, please try again (%d)" try-again))))
-#+end_src
-
 *** Useful functions
 Here we define some useful functions, some of them are available via other
 packages like ~cl-lib~, ~dash.el~ or ~s.el~, but I don't like to load too much third
@@ -183,6 +168,21 @@ party libraries, particulary in early stage, so let's define here.
   (if (null (car seqs)) nil
     (cons (mapcar #'car seqs)
           (apply #'+zip (mapcar #'cdr seqs)))))
+#+end_src
+
+*** Fixes
+
+#+begin_src emacs-lisp :tangle pseudo-early-init.el
+;; Fixes to apply early
+
+(when (daemonp)
+  ;; When starting Emacs in daemon mode,
+  ;; I need to have a valid passphrase in the gpg-agent.
+  (let ((try-again 3))
+    (while (not (or (zerop try-again)
+                    (zerop (shell-command "gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > /dev/null" nil nil))))
+      (setq try-again (1- try-again))
+      (message "GPG: Failed to unlock, please try again (%d)" try-again))))
 #+end_src
 
 *** Check for external tools :external:
