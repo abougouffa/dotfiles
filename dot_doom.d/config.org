@@ -5003,6 +5003,10 @@ To avoid problems in the src_elisp{(after! org)} section.
   ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
   :pin "971eb6885ec996c923e955730df3bafbdc244e54")
 
+(package! org-menu
+  :recipe (:host github
+           :repo "sheijk/org-menu"))
+
 (package! caldav
   :recipe (:host github
            :repo "dengste/org-caldav"))
@@ -5776,6 +5780,17 @@ Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-no
   :hook (org-load . org-wild-notifier-mode)
   :config
   (setq org-wild-notifier-alert-time '(60 30)))
+#+end_src
+
+**** Org menu
+
+#+begin_src emacs-lisp
+(use-package! org-menu
+  :commands (org-menu)
+  :init
+  (map! :localleader
+        :map org-mode-map
+        :desc "Org menu" "M" #'org-menu))
 #+end_src
 
 *** Custom links
