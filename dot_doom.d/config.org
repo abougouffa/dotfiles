@@ -7868,6 +7868,9 @@ set history save on
 set history filename ~/.gdb_history
 set history remove-duplicates 2048
 
+# Enable Debuginfod, automatically download debug symbols for Arch Linux system libraries
+set debuginfod enabled on
+
 # Set pretty print
 set print pretty on
 
