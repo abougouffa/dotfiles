@@ -4751,6 +4751,8 @@ Display Git information (author, date, message...) for current line
 
 #+begin_src emacs-lisp
 (use-package! blamer
+  :commands (blamer-mode)
+  ;; :hook ((prog-mode . blamer-mode))
   :custom
   (blamer-idle-time 0.3)
   (blamer-min-offset 60)
@@ -4764,7 +4766,6 @@ Display Git information (author, date, message...) for current line
                    :background nil
                    :height 125
                    :italic t)))
-  :hook ((prog-mode . blamer-mode))
   :config
   (when (modulep! :ui zen) ;; Disable in zen (writeroom) mode
     (add-hook 'writeroom-mode-enable-hook
