@@ -1116,8 +1116,6 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
       scroll-down-aggressively 0.01
       auto-window-vscroll nil
       fast-but-imprecise-scrolling nil
-      mouse-wheel-scroll-amount '(1 ((shift) . 1))
-      mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position 'always)
     #+end_src
 
@@ -1146,7 +1144,10 @@ Map extra mouse buttons to jump between buffers
       :n [mouse-9] #'better-jumper-jump-forward)
 
 ;; Enable horizontal scrolling with the second mouse wheel or the touchpad
-(setq mouse-wheel-tilt-scroll t)
+(setq mouse-wheel-tilt-scroll t
+      ;; Smoother scrolling
+      mouse-wheel-scroll-amount '(1 ((shift) . 1))
+      mouse-wheel-progressive-speed nil)
 #+end_src
 
 *** Page break lines :editor:
