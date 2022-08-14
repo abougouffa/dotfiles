@@ -1186,9 +1186,10 @@ assembly code using =objdump=. The file types are detected using the =file= util
   "Can the BUFFER be viewed as a disassembled code with objdump."
   (let* ((buff (or buffer (current-buffer)))
          (file (buffer-file-name buff)))
-    (not (string-match-p
-          "file format not recognized"
-          (shell-command-to-string (format "objdump --file-headers %s" file))))))
+    (and file
+         (not (string-match-p)
+              "file format not recognized"
+              (shell-command-to-string (format "objdump --file-headers %s" file))))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
