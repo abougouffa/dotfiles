@@ -175,6 +175,16 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
 `application/x-object', `application/octet-stream', etc."
   (let ((mime-type (shell-command-to-string (format "file --brief --mime-type %s" file))))
     (intern (string-trim-right mime-type))))
+
+(defun +str-replace (old new s)
+  "Replaces OLD with NEW in S."
+  (replace-regexp-in-string (regexp-quote old) new s t t))
+
+(defun +str-replace-all (replacements s)
+  "REPLACEMENTS is a list of cons-cells. Each `car` is replaced with `cdr` in S."
+  (replace-regexp-in-string (regexp-opt (mapcar 'car replacements))
+                            (lambda (it) (cdr (assoc-string replacements it)))
+                            s t t))
 #+end_src
 
 *** Fixes
