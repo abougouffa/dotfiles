@@ -207,7 +207,7 @@ Some added packages require external tools, I like to check for these tools and
 store the result in global constants.
 
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
-(defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-etc-dir))
+(defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-data-dir))
 (defconst IS-LUCID (string-search "LUCID" system-configuration-features))
 
 (defconst AG-P (executable-find "ag"))
@@ -248,7 +248,7 @@ This first section defines the template for the subsections, it uses the =no-web
 syntax to include subsections specified as ~<<sub-section-name>>~.
 
 #+name: init.el
-#+begin_src emacs-lisp :tangle "init.el" :noweb no-export :comments no
+#+begin_src emacs-lisp :tangle init.el :noweb no-export :comments no
 ;;; init.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 ;; This file controls what Doom modules are enabled and what order they load in.
@@ -954,7 +954,7 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 |----------------------|
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-user-dir))
 #+end_src
 
 **** Dashboard
@@ -1314,7 +1314,7 @@ straightforward, I'll just redefine it to a simpler, async, function.
   "A very simplified version of `+literate-tangle-h', but async."
   :override #'+literate-tangle-h
   (unless (getenv "__NOTANGLE")
-    (let ((default-directory doom-private-dir))
+    (let ((default-directory doom-user-dir))
       (when +literate-tangle--proc
         (message "Killing outdated tangle process...")
         (set-process-sentinel +literate-tangle--proc #'ignore)
@@ -1710,7 +1710,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! project-cmake
-  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :disable (not (modulep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
   :recipe (:host github
            :repo "juanjosegarciaripoll/project-cmake"))
 #+end_src
@@ -1884,7 +1884,7 @@ So I can "mélanger les langues sans avoir de problèmes!".
     "Add `LANG` to spell-fu multi-dict, with a personal dictionary."
     ;; Add the dictionary
     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary lang))
-    (let ((personal-dict-file (expand-file-name (format "aspell.%s.pws" lang) doom-private-dir)))
+    (let ((personal-dict-file (expand-file-name (format "aspell.%s.pws" lang) doom-user-dir)))
       ;; Create an empty personal dictionary if it doesn't exists
       (unless (file-exists-p personal-dict-file) (write-region "" nil personal-dict-file))
       ;; Add the personal dictionary
@@ -1940,14 +1940,14 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! eglot-grammarly
-  :disable (not (featurep! :tools lsp +eglot))
+  :disable (not (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/eglot-grammarly"))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! eglot-grammarly
-  :when (featurep! :tools lsp +eglot)
+  :when (modulep! :tools lsp +eglot)
   :commands (+lsp-grammarly-load)
   :init
   (defun +lsp-grammarly-load ()
@@ -1961,14 +1961,14 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! lsp-grammarly
-  :disable (or (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
+  :disable (or (not (modulep! :tools lsp)) (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/lsp-grammarly"))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! lsp-grammarly
-  :when (and (featurep! :tools lsp) (not (featurep! :tools lsp +eglot)))
+  :when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
   :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
   (defun +lsp-grammarly-load ()
@@ -2028,8 +2028,8 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
              grammalecte-find-synonyms
              grammalecte-find-synonyms-at-point)
   :init
-  (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-etc-dir)
-        grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-etc-dir))
+  (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-data-dir)
+        grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-data-dir))
   (setq flycheck-grammalecte-report-spellcheck t
         flycheck-grammalecte-report-grammar t
         flycheck-grammalecte-report-apos nil
@@ -2128,12 +2128,12 @@ reduces the false positives due to the marking and special commands.
            :repo "jcs-elpa/github-tags"))
 
 (package! lsp-ltex
- :disable (and (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
+ :disable (and (not (modulep! :tools lsp)) (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/lsp-ltex"))
 
 (package! eglot-ltex
-  :disable (not (featurep! :tools lsp +eglot))
+  :disable (not (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/eglot-ltex"))
 #+end_src
@@ -2148,7 +2148,7 @@ reduces the false positives due to the marking and special commands.
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-log-level "warning"
         lsp-ltex-trace-server "off"
-        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-etc-dir))
+        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   (when (and nil LANGUAGETOOL-P) ;; FIXME: Disabled
@@ -2353,7 +2353,7 @@ reduces the false positives due to the marking and special commands.
              chezmoi-mode)
   :config
   ;; Company integration
-  (when (featurep! :completion company)
+  (when (modulep! :completion company)
     (defun +chezmoi--company-backend-h ()
       (require 'chezmoi-company)
       (if chezmoi-mode
@@ -2363,7 +2363,7 @@ reduces the false positives due to the marking and special commands.
     (add-hook 'chezmoi-mode-hook #'+chezmoi--company-backend-h))
 
   ;; Integrate with evil mode by toggling template display when entering insert mode.
-  (when (featurep! :editor evil)
+  (when (modulep! :editor evil)
     (defun +chezmoi--evil-insert-state-enter-h ()
       "Run after evil-insert-state-entry."
       (chezmoi-template-buffer-display nil (point))
@@ -2526,7 +2526,7 @@ reduces the false positives due to the marking and special commands.
   (osm-copyright t)     ;; Display the copyright information
 
   :init
-  (setq osm-tile-directory (expand-file-name "osm" doom-etc-dir))
+  (setq osm-tile-directory (expand-file-name "osm" doom-data-dir))
   ;; Load Org link support
   (with-eval-after-load 'org
     (require 'osm-ol)))
@@ -3862,7 +3862,7 @@ Lastly, let's define the keybindings for these commands, under ~<leader> l m~.
 
 #+begin_src emacs-lisp :tangle yes
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :app emms)
+      (:when (modulep! :app emms)
        :prefix ("m" . "media")
        :desc "Playlist go"                 "g" #'emms-playlist-mode-go
        :desc "Add playlist"                "D" #'emms-add-playlist
@@ -3881,7 +3881,7 @@ Then we add MPD related keybindings if MPD is used.
 #+begin_src emacs-lisp
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) MPD-P)
+      (:when (and (modulep! :app emms) MPD-P)
        :prefix ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -4209,7 +4209,7 @@ TODO: Try to integrate embedded debuggers adapters with ~dap-mode~:
 
   :init
   (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger +lsp)
+        (:when (modulep! :tools debugger +lsp)
          :prefix ("e" . "embedded")
          :desc "Start OpenOCD"    "o" #'embed-openocd-start
          :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
@@ -4293,7 +4293,7 @@ session, to do so, I define a helper function to clear data stored in the
   (doom-store-clear "+debugger"))
 
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :tools debugger +lsp)
+      (:when (modulep! :tools debugger +lsp)
        :prefix ("d" . "debugger")
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 #+end_src
@@ -4380,7 +4380,7 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
     (realgud-hydra/body))
 
   (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger)
+        (:when (modulep! :tools debugger)
          :prefix ("d" . "debugger")
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 #+end_src
@@ -4495,7 +4495,7 @@ used at the moment.
                          (if args (concat " --args " args) "")))))
 
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :tools debugger)
+      (:when (modulep! :tools debugger)
        :prefix ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
 #+end_src
@@ -4525,7 +4525,7 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
         (message "Cannot make process 'rr record'"))))
 
   (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger)
+        (:when (modulep! :tools debugger)
          :prefix ("d" . "debugger")
          :desc "rr record" "r" #'+debugger/rr-record
          :desc "rr replay" "R" #'+debugger/rr-replay)))
@@ -4765,7 +4765,7 @@ Display Git information (author, date, message...) for current line
                    :italic t)))
   :hook ((prog-mode . blamer-mode))
   :config
-  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
+  (when (modulep! :ui zen) ;; Disable in zen (writeroom) mode
     (add-hook 'writeroom-mode-enable-hook
               (when (bound-and-true-p blamer-mode)
                 (setq +blamer-mode--was-active-p t)
@@ -4803,10 +4803,10 @@ Add some packages for better assembly coding.
 (use-package! x86-lookup
   :commands (x86-lookup)
   :config
-  (when (featurep! :tools pdf)
+  (when (modulep! :tools pdf)
     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
   ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-  (setq x86-lookup-pdf (expand-file-name "x86-lookup/325383-sdm-vol-2abcd.pdf" doom-etc-dir)))
+  (setq x86-lookup-pdf (expand-file-name "x86-lookup/325383-sdm-vol-2abcd.pdf" doom-data-dir)))
 #+end_src
 
 ** Disaster :disaster:disassemble:
@@ -4839,7 +4839,7 @@ Add some packages for better assembly coding.
 (use-package! devdocs
   :commands (devdocs-lookup devdocs-install)
   :config
-  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-data-dir)))
 #+end_src
 
 ** Systemd :systemd:
@@ -6109,7 +6109,7 @@ let's make it transparent.
 (+org-format-latex-set-scale 1.4)
 
 ;; Increase scale in Zen mode
-(when (featurep! :ui zen)
+(when (modulep! :ui zen)
   (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
   (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
 #+end_src
