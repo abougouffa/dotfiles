@@ -1188,9 +1188,9 @@ assembly code using =objdump=. The file types are detected using the =file= util
   (let* ((buff (or buffer (current-buffer)))
          (file (buffer-file-name buff)))
     (and file
-         (not (string-match-p)
-              "file format not recognized"
-              (shell-command-to-string (format "objdump --file-headers %s" file))))))
+         (not (string-match-p
+               "file format not recognized"
+               (shell-command-to-string (format "objdump --file-headers %s" file)))))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
