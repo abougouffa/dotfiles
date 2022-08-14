@@ -206,9 +206,10 @@
 ;; Custom splash image:1 ends here
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
-;; (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-;; (add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
-;; (setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
+(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
+(setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 ;; Dashboard:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
@@ -253,43 +254,46 @@
 
 ;; [[file:config.org::*Tweak =company-box=][Tweak =company-box=:1]]
 (after! company-box
-  (defun +company-box--reload-icons-h ()
-    (message "[FIX] Reloaded `company-box-icons-all-the-icons'")
-    (setq company-box-icons-all-the-icons
-          (let ((all-the-icons-scale-factor 0.8))
-            `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
-              (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
-              (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-              (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-              (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-              (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
-              (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-              (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-              (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
-              (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
-              (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
-              (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
-              (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
-              (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
-              (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
-              (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
-              (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
-              (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
-              (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
-              (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
-              (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
-              (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
-              (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
-              (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
-              (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
-              (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-              (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
-              (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-              (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-              (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
-              (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
+  (when (daemonp)
+    (defun +company-box--reload-icons-h ()
+      (setq company-box-icons-all-the-icons
+            (let ((all-the-icons-scale-factor 0.8))
+              `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
+                (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
+                (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
+                (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+                (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+                (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
+                (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
+                (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
+                (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
+                (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
+                (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
+                (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
+                (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
+                (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
+                (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
+                (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
+                (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
+                (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
+                (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
+                (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
+                (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
+                (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
+                (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+                (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
+                (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+                (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
+                (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
 
-  (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h))
+    ;; Replace Doom defined icons with mine
+    (when (memq #'+company-box--load-all-the-icons server-after-make-frame-hook)
+      (remove-hook 'server-after-make-frame-hook #'+company-box--load-all-the-icons))
+    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h)))
 ;; Tweak =company-box=:1 ends here
 
 ;; [[file:config.org::*SVG tag][SVG tag:2]]
@@ -329,16 +333,16 @@
   (use-package! good-scroll
     :config (good-scroll-mode 1)))
 
-(setq scroll-step 1
-      scroll-margin 2
-      hscroll-step 1
-      hscroll-margin 2
+(setq hscroll-step 1
+      hscroll-margin 0
+      scroll-step 1
+      scroll-margin 0
       scroll-conservatively 101
       scroll-up-aggressively 0.01
       scroll-down-aggressively 0.01
+      scroll-preserve-screen-position 'always
       auto-window-vscroll nil
-      fast-but-imprecise-scrolling nil
-      scroll-preserve-screen-position 'always)
+      fast-but-imprecise-scrolling nil)
 ;; Smooth scrolling:2 ends here
 
 ;; [[file:config.org::*All the icons][All the icons:1]]
@@ -357,8 +361,6 @@
 
 ;; Enable horizontal scrolling with the second mouse wheel or the touchpad
 (setq mouse-wheel-tilt-scroll t
-      ;; Smoother scrolling
-      mouse-wheel-scroll-amount '(1 ((shift) . 1))
       mouse-wheel-progressive-speed nil)
 ;; Mouse buttons:1 ends here
 
@@ -373,9 +375,10 @@
   "Can the BUFFER be viewed as a disassembled code with objdump."
   (let* ((buff (or buffer (current-buffer)))
          (file (buffer-file-name buff)))
-    (not (string-match-p
-          "file format not recognized"
-          (shell-command-to-string (format "objdump --file-headers %s" file))))))
+    (and file
+         (not (string-match-p)
+              "file format not recognized"
+              (shell-command-to-string (format "objdump --file-headers %s" file))))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
@@ -426,10 +429,11 @@ is binary, activate `hexl-mode'."
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
 ;; Very large files:2 ends here
 
-;; [[file:config.org::*Evil][Evil:2]]
+;; [[file:config.org::*Evil][Evil:1]]
 (after! evil
-  (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
-;; Evil:2 ends here
+  (setq evil-kill-on-visual-paste nil ; Don't put overwritten text in the kill ring
+        evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode))
+;; Evil:1 ends here
 
 ;; [[file:config.org::*Aggressive indent][Aggressive indent:2]]
 (use-package! aggressive-indent
@@ -2527,50 +2531,58 @@ current buffer's, reload dir-locals."
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 ;; Additional commands:1 ends here
 
-;; [[file:config.org::*RealGUD =.dir-locals.el= support][RealGUD =.dir-locals.el= support:1]]
+;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:1]]
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 ;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
 (defvar +realgud:launch-plist nil)
-;; RealGUD =.dir-locals.el= support:1 ends here
+;; RealGUD =launch.json= support:1 ends here
 
-;; [[file:config.org::*RealGUD =.dir-locals.el= support][RealGUD =.dir-locals.el= support:3]]
-(defun +realgud:get-launch-debugger-args (&key program args)
-  (let ((debugger--args ""))
-    (when program
-      (setq debugger--args program)
-      (when args
-        (setq debugger--args (concat debugger--args " " (s-join " " args)))))
-    ;; Replace special variables
-    (let* ((ws--root (expand-file-name (or (projectile-project-root) ".")))
-           (ws--basename (file-name-nondirectory
-                          (if (s-ends-with-p "/" ws--root)
-                              (substring ws--root 0 -1)
-                            ws--root))))
+;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:4]]
+(defun +realgud:prepare-launch-debugger-args (program &optional args)
+  (when-let ((dbg-args program))
+    (let* ((dbg-args (concat dbg-args " " (s-join " " args)))
+           (ws-root (expand-file-name (or (projectile-project-root) ".")))
+           (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
+      ;; Replace special variables
       (s-replace-all
-       (list (cons "${workspaceFolder}" ws--root)
-             (cons "${workspaceFolderBasename}" ws--basename))
-       debugger--args))))
+       (list (cons "${workspaceFolder}" ws-root)
+             (cons "${workspaceFolderBasename}" ws-basename))
+       dbg-args))))
+
+(defun +realgud:config-from-launch-json (&optional file)
+  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
+    (when (file-exists-p launch-json)
+      (message "[RealGUD]: Found \"launch.json\"")
+      (let* ((launch (with-temp-buffer
+                       (insert-file-contents launch-json)
+                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
+             (configs (plist-get launch :configurations)))
+        (catch 'config
+          (dolist (conf configs)
+            (when (string= "realgud:gdb" (plist-get conf :type))
+              (message "[RealGUD]: Found \"realgud:gdb\" configuration type")
+              (throw 'config conf))))))))
 
 (defun +debugger/realgud:gdb-launch ()
   "Launch RealGUD with parameters from `+realgud:launch-plist'"
   (interactive)
   (require 'realgud)
-  (if +realgud:launch-plist
-      (realgud:gdb
-       (concat realgud:gdb-command-name
-               " --args "
-               (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
-    (progn
-      (message "Variable `+realgud:launch-plist' is `nil'")
-      (realgud:gdb))))
+  (let* ((config (or (+realgud:config-from-launch-json)
+                     +realgud:launch-plist))
+         (args (+realgud:prepare-launch-debugger-args (plist-get config :program)
+                                                      (plist-get config :args))))
+    (unless args
+      (message "Variable `+realgud:launch-plist' is `nil'"))
+    (realgud:gdb (concat realgud:gdb-command-name
+                         (if args (concat " --args " args) "")))))
 
 (map! :leader :prefix ("l" . "custom")
       (:when (featurep! :tools debugger)
        :prefix ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
-;; RealGUD =.dir-locals.el= support:3 ends here
+;; RealGUD =launch.json= support:4 ends here
 
 ;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
 (after! realgud

@@ -59,6 +59,16 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
 `application/x-object', `application/octet-stream', etc."
   (let ((mime-type (shell-command-to-string (format "file --brief --mime-type %s" file))))
     (intern (string-trim-right mime-type))))
+
+(defun +str-replace (old new s)
+  "Replaces OLD with NEW in S."
+  (replace-regexp-in-string (regexp-quote old) new s t t))
+
+(defun +str-replace-all (replacements s)
+  "REPLACEMENTS is a list of cons-cells. Each `car` is replaced with `cdr` in S."
+  (replace-regexp-in-string (regexp-opt (mapcar 'car replacements))
+                            (lambda (it) (cdr (assoc-string replacements it)))
+                            s t t))
 ;; Useful functions:1 ends here
 
 ;; [[file:config.org::*Fixes][Fixes:1]]
@@ -76,24 +86,24 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
 
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
 (defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-etc-dir))
-(defconst IS-LUCID (+bool (string-search "LUCID" system-configuration-features)))
+(defconst IS-LUCID (string-search "LUCID" system-configuration-features))
 
-(defconst AG-P (+bool (executable-find "ag")))
-(defconst EAF-P (+bool (and (not IS-LUCID) (file-directory-p EAF-DIR))))
+(defconst AG-P (executable-find "ag"))
+(defconst EAF-P (and (not IS-LUCID) (file-directory-p EAF-DIR)))
 (defconst MPD-P (+all (mapcar #'executable-find '("mpc" "mpd"))))
-(defconst MPV-P (+bool (executable-find "mpv")))
-(defconst REPO-P (+bool (executable-find "repo")))
-(defconst FRICAS-P (+bool (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs"))))
-(defconst MAXIMA-P (+bool (executable-find "maxima")))
-(defconst QUARTO-P (+bool (executable-find "quarto")))
-(defconst ROSBAG-P (+bool (executable-find "rosbag")))
-(defconst ZOTERO-P (+bool (executable-find "zotero")))
-(defconst CHEZMOI-P (+bool (executable-find "chezmoi")))
-(defconst OBJDUMP-P (+bool (executable-find "objdump")))
+(defconst MPV-P (executable-find "mpv"))
+(defconst REPO-P (executable-find "repo"))
+(defconst FRICAS-P (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs")))
+(defconst MAXIMA-P (executable-find "maxima"))
+(defconst QUARTO-P (executable-find "quarto"))
+(defconst ROSBAG-P (executable-find "rosbag"))
+(defconst ZOTERO-P (executable-find "zotero"))
+(defconst CHEZMOI-P (executable-find "chezmoi"))
+(defconst OBJDUMP-P (executable-find "objdump"))
 (defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
-(defconst BITWARDEN-P (+bool (executable-find "bw")))
-(defconst YOUTUBE-DL-P (+bool (+some (mapcar #'executable-find '("yt-dlp" "youtube-dl")))))
-(defconst NETEXTENDER-P (+bool (and (executable-find "netExtender") (+all (mapcar #'file-exists-p '("~/.local/bin/netextender" "~/.ssh/sslvpn.gpg"))))))
-(defconst CLANG-FORMAT-P (+bool (executable-find "clang-format")))
-(defconst LANGUAGETOOL-P (+bool (executable-find "languagetool")))
+(defconst BITWARDEN-P (executable-find "bw"))
+(defconst YOUTUBE-DL-P (+some (mapcar #'executable-find '("yt-dlp" "youtube-dl"))))
+(defconst NETEXTENDER-P (and (executable-find "netExtender") (+all (mapcar #'file-exists-p '("~/.local/bin/netextender" "~/.ssh/sslvpn.gpg")))))
+(defconst CLANG-FORMAT-P (executable-find "clang-format"))
+(defconst LANGUAGETOOL-P (executable-find "languagetool"))
 ;; Check for external tools:1 ends here

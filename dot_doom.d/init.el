@@ -94,6 +94,7 @@
   (rust +lsp +tree-sitter)
   (ess +lsp)
   (yaml +lsp)
+  (lua +lsp +fennel)
   (sh +lsp +tree-sitter)
   (python +lsp +pyenv +pyright +tree-sitter)
   (racket +lsp +xp)
