@@ -867,25 +867,6 @@ Set Doom's theme, some good choices:
         :desc "Toggle Modus theme" "m" #'modus-themes-toggle))
 #+end_src
 
-**** Lambda
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! lambda-themes
-  :recipe (:host github
-           :repo "Lambda-Emacs/lambda-themes"))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(use-package! lambda-themes
-  :custom
-  (lambda-themes-set-italic-comments t)
-  (lambda-themes-set-italic-keywords t)
-  (lambda-themes-set-variable-pitch t)
-  :config
-  ;; load preferred theme
-  (load-theme 'lambda-light))
-#+end_src
-
 *** Modeline :modeline:
 **** Clock
 Display time and set the format to 24h.
