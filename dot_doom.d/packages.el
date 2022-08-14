@@ -53,7 +53,7 @@
 
 ;; [[file:config.org::*Project CMake][Project CMake:1]]
 (package! project-cmake
-  :disable (not (featurep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
+  :disable (not (modulep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
   :recipe (:host github
            :repo "juanjosegarciaripoll/project-cmake"))
 ;; Project CMake:1 ends here
@@ -94,14 +94,14 @@
 
 ;; [[file:config.org::*Eglot][Eglot:1]]
 (package! eglot-grammarly
-  :disable (not (featurep! :tools lsp +eglot))
+  :disable (not (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/eglot-grammarly"))
 ;; Eglot:1 ends here
 
 ;; [[file:config.org::*LSP Mode][LSP Mode:1]]
 (package! lsp-grammarly
-  :disable (or (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
+  :disable (or (not (modulep! :tools lsp)) (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/lsp-grammarly"))
 ;; LSP Mode:1 ends here
@@ -119,12 +119,12 @@
            :repo "jcs-elpa/github-tags"))
 
 (package! lsp-ltex
- :disable (and (not (featurep! :tools lsp)) (featurep! :tools lsp +eglot))
+ :disable (and (not (modulep! :tools lsp)) (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/lsp-ltex"))
 
 (package! eglot-ltex
-  :disable (not (featurep! :tools lsp +eglot))
+  :disable (not (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-languagetool/eglot-ltex"))
 ;; LTeX:1 ends here
@@ -314,7 +314,6 @@
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
 (package! company-gitcommit
-  :disable t
   :recipe (:local-repo "lisp/company-gitcommit"))
 ;; WIP Company for commit messages:1 ends here
 
@@ -418,6 +417,10 @@
 (package! org-mode
   ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
   :pin "971eb6885ec996c923e955730df3bafbdc244e54")
+
+(package! org-menu
+  :recipe (:host github
+           :repo "sheijk/org-menu"))
 
 (package! caldav
   :recipe (:host github

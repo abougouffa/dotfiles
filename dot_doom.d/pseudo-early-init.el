@@ -85,7 +85,7 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
 ;; Fixes:1 ends here
 
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
-(defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-etc-dir))
+(defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-data-dir))
 (defconst IS-LUCID (string-search "LUCID" system-configuration-features))
 
 (defconst AG-P (executable-find "ag"))

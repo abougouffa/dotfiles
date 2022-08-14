@@ -202,7 +202,7 @@
 ;; Mode line customization:1 ends here
 
 ;; [[file:config.org::*Custom splash image][Custom splash image:1]]
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-private-dir))
+(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-user-dir))
 ;; Custom splash image:1 ends here
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
@@ -376,9 +376,9 @@
   (let* ((buff (or buffer (current-buffer)))
          (file (buffer-file-name buff)))
     (and file
-         (not (string-match-p)
-              "file format not recognized"
-              (shell-command-to-string (format "objdump --file-headers %s" file))))))
+         (not (string-match-p
+               "file format not recognized"
+               (shell-command-to-string (format "objdump --file-headers %s" file)))))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
@@ -452,7 +452,7 @@ is binary, activate `hexl-mode'."
   "A very simplified version of `+literate-tangle-h', but async."
   :override #'+literate-tangle-h
   (unless (getenv "__NOTANGLE")
-    (let ((default-directory doom-private-dir))
+    (let ((default-directory doom-user-dir))
       (when +literate-tangle--proc
         (message "Killing outdated tangle process...")
         (set-process-sentinel +literate-tangle--proc #'ignore)
@@ -852,7 +852,7 @@ current buffer's, reload dir-locals."
     "Add `LANG` to spell-fu multi-dict, with a personal dictionary."
     ;; Add the dictionary
     (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary lang))
-    (let ((personal-dict-file (expand-file-name (format "aspell.%s.pws" lang) doom-private-dir)))
+    (let ((personal-dict-file (expand-file-name (format "aspell.%s.pws" lang) doom-user-dir)))
       ;; Create an empty personal dictionary if it doesn't exists
       (unless (file-exists-p personal-dict-file) (write-region "" nil personal-dict-file))
       ;; Add the personal dictionary
@@ -887,7 +887,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Eglot][Eglot:2]]
 (use-package! eglot-grammarly
-  :when (featurep! :tools lsp +eglot)
+  :when (modulep! :tools lsp +eglot)
   :commands (+lsp-grammarly-load)
   :init
   (defun +lsp-grammarly-load ()
@@ -899,7 +899,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*LSP Mode][LSP Mode:2]]
 (use-package! lsp-grammarly
-  :when (and (featurep! :tools lsp) (not (featurep! :tools lsp +eglot)))
+  :when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
   :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
   (defun +lsp-grammarly-load ()
@@ -951,8 +951,8 @@ current buffer's, reload dir-locals."
              grammalecte-find-synonyms
              grammalecte-find-synonyms-at-point)
   :init
-  (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-etc-dir)
-        grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-etc-dir))
+  (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-data-dir)
+        grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-data-dir))
   (setq flycheck-grammalecte-report-spellcheck t
         flycheck-grammalecte-report-grammar t
         flycheck-grammalecte-report-apos nil
@@ -1035,7 +1035,7 @@ current buffer's, reload dir-locals."
         lsp-ltex-mother-tongue "ar"
         lsp-ltex-log-level "warning"
         lsp-ltex-trace-server "off"
-        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-etc-dir))
+        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 
   ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
   (when (and nil LANGUAGETOOL-P) ;; FIXME: Disabled
@@ -1210,7 +1210,7 @@ current buffer's, reload dir-locals."
              chezmoi-mode)
   :config
   ;; Company integration
-  (when (featurep! :completion company)
+  (when (modulep! :completion company)
     (defun +chezmoi--company-backend-h ()
       (require 'chezmoi-company)
       (if chezmoi-mode
@@ -1220,7 +1220,7 @@ current buffer's, reload dir-locals."
     (add-hook 'chezmoi-mode-hook #'+chezmoi--company-backend-h))
 
   ;; Integrate with evil mode by toggling template display when entering insert mode.
-  (when (featurep! :editor evil)
+  (when (modulep! :editor evil)
     (defun +chezmoi--evil-insert-state-enter-h ()
       "Run after evil-insert-state-entry."
       (chezmoi-template-buffer-display nil (point))
@@ -1349,7 +1349,7 @@ current buffer's, reload dir-locals."
   (osm-copyright t)     ;; Display the copyright information
 
   :init
-  (setq osm-tile-directory (expand-file-name "osm" doom-etc-dir))
+  (setq osm-tile-directory (expand-file-name "osm" doom-data-dir))
   ;; Load Org link support
   (with-eval-after-load 'org
     (require 'osm-ol)))
@@ -2182,7 +2182,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :app emms)
+      (:when (modulep! :app emms)
        :prefix ("m" . "media")
        :desc "Playlist go"                 "g" #'emms-playlist-mode-go
        :desc "Add playlist"                "D" #'emms-add-playlist
@@ -2199,7 +2199,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Keybindings][Keybindings:2]]
 (map! :leader
       :prefix ("l m")
-      (:when (and (featurep! :app emms) MPD-P)
+      (:when (and (modulep! :app emms) MPD-P)
        :prefix ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
        :desc "Stop daemon"               "k" #'+mpd-daemon-stop
@@ -2400,7 +2400,7 @@ current buffer's, reload dir-locals."
 
   :init
   (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger +lsp)
+        (:when (modulep! :tools debugger +lsp)
          :prefix ("e" . "embedded")
          :desc "Start OpenOCD"    "o" #'embed-openocd-start
          :desc "Stop OpenOCD"     "O" #'embed-openocd-stop
@@ -2450,7 +2450,7 @@ current buffer's, reload dir-locals."
   (doom-store-clear "+debugger"))
 
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :tools debugger +lsp)
+      (:when (modulep! :tools debugger +lsp)
        :prefix ("d" . "debugger")
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 ;; Doom store:1 ends here
@@ -2526,7 +2526,7 @@ current buffer's, reload dir-locals."
     (realgud-hydra/body))
 
   (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger)
+        (:when (modulep! :tools debugger)
          :prefix ("d" . "debugger")
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 ;; Additional commands:1 ends here
@@ -2579,7 +2579,7 @@ current buffer's, reload dir-locals."
                          (if args (concat " --args " args) "")))))
 
 (map! :leader :prefix ("l" . "custom")
-      (:when (featurep! :tools debugger)
+      (:when (modulep! :tools debugger)
        :prefix ("d" . "debugger")
        :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
 ;; RealGUD =launch.json= support:4 ends here
@@ -2603,7 +2603,7 @@ current buffer's, reload dir-locals."
         (message "Cannot make process 'rr record'"))))
 
   (map! :leader :prefix ("l" . "custom")
-        (:when (featurep! :tools debugger)
+        (:when (modulep! :tools debugger)
          :prefix ("d" . "debugger")
          :desc "rr record" "r" #'+debugger/rr-record
          :desc "rr replay" "R" #'+debugger/rr-replay)))
@@ -2751,6 +2751,8 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Blamer][Blamer:2]]
 (use-package! blamer
+  :commands (blamer-mode)
+  ;; :hook ((prog-mode . blamer-mode))
   :custom
   (blamer-idle-time 0.3)
   (blamer-min-offset 60)
@@ -2764,9 +2766,8 @@ current buffer's, reload dir-locals."
                    :background nil
                    :height 125
                    :italic t)))
-  :hook ((prog-mode . blamer-mode))
   :config
-  (when (featurep! :ui zen) ;; Disable in zen (writeroom) mode
+  (when (modulep! :ui zen) ;; Disable in zen (writeroom) mode
     (add-hook 'writeroom-mode-enable-hook
               (when (bound-and-true-p blamer-mode)
                 (setq +blamer-mode--was-active-p t)
@@ -2793,10 +2794,10 @@ current buffer's, reload dir-locals."
 (use-package! x86-lookup
   :commands (x86-lookup)
   :config
-  (when (featurep! :tools pdf)
+  (when (modulep! :tools pdf)
     (setq x86-lookup-browse-pdf-function 'x86-lookup-browse-pdf-pdf-tools))
   ;; Get manual from https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-  (setq x86-lookup-pdf (expand-file-name "x86-lookup/325383-sdm-vol-2abcd.pdf" doom-etc-dir)))
+  (setq x86-lookup-pdf (expand-file-name "x86-lookup/325383-sdm-vol-2abcd.pdf" doom-data-dir)))
 ;; Assembly:2 ends here
 
 ;; [[file:config.org::*Disaster][Disaster:2]]
@@ -2814,7 +2815,7 @@ current buffer's, reload dir-locals."
 (use-package! devdocs
   :commands (devdocs-lookup devdocs-install)
   :config
-  (setq devdocs-data-dir (expand-file-name "devdocs" doom-etc-dir)))
+  (setq devdocs-data-dir (expand-file-name "devdocs" doom-data-dir)))
 ;; Devdocs:2 ends here
 
 ;; [[file:config.org::*Systemd][Systemd:2]]
@@ -3528,6 +3529,12 @@ current buffer's, reload dir-locals."
     :hook (org-load . org-wild-notifier-mode)
     :config
     (setq org-wild-notifier-alert-time '(60 30)))
+  (use-package! org-menu
+    :commands (org-menu)
+    :init
+    (map! :localleader
+          :map org-mode-map
+          :desc "Org menu" "M" #'org-menu))
   (org-link-set-parameters
    "subfig"
    :follow (lambda (file) (find-file file))
@@ -3589,16 +3596,6 @@ current buffer's, reload dir-locals."
           org-modern-priority nil
           org-modern-block t
           org-modern-horizontal-rule t
-          org-modern-todo-faces
-          '(("TODO" :inverse-video t :inherit org-todo)
-            ("PROJ" :inverse-video t :inherit +org-todo-project)
-            ("STRT" :inverse-video t :inherit +org-todo-active)
-            ("[-]"  :inverse-video t :inherit +org-todo-active)
-            ("HOLD" :inverse-video t :inherit +org-todo-onhold)
-            ("WAIT" :inverse-video t :inherit +org-todo-onhold)
-            ("[?]"  :inverse-video t :inherit +org-todo-onhold)
-            ("KILL" :inverse-video t :inherit +org-todo-cancel)
-            ("NO"   :inverse-video t :inherit +org-todo-cancel))
           org-modern-keyword
           '((t . t)
             ("title" . "𝙏")
@@ -3671,9 +3668,8 @@ current buffer's, reload dir-locals."
             'unicode))
     (org-ol-tree-ui--update-icon-set))
   
-  (map! :map org-mode-map
-        :after org
-        :localleader
+  (map! :localleader
+        :map org-mode-map
         :desc "Outline" "O" #'org-ol-tree)
   ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
   ;; Scale image previews to 60% of the window width.
@@ -3734,7 +3730,7 @@ current buffer's, reload dir-locals."
   (+org-format-latex-set-scale 1.4)
   
   ;; Increase scale in Zen mode
-  (when (featurep! :ui zen)
+  (when (modulep! :ui zen)
     (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
     (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
   (defun +scimax-org-renumber-environment (orig-func &rest args)
