@@ -1148,6 +1148,36 @@ Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]]
   :init (global-page-break-lines-mode))
 #+end_src
 
+*** Objdump mode :objdump:
+Define a major mode (=objdump-disassemble-mode=) to display executable files as
+assembly code using =objdump=. The file types are detected using the =file= utility.
+
+#+begin_src emacs-lisp :tangle yes
+(defun +file-objdump-p (&optional buffer)
+  "Can the BUFFER be viewed as a disassembled code with objdump."
+  (let* ((buff (or buffer (current-buffer)))
+         (file (buffer-file-name buff)))
+    (not (string-match-p
+          "file format not recognized"
+          (shell-command-to-string (format "objdump --file-headers %s" file))))))
+
+(when OBJDUMP-P
+  (define-derived-mode objdump-disassemble-mode
+    asm-mode "Objdump Mode"
+    "Major mode for viewing executable files disassembled using objdump."
+    (let ((file (buffer-file-name)))
+      (let ((buffer-read-only nil))
+        (erase-buffer)
+        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
+        (call-process "objdump" nil (current-buffer) nil "-d" file)
+        (set-buffer-modified-p nil))
+      (goto-char (point-min))
+      (view-mode)
+      (set-visited-file-name nil t)))
+
+  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
+#+end_src
+
 *** Binary files :binary:hexl:
 Taken from [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this answer]].
 
