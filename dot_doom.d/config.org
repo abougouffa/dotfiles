@@ -211,6 +211,7 @@ store the result in global constants.
 (defconst ROSBAG-P (+bool (executable-find "rosbag")))
 (defconst ZOTERO-P (+bool (executable-find "zotero")))
 (defconst CHEZMOI-P (+bool (executable-find "chezmoi")))
+(defconst OBJDUMP-P (+bool (executable-find "objdump")))
 (defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
 (defconst BITWARDEN-P (+bool (executable-find "bw")))
 (defconst YOUTUBE-DL-P (+bool (+some (mapcar #'executable-find '("yt-dlp" "youtube-dl")))))
