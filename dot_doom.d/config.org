@@ -810,19 +810,20 @@ Set Doom's theme, some good choices:
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
-;; NOTE: not tangled
 (use-package! modus-themes
   :init
   (setq modus-themes-hl-line '(accented intense)
-        modus-themes-subtle-line-numbers nil
+        modus-themes-subtle-line-numbers t
         modus-themes-region '(bg-only no-extend) ;; accented
         modus-themes-variable-pitch-ui nil
+        modus-themes-fringes 'subtle
         modus-themes-diffs nil
         modus-themes-italic-constructs t
         modus-themes-bold-constructs t
         modus-themes-intense-mouseovers t
         modus-themes-paren-match '(bold intense)
         modus-themes-syntax '(green-strings)
+        modus-themes-links '(neutral-underline background)
         modus-themes-mode-line '(borderless padded)
         modus-themes-tabs-accented nil ;; default
         modus-themes-completions
