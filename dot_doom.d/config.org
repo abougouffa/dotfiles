@@ -4689,7 +4689,6 @@ the builtin =gdb-many-windows= layout.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! company-gitcommit
-  :disable t
   :recipe (:local-repo "lisp/company-gitcommit"))
 #+end_src
 
