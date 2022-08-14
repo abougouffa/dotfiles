@@ -17,12 +17,6 @@
 (package! modus-themes)
 ;; Modus:1 ends here
 
-;; [[file:config.org::*Lambda][Lambda:1]]
-(package! lambda-themes
-  :recipe (:host github
-           :repo "Lambda-Emacs/lambda-themes"))
-;; Lambda:1 ends here
-
 ;; [[file:config.org::*SVG tag][SVG tag:1]]
 (package! svg-tag-mode)
 ;; SVG tag:1 ends here

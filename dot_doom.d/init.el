@@ -12,7 +12,7 @@
 
   :completion
   (vertico +icons)
-  company
+  (company +childframe)
 
   :ui
   deft

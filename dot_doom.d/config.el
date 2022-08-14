@@ -128,11 +128,18 @@
 (defun +greedily-do-daemon-setup ()
   ;; mu4e
   (when (require 'mu4e nil t)
-    ;; Automatically start `mu4e' in background after 30s,
+    ;; Automatically start `mu4e' in background.
+    (when (load! "mu-lock.el" (expand-file-name "email/mu4e/autoload" doom-modules-dir) t)
+      (setq +mu4e-lock-greedy t
+            +mu4e-lock-relaxed t)
+      (when (+mu4e-lock-available t)
+        (mu4e--start)))
+
     ;; Check each 5m, if `mu4e' if closed, start it in background.
     (run-at-time 30 (* 60 5)
                  (lambda ()
-                   (unless (mu4e-running-p)
+                   (when (and (not (mu4e-running-p))
+                              (+mu4e-lock-available))
                      (mu4e--start)
                      (message "Started `mu4e' in background.")))))
 
@@ -244,6 +251,47 @@
             org-mode))
 ;; Company:1 ends here
 
+;; [[file:config.org::*Tweak =company-box=][Tweak =company-box=:1]]
+(after! company-box
+  (defun +company-box--reload-icons-h ()
+    (message "[FIX] Reloaded `company-box-icons-all-the-icons'")
+    (setq company-box-icons-all-the-icons
+          (let ((all-the-icons-scale-factor 0.8))
+            `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
+              (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
+              (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+              (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+              (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+              (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
+              (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+              (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+              (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
+              (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
+              (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
+              (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
+              (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
+              (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
+              (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
+              (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
+              (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
+              (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
+              (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
+              (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
+              (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
+              (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
+              (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
+              (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
+              (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
+              (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+              (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
+              (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+              (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+              (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
+              (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
+
+  (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h))
+;; Tweak =company-box=:1 ends here
+
 ;; [[file:config.org::*SVG tag][SVG tag:2]]
 (use-package! svg-tag-mode
   :commands svg-tag-mode
@@ -290,8 +338,6 @@
       scroll-down-aggressively 0.01
       auto-window-vscroll nil
       fast-but-imprecise-scrolling nil
-      mouse-wheel-scroll-amount '(1 ((shift) . 1))
-      mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position 'always)
 ;; Smooth scrolling:2 ends here
 
@@ -310,7 +356,10 @@
       :n [mouse-9] #'better-jumper-jump-forward)
 
 ;; Enable horizontal scrolling with the second mouse wheel or the touchpad
-(setq mouse-wheel-tilt-scroll t)
+(setq mouse-wheel-tilt-scroll t
+      ;; Smoother scrolling
+      mouse-wheel-scroll-amount '(1 ((shift) . 1))
+      mouse-wheel-progressive-speed nil)
 ;; Mouse buttons:1 ends here
 
 ;; [[file:config.org::*Page break lines][Page break lines:2]]
@@ -319,8 +368,34 @@
   :init (global-page-break-lines-mode))
 ;; Page break lines:2 ends here
 
+;; [[file:config.org::*Objdump mode][Objdump mode:1]]
+(defun +file-objdump-p (&optional buffer)
+  "Can the BUFFER be viewed as a disassembled code with objdump."
+  (let* ((buff (or buffer (current-buffer)))
+         (file (buffer-file-name buff)))
+    (not (string-match-p
+          "file format not recognized"
+          (shell-command-to-string (format "objdump --file-headers %s" file))))))
+
+(when OBJDUMP-P
+  (define-derived-mode objdump-disassemble-mode
+    asm-mode "Objdump Mode"
+    "Major mode for viewing executable files disassembled using objdump."
+    (let ((file (buffer-file-name)))
+      (let ((buffer-read-only nil))
+        (erase-buffer)
+        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
+        (call-process "objdump" nil (current-buffer) nil "-d" file)
+        (set-buffer-modified-p nil))
+      (goto-char (point-min))
+      (view-mode)
+      (set-visited-file-name nil t)))
+
+  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
+;; Objdump mode:1 ends here
+
 ;; [[file:config.org::*Binary files][Binary files:1]]
-(defun +hexl/buffer-binary-p (&optional buffer)
+(defun +buffer-binary-p (&optional buffer)
   "Return whether BUFFER or the current buffer is binary.
 
 A binary buffer is defined as containing at least one null byte.
@@ -330,15 +405,20 @@ Returns either nil, or the position of the first null byte."
     (save-excursion (goto-char (point-min))
                     (search-forward (string ?\x00) nil t 1))))
 
-(defun +hexl/hexl-if-binary ()
+(defun +hexl-buffer-p ()
+  (and (+buffer-binary-p)
+       ;; Executables are viewed with objdump mode
+       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
+
+(defun +hexl-hexl-if-binary ()
   "If `hexl-mode' is not already active, and the current buffer
 is binary, activate `hexl-mode'."
   (interactive)
   (unless (eq major-mode 'hexl-mode)
-    (when (+hexl/buffer-binary-p)
+    (when (+hexl-buffer-binary-p)
       (hexl-mode))))
 
-(add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
+(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
 ;; Binary files:1 ends here
 
 ;; [[file:config.org::*Very large files][Very large files:2]]
