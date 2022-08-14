@@ -168,6 +168,13 @@ party libraries, particulary in early stage, so let's define here.
   (if (null (car seqs)) nil
     (cons (mapcar #'car seqs)
           (apply #'+zip (mapcar #'cdr seqs)))))
+
+(defun +file-mime-type (file)
+  "Get MIME type for FILE based on magic codes provided by the 'file' command.
+Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
+`application/x-object', `application/octet-stream', etc."
+  (let ((mime-type (shell-command-to-string (format "file --brief --mime-type %s" file))))
+    (intern (string-trim-right mime-type))))
 #+end_src
 
 *** Fixes
