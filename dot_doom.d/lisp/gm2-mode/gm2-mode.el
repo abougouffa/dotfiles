@@ -733,7 +733,7 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (if m2-if-then-same-line
       (insert "IF " (read-string "<boolean-expression>: ") " THEN")
     (progn
-      (insert "IF " (read-string "<boolean-expression>: ") )
+      (insert "IF " (read-string "<boolean-expression>: "))
       (insert "\nTHEN")))
   (m2-tab)
   (m2-newline)
@@ -780,7 +780,7 @@ Boston, MA  02110-1301  USA.  *)\n\n"))
   (interactive)
   (insert "(*\n")
   (m2-indent-comment)
-  (let ((name (read-string "Procedure name: " ))
+  (let ((name (read-string "Procedure name: "))
         args)
     (insert name " - \n")
     (insert "*)")
@@ -1471,8 +1471,8 @@ m2r10 imports go here
 
 (defun m2-testing ()
   "simple function which returns a number of different symbols"
-  nil
-  )
+  nil)
+
 
 (defun m2-match-end ()
   "finds the start of the statement matching the END returns true if found."
@@ -2444,9 +2444,8 @@ m2r10 imports go here
         (,m2-auto-traditional-type-regexp . font-lock-type-face)
         (,m2-auto-traditional-constant-regexp . font-lock-constant-face)
         (,m2-auto-traditional-functions-regexp . font-lock-function-name-face)
-        (,m2-auto-traditional-keywords-regexp . font-lock-keyword-face)
-        ;; note: order above matters.
-        ))))
+        (,m2-auto-traditional-keywords-regexp . font-lock-keyword-face)))))
+;; note: order above matters.
 
 (defun gm2-mode ()
   "Major mode for editing M2 code. User definable variables:
@@ -2501,3 +2500,5 @@ m2r10 imports go here
 ;;
 
 (provide 'gm2-mode)
+
+;;; gm2-mode.el ends here
