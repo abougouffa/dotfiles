@@ -1182,7 +1182,7 @@ assembly code using =objdump=. The file types are detected using the =file= util
 Taken from [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this answer]].
 
 #+begin_src emacs-lisp
-(defun +hexl/buffer-binary-p (&optional buffer)
+(defun +buffer-binary-p (&optional buffer)
   "Return whether BUFFER or the current buffer is binary.
 
 A binary buffer is defined as containing at least one null byte.
@@ -1192,15 +1192,20 @@ Returns either nil, or the position of the first null byte."
     (save-excursion (goto-char (point-min))
                     (search-forward (string ?\x00) nil t 1))))
 
-(defun +hexl/hexl-if-binary ()
+(defun +hexl-buffer-p ()
+  (and (+buffer-binary-p)
+       ;; Executables are viewed with objdump mode
+       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
+
+(defun +hexl-hexl-if-binary ()
   "If `hexl-mode' is not already active, and the current buffer
 is binary, activate `hexl-mode'."
   (interactive)
   (unless (eq major-mode 'hexl-mode)
-    (when (+hexl/buffer-binary-p)
+    (when (+hexl-buffer-binary-p)
       (hexl-mode))))
 
-(add-to-list 'magic-fallback-mode-alist '(+hexl/buffer-binary-p . hexl-mode) t)
+(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
 #+end_src
 
 *** Very large files :large:vlf:
