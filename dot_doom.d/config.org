@@ -693,11 +693,18 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
 (defun +greedily-do-daemon-setup ()
   ;; mu4e
   (when (require 'mu4e nil t)
-    ;; Automatically start `mu4e' in background after 30s,
+    ;; Automatically start `mu4e' in background.
+    (when (load! "mu-lock.el" (expand-file-name "email/mu4e/autoload" doom-modules-dir) t)
+      (setq +mu4e-lock-greedy t
+            +mu4e-lock-relaxed t)
+      (when (+mu4e-lock-available t)
+        (mu4e--start)))
+
     ;; Check each 5m, if `mu4e' if closed, start it in background.
     (run-at-time 30 (* 60 5)
                  (lambda ()
-                   (unless (mu4e-running-p)
+                   (when (and (not (mu4e-running-p))
+                              (+mu4e-lock-available))
                      (mu4e--start)
                      (message "Started `mu4e' in background.")))))
 
