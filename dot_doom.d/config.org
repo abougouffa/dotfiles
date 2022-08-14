@@ -7875,14 +7875,9 @@ define nn
   next
   refresh
 end
-
-guile
-# The code from the next sub-section is will be included here
-<<guile-check-for-script>>
-end
 #+end_src
 
-**** WIP: Guile Scheme per-program or per-project script
+**** COMMENT WIP: Guile Scheme per-program or per-project script
 I often debug programs with a lot of arguments, I would like to be able to set
 the arguments and the binary file to be launched in a per-project basis. GDB
 support scripting in GDB Script, Python and Guile Scheme (currently I'm using
@@ -7897,6 +7892,13 @@ after the file). The following is a WIP, for the moment, I need to call my
 custom command =dbg-guile= when GDB done loading symbols from the file, otherwise,
 the used =(current-progspace)= returns an object with no filename. I need a
 mechanism to hook the =(dbg-find-and-load)= to GDB's load file functionality.
+
+#+begin_src gdb-script :tangle ~/.gdbinit :noweb no-export
+guile
+# The code from the next sub-section is will be included here
+<<guile-check-for-script>>
+end
+#+end_src
 
 #+name: guile-check-for-script
 #+begin_src scheme :tangle no :output no :exports code
