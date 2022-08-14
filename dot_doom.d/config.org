@@ -1122,17 +1122,17 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   (use-package! good-scroll
     :config (good-scroll-mode 1)))
 
-(setq scroll-step 1
-      scroll-margin 2
-      hscroll-step 1
-      hscroll-margin 2
+(setq hscroll-step 1
+      hscroll-margin 0
+      scroll-step 1
+      scroll-margin 0
       scroll-conservatively 101
       scroll-up-aggressively 0.01
       scroll-down-aggressively 0.01
+      scroll-preserve-screen-position 'always
       auto-window-vscroll nil
-      fast-but-imprecise-scrolling nil
-      scroll-preserve-screen-position 'always)
-    #+end_src
+      fast-but-imprecise-scrolling nil)
+#+end_src
 
 *** All the icons :icon:
 Set some custom icons for some file extensions, basically for =.m= files.
@@ -1160,8 +1160,6 @@ Map extra mouse buttons to jump between buffers
 
 ;; Enable horizontal scrolling with the second mouse wheel or the touchpad
 (setq mouse-wheel-tilt-scroll t
-      ;; Smoother scrolling
-      mouse-wheel-scroll-amount '(1 ((shift) . 1))
       mouse-wheel-progressive-speed nil)
 #+end_src
 
