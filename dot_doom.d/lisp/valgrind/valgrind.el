@@ -14,7 +14,7 @@
 
 ;; Code:
 
-(require 'compile "compile")
+(require 'compile)
 
 (defgroup valgrind nil
   "Run valgrind as inferior of Emacs, parse error messages."
