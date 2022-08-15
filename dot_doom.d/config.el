@@ -376,6 +376,7 @@
   (let* ((buff (or buffer (current-buffer)))
          (file (buffer-file-name buff)))
     (and file
+         (file-exists-p file)
          (not (string-match-p
                "file format not recognized"
                (shell-command-to-string (format "objdump --file-headers %s" file)))))))
@@ -1838,6 +1839,7 @@ current buffer's, reload dir-locals."
         message-sendmail-envelope-from 'header
         message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
         message-send-mail-function #'message-send-mail-with-sendmail
+        mail-personal-alias-file (expand-file-name "mail-aliases.mailrc" doom-user-dir)
         mail-specify-envelope-from t
         mail-envelope-from 'header)
 

@@ -77,11 +77,14 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
 (when (daemonp)
   ;; When starting Emacs in daemon mode,
   ;; I need to have a valid passphrase in the gpg-agent.
-  (let ((try-again 3))
-    (while (not (or (zerop try-again)
-                    (zerop (shell-command "gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > /dev/null" nil nil))))
-      (setq try-again (1- try-again))
-      (message "GPG: Failed to unlock, please try again (%d)" try-again))))
+  (let ((try-again 3)
+        unlocked)
+    (while (not (or unlocked (zerop try-again)))
+      (setq unlocked (zerop (shell-command "gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > /dev/null" nil nil))
+            try-again (1- try-again))
+      (message "GPG: Failed to unlock, please try again (%d)" try-again))
+    (unless unlocked
+      (kill-emacs 1))))
 ;; Fixes:1 ends here
 
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
