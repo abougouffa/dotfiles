@@ -3409,6 +3409,7 @@ I configure my email accounts in a private file in
         message-sendmail-envelope-from 'header
         message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
         message-send-mail-function #'message-send-mail-with-sendmail
+        mail-personal-alias-file (expand-file-name "mail-aliases.mailrc" doom-user-dir)
         mail-specify-envelope-from t
         mail-envelope-from 'header)
 
