@@ -1191,11 +1191,17 @@ assembly code using =objdump=. The file types are detected using the =file= util
 (defun +file-objdump-p (&optional buffer)
   "Can the BUFFER be viewed as a disassembled code with objdump."
   (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
-    (and (file-exists-p file)
-         (not (file-directory-p file))
-         (not (string-match-p
-               "file format not recognized"
-               (shell-command-to-string (format "objdump --file-headers %s" file)))))))
+    (let (ret-code)
+      (and (file-exists-p file)
+           (not (file-directory-p file))
+           (not (string-match-p
+                 "file format not recognized"
+                 (with-temp-buffer
+                   (setq ret-code (shell-command
+                                   (format "objdump --file-headers %s" file)
+                                   (current-buffer)))
+                   (buffer-string))))
+           (zerop ret-code)))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
