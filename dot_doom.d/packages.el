@@ -300,6 +300,13 @@
 (unpin! dap-mode)
 ;; DAP:1 ends here
 
+;; [[file:config.org::*Additional debuggers for RealGUD][Additional debuggers for RealGUD:1]]
+(package! realgud-lldb)
+(package! realgud-ipdb)
+(package! realgud-dgawk :recipe (:host github :repo "realgud/realgud-dgawk"))
+(package! realgud-maxima :recipe (:host github :repo "realgud/realgud-maxima"))
+;; Additional debuggers for RealGUD:1 ends here
+
 ;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:1]]
 (package! gdb-mi
   :disable t

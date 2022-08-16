@@ -2564,6 +2564,7 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
     (when args
       (setq args (pcase (intern debugger-type)
                    ('realgud:gdb (format " --args %s %s" prog args))
+                   ('realgud:lldb (format " -- %s %s" prog args))
                    ;; Default case "prog [args]" for `bashdb', `zshdb', `pdb', etc.
                    (t (format " %s %s" prog args)))))
     (concat (eval (intern (concat debugger-type "-command-name"))) ;; evaluates to `realgud:gdb-command-name' for "realgud:gdb" debugger type
