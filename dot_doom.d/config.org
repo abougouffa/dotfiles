@@ -403,6 +403,7 @@ enables [[https://languagetool.org/][LanguageTool]] support.
 #+begin_src emacs-lisp
 (syntax +childframe)
 (spell +aspell)
+(grammar +lsp)
 #+end_src
 
 *** Tools (=:tools=)
@@ -2146,71 +2147,72 @@ reduces the false positives due to the marking and special commands.
 #+end_src
 
 #+begin_src emacs-lisp
+;; NOTE To be removed by 1 Sep 2022,
+;; after https://github.com/doomemacs/doomemacs/pull/6683 gets merged
 (use-package! lsp-ltex
-  :commands (+lsp-ltex-load +lsp-ltex-enable +lsp-ltex-disable +lsp-ltex-toggle)
+  :when (modulep! :checkers grammar +lsp)
+  :unless (modulep! :tools lsp +eglot)
+  :commands (+lsp-ltex-toggle
+             +lsp-ltex-enable
+             +lsp-ltex-disable
+             +lsp-ltex-setup)
+  :hook ((text-mode latex-mode org-mode markdown-mode) . #'+lsp-ltex-setup)
   :init
-  (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
-        lsp-ltex-check-frequency "edit" ;; or "save"
-        lsp-ltex-language "fr"
-        lsp-ltex-mother-tongue "ar"
-        lsp-ltex-log-level "warning"
-        lsp-ltex-trace-server "off"
+  (setq lsp-ltex-check-frequency "save" ;; Less overhead than the default "edit"
+        lsp-ltex-log-level "warning" ;; No need to log everything
+        ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 
-  ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
-  (when (and nil LANGUAGETOOL-P) ;; FIXME: Disabled
-    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
+  ;; When n-gram data sets are available, use them to detect errors with words
+  ;; that are often confused (like their and there).
+  (when (file-directory-p "/usr/share/ngrams")
+    (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"))
 
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'ltex-ls))
-
-  (defun +lsp-ltex-load ()
+  (defun +lsp-ltex-setup ()
     "Load LTeX LSP server."
     (interactive)
     (require 'lsp-ltex)
-    (lsp))
+    (when (+lsp-ltex--enabled-p)
+      (lsp-deferred)))
 
-  (defun +lsp-ltex-enabled-p ()
-    (not (member 'ltex-ls lsp-disabled-clients)))
+  (defun +lsp-ltex--enabled-p ()
+    (not (memq 'ltex-ls lsp-disabled-clients)))
 
   (defun +lsp-ltex-enable ()
-    "Enable LTeX LSP."
+    "Enable LTeX LSP for the current buffer."
     (interactive)
-    (unless (+lsp-ltex-enabled-p)
-      (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+    (unless (+lsp-ltex--enabled-p)
+      (delq! 'ltex-ls lsp-disabled-clients)
       (message "Enabled ltex-ls"))
-    (unless (or (not (boundp 'lsp-ltex-languagetool-http-server-uri))
-                (string-empty-p lsp-ltex-languagetool-http-server-uri)
-                (+languagetool-server-running-p))
-      (+languagetool-server-start)
-      (sit-for 5))
-    (+lsp-ltex-load))
+    (+lsp-ltex-setup))
 
   (defun +lsp-ltex-disable ()
-    "Disable LTeX LSP."
+    "Disable LTeX LSP for the current buffer."
     (interactive)
-    (when (+lsp-ltex-enabled-p)
+    (when (+lsp-ltex--enabled-p)
       (add-to-list 'lsp-disabled-clients 'ltex-ls)
       (lsp-disconnect)
       (message "Disabled ltex-ls")))
 
   (defun +lsp-ltex-toggle ()
-    "Enable/disable LTeX LSP."
+    "Toggle LTeX LSP for the current buffer."
     (interactive)
-    (if (+lsp-ltex-enabled-p)
+    (if (+lsp-ltex--enabled-p)
         (+lsp-ltex-disable)
       (+lsp-ltex-enable)))
 
-  (map! :leader :prefix ("l" . "custom")
-        (:prefix ("l" . "languagetool")
-         :desc "Enable LTeX"   "l" #'+lsp-ltex-enable
-         :desc "Disable LTeX"  "q" #'+lsp-ltex-disable
-         :desc "Toggle LTeX"   "t" #'+lsp-ltex-toggle))
+  (map! :localleader
+        :map (text-mode-map latex-mode-map org-mode-map markdown-mode-map)
+        :desc "Toggle grammar check" "G" #'+lsp-ltex-toggle))
 
-  :config
-  (set-lsp-priority! 'ltex-ls 2)
-  (setq flycheck-checker-error-threshold 1000))
+(after! lsp-ltex
+  (setq lsp-ltex-check-frequency "edit" ;; or "save"
+        lsp-ltex-language "fr"
+        lsp-ltex-mother-tongue "ar"
+        flycheck-checker-error-threshold 1000)
+
+  ;; Disable by default
+  (add-to-list 'lsp-disabled-clients 'ltex-ls))
 #+end_src
 
 **** Flycheck :flycheck:
@@ -2254,14 +2256,15 @@ reduces the false positives due to the marking and special commands.
 
   (map! :localleader
         :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
-        :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+        :desc "Yank translated region" "R" #'+gts-yank-translated-region)
 
   (map! :leader :prefix "l"
         (:prefix ("G" . "go-translate")
-         :desc "Bing"              "b" (lambda () (interactive) (+gts-translate-with 'bing))
-         :desc "DeepL"             "d" (lambda () (interactive) (+gts-translate-with 'deepl))
-         :desc "Google"            "g" (lambda () (interactive) (+gts-translate-with))
-         :desc "gts-do-translate"  "t" #'gts-do-translate))
+         :desc "Bing"                   "b" (lambda () (interactive) (+gts-translate-with 'bing))
+         :desc "DeepL"                  "d" (lambda () (interactive) (+gts-translate-with 'deepl))
+         :desc "Google"                 "g" (lambda () (interactive) (+gts-translate-with))
+         :desc "Yank translated region" "R" #'+gts-yank-translated-region
+         :desc "gts-do-translate"       "t" #'gts-do-translate))
 
   :config
   ;; Config the default translator, which will be used by the command `gts-do-translate'
