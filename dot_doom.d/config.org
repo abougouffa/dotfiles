@@ -4559,6 +4559,15 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
          :desc "rr replay" "R" #'+debugger/rr-replay)))
 #+end_src
 
+**** Additional debuggers for RealGUD
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! realgud-lldb)
+(package! realgud-ipdb)
+(package! realgud-dgawk :recipe (:host github :repo "realgud/realgud-dgawk"))
+(package! realgud-maxima :recipe (:host github :repo "realgud/realgud-maxima"))
+#+end_src
+
 *** GDB :gdb:
 **** Emacs GDB /a.k.a./ =gdb-mi= :gdb:
 DAP mode is great, however, it is not mature for C/C++ debugging, it does not
