@@ -2552,10 +2552,12 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
          (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
     ;; Replace special variables
     (mapcar
-     (lambda (s) (s-replace-all
+     (lambda (s) (+str-replace-all
                   (list (cons "${workspaceFolder}" ws-root)
                         (cons "${workspaceFolderBasename}" ws-basename)) s))
      cmd-args)))
+
+(+realgud--substite-special-vars "${workspaceFolder}/test")
 
 (defun +realgud--debug-command (debugger-type debuggee-args)
   "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
@@ -2610,21 +2612,20 @@ if it is set to a launch.json file, it will be used instead."
 
 ;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
 (after! realgud
-  (require 's)
-
   (defun +debugger/rr-replay ()
-    "Launch `rr replay'"
+    "Launch `rr replay'."
     (interactive)
-    (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
+    (realgud:gdb (+str-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `+realgud-debug-config'"
+    "Launch `rr record' with parameters from launch.json or `+realgud-debug-config'."
     (interactive)
-    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud-debug-config)))
-      (unless (make-process :name "*rr record*"
+    (let* ((conf (or (+realgud-config-from-launch-json) +realgud-debug-config))
+           (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args))))
+      (unless (make-process :name "rr-record"
                             :buffer "*rr record*"
-                            :command (append '("rr" "record") (s-split " " debugger--args)))
-        (message "Cannot make process 'rr record'"))))
+                            :command (append '("rr" "record") args))
+        (message "Cannot start the 'rr record' process"))))
 
   (map! :leader :prefix ("l" . "custom")
         (:when (modulep! :tools debugger)
