@@ -4538,18 +4538,19 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
 #+begin_src emacs-lisp
 (after! realgud
   (defun +debugger/rr-replay ()
-    "Launch `rr replay'"
+    "Launch `rr replay'."
     (interactive)
     (realgud:gdb (+str-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `+realgud-debug-config'"
+    "Launch `rr record' with parameters from launch.json or `+realgud-debug-config'."
     (interactive)
-    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud-debug-config)))
-      (unless (make-process :name "*rr record*"
+    (let* ((conf (or (+realgud-config-from-launch-json) +realgud-debug-config))
+           (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args))))
+      (unless (make-process :name "rr-record"
                             :buffer "*rr record*"
-                            :command (append '("rr" "record") (s-split " " debugger--args)))
-        (message "Cannot make process 'rr record'"))))
+                            :command (append '("rr" "record") args))
+        (message "Cannot start the 'rr record' process"))))
 
   (map! :leader :prefix ("l" . "custom")
         (:when (modulep! :tools debugger)
