@@ -231,6 +231,12 @@
 (package! nov)
 ;; e-Books (=nov=):1 ends here
 
+;; [[file:config.org::*EMPV][EMPV:1]]
+(package! empv
+  :recipe (:host github
+           :repo "isamert/empv.el"))
+;; EMPV:1 ends here
+
 ;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:1]]
 (package! emms-mode-line-cycle
   :recipe (:host github
@@ -404,6 +410,10 @@
   :recipe (:host github
            :repo "arnm/ob-mermaid"))
 ;; Mermaid:1 ends here
+
+;; [[file:config.org::*The V Programming Language][The V Programming Language:1]]
+(package! v-mode)
+;; The V Programming Language:1 ends here
 
 ;; [[file:config.org::*Inspector][Inspector:1]]
 (package! inspector

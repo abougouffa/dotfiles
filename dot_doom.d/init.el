@@ -57,6 +57,7 @@
   :checkers
   (syntax +childframe)
   (spell +aspell)
+  (grammar +lsp)
 
   :tools
   ein

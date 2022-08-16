@@ -374,11 +374,17 @@
 (defun +file-objdump-p (&optional buffer)
   "Can the BUFFER be viewed as a disassembled code with objdump."
   (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
-    (and (file-exists-p file)
-         (not (file-directory-p file))
-         (not (string-match-p
-               "file format not recognized"
-               (shell-command-to-string (format "objdump --file-headers %s" file)))))))
+    (let (ret-code)
+      (and (file-exists-p file)
+           (not (file-directory-p file))
+           (not (string-match-p
+                 "file format not recognized"
+                 (with-temp-buffer
+                   (setq ret-code (shell-command
+                                   (format "objdump --file-headers %s" file)
+                                   (current-buffer)))
+                   (buffer-string))))
+           (zerop ret-code)))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
@@ -1028,71 +1034,72 @@ current buffer's, reload dir-locals."
 ;; LanguageTool Server:1 ends here
 
 ;; [[file:config.org::*LTeX][LTeX:2]]
+;; NOTE To be removed by 1 Sep 2022,
+;; after https://github.com/doomemacs/doomemacs/pull/6683 gets merged
 (use-package! lsp-ltex
-  :commands (+lsp-ltex-load +lsp-ltex-enable +lsp-ltex-disable +lsp-ltex-toggle)
+  :when (modulep! :checkers grammar +lsp)
+  :unless (modulep! :tools lsp +eglot)
+  :commands (+lsp-ltex-toggle
+             +lsp-ltex-enable
+             +lsp-ltex-disable
+             +lsp-ltex-setup)
+  :hook ((text-mode latex-mode org-mode markdown-mode) . #'+lsp-ltex-setup)
   :init
-  (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"
-        lsp-ltex-check-frequency "edit" ;; or "save"
-        lsp-ltex-language "fr"
-        lsp-ltex-mother-tongue "ar"
-        lsp-ltex-log-level "warning"
-        lsp-ltex-trace-server "off"
+  (setq lsp-ltex-check-frequency "save" ;; Less overhead than the default "edit"
+        lsp-ltex-log-level "warning" ;; No need to log everything
+        ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 
-  ;; If LanguageTool is installed, use it over the LT bundeled with ltex-ls
-  (when (and nil LANGUAGETOOL-P) ;; FIXME: Disabled
-    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
+  ;; When n-gram data sets are available, use them to detect errors with words
+  ;; that are often confused (like their and there).
+  (when (file-directory-p "/usr/share/ngrams")
+    (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"))
 
-  (after! lsp-mode
-    ;; Disable by default
-    (add-to-list 'lsp-disabled-clients 'ltex-ls))
-
-  (defun +lsp-ltex-load ()
+  (defun +lsp-ltex-setup ()
     "Load LTeX LSP server."
     (interactive)
     (require 'lsp-ltex)
-    (lsp))
+    (when (+lsp-ltex--enabled-p)
+      (lsp-deferred)))
 
-  (defun +lsp-ltex-enabled-p ()
-    (not (member 'ltex-ls lsp-disabled-clients)))
+  (defun +lsp-ltex--enabled-p ()
+    (not (memq 'ltex-ls lsp-disabled-clients)))
 
   (defun +lsp-ltex-enable ()
-    "Enable LTeX LSP."
+    "Enable LTeX LSP for the current buffer."
     (interactive)
-    (unless (+lsp-ltex-enabled-p)
-      (setq lsp-disabled-clients (remove 'ltex-ls lsp-disabled-clients))
+    (unless (+lsp-ltex--enabled-p)
+      (delq! 'ltex-ls lsp-disabled-clients)
       (message "Enabled ltex-ls"))
-    (unless (or (not (boundp 'lsp-ltex-languagetool-http-server-uri))
-                (string-empty-p lsp-ltex-languagetool-http-server-uri)
-                (+languagetool-server-running-p))
-      (+languagetool-server-start)
-      (sit-for 5))
-    (+lsp-ltex-load))
+    (+lsp-ltex-setup))
 
   (defun +lsp-ltex-disable ()
-    "Disable LTeX LSP."
+    "Disable LTeX LSP for the current buffer."
     (interactive)
-    (when (+lsp-ltex-enabled-p)
+    (when (+lsp-ltex--enabled-p)
       (add-to-list 'lsp-disabled-clients 'ltex-ls)
       (lsp-disconnect)
       (message "Disabled ltex-ls")))
 
   (defun +lsp-ltex-toggle ()
-    "Enable/disable LTeX LSP."
+    "Toggle LTeX LSP for the current buffer."
     (interactive)
-    (if (+lsp-ltex-enabled-p)
+    (if (+lsp-ltex--enabled-p)
         (+lsp-ltex-disable)
       (+lsp-ltex-enable)))
 
-  (map! :leader :prefix ("l" . "custom")
-        (:prefix ("l" . "languagetool")
-         :desc "Enable LTeX"   "l" #'+lsp-ltex-enable
-         :desc "Disable LTeX"  "q" #'+lsp-ltex-disable
-         :desc "Toggle LTeX"   "t" #'+lsp-ltex-toggle))
+  (map! :localleader
+        :map (text-mode-map latex-mode-map org-mode-map markdown-mode-map)
+        :desc "Toggle grammar check" "G" #'+lsp-ltex-toggle))
 
-  :config
-  (set-lsp-priority! 'ltex-ls 2)
-  (setq flycheck-checker-error-threshold 1000))
+(after! lsp-ltex
+  (setq lsp-ltex-check-frequency "edit" ;; or "save"
+        lsp-ltex-language "fr"
+        lsp-ltex-mother-tongue "ar"
+        flycheck-checker-error-threshold 1000)
+
+  ;; Disable by default
+  (add-to-list 'lsp-disabled-clients 'ltex-ls))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
@@ -1119,14 +1126,15 @@ current buffer's, reload dir-locals."
 
   (map! :localleader
         :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
-        :desc "Yank translated region" "G" #'+gts-yank-translated-region)
+        :desc "Yank translated region" "R" #'+gts-yank-translated-region)
 
   (map! :leader :prefix "l"
         (:prefix ("G" . "go-translate")
-         :desc "Bing"              "b" (lambda () (interactive) (+gts-translate-with 'bing))
-         :desc "DeepL"             "d" (lambda () (interactive) (+gts-translate-with 'deepl))
-         :desc "Google"            "g" (lambda () (interactive) (+gts-translate-with))
-         :desc "gts-do-translate"  "t" #'gts-do-translate))
+         :desc "Bing"                   "b" (lambda () (interactive) (+gts-translate-with 'bing))
+         :desc "DeepL"                  "d" (lambda () (interactive) (+gts-translate-with 'deepl))
+         :desc "Google"                 "g" (lambda () (interactive) (+gts-translate-with))
+         :desc "Yank translated region" "R" #'+gts-yank-translated-region
+         :desc "gts-do-translate"       "t" #'gts-do-translate))
 
   :config
   ;; Config the default translator, which will be used by the command `gts-do-translate'
@@ -1959,13 +1967,13 @@ current buffer's, reload dir-locals."
   (gnus-icalendar-org-setup))
 ;; Mail client and indexer (=mu= and =mu4e=):2 ends here
 
-;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:1]]
+;; [[file:config.org::*MPD and MPC][MPD and MPC:1]]
 ;; Not sure if it is required!
 (after! mpc
   (setq mpc-host "localhost:6600"))
-;; MPD, MPC, and MPV:1 ends here
+;; MPD and MPC:1 ends here
 
-;; [[file:config.org::*MPD, MPC, and MPV][MPD, MPC, and MPV:2]]
+;; [[file:config.org::*MPD and MPC][MPD and MPC:2]]
 (defun +mpd-daemon-start ()
   "Start MPD, connects to it and syncs the metadata cache."
   (interactive)
@@ -1998,7 +2006,7 @@ current buffer's, reload dir-locals."
   (if (zerop (call-process "mpc" nil nil nil "update"))
       (message "MPD database updated!")
     (warn "An error occured when trying to update MPD database.")))
-;; MPD, MPC, and MPV:2 ends here
+;; MPD and MPC:2 ends here
 
 ;; [[file:config.org::*EMMS][EMMS:1]]
 (after! emms
@@ -2106,82 +2114,36 @@ current buffer's, reload dir-locals."
                                 "EMMS is now playing:"
                                 (emms-track-description (emms-playlist-current-selected-track))
                                 +emms-notification-icon)))
-
-  ;; MPV and Youtube integration
-  (when MPV-P
-    (add-to-list 'emms-player-list 'emms-player-mpv t)
-    (emms-player-set
-     emms-player-mpv
-     'regex
-     (rx (or (: "https://" (* nonl) "youtube.com" (* nonl))
-             (+ (? (or "https://" "http://"))
-                (* nonl)
-                (regexp (eval (emms-player-simple-regexp
-                               "mp4" "mov" "wmv" "webm" "flv" "avi" "mkv")))))))
-
-    (setq +youtube-dl-quality-list
-          '("bestvideo[height<=720]+bestaudio/best[height<=720]"
-            "bestvideo[height<=480]+bestaudio/best[height<=480]"
-            "bestvideo[height<=1080]+bestaudio/best[height<=1080]"))
-
-    (setq +default-emms-player-mpv-parameters
-          '("--quiet" "--really-quiet" "--no-audio-display"))
-
-    (defun +set-emms-mpd-youtube-quality (quality)
-      (interactive "P")
-      (unless quality
-        (setq quality (completing-read "Quality: " +youtube-dl-quality-list nil t)))
-      (setq emms-player-mpv-parameters
-            `(,@+default-emms-player-mpv-parameters ,(format "--ytdl-format=%s" quality))))
-
-    (+set-emms-mpd-youtube-quality (car +youtube-dl-quality-list))
-
-    (defun +get-youtube-url (link)
-      (let ((watch-id (cadr
-                       (assoc "watch?v"
-                              (url-parse-query-string
-                               (substring
-                                (url-filename
-                                 (url-generic-parse-url link))
-                                1))))))
-        (concat "https://www.youtube.com/watch?v=" watch-id)))))
-
-;; Example, to be used in an EMMS Playlist
-;; (let ((track (emms-track 'url (+get-youtube-url "https://www.youtube.com/watch?v=Wh-7Kg-jVLg&list=PLBsIgVvbrncChqmejIOyA-Xp_dcywQQln"))))
-;;   (emms-track-set track 'info-title "Vid")
-;;   (emms-playlist-insert-track track))
 ;; EMMS:1 ends here
 
-;; [[file:config.org::*Elfeed :heart: MPV][Elfeed :heart: MPV:2]]
-(after! (elfeed emms)
-  (when MPV-P
-    ;; Integration with Elfeed
-    (define-emms-source elfeed (entry)
-      (let ((track (emms-track
-                    'url (+get-youtube-url (elfeed-entry-link entry)))))
-        (emms-track-set track 'info-title (elfeed-entry-title entry))
-        (emms-playlist-insert-track track)))
-
-    (defun +elfeed-add-emms-youtube ()
-      (interactive)
-      (emms-add-elfeed elfeed-show-entry)
-      (elfeed-tag elfeed-show-entry 'watched)
-      (elfeed-show-refresh))
-
-    (defun +elfeed-search-filter-source (entry)
-      "Filter elfeed search buffer by the feed under cursor."
-      (interactive (list (elfeed-search-selected :ignore-region)))
-      (when (elfeed-entry-p entry)
-        (elfeed-search-set-filter
-         (concat
-          "@6-months-ago "
-          "+unread "
-          "="
-          (replace-regexp-in-string
-           (rx "?" (* not-newline) eos)
-           ""
-           (elfeed-feed-url (elfeed-entry-feed entry)))))))))
-;; Elfeed :heart: MPV:2 ends here
+;; [[file:config.org::*EMPV][EMPV:2]]
+(use-package! empv
+  :when MPV-P
+  :init
+  (map! :leader :prefix ("l m")
+        (:prefix ("v" . "empv")
+         :desc "Play"          "p" #'empv-play
+         :desc "Seach Youtube" "y" #'consult-empv-youtube
+         :desc "Play radio"    "r" #'empv-play-radio))
+  :config
+  ;; See https://docs.invidious.io/instances/
+  (setq empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"
+        ;; Links from https://www.radio-browser.info
+        empv-radio-channels
+        '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
+          ("El-Chaabia" . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
+          ("Quran Radio" . "http://stream.radiojar.com/0tpy1h0kxtzuv")
+          ("Algeria International" . "https://webradio.tda.dz/Internationale_64K.mp3")
+          ("JOW Radio" . "https://str0.creacast.com/jowradio")
+          ("Europe1" . "http://ais-live.cloud-services.paris:8000/europe1.mp3")
+          ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
+          ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3")
+          ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
+          ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
+          ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
+          ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
+          ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))))
+;; EMPV:2 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
 (map! :leader :prefix ("l" . "custom")
@@ -2195,13 +2157,11 @@ current buffer's, reload dir-locals."
        :desc "Smart browse"                "b" #'emms-smart-browse
        :desc "Play/Pause"                  "p" #'emms-pause
        :desc "Start"                       "S" #'emms-start
-       :desc "Start"                       "S" #'emms-start
        :desc "Stop"                        "s" #'emms-stop))
 ;; Keybindings:1 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:2]]
-(map! :leader
-      :prefix ("l m")
+(map! :leader :prefix ("l m")
       (:when (and (modulep! :app emms) MPD-P)
        :prefix ("m" . "mpd/mpc")
        :desc "Start daemon"              "s" #'+mpd-daemon-start
@@ -2557,8 +2517,6 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
                         (cons "${workspaceFolderBasename}" ws-basename)) s))
      cmd-args)))
 
-(+realgud--substite-special-vars "${workspaceFolder}/test")
-
 (defun +realgud--debug-command (debugger-type debuggee-args)
   "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
   (let* ((prog (car debuggee-args))
@@ -2900,6 +2858,16 @@ if it is set to a launch.json file, it will be used instead."
     (add-to-list 'org-babel-load-languages '(mermaid . t))))
 ;; Mermaid:2 ends here
 
+;; [[file:config.org::*The V Programming Language][The V Programming Language:2]]
+(use-package! v-mode
+  :mode ("\\(\\.v?v\\|\\.vsh\\)$" . 'v-mode)
+  :config
+  (map! :localleader
+        :map (v-mode-map)
+        :desc "v-format-buffer" "f" #'v-format-buffer
+        :desc "v-menu" "m" #'v-menu))
+;; The V Programming Language:2 ends here
+
 ;; [[file:config.org::*Inspector][Inspector:2]]
 (use-package! inspector
   :commands (inspect-expression inspect-last-sexp))
@@ -2910,11 +2878,12 @@ if it is set to a launch.json file, it will be used instead."
         org-use-property-inheritance t        ; it's convenient to have properties inherited
         org-log-done 'time                    ; having the time an item is done sounds convenient
         org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-  ;;    org-export-in-background t            ; run export processes in external emacs process
+        org-export-in-background nil          ; run export processes in external emacs process
   ;;    org-export-async-debug t
         org-tags-column 0
         org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
         org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+        org-pretty-entities-include-sub-superscripts nil
         org-auto-align-tags nil
         org-special-ctrl-a/e t
         org-startup-indented t ;; Enable 'org-indent-mode' by default, override with '+#startup: noindent' for big files
