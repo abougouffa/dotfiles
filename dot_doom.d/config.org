@@ -200,7 +200,8 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
     (while (not (or unlocked (zerop try-again)))
       (setq unlocked (zerop (shell-command "gpg -q --no-tty --logger-file /dev/null --batch -d ~/.authinfo.gpg > /dev/null" nil nil))
             try-again (1- try-again))
-      (message "GPG: Failed to unlock, please try again (%d)" try-again))
+      (unless unlocked
+        (message "GPG: failed to unlock, please try again (%d)" try-again)))
     (unless unlocked
       (kill-emacs 1))))
 #+end_src
