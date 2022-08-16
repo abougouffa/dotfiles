@@ -4401,7 +4401,7 @@ For DAP mode, there is a support for either =dap-debug-edit-template=, or
 =launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
 this. So let's code it!
 
-I like to define a parameter list named =+realgud:launch-plist= to use as a
+I like to define a parameter list named =+realgud-debug-config= to use as a
 fallback, if no =launch.json= file is present, this variable can be set in
 =.dir-locals.el= for example.
 
@@ -4410,17 +4410,18 @@ fallback, if no =launch.json= file is present, this variable can be set in
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 ;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
-(defvar +realgud:launch-plist nil)
+(defvar +realgud-debug-config nil)
 #+end_src
 
-The =+realgud:launch-plist= variable supports two parameters: =:program= and =:args=.
+The =+realgud-debug-config= variable supports two parameters: =:program= and =:args=.
 The first is a string of the program path, and the second is a list of string
 arguments to pass to the program. It can be set in a per-project basis thanks to
 =.dir-locals.el=, something like this:
 
 #+begin_src lisp-data :tangle no
 ;; Example entry in .dir-locals.el
-((nil . ((+realgud:launch-plist . '(:program "${workspaceFolder}/build/bin/my_prog"
+((nil . ((+realgud-debug-config . '(:type "realgud:gdb"
+                                    :program "${workspaceFolder}/build/bin/my_prog"
                                     :args ("--in_file=${workspaceFolder}/some/file.csv"
                                            "--some-parameter" "-a" "-b"
                                            "--out_file=/tmp/some_randome_file"
@@ -4440,12 +4441,12 @@ section with type =realgud:gdb=. This is an example of a valid =launch.json= fil
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Emacs::realgud:gdb (view_trajectory)",
+      "name": "Emacs::RealGUD:GDB (view_trajectory)",
       "type": "realgud:gdb",
       "request": "launch",
       "dap-compilation": "cmake --build build/debug -- -j 8",
       "dap-compilation-dir": "${workspaceFolder}",
-      "program": "${workspaceFolder}/build/debug/bin/my_prog",
+      "program": "${workspaceFolder}/build/debug/bin/view_trajectory",
       "args": [
         "htraj=${workspaceFolder}/data/seq1/h_poses.csv",
         "traj=${workspaceFolder}/data/seq1/poses.csv"
@@ -4459,57 +4460,77 @@ section with type =realgud:gdb=. This is an example of a valid =launch.json= fil
 }
 #+end_src
 
-The example above defines several parameters, however, only =program= and =args= are
-used at the moment.
+The example above defines several parameters, however, only =type=, =program= and
+=args= are used at the moment.
 
 #+begin_src emacs-lisp
-(defun +realgud:prepare-launch-debugger-args (program &optional args)
-  (when-let ((dbg-args program))
-    (let* ((dbg-args (concat dbg-args " " (s-join " " args)))
-           (ws-root (expand-file-name (or (projectile-project-root) ".")))
-           (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
-      ;; Replace special variables
-      (s-replace-all
-       (list (cons "${workspaceFolder}" ws-root)
-             (cons "${workspaceFolderBasename}" ws-basename))
-       dbg-args))))
+(defun +realgud--substite-special-vars (program &optional args)
+  "Substitue variables in PROGRAM and ARGS.
+Return a list, in which processed PROGRAM is the first element, followed by ARGS.
+\"${workspaceFolder}\" and \"${workspaceFolderBasename}\""
+  (let* ((cmd-args (cons program args))
+         (ws-root (expand-file-name (or (projectile-project-root) ".")))
+         (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
+    ;; Replace special variables
+    (mapcar
+     (lambda (s) (s-replace-all
+                  (list (cons "${workspaceFolder}" ws-root)
+                        (cons "${workspaceFolderBasename}" ws-basename)) s))
+     cmd-args)))
 
-(defun +realgud:config-from-launch-json (&optional file)
+(defun +realgud--debug-command (debugger-type debuggee-args)
+  "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
+  (let* ((prog (car debuggee-args))
+         (args (+str-join " " (cdr debuggee-args))))
+    (when args
+      (setq args (pcase (intern debugger-type)
+                   ('realgud:gdb (format " --args %s %s" prog args))
+                   ;; Default case "prog [args]" for `bashdb', `zshdb', `pdb', etc.
+                   (t (format " %s %s" prog args)))))
+    (concat (eval (intern (concat debugger-type "-command-name"))) ;; evaluates to `realgud:gdb-command-name' for "realgud:gdb" debugger type
+            (if args args ""))))
+
+(defun +realgud-config-from-launch-json (&optional file)
+  "Return the first RealGUD configuration in launch.json file.
+If FILE is nil, launch.json will be searched in the current project,
+if it is set to a launch.json file, it will be used instead."
   (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
     (when (file-exists-p launch-json)
-      (message "[RealGUD]: Found \"launch.json\"")
+      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
       (let* ((launch (with-temp-buffer
                        (insert-file-contents launch-json)
                        (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
              (configs (plist-get launch :configurations)))
         (catch 'config
           (dolist (conf configs)
-            (when (string= "realgud:gdb" (plist-get conf :type))
-              (message "[RealGUD]: Found \"realgud:gdb\" configuration type")
-              (throw 'config conf))))))))
+            (let* ((conf-type (plist-get conf :type))
+                   (conf-name (or (plist-get conf :name) conf-type))) ;; fallback to type when no name
+              (when (string-match "realgud:.*" conf-type)
+                (message "[RealGUD]: Found configuration \"%s\" of type `%s'" conf-name conf-type)
+                (throw 'config conf)))))))))
 
-(defun +debugger/realgud:gdb-launch ()
-  "Launch RealGUD with parameters from `+realgud:launch-plist'"
+(defun +debugger/realgud-launch (&optional file)
+  "Launch RealGUD with parameters from `+realgud-debug-config' or launch.json file."
   (interactive)
   (require 'realgud)
-  (let* ((config (or (+realgud:config-from-launch-json)
-                     +realgud:launch-plist))
-         (args (+realgud:prepare-launch-debugger-args (plist-get config :program)
-                                                      (plist-get config :args))))
-    (unless args
-      (message "Variable `+realgud:launch-plist' is `nil'"))
-    (realgud:gdb (concat realgud:gdb-command-name
-                         (if args (concat " --args " args) "")))))
+  (let* ((conf (or (+realgud-config-from-launch-json file)
+                   +realgud-debug-config))
+         (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
+         (type (plist-get conf :type)))
+    (if (and type (fboundp (intern type)))
+        (funcall (intern type) ;; for type="realgud:gdb", this should return the `realgud:gdb' function
+                 (+realgud--debug-command type args))
+      (message "[RealGUD]: Unknown debugger `%s'." (if type type "NIL")))))
 
 (map! :leader :prefix ("l" . "custom")
       (:when (modulep! :tools debugger)
        :prefix ("d" . "debugger")
-       :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
+       :desc "RealGUD launch" "d" #'+debugger/realgud-launch))
 #+end_src
 
 **** Record and replay =rr= :rr:reverse:
 We then add some shortcuts to run =rr= from Emacs, the =rr record= takes the program
-name and arguments from my local =+realgud:launch-plist=, when =rr replay= respects
+name and arguments from my local =+realgud-debug-config=, when =rr replay= respects
 the arguments configured in RealGUD's GDB command name. Some useful hints could
 be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-in-gnu-emacs.html][here]], [[https://github.com/rr-debugger/rr/blob/82ab0f9f5bc13fb27acaccb9a85397bcaa7a7b05/src/ReplayCommand.cc#L45][here]], [[https://github.com/rr-debugger/rr/issues/1484][here]] and [[https://emacs.stackexchange.com/questions/20056/is-it-possible-to-use-mozillas-rr-with-gdb-multi-window][here]].
 
@@ -4523,9 +4544,9 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
     (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `+realgud:launch-plist'"
+    "Launch `rr record' with parameters from `+realgud-debug-config'"
     (interactive)
-    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
+    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud-debug-config)))
       (unless (make-process :name "*rr record*"
                             :buffer "*rr record*"
                             :command (append '("rr" "record") (s-split " " debugger--args)))
