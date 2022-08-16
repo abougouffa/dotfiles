@@ -4473,7 +4473,7 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
          (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
     ;; Replace special variables
     (mapcar
-     (lambda (s) (s-replace-all
+     (lambda (s) (+str-replace-all
                   (list (cons "${workspaceFolder}" ws-root)
                         (cons "${workspaceFolderBasename}" ws-basename)) s))
      cmd-args)))
@@ -4537,12 +4537,10 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
 
 #+begin_src emacs-lisp
 (after! realgud
-  (require 's)
-
   (defun +debugger/rr-replay ()
     "Launch `rr replay'"
     (interactive)
-    (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
+    (realgud:gdb (+str-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
     "Launch `rr record' with parameters from `+realgud-debug-config'"
