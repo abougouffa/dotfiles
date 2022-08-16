@@ -4964,6 +4964,22 @@ repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-vers
     (add-to-list 'org-babel-load-languages '(mermaid . t))))
 #+end_src
 
+** The V Programming Language
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! v-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! v-mode
+  :mode ("\\(\\.v?v\\|\\.vsh\\)$" . 'v-mode)
+  :config
+  (map! :localleader
+        :map (v-mode-map)
+        :desc "v-format-buffer" "f" #'v-format-buffer
+        :desc "v-menu" "m" #'v-menu))
+#+end_src
+
 ** Inspector :inspector:debug:
 
 #+begin_src emacs-lisp :tangle packages.el
