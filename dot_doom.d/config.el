@@ -373,10 +373,9 @@
 ;; [[file:config.org::*Objdump mode][Objdump mode:1]]
 (defun +file-objdump-p (&optional buffer)
   "Can the BUFFER be viewed as a disassembled code with objdump."
-  (let* ((buff (or buffer (current-buffer)))
-         (file (buffer-file-name buff)))
-    (and file
-         (file-exists-p file)
+  (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
+    (and (file-exists-p file)
+         (not (file-directory-p file))
          (not (string-match-p
                "file format not recognized"
                (shell-command-to-string (format "objdump --file-headers %s" file)))))))
@@ -385,15 +384,17 @@
   (define-derived-mode objdump-disassemble-mode
     asm-mode "Objdump Mode"
     "Major mode for viewing executable files disassembled using objdump."
-    (let ((file (buffer-file-name)))
-      (let ((buffer-read-only nil))
+    (let ((file (buffer-file-name))
+          (buffer-read-only nil))
+      (if (not (+file-objdump-p))
+          (message "Objdump can not be used with this buffer.")
         (erase-buffer)
         (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
         (call-process "objdump" nil (current-buffer) nil "-d" file)
-        (set-buffer-modified-p nil))
-      (goto-char (point-min))
-      (view-mode)
-      (set-visited-file-name nil t)))
+        (set-buffer-modified-p nil)
+        (goto-char (point-min))
+        (view-mode)
+        (set-visited-file-name nil t))))
 
   (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
 ;; Objdump mode:1 ends here
@@ -2538,52 +2539,72 @@ current buffer's, reload dir-locals."
 ;; '(:program "..." :args ("args1" "arg2" ...))
 ;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
 ;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
-(defvar +realgud:launch-plist nil)
+(defvar +realgud-debug-config nil)
 ;; RealGUD =launch.json= support:1 ends here
 
 ;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:4]]
-(defun +realgud:prepare-launch-debugger-args (program &optional args)
-  (when-let ((dbg-args program))
-    (let* ((dbg-args (concat dbg-args " " (s-join " " args)))
-           (ws-root (expand-file-name (or (projectile-project-root) ".")))
-           (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
-      ;; Replace special variables
-      (s-replace-all
-       (list (cons "${workspaceFolder}" ws-root)
-             (cons "${workspaceFolderBasename}" ws-basename))
-       dbg-args))))
+(defun +realgud--substite-special-vars (program &optional args)
+  "Substitue variables in PROGRAM and ARGS.
+Return a list, in which processed PROGRAM is the first element, followed by ARGS.
+\"${workspaceFolder}\" and \"${workspaceFolderBasename}\""
+  (let* ((cmd-args (cons program args))
+         (ws-root (expand-file-name (or (projectile-project-root) ".")))
+         (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
+    ;; Replace special variables
+    (mapcar
+     (lambda (s) (s-replace-all
+                  (list (cons "${workspaceFolder}" ws-root)
+                        (cons "${workspaceFolderBasename}" ws-basename)) s))
+     cmd-args)))
 
-(defun +realgud:config-from-launch-json (&optional file)
+(defun +realgud--debug-command (debugger-type debuggee-args)
+  "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
+  (let* ((prog (car debuggee-args))
+         (args (+str-join " " (cdr debuggee-args))))
+    (when args
+      (setq args (pcase (intern debugger-type)
+                   ('realgud:gdb (format " --args %s %s" prog args))
+                   ;; Default case "prog [args]" for `bashdb', `zshdb', `pdb', etc.
+                   (t (format " %s %s" prog args)))))
+    (concat (eval (intern (concat debugger-type "-command-name"))) ;; evaluates to `realgud:gdb-command-name' for "realgud:gdb" debugger type
+            (if args args ""))))
+
+(defun +realgud-config-from-launch-json (&optional file)
+  "Return the first RealGUD configuration in launch.json file.
+If FILE is nil, launch.json will be searched in the current project,
+if it is set to a launch.json file, it will be used instead."
   (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
     (when (file-exists-p launch-json)
-      (message "[RealGUD]: Found \"launch.json\"")
+      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
       (let* ((launch (with-temp-buffer
                        (insert-file-contents launch-json)
                        (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
              (configs (plist-get launch :configurations)))
         (catch 'config
           (dolist (conf configs)
-            (when (string= "realgud:gdb" (plist-get conf :type))
-              (message "[RealGUD]: Found \"realgud:gdb\" configuration type")
-              (throw 'config conf))))))))
+            (let* ((conf-type (plist-get conf :type))
+                   (conf-name (or (plist-get conf :name) conf-type))) ;; fallback to type when no name
+              (when (string-match "realgud:.*" conf-type)
+                (message "[RealGUD]: Found configuration \"%s\" of type `%s'" conf-name conf-type)
+                (throw 'config conf)))))))))
 
-(defun +debugger/realgud:gdb-launch ()
-  "Launch RealGUD with parameters from `+realgud:launch-plist'"
+(defun +debugger/realgud-launch (&optional file)
+  "Launch RealGUD with parameters from `+realgud-debug-config' or launch.json file."
   (interactive)
   (require 'realgud)
-  (let* ((config (or (+realgud:config-from-launch-json)
-                     +realgud:launch-plist))
-         (args (+realgud:prepare-launch-debugger-args (plist-get config :program)
-                                                      (plist-get config :args))))
-    (unless args
-      (message "Variable `+realgud:launch-plist' is `nil'"))
-    (realgud:gdb (concat realgud:gdb-command-name
-                         (if args (concat " --args " args) "")))))
+  (let* ((conf (or (+realgud-config-from-launch-json file)
+                   +realgud-debug-config))
+         (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
+         (type (plist-get conf :type)))
+    (if (and type (fboundp (intern type)))
+        (funcall (intern type) ;; for type="realgud:gdb", this should return the `realgud:gdb' function
+                 (+realgud--debug-command type args))
+      (message "[RealGUD]: Unknown debugger `%s'." (if type type "NIL")))))
 
 (map! :leader :prefix ("l" . "custom")
       (:when (modulep! :tools debugger)
        :prefix ("d" . "debugger")
-       :desc "RealGUD launch" "d" #'+debugger/realgud:gdb-launch))
+       :desc "RealGUD launch" "d" #'+debugger/realgud-launch))
 ;; RealGUD =launch.json= support:4 ends here
 
 ;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
@@ -2596,9 +2617,9 @@ current buffer's, reload dir-locals."
     (realgud:gdb (s-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from `+realgud:launch-plist'"
+    "Launch `rr record' with parameters from `+realgud-debug-config'"
     (interactive)
-    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud:launch-plist)))
+    (let ((debugger--args (apply '+realgud:get-launch-debugger-args +realgud-debug-config)))
       (unless (make-process :name "*rr record*"
                             :buffer "*rr record*"
                             :command (append '("rr" "record") (s-split " " debugger--args)))

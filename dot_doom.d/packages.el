@@ -302,6 +302,7 @@
 
 ;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:1]]
 (package! gdb-mi
+  :disable t
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile")))
