@@ -4571,6 +4571,7 @@ keybindings.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! gdb-mi
+  :disable t
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile")))
