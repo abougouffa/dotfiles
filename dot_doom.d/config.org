@@ -3783,7 +3783,7 @@ default backend EMMS is using.
             (lambda () (funcall +emms-notifier-function
                                 "EMMS is now playing:"
                                 (emms-track-description (emms-playlist-current-selected-track))
-                                +emms-notification-icon)))
+                                +emms-notification-icon))))
 #+end_src
 
 *** EMPV
