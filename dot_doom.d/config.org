@@ -5970,9 +5970,9 @@ I think it makes sense to have list bullets change with depth
 
 #+begin_src emacs-lisp
 (setq org-list-demote-modify-bullet
-      '(("+" . "-")
-        ("-" . "+")
-        ("*" . "+")
+      '(("+"  . "-")
+        ("-"  . "+")
+        ("*"  . "+")
         ("1." . "a.")))
 #+end_src
 
@@ -6000,50 +6000,12 @@ First off, we want those fragments to look good.
 
 #+begin_src emacs-lisp
 (setq org-highlight-latex-and-related '(native script entities))
-#+end_src
 
-However, by using =native= highlighting the =org-block= face is added, and that
-doesn't look too great --- particularly when the fragments are previewed.
-
-Ideally ~org-src-font-lock-fontify-block~ wouldn't add the =org-block= face, but we
-can avoid advising that entire function by just adding another face with
-=:inherit default= which will override the background color.
-
-Inspecting ~org-do-latex-and-related~ shows that ="latex"= is the language argument
-passed, and so we can override the background as discussed above.
-
-#+begin_src emacs-lisp
 (require 'org-src)
 (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
 #+end_src
 
 ***** Prettier rendering
-It's nice to customize the look of LaTeX fragments.
-
-#+begin_src emacs-lisp
-;; (setq org-format-latex-header "\\documentclass{article}
-;; \\usepackage[svgnames]{xcolor}
-;; \\usepackage[T1]{fontenc}
-;; \\usepackage{booktabs}
-
-;; \\pagestyle{empty} % do not remove
-
-;; \\setlength{\\textwidth}{\\paperwidth}
-;; \\addtolength{\\textwidth}{-3cm}
-;; \\setlength{\\oddsidemargin}{1.5cm}
-;; \\addtolength{\\oddsidemargin}{-2.54cm}
-;; \\setlength{\\evensidemargin}{\\oddsidemargin}
-;; \\setlength{\\textheight}{\\paperheight}
-;; \\addtolength{\\textheight}{-\\headheight}
-;; \\addtolength{\\textheight}{-\\headsep}
-;; \\addtolength{\\textheight}{-\\footskip}
-;; \\addtolength{\\textheight}{-3cm}
-;; \\setlength{\\topmargin}{1.5cm}
-;; \\addtolength{\\topmargin}{-2.54cm}
-;; \\usepackage{arev}
-;; ")
-#+end_src
-
 Since we can, instead of making the background color match the =default= face,
 let's make it transparent.
 
@@ -6181,9 +6143,9 @@ colors.
   (defun org-plot/generate-theme (_type)
     "Use the current Doom theme colours to generate a GnuPlot preamble."
     (format "
-fgt = \"textcolor rgb '%s'\" # foreground text
+fgt = \"textcolor rgb '%s'\"  # foreground text
 fgat = \"textcolor rgb '%s'\" # foreground alt text
-fgl = \"linecolor rgb '%s'\" # foreground line
+fgl = \"linecolor rgb '%s'\"  # foreground line
 fgal = \"linecolor rgb '%s'\" # foreground alt line
 
 # foreground colors
@@ -6241,21 +6203,22 @@ set palette defined ( 0 '%s',\
             (doom-color 'orange)
             (doom-color 'yellow)
             (doom-color 'teal)
-            (doom-color 'violet)
-            ))
+            (doom-color 'violet)))
+
   (defun org-plot/gnuplot-term-properties (_type)
     (format "background rgb '%s' size 1050,650"
             (doom-color 'bg)))
-  (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
-  (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
+
+  (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme
+        org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
 #+end_src
 
 **** Large tables
-Use [[https://github.com/misohena/phscroll][/Partial Horizontal Scroll/]].
+Use /[[https://github.com/misohena/phscroll][Partial Horizontal Scroll]]/ to display long tables without breaking them.
 
 #+begin_src emacs-lisp
 (use-package! org-phscroll
-  :commands org-phscroll-activate)
+  :hook (org-mode . org-phscroll-mode))
 #+end_src
 
 *** Bibliography
@@ -6325,101 +6288,89 @@ Use Org as LaTeX!
 #+begin_src emacs-lisp
 (use-package! org-ref
   :after org
-  :config
-  (defadvice! org-ref-open-bibtex-pdf-a ()
-    :override #'org-ref-open-bibtex-pdf
-    (save-excursion
-      (bibtex-beginning-of-entry)
-      (let* ((bibtex-expand-strings t)
-             (entry (bibtex-parse-entry t))
-             (key (reftex-get-bib-field "=key=" entry))
-             (pdf (or
-                   (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
-                                 (split-string (reftex-get-bib-field "file" entry) ";")))
-                   (funcall 'org-ref-get-pdf-filename key))))
-        (if (file-exists-p pdf)
-            (org-open-file pdf)
-          (ding)))))
-
-  (defadvice! org-ref-open-pdf-at-point-a ()
-    "Open the pdf for bibtex key under point if it exists."
-    :override #'org-ref-open-pdf-at-point
-    (interactive)
-    (let* ((results (org-ref-get-bibtex-key-and-file))
-           (key (car results))
-           (pdf-file (funcall 'org-ref-get-pdf-filename key)))
-      (with-current-buffer (find-file-noselect (cdr results))
-        (save-excursion
-          (bibtex-search-entry (car results))
-          (org-ref-open-bibtex-pdf)))))
-
+  :init
   ;; Add keybinding to insert link
   (map! :localleader
         :map org-mode-map
         :desc "Org-ref insert link" "C" #'org-ref-insert-link))
+
+;; :config
+;; (defadvice! org-ref-open-bibtex-pdf-a ()
+;;   :override #'org-ref-open-bibtex-pdf
+;;   (save-excursion
+;;     (bibtex-beginning-of-entry)
+;;     (let* ((bibtex-expand-strings t)
+;;            (entry (bibtex-parse-entry t))
+;;            (key (reftex-get-bib-field "=key=" entry))
+;;            (pdf (or
+;;                  (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
+;;                                (split-string (reftex-get-bib-field "file" entry) ";")))
+;;                  (funcall 'org-ref-get-pdf-filename key))))
+;;       (if (file-exists-p pdf)
+;;           (org-open-file pdf)
+;;         (ding)))))
+
+;; (defadvice! org-ref-open-pdf-at-point-a ()
+;;   "Open the pdf for bibtex key under point if it exists."
+;;   :override #'org-ref-open-pdf-at-point
+;;   (interactive)
+;;   (let* ((results (org-ref-get-bibtex-key-and-file))
+;;          (key (car results))
+;;          (pdf-file (funcall 'org-ref-get-pdf-filename key)))
+;;     (with-current-buffer (find-file-noselect (cdr results))
+;;       (save-excursion
+;;         (bibtex-search-entry (car results))
+;;         (org-ref-open-bibtex-pdf))))))
 #+end_src
 
 **** Citar
 
 #+begin_src emacs-lisp
 (setq citar-library-paths '("~/Zotero/storage")
-      citar-notes-paths '("~/PhD/bibliography/notes/")
-      citar-bibliography '("~/Zotero/library.bib"))
+      citar-notes-paths   '("~/PhD/bibliography/notes/")
+      citar-bibliography  '("~/Zotero/library.bib"))
 #+end_src
 
 *** Exporting
 **** General settings
-By default, Org only exports the first three levels of headings as ... headings.
-This is rather unfortunate as my documents frequently stray far beyond three
-levels of depth. The two main formats I care about exporting to are LaTeX and
-HTML. When using an =article= class, LaTeX headlines go from =\section=,
-=\subsection=, =\subsubsection=, and =\paragraph= to =\subgraph= --- /five/ levels. HTML5
-has six levels of headings (=<h1>= to =<h6>=), but first level Org headings get
-exported as ~<h2>~ elements - leaving /five/ usable levels.
-
-As such, it would seem to make sense to recognize the first /five/ levels of Org
-headings when exporting.
+By default, Org only exports the first three levels of headings as /headings/, the
+rest is considered as paragraphs. Let's increase this to 5 levels.
 
 #+begin_src emacs-lisp
-(setq org-export-headline-levels 5) ;; I like nesting
+(setq org-export-headline-levels 5)
 #+end_src
 
-I'm also going to make use of an item in =ox-extra= so that I can add an ~:ignore:~
-tag to headings for the content to be kept, but the heading itself ignored
-(unlike ~:noexport:~ which ignored both heading and content). This is useful when
-I want to use headings to provide a structure for writing that doesn't appear in
-the final documents.
+Let's make use of the ~:ignore:~ tag from =ox-extra=, which provides a way to ignore
+exporting a heading, while exporting the content residing under it (different
+from ~:noexport:~).
 
 #+begin_src emacs-lisp
 (require 'ox-extra)
 (ox-extras-activate '(ignore-headlines))
 #+end_src
 
-Since I (roughly) track Org ~HEAD~, it makes sense to include the git version in
-the creator string.
-
 #+begin_src emacs-lisp
 (setq org-export-creator-string
-      (format "Emacs %s (Org mode %s)" emacs-version (org-release)))
+      (format "Made with Emacs %s and Org %s" emacs-version (org-release)))
 #+end_src
 
 **** LaTeX export
 ***** Compiling
-By default, Org uses the classical ~pdflatex~ \times 3 + ~bibtex~. This simply won't
-do in our modern world. ~latexmk~ + ~biber~ (which is used automatically with
-~latexmk~) is a simply superior combination.
 
 #+begin_src emacs-lisp
-;; `org-latex-compilers' contains a list of possible values ("pdflatex" "xelatex" "lualatex")
-;; for the `%latex' argument.
-(setq org-latex-pdf-process '("latexmk -shell-escape -pdf -quiet -f -%latex -interaction=nonstopmode -output-directory=%o %f"))
+;; `org-latex-compilers' contains a list of possible values for the `%latex' argument.
+(setq org-latex-pdf-process
+      '("latexmk -shell-escape -pdf -quiet -f -%latex -interaction=nonstopmode -output-directory=%o %f"))
 #+end_src
 
 ***** Org LaTeX packages
 
 #+begin_src emacs-lisp
-;; Add 'svg' package to display SVG pictures (uses inkscape, imagemagik and ghostscript)
-;; (add-to-list 'org-latex-packages-alist '("" "svg"))
+;; 'svg' package depends on inkscape, imagemagik and ghostscript
+(when (+all (mapcar 'executable-find '("inkscape" "magick" "gs")))
+  (add-to-list 'org-latex-packages-alist '("" "svg")))
+
+(add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
 ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex
 ;; (add-to-list 'org-latex-packages-alist '("utf8" "inputenc"))
 #+end_src
@@ -6429,20 +6380,19 @@ This is for code syntax highlighting in export. You need to use =-shell-escape=
 with latex, and install the =python-pygments= package.
 
 #+begin_src emacs-lisp
-(add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
-
 ;; Should be configured per document, as a local variable
 ;; (setq org-latex-listings 'minted)
 ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
 
-(setq org-latex-minted-options '(("frame"          "lines")
-                                 ("fontsize"       "\\footnotesize")
-                                 ("tabsize"        "2")
-                                 ("breaklines"     "")
-                                 ("breakanywhere"  "") ;; break anywhere, no just on spaces
-                                 ("style"          "default")
-                                 ("bgcolor"        "GhostWhite")
-                                 ("linenos"        "")))
+(setq org-latex-minted-options
+      '(("frame"         "lines")
+        ("fontsize"      "\\footnotesize")
+        ("tabsize"       "2")
+        ("breaklines"    "")
+        ("breakanywhere" "") ;; break anywhere, no just on spaces
+        ("style"         "default")
+        ("bgcolor"       "GhostWhite")
+        ("linenos"       "")))
 
 ;; Link some org-mode blocks languages to lexers supported by minted
 ;; via (pygmentize), you can see supported lexers by running this command
@@ -6451,14 +6401,14 @@ with latex, and install the =python-pygments= package.
                 (jupyter    "python")
                 (scheme     "scheme")
                 (lisp-data  "lisp")
-                (conf       "ini")
                 (conf-unix  "unixconfig")
                 (conf-space "unixconfig")
                 (authinfo   "unixconfig")
+                (gdb-script "unixconfig")
                 (conf-toml  "yaml")
+                (conf       "ini")
                 (gitconfig  "ini")
-                (systemd    "ini")
-                (gdb-script "unixconfig")))
+                (systemd    "ini")))
   (unless (member pair org-latex-minted-langs)
     (add-to-list 'org-latex-minted-langs pair)))
 #+end_src
@@ -6467,89 +6417,88 @@ with latex, and install the =python-pygments= package.
 
 #+begin_src emacs-lisp :noweb no-export
 (after! ox-latex
-  (add-to-list 'org-latex-classes
-               '("scr-article"
-                 "\\documentclass{scrartcl}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("lettre"
-                 "\\documentclass{lettre}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("blank"
-                 "[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("bmc-article"
-                 "\\documentclass[article,code,maths]{bmc}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("bmc"
-                 "\\documentclass[code,maths]{bmc}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
-                 ("\\chapter{%s}" . "\\chapter*{%s}")
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("IEEEtran"
-                 "\\documentclass{IEEEtran}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("ieeeconf"
-                 "\\documentclass{ieeeconf}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("sagej"
-                 "\\documentclass{sagej}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("thesis"
-                 "\\documentclass[11pt]{book}"
-                 ("\\chapter{%s}" . "\\chapter*{%s}")
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("thesis-fr"
-                 "\\documentclass[french,12pt,a4paper]{book}"
-                 ("\\chapter{%s}" . "\\chapter*{%s}")
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}"))))
+  (add-to-list
+   'org-latex-classes
+   '("scr-article"
+     "\\documentclass{scrartcl}"
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("lettre"
+     "\\documentclass{lettre}"
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("blank"
+     "[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("IEEEtran"
+     "\\documentclass{IEEEtran}"
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("ieeeconf"
+     "\\documentclass{ieeeconf}"
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("sagej"
+     "\\documentclass{sagej}"
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("thesis"
+     "\\documentclass[11pt]{book}"
+     ("\\chapter{%s}"       . "\\chapter*{%s}")
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}")))
+
+  (add-to-list
+   'org-latex-classes
+   '("thesis-fr"
+     "\\documentclass[french,12pt,a4paper]{book}"
+     ("\\chapter{%s}"       . "\\chapter*{%s}")
+     ("\\section{%s}"       . "\\section*{%s}")
+     ("\\subsection{%s}"    . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}"     . "\\paragraph*{%s}"))))
 
 (setq org-latex-default-class "article")
+
 ;; org-latex-tables-booktabs t
 ;; org-latex-reference-command "\\cref{%s}")
 #+end_src
@@ -6561,17 +6510,18 @@ Supposing a document with a structure like this:
 #+name: multi-files-org
 #+begin_src dot :results value file graphics :file "assets/multi-files-org.svg" :exports none
 digraph G {
-  node [color=black,fillcolor=white,shape=note,style=filled,fontname="Lato"];
-  main [label="main.org",fillcolor=lightgray]
-  intro [label="intro.org"]
-  chap1 [label="chap1.org"]
-  chap2 [label="chap2.org"]
-  chap21 [label="chap2-part1.org"]
-  chap22 [label="chap2-part2.org"]
-  chapx [label="chapX.org"]
+  node [color=black, fillcolor=white, shape=note, style=filled, fontname="Lato"];
 
-  {main} -> {intro chap1 chap2 chapx}
-  {chap2} -> {chap21 chap22}
+  main    [label="main.org", fillcolor=lightgray]
+  intro   [label="intro.org"]
+  chap1   [label="chap1.org"]
+  chap2   [label="chap2.org"]
+  chap2-1 [label="chap2-part1.org"]
+  chap2-2 [label="chap2-part2.org"]
+  chapn   [label="chapN.org"]
+
+  {main}  -> {intro chap1 chap2 chapn}
+  {chap2} -> {chap2-1 chap2-2}
 }
 #+end_src
 
@@ -6580,11 +6530,11 @@ digraph G {
 [[file:assets/multi-files-org.svg]]
 
 Files =intro.org=, =chap1.org=, ... are included in =main.org= using the Org command
-src_org{#+include: chapt1.org}. In such a setup, we will spend most of our time
+src_org{#+include: chap1.org}. In such a setup, we will spend most of our time
 writing in a chapter files, and not the =main.org=, where when want to export the
 document, we would need to open the top-level file =main.org= before exporting.
 
-A solution to this is *to admit the following convention*:
+A quick solution is *to admit the following convention*:
 
 #+begin_quote
 If a file named =main.org= is present beside any other Org file, it should be
