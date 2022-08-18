@@ -6039,13 +6039,11 @@ This hack is not properly working right now!, it seems to work only with =align=
 blocks. *NEEDS INVESTIGATION.*
 #+end_quote
 
-
 #+begin_src emacs-lisp
 (defun +scimax-org-renumber-environment (orig-func &rest args)
   "A function to inject numbers in LaTeX fragment previews."
   (let ((results '())
-        (counter -1)
-        (numberp))
+        (counter -1))
     (setq results
           (cl-loop for (begin . env) in
                    (org-element-map (org-element-parse-buffer) 'latex-environment
@@ -6058,8 +6056,7 @@ blocks. *NEEDS INVESTIGATION.*
                     ((and (string-match "\\\\begin{equation}" env)
                           (not (string-match "\\\\tag{" env)))
                      (cl-incf counter)
-                     (cons begin counter)
-                     (message "Entered equation env, counter=%d" counter))
+                     (cons begin counter))
                     ((string-match "\\\\begin{align}" env)
                      (prog2
                          (cl-incf counter)
@@ -6074,15 +6071,12 @@ blocks. *NEEDS INVESTIGATION.*
                          (cl-decf counter (count-matches "\\nonumber")))))
                     (t
                      (cons begin nil)))))
-
-    (when (setq numberp (cdr (assoc (point) results)))
+    (when-let ((number (cdr (assoc (point) results))))
       (setf (car args)
             (concat
-             (format "\\setcounter{equation}{%s}\n" numberp)
+             (format "\\setcounter{equation}{%s}\n" number)
              (car args)))))
-
   (apply orig-func args))
-
 
 (defun +scimax-toggle-latex-equation-numbering ()
   "Toggle whether LaTeX fragments are numbered."
@@ -6095,7 +6089,6 @@ blocks. *NEEDS INVESTIGATION.*
     (advice-remove 'org-create-formula-image #'+scimax-org-renumber-environment)
     (put '+scimax-org-renumber-environment 'enabled nil)
     (message "LaTeX numbering disabled.")))
-
 
 (defun +scimax-org-inject-latex-fragment (orig-func &rest args)
   "Advice function to inject latex code before and/or after the equation in a latex fragment.
@@ -6111,7 +6104,6 @@ made into an image."
          (car args)
          (or (plist-get org-format-latex-options :latex-fragment-post-body) "")))
   (apply orig-func args))
-
 
 (defun +scimax-toggle-inject-latex ()
   "Toggle whether you can insert latex in fragments."
