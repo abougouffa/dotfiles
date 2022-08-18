@@ -7590,55 +7590,6 @@ Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 source ~/.bitwarden-session
 #+end_src
 
-** COMMENT System dark theme trick :zotero:
-Zotero does not support dark mode (ATM), when using a system-wide dark
-theme (at least on KDE), Zotero UI gets messed up, to fix this, we can force
-Zotero to use its default GTK theme by defining the ~GTK_THEME=Default~.
-
-#+begin_src conf :tangle ~/.local/share/applications/zotero.desktop :mkdirp yes :exports code
-[Desktop Entry]
-Type=Application
-Name=Zotero
-GenericName=A free, easy-to-use tool to help you collect, organize, cite, and share your research sources.
-Icon=zotero
-Exec=GTK_THEME=Default /usr/bin/zotero --url %u
-Categories=Office
-Terminal=false
-MimeType=x-scheme-handler/zotero
-#+end_src
-
-Same thing for Scilab
-
-#+begin_src conf :tangle ~/.local/share/applications/scilab.desktop :mkdirp yes :exports code
-[Desktop Entry]
-Comment=Scientific software package for numerical computations
-Exec=GTK_THEME=Default scilab -f %f
-GenericName=Scientific Software Package
-Icon=scilab
-Name=Scilab
-StartupNotify=false
-Terminal=false
-Type=Application
-Categories=Science;Math;
-Keywords=Science;Math;Numerical;Simulation
-MimeType=application/x-scilab-sci;application/x-scilab-sce;application/x-scilab-tst;application/x-scilab-dem;application/x-scilab-sod;application/x-scilab-xcos;application/x-scilab-zcos;application/x-scilab-bin;application/x-scilab-cosf;application/x-scilab-cos;
-#+end_src
-
-#+begin_src conf :tangle ~/.local/share/applications/xcos.desktop :mkdirp yes :exports code
-[Desktop Entry]
-Comment=Hybrid simulator
-Exec=GTK_THEME=Default xcos
-GenericName=Scientific Software Package
-Icon=xcos
-Name=Xcos
-StartupNotify=false
-Terminal=false
-Type=Application
-Categories=Science;Physics;
-Keywords=Science;Physics;Simulation
-MimeType=application/x-scilab-xcos;application/x-scilab-zcos;application/x-scilab-cosf;application/x-scilab-cos;
-#+end_src
-
 ** Rust format :rust:format:
 For Rust code base, the file =$HOME/.rustfmt.toml= contains the global format
 settings, I like to set it to:
