@@ -2068,10 +2068,10 @@ reduces the false positives due to the marking and special commands.
   (setq lsp-ltex-check-frequency "edit" ;; or "save"
         lsp-ltex-language "fr"
         lsp-ltex-mother-tongue "ar"
-        flycheck-checker-error-threshold 1000)
+        flycheck-checker-error-threshold 1000))
 
   ;; Disable by default
-  (add-to-list 'lsp-disabled-clients 'ltex-ls))
+  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls))
 #+end_src
 
 **** Flycheck :flycheck:
