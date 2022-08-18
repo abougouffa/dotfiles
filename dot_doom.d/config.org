@@ -1012,66 +1012,6 @@ I'd like to have just the buffer name, then if applicable the project folder.
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 #+end_src
 
-*** Company
-I do not find =company= useful in Org files.
-
-#+begin_src emacs-lisp
-(setq company-global-modes
-      '(not erc-mode
-            circe-mode
-            message-mode
-            help-mode
-            gud-mode
-            vterm-mode
-            org-mode))
-#+end_src
-
-**** Tweak =company-box=
-
-#+begin_src emacs-lisp
-(after! company-box
-  (when (daemonp)
-    (defun +company-box--reload-icons-h ()
-      (setq company-box-icons-all-the-icons
-            (let ((all-the-icons-scale-factor 0.8))
-              `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
-                (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
-                (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
-                (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-                (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-                (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
-                (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
-                (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
-                (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
-                (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
-                (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
-                (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
-                (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
-                (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
-                (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
-                (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
-                (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
-                (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
-                (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
-                (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
-                (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
-                (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
-                (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-                (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
-                (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-                (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
-                (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
-
-    ;; Replace Doom defined icons with mine
-    (when (memq #'+company-box--load-all-the-icons server-after-make-frame-hook)
-      (remove-hook 'server-after-make-frame-hook #'+company-box--load-all-the-icons))
-    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h)))
-#+end_src
-
 *** SVG tag :svg:
 
 #+begin_src emacs-lisp :tangle "packages.el"
@@ -1168,89 +1108,6 @@ Map extra mouse buttons to jump between buffers
 ;; Enable horizontal scrolling with the second mouse wheel or the touchpad
 (setq mouse-wheel-tilt-scroll t
       mouse-wheel-progressive-speed nil)
-#+end_src
-
-*** Page break lines :editor:
-A feature that displays ugly form feed characters as tidy horizontal rules.
-Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! page-break-lines)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! page-break-lines
-  :diminish
-  :init (global-page-break-lines-mode))
-#+end_src
-
-*** Objdump mode :objdump:
-Define a major mode (=objdump-disassemble-mode=) to display executable files as
-assembly code using =objdump=. The file types are detected using the =file= utility.
-
-#+begin_src emacs-lisp :tangle yes
-(defun +file-objdump-p (&optional buffer)
-  "Can the BUFFER be viewed as a disassembled code with objdump."
-  (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
-    (let (ret-code)
-      (and (file-exists-p file)
-           (not (file-directory-p file))
-           (not (string-match-p
-                 "file format not recognized"
-                 (with-temp-buffer
-                   (setq ret-code (shell-command
-                                   (format "objdump --file-headers %s" file)
-                                   (current-buffer)))
-                   (buffer-string))))
-           (zerop ret-code)))))
-
-(when OBJDUMP-P
-  (define-derived-mode objdump-disassemble-mode
-    asm-mode "Objdump Mode"
-    "Major mode for viewing executable files disassembled using objdump."
-    (let ((file (buffer-file-name))
-          (buffer-read-only nil))
-      (if (not (+file-objdump-p))
-          (message "Objdump can not be used with this buffer.")
-        (erase-buffer)
-        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
-        (call-process "objdump" nil (current-buffer) nil "-d" file)
-        (set-buffer-modified-p nil)
-        (goto-char (point-min))
-        (view-mode)
-        (set-visited-file-name nil t))))
-
-  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
-#+end_src
-
-*** Binary files :binary:hexl:
-Taken from [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this answer]].
-
-#+begin_src emacs-lisp
-(defun +buffer-binary-p (&optional buffer)
-  "Return whether BUFFER or the current buffer is binary.
-
-A binary buffer is defined as containing at least one null byte.
-
-Returns either nil, or the position of the first null byte."
-  (with-current-buffer (or buffer (current-buffer))
-    (save-excursion (goto-char (point-min))
-                    (search-forward (string ?\x00) nil t 1))))
-
-(defun +hexl-buffer-p ()
-  (and (+buffer-binary-p)
-       ;; Executables are viewed with objdump mode
-       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
-
-(defun +hexl-hexl-if-binary ()
-  "If `hexl-mode' is not already active, and the current buffer
-is binary, activate `hexl-mode'."
-  (interactive)
-  (unless (eq major-mode 'hexl-mode)
-    (when (+hexl-buffer-binary-p)
-      (hexl-mode))))
-
-(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
 #+end_src
 
 *** Very large files :large:vlf:
@@ -1379,9 +1236,67 @@ straightforward, I'll just redefine it to a simpler, async, function.
     (signal 'quit nil)))
 
 (add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
+** Completion & IDE :ide:
+*** Company
+I do not find =company= useful in Org files.
+
+#+begin_src emacs-lisp
+(setq company-global-modes
+      '(not erc-mode
+            circe-mode
+            message-mode
+            help-mode
+            gud-mode
+            vterm-mode
+            org-mode))
 #+end_src
 
-** Completion & IDE :ide:
+**** Tweak =company-box=
+
+#+begin_src emacs-lisp
+(after! company-box
+  (when (daemonp)
+    (defun +company-box--reload-icons-h ()
+      (setq company-box-icons-all-the-icons
+            (let ((all-the-icons-scale-factor 0.8))
+              `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
+                (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
+                (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
+                (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+                (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+                (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
+                (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
+                (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
+                (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
+                (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
+                (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
+                (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
+                (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
+                (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
+                (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
+                (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
+                (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
+                (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
+                (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
+                (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
+                (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
+                (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
+                (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+                (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
+                (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+                (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
+                (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
+
+    ;; Replace Doom defined icons with mine
+    (when (memq #'+company-box--load-all-the-icons server-after-make-frame-hook)
+      (remove-hook 'server-after-make-frame-hook #'+company-box--load-all-the-icons))
+    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h)))
+#+end_src
+
 *** Treemacs
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1554,7 +1469,7 @@ it work with =projectile=:
 #+end_src
 
 **** LSP mode :ide:lsp:
-***** Enable some useful UI stuff :diagnostics:ui:
+***** Tweak UI :diagnostics:ui:
 LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]]. By default, Doom Emacs
 disables some UI components; however, I like to enable some less intrusive, more
 useful UI stuff.
@@ -1926,9 +1841,9 @@ grammar...
   :config
   (setq guess-language-languages '(en fr ar)
         guess-language-min-paragraph-length 35
-        guess-language-langcodes '((en . ("en_US" "English" "🇺🇸" "English"))
-                                   (fr . ("francais" "French" "🇫🇷" "Français"))
-                                   (ar . ("arabic" "Arabic" "🇩🇿" "Arabic"))))
+        guess-language-langcodes '((en . ("en_US"    "English" "🇺🇸" "English"))
+                                   (fr . ("francais" "French"  "🇫🇷" "Français"))
+                                   (ar . ("arabic"   "Arabic"  "🇩🇿" "Arabic"))))
   ;; :hook (text-mode . guess-language-mode)
   :commands (guess-language
              guess-language-mode
@@ -2629,6 +2544,20 @@ pacman -S the_silver_searcher=.
              ag-project-regexp))
 #+end_src
 
+*** Page break lines :editor:
+A feature that displays ugly form feed characters as tidy horizontal rules.
+Inspired by [[https://github.com/MatthewZMD/.emacs.d#page-break-lines][M-EMACS]].
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! page-break-lines)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! page-break-lines
+  :diminish
+  :init (global-page-break-lines-mode))
+#+end_src
+
 *** Emacs Application Framework :eaf:
 EAF is presented as: /A free/libre and open-source extensible framework that
 revolutionizes the graphical capabilities of Emacs/. Or the key to ultimately
@@ -2946,6 +2875,75 @@ Add the =tldr.el= client for [[https://github.com/tldr-pages/tldr][TLDR pages]].
 
 (use-package! fzf
   :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
+#+end_src
+
+*** Binary files :binary:hexl:
+Taken from [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this answer]].
+
+#+begin_src emacs-lisp
+(defun +buffer-binary-p (&optional buffer)
+  "Return whether BUFFER or the current buffer is binary.
+
+A binary buffer is defined as containing at least one null byte.
+
+Returns either nil, or the position of the first null byte."
+  (with-current-buffer (or buffer (current-buffer))
+    (save-excursion (goto-char (point-min))
+                    (search-forward (string ?\x00) nil t 1))))
+
+(defun +hexl-buffer-p ()
+  (and (+buffer-binary-p)
+       ;; Executables are viewed with objdump mode
+       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
+
+(defun +hexl-hexl-if-binary ()
+  "If `hexl-mode' is not already active, and the current buffer
+is binary, activate `hexl-mode'."
+  (interactive)
+  (unless (eq major-mode 'hexl-mode)
+    (when (+hexl-buffer-binary-p)
+      (hexl-mode))))
+
+(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
+#+end_src
+
+*** Objdump mode :objdump:
+Define a major mode (=objdump-disassemble-mode=) to display executable files as
+assembly code using =objdump=. The file types are detected using the =file= utility.
+
+#+begin_src emacs-lisp :tangle yes
+(defun +file-objdump-p (&optional buffer)
+  "Can the BUFFER be viewed as a disassembled code with objdump."
+  (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
+    (let (ret-code)
+      (and (file-exists-p file)
+           (not (file-directory-p file))
+           (not (string-match-p
+                 "file format not recognized"
+                 (with-temp-buffer
+                   (setq ret-code (shell-command
+                                   (format "objdump --file-headers %s" file)
+                                   (current-buffer)))
+                   (buffer-string))))
+           (zerop ret-code)))))
+
+(when OBJDUMP-P
+  (define-derived-mode objdump-disassemble-mode
+    asm-mode "Objdump Mode"
+    "Major mode for viewing executable files disassembled using objdump."
+    (let ((file (buffer-file-name))
+          (buffer-read-only nil))
+      (if (not (+file-objdump-p))
+          (message "Objdump can not be used with this buffer.")
+        (erase-buffer)
+        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
+        (call-process "objdump" nil (current-buffer) nil "-d" file)
+        (set-buffer-modified-p nil)
+        (goto-char (point-min))
+        (view-mode)
+        (set-visited-file-name nil t))))
+
+  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
 #+end_src
 
 ** Fun :fun:
@@ -4262,10 +4260,10 @@ session, to do so, I define a helper function to clear data stored in the
        :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
 #+end_src
 
-*** The Grand "Cathedral" Debugger :realgud:debug:
-For C/C++, DAP mode is missing so much features.
-In my experience, both =cpptools= and =gdb= DAP interfaces aren't mature, it stops
-and disconnect while debugging, making it a double pain.
+*** RealGUD :realgud:debug:
+For C/C++, DAP mode is missing so much features. In my experience, both =cpptools=
+and =gdb= DAP interfaces aren't mature, it stops and disconnect while debugging,
+making it a double pain.
 
 **** Additional commands :hydra:
 There is no better than using pure GDB, it makes debugging extremely flexible.
@@ -4935,7 +4933,8 @@ description language (~*.dot~ / ~*.gv~ files).
 Gaius Mulley is doing a great job, bringing Modula-II support to GCC, he also
 created a new mode for Modula-II with extended features. The mode is included
 with the GNU Modula 2 source code, and can be downloaded separately from the Git
-repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-versionno/gcc/m2/el/gm2-mode.el][gm2-mode.el]].
+repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-versionno/gcc/m2/el/gm2-mode.el][gm2-mode.el]]. I added ~(provide 'gm2-mode)~ to the
+=gm2-mode.el=.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! gm2-mode
@@ -4994,7 +4993,7 @@ repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-vers
 #+end_src
 
 * Office :office:organize:edit:
-** Org mode additional packages :package:
+** Org additional packages :package:
 To avoid problems in the src_elisp{(after! org)} section.
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -7144,7 +7143,7 @@ For some reason if a frame isn't opened early in the initialization process, the
 daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
 part of the =ExecStart= value.
 
-** Emacs Client :emacsclient:
+** Emacs client :emacsclient:
 *** Desktop integration :desktop:
 It can now be nice to use this as a 'default app' for opening files. If we add
 an appropriate desktop entry, and enable it in the desktop environment.
