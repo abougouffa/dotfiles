@@ -432,10 +432,6 @@
 (package! org-super-agenda)
 (package! doct)
 
-;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
-(package! org-mode
-  :pin "971eb6885ec996c923e955730df3bafbdc244e54")
-
 (package! org-menu
   :recipe (:host github
            :repo "sheijk/org-menu"))

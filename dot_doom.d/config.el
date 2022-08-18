@@ -317,6 +317,9 @@
 
 ;; [[file:config.org::*Evil][Evil:1]]
 (after! evil
+  ;; This fixes https://github.com/doomemacs/doomemacs/issues/6478
+  ;; Ref: https://github.com/emacs-evil/evil/issues/1630
+  (evil-select-search-module 'evil-search-module 'isearch)
   (setq evil-kill-on-visual-paste nil ; Don't put overwritten text in the kill ring
         evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode))
 ;; Evil:1 ends here
@@ -3531,51 +3534,52 @@ if it is set to a launch.json file, it will be used instead."
           org-modern-block t
           org-modern-horizontal-rule t
           org-modern-keyword
-          '((t . t)
-            ("title" . "𝙏")
-            ("subtitle" . "𝙩")
-            ("author" . "𝘼")
-            ("email" . "@")
-            ("date" . "𝘿")
-            ("property" . "☸")
-            ("options" . "⌥")
-            ("startup" . "⏻")
-            ("macro" . "𝓜")
-            ("bind" . #("" 0 1 (display (raise -0.1))))
-            ("bibliography" . "")
-            ("print_bibliography" . #("" 0 1 (display (raise -0.1))))
-            ("cite_export" . "⮭")
-            ("print_glossary" . #("ᴬᶻ" 0 1 (display (raise -0.1))))
-            ("glossary_sources" . #("" 0 1 (display (raise -0.14))))
-            ("export_file_name" . "⇒")
-            ("include" . "⇤")
-            ("setupfile" . "⇐")
-            ("html_head" . "🅷")
-            ("html" . "🅗")
-            ("latex_class" . "🄻")
+          '((t                     . t)
+            ("title"               . "𝙏")
+            ("subtitle"            . "𝙩")
+            ("author"              . "𝘼")
+            ("email"               . "@")
+            ("date"                . "𝘿")
+            ("lastmod"             . "✎")
+            ("property"            . "☸")
+            ("options"             . "⌥")
+            ("startup"             . "⏻")
+            ("macro"               . "𝓜")
+            ("bind"                . #("" 0 1 (display (raise -0.1))))
+            ("bibliography"        . "")
+            ("print_bibliography"  . #("" 0 1 (display (raise -0.1))))
+            ("cite_export"         . "⮭")
+            ("print_glossary"      . #("ᴬᶻ" 0 1 (display (raise -0.1))))
+            ("glossary_sources"    . #("" 0 1 (display (raise -0.14))))
+            ("export_file_name"    . "⇒")
+            ("include"             . "⇤")
+            ("setupfile"           . "⇐")
+            ("html_head"           . "🅷")
+            ("html"                . "🅗")
+            ("latex_class"         . "🄻")
             ("latex_class_options" . #("🄻" 1 2 (display (raise -0.14))))
-            ("latex_header" . "🅻")
-            ("latex_header_extra" . "🅻⁺")
-            ("latex" . "🅛")
-            ("beamer_theme" . "🄱")
-            ("beamer_color_theme" . #("🄱" 1 2 (display (raise -0.12))))
-            ("beamer_font_theme" . "🄱𝐀")
-            ("beamer_header" . "🅱")
-            ("beamer" . "🅑")
-            ("attr_latex" . "🄛")
-            ("attr_html" . "🄗")
-            ("attr_org" . "⒪")
-            ("name" . "⁍")
-            ("header" . "›")
-            ("caption" . "☰")
-            ("RESULTS" . "🠶")
-            ("language" . "𝙇")
-            ("hugo_base_dir" . "𝐇")
-            ("latex_compiler" . "⟾")
-            ("results" . "🠶")
-            ("filetags" . "#")
-            ("created" . "⏱")
-            ("export_select_tags" . "✔")
+            ("latex_header"        . "🅻")
+            ("latex_header_extra"  . "🅻⁺")
+            ("latex"               . "🅛")
+            ("beamer_theme"        . "🄱")
+            ("beamer_color_theme"  . #("🄱" 1 2 (display (raise -0.12))))
+            ("beamer_font_theme"   . "🄱𝐀")
+            ("beamer_header"       . "🅱")
+            ("beamer"              . "🅑")
+            ("attr_latex"          . "🄛")
+            ("attr_html"           . "🄗")
+            ("attr_org"            . "⒪")
+            ("name"                . "⁍")
+            ("header"              . "›")
+            ("caption"             . "☰")
+            ("RESULTS"             . "🠶")
+            ("language"            . "𝙇")
+            ("hugo_base_dir"       . "𝐇")
+            ("latex_compiler"      . "⟾")
+            ("results"             . "🠶")
+            ("filetags"            . "#")
+            ("created"             . "⏱")
+            ("export_select_tags"  . "✔")
             ("export_exclude_tags" . "❌")))
   
     ;; Workaround to disable drawing on fringes
@@ -3607,11 +3611,11 @@ if it is set to a launch.json file, it will be used instead."
         :desc "Outline" "O" #'org-ol-tree)
   ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
   ;; Scale image previews to 60% of the window width.
-  (setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
+  (setq org-image-actual-width (truncate (* (window-pixel-width) 0.4)))
   (setq org-list-demote-modify-bullet
-        '(("+" . "-")
-          ("-" . "+")
-          ("*" . "+")
+        '(("+"  . "-")
+          ("-"  . "+")
+          ("*"  . "+")
           ("1." . "a.")))
   ;; Org styling, hide markup etc.
   (setq org-hide-emphasis-markers t
@@ -3627,29 +3631,9 @@ if it is set to a launch.json file, it will be used instead."
         ;;   (?D . 'all-the-icons-green)
         ;;   (?E . 'all-the-icons-blue)))
   (setq org-highlight-latex-and-related '(native script entities))
+  
   (require 'org-src)
   (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
-  ;; (setq org-format-latex-header "\\documentclass{article}
-  ;; \\usepackage[svgnames]{xcolor}
-  ;; \\usepackage[T1]{fontenc}
-  ;; \\usepackage{booktabs}
-  
-  ;; \\pagestyle{empty} % do not remove
-  
-  ;; \\setlength{\\textwidth}{\\paperwidth}
-  ;; \\addtolength{\\textwidth}{-3cm}
-  ;; \\setlength{\\oddsidemargin}{1.5cm}
-  ;; \\addtolength{\\oddsidemargin}{-2.54cm}
-  ;; \\setlength{\\evensidemargin}{\\oddsidemargin}
-  ;; \\setlength{\\textheight}{\\paperheight}
-  ;; \\addtolength{\\textheight}{-\\headheight}
-  ;; \\addtolength{\\textheight}{-\\headsep}
-  ;; \\addtolength{\\textheight}{-\\footskip}
-  ;; \\addtolength{\\textheight}{-3cm}
-  ;; \\setlength{\\topmargin}{1.5cm}
-  ;; \\addtolength{\\topmargin}{-2.54cm}
-  ;; \\usepackage{arev}
-  ;; ")
   (setq org-format-latex-options
         (plist-put org-format-latex-options :background "Transparent"))
   
@@ -3670,8 +3654,7 @@ if it is set to a launch.json file, it will be used instead."
   (defun +scimax-org-renumber-environment (orig-func &rest args)
     "A function to inject numbers in LaTeX fragment previews."
     (let ((results '())
-          (counter -1)
-          (numberp))
+          (counter -1))
       (setq results
             (cl-loop for (begin . env) in
                      (org-element-map (org-element-parse-buffer) 'latex-environment
@@ -3684,8 +3667,7 @@ if it is set to a launch.json file, it will be used instead."
                       ((and (string-match "\\\\begin{equation}" env)
                             (not (string-match "\\\\tag{" env)))
                        (cl-incf counter)
-                       (cons begin counter)
-                       (message "Entered equation env, counter=%d" counter))
+                       (cons begin counter))
                       ((string-match "\\\\begin{align}" env)
                        (prog2
                            (cl-incf counter)
@@ -3700,15 +3682,12 @@ if it is set to a launch.json file, it will be used instead."
                            (cl-decf counter (count-matches "\\nonumber")))))
                       (t
                        (cons begin nil)))))
-  
-      (when (setq numberp (cdr (assoc (point) results)))
+      (when-let ((number (cdr (assoc (point) results))))
         (setf (car args)
               (concat
-               (format "\\setcounter{equation}{%s}\n" numberp)
+               (format "\\setcounter{equation}{%s}\n" number)
                (car args)))))
-  
     (apply orig-func args))
-  
   
   (defun +scimax-toggle-latex-equation-numbering ()
     "Toggle whether LaTeX fragments are numbered."
@@ -3721,7 +3700,6 @@ if it is set to a launch.json file, it will be used instead."
       (advice-remove 'org-create-formula-image #'+scimax-org-renumber-environment)
       (put '+scimax-org-renumber-environment 'enabled nil)
       (message "LaTeX numbering disabled.")))
-  
   
   (defun +scimax-org-inject-latex-fragment (orig-func &rest args)
     "Advice function to inject latex code before and/or after the equation in a latex fragment.
@@ -3737,7 +3715,6 @@ if it is set to a launch.json file, it will be used instead."
            (car args)
            (or (plist-get org-format-latex-options :latex-fragment-post-body) "")))
     (apply orig-func args))
-  
   
   (defun +scimax-toggle-inject-latex ()
     "Toggle whether you can insert latex in fragments."
@@ -3756,9 +3733,9 @@ if it is set to a launch.json file, it will be used instead."
     (defun org-plot/generate-theme (_type)
       "Use the current Doom theme colours to generate a GnuPlot preamble."
       (format "
-  fgt = \"textcolor rgb '%s'\" # foreground text
+  fgt = \"textcolor rgb '%s'\"  # foreground text
   fgat = \"textcolor rgb '%s'\" # foreground alt text
-  fgl = \"linecolor rgb '%s'\" # foreground line
+  fgl = \"linecolor rgb '%s'\"  # foreground line
   fgal = \"linecolor rgb '%s'\" # foreground alt line
   
   # foreground colors
@@ -3816,15 +3793,16 @@ if it is set to a launch.json file, it will be used instead."
               (doom-color 'orange)
               (doom-color 'yellow)
               (doom-color 'teal)
-              (doom-color 'violet)
-              ))
+              (doom-color 'violet)))
+  
     (defun org-plot/gnuplot-term-properties (_type)
       (format "background rgb '%s' size 1050,650"
               (doom-color 'bg)))
-    (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme)
-    (setq org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
+  
+    (setq org-plot/gnuplot-script-preamble #'org-plot/generate-theme
+          org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
   (use-package! org-phscroll
-    :commands org-phscroll-activate)
+    :hook (org-mode . org-phscroll-mode))
   (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
         bibtex-completion-library-path '("~/Zotero/storage/")
         bibtex-completion-notes-path "~/PhD/bibliography/notes/"
@@ -3871,67 +3849,70 @@ if it is set to a launch.json file, it will be used instead."
                                    (match-string 2))))))))
   (use-package! org-ref
     :after org
-    :config
-    (defadvice! org-ref-open-bibtex-pdf-a ()
-      :override #'org-ref-open-bibtex-pdf
-      (save-excursion
-        (bibtex-beginning-of-entry)
-        (let* ((bibtex-expand-strings t)
-               (entry (bibtex-parse-entry t))
-               (key (reftex-get-bib-field "=key=" entry))
-               (pdf (or
-                     (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
-                                   (split-string (reftex-get-bib-field "file" entry) ";")))
-                     (funcall 'org-ref-get-pdf-filename key))))
-          (if (file-exists-p pdf)
-              (org-open-file pdf)
-            (ding)))))
-  
-    (defadvice! org-ref-open-pdf-at-point-a ()
-      "Open the pdf for bibtex key under point if it exists."
-      :override #'org-ref-open-pdf-at-point
-      (interactive)
-      (let* ((results (org-ref-get-bibtex-key-and-file))
-             (key (car results))
-             (pdf-file (funcall 'org-ref-get-pdf-filename key)))
-        (with-current-buffer (find-file-noselect (cdr results))
-          (save-excursion
-            (bibtex-search-entry (car results))
-            (org-ref-open-bibtex-pdf)))))
-  
+    :init
     ;; Add keybinding to insert link
     (map! :localleader
           :map org-mode-map
           :desc "Org-ref insert link" "C" #'org-ref-insert-link))
+  
+  ;; :config
+  ;; (defadvice! org-ref-open-bibtex-pdf-a ()
+  ;;   :override #'org-ref-open-bibtex-pdf
+  ;;   (save-excursion
+  ;;     (bibtex-beginning-of-entry)
+  ;;     (let* ((bibtex-expand-strings t)
+  ;;            (entry (bibtex-parse-entry t))
+  ;;            (key (reftex-get-bib-field "=key=" entry))
+  ;;            (pdf (or
+  ;;                  (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
+  ;;                                (split-string (reftex-get-bib-field "file" entry) ";")))
+  ;;                  (funcall 'org-ref-get-pdf-filename key))))
+  ;;       (if (file-exists-p pdf)
+  ;;           (org-open-file pdf)
+  ;;         (ding)))))
+  
+  ;; (defadvice! org-ref-open-pdf-at-point-a ()
+  ;;   "Open the pdf for bibtex key under point if it exists."
+  ;;   :override #'org-ref-open-pdf-at-point
+  ;;   (interactive)
+  ;;   (let* ((results (org-ref-get-bibtex-key-and-file))
+  ;;          (key (car results))
+  ;;          (pdf-file (funcall 'org-ref-get-pdf-filename key)))
+  ;;     (with-current-buffer (find-file-noselect (cdr results))
+  ;;       (save-excursion
+  ;;         (bibtex-search-entry (car results))
+  ;;         (org-ref-open-bibtex-pdf))))))
   (setq citar-library-paths '("~/Zotero/storage")
-        citar-notes-paths '("~/PhD/bibliography/notes/")
-        citar-bibliography '("~/Zotero/library.bib"))
-  (setq org-export-headline-levels 5) ;; I like nesting
+        citar-notes-paths   '("~/PhD/bibliography/notes/")
+        citar-bibliography  '("~/Zotero/library.bib"))
+  (setq org-export-headline-levels 5)
   (require 'ox-extra)
   (ox-extras-activate '(ignore-headlines))
   (setq org-export-creator-string
-        (format "Emacs %s (Org mode %s)" emacs-version (org-release)))
-  ;; `org-latex-compilers' contains a list of possible values ("pdflatex" "xelatex" "lualatex")
-  ;; for the `%latex' argument.
-  (setq org-latex-pdf-process '("latexmk -shell-escape -pdf -quiet -f -%latex -interaction=nonstopmode -output-directory=%o %f"))
-  ;; Add 'svg' package to display SVG pictures (uses inkscape, imagemagik and ghostscript)
-  ;; (add-to-list 'org-latex-packages-alist '("" "svg"))
+        (format "Made with Emacs %s and Org %s" emacs-version (org-release)))
+  ;; `org-latex-compilers' contains a list of possible values for the `%latex' argument.
+  (setq org-latex-pdf-process
+        '("latexmk -shell-escape -pdf -quiet -f -%latex -interaction=nonstopmode -output-directory=%o %f"))
+  ;; 'svg' package depends on inkscape, imagemagik and ghostscript
+  (when (+all (mapcar 'executable-find '("inkscape" "magick" "gs")))
+    (add-to-list 'org-latex-packages-alist '("" "svg")))
+  
+  (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
   ;; (add-to-list 'org-latex-packages-alist '("" "fontspec")) ;; for xelatex
   ;; (add-to-list 'org-latex-packages-alist '("utf8" "inputenc"))
-  (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
-  
   ;; Should be configured per document, as a local variable
   ;; (setq org-latex-listings 'minted)
   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
   
-  (setq org-latex-minted-options '(("frame"          "lines")
-                                   ("fontsize"       "\\footnotesize")
-                                   ("tabsize"        "2")
-                                   ("breaklines"     "")
-                                   ("breakanywhere"  "") ;; break anywhere, no just on spaces
-                                   ("style"          "default")
-                                   ("bgcolor"        "GhostWhite")
-                                   ("linenos"        "")))
+  (setq org-latex-minted-options
+        '(("frame"         "lines")
+          ("fontsize"      "\\footnotesize")
+          ("tabsize"       "2")
+          ("breaklines"    "")
+          ("breakanywhere" "") ;; break anywhere, no just on spaces
+          ("style"         "default")
+          ("bgcolor"       "GhostWhite")
+          ("linenos"       "")))
   
   ;; Link some org-mode blocks languages to lexers supported by minted
   ;; via (pygmentize), you can see supported lexers by running this command
@@ -3940,100 +3921,99 @@ if it is set to a launch.json file, it will be used instead."
                   (jupyter    "python")
                   (scheme     "scheme")
                   (lisp-data  "lisp")
-                  (conf       "ini")
                   (conf-unix  "unixconfig")
                   (conf-space "unixconfig")
                   (authinfo   "unixconfig")
+                  (gdb-script "unixconfig")
                   (conf-toml  "yaml")
+                  (conf       "ini")
                   (gitconfig  "ini")
-                  (systemd    "ini")
-                  (gdb-script "unixconfig")))
+                  (systemd    "ini")))
     (unless (member pair org-latex-minted-langs)
       (add-to-list 'org-latex-minted-langs pair)))
   (after! ox-latex
-    (add-to-list 'org-latex-classes
-                 '("scr-article"
-                   "\\documentclass{scrartcl}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("lettre"
-                   "\\documentclass{lettre}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("blank"
-                   "[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("bmc-article"
-                   "\\documentclass[article,code,maths]{bmc}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("bmc"
-                   "\\documentclass[code,maths]{bmc}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("IEEEtran"
-                   "\\documentclass{IEEEtran}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("ieeeconf"
-                   "\\documentclass{ieeeconf}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("sagej"
-                   "\\documentclass{sagej}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("thesis"
-                   "\\documentclass[11pt]{book}"
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")))
-    (add-to-list 'org-latex-classes
-                 '("thesis-fr"
-                   "\\documentclass[french,12pt,a4paper]{book}"
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}"))))
+    (add-to-list
+     'org-latex-classes
+     '("scr-article"
+       "\\documentclass{scrartcl}"
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("lettre"
+       "\\documentclass{lettre}"
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("blank"
+       "[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n[EXTRA]"
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("IEEEtran"
+       "\\documentclass{IEEEtran}"
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("ieeeconf"
+       "\\documentclass{ieeeconf}"
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("sagej"
+       "\\documentclass{sagej}"
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}"  . "\\subparagraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("thesis"
+       "\\documentclass[11pt]{book}"
+       ("\\chapter{%s}"       . "\\chapter*{%s}")
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}")))
+  
+    (add-to-list
+     'org-latex-classes
+     '("thesis-fr"
+       "\\documentclass[french,12pt,a4paper]{book}"
+       ("\\chapter{%s}"       . "\\chapter*{%s}")
+       ("\\section{%s}"       . "\\section*{%s}")
+       ("\\subsection{%s}"    . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}"     . "\\paragraph*{%s}"))))
   
   (setq org-latex-default-class "article")
+  
   ;; org-latex-tables-booktabs t
   ;; org-latex-reference-command "\\cref{%s}")
   (defvar +org-export-to-pdf-main-file nil
@@ -4050,11 +4030,12 @@ if it is set to a launch.json file, it will be used instead."
               (apply orig-fn orig-args))
           (apply orig-fn orig-args))))))
   (setq time-stamp-active t
-        time-stamp-start "#\\+lastmod:[ \t]*"
-        time-stamp-end "$"
+        time-stamp-start  "#\\+lastmod:[ \t]*"
+        time-stamp-end    "$"
         time-stamp-format "%04Y-%02m-%02d")
   
   (add-hook 'before-save-hook 'time-stamp nil)
+  (setq org-hugo-auto-set-lastmod t)
 )
 
 ;; [[file:config.org::*Plain text][Plain text:1]]
