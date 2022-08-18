@@ -782,9 +782,10 @@ Some good fonts:
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 20) ;; :weight 'light)
       doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Input Serif" :weight 'light))
+      doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
+      ;; doom-serif-font (font-spec :family "Input Serif" :weight 'light))
 #+end_src
 
 *** Theme :theme:
@@ -3754,8 +3755,7 @@ default backend EMMS is using.
    ((and window-system (executable-find "kdialog"))
     (setq +emms-notifier-function '+notify-via-kdialog))
    ;; Use the message system otherwise
-   (t
-    (setq +emms-notifier-function '+notify-via-messages)))
+   (t (setq +emms-notifier-function '+notify-via-messages)))
 
   (setq +emms-notification-icon "/usr/share/icons/Papirus/64x64/apps/enjoy-music-player.svg")
 
