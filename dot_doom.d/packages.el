@@ -30,10 +30,6 @@
   (package! good-scroll))
 ;; Smooth scrolling:1 ends here
 
-;; [[file:config.org::*Page break lines][Page break lines:1]]
-(package! page-break-lines)
-;; Page break lines:1 ends here
-
 ;; [[file:config.org::*Very large files][Very large files:1]]
 (package! vlf)
 ;; Very large files:1 ends here
@@ -194,6 +190,10 @@
 ;; [[file:config.org::*The Silver Searcher][The Silver Searcher:1]]
 (package! ag)
 ;; The Silver Searcher:1 ends here
+
+;; [[file:config.org::*Page break lines][Page break lines:1]]
+(package! page-break-lines)
+;; Page break lines:1 ends here
 
 ;; [[file:config.org::*Bitwarden][Bitwarden:1]]
 (package! bitwarden
@@ -421,7 +421,7 @@
            :repo "mmontone/emacs-inspector"))
 ;; Inspector:1 ends here
 
-;; [[file:config.org::*Org mode additional packages][Org mode additional packages:1]]
+;; [[file:config.org::*Org additional packages][Org additional packages:1]]
 (unpin! org-roam) ;; To avoid problems with org-roam-ui
 (package! websocket)
 (package! org-roam-ui)
@@ -463,7 +463,7 @@
 (package! phscroll
   :recipe (:host github
            :repo "misohena/phscroll"))
-;; Org mode additional packages:1 ends here
+;; Org additional packages:1 ends here
 
 ;; [[file:config.org::*Quarto][Quarto:1]]
 (package! quarto-mode)

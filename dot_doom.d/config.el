@@ -166,9 +166,10 @@
 ;; [[file:config.org::*Font][Font:1]]
 (setq doom-font (font-spec :family "Iosevka Fixed" :size 20) ;; :weight 'light)
       doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Andika") ;; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ;; inherits the :size from doom-font
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Input Serif" :weight 'light))
+      doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
+      ;; doom-serif-font (font-spec :family "Input Serif" :weight 'light))
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
@@ -241,61 +242,6 @@
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
 
-;; [[file:config.org::*Company][Company:1]]
-(setq company-global-modes
-      '(not erc-mode
-            circe-mode
-            message-mode
-            help-mode
-            gud-mode
-            vterm-mode
-            org-mode))
-;; Company:1 ends here
-
-;; [[file:config.org::*Tweak =company-box=][Tweak =company-box=:1]]
-(after! company-box
-  (when (daemonp)
-    (defun +company-box--reload-icons-h ()
-      (setq company-box-icons-all-the-icons
-            (let ((all-the-icons-scale-factor 0.8))
-              `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
-                (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
-                (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
-                (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-                (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-                (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
-                (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
-                (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
-                (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
-                (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
-                (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
-                (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
-                (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
-                (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
-                (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
-                (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
-                (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
-                (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
-                (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
-                (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
-                (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
-                (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
-                (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-                (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
-                (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-                (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
-                (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
-
-    ;; Replace Doom defined icons with mine
-    (when (memq #'+company-box--load-all-the-icons server-after-make-frame-hook)
-      (remove-hook 'server-after-make-frame-hook #'+company-box--load-all-the-icons))
-    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h)))
-;; Tweak =company-box=:1 ends here
-
 ;; [[file:config.org::*SVG tag][SVG tag:2]]
 (use-package! svg-tag-mode
   :commands svg-tag-mode
@@ -364,74 +310,6 @@
       mouse-wheel-progressive-speed nil)
 ;; Mouse buttons:1 ends here
 
-;; [[file:config.org::*Page break lines][Page break lines:2]]
-(use-package! page-break-lines
-  :diminish
-  :init (global-page-break-lines-mode))
-;; Page break lines:2 ends here
-
-;; [[file:config.org::*Objdump mode][Objdump mode:1]]
-(defun +file-objdump-p (&optional buffer)
-  "Can the BUFFER be viewed as a disassembled code with objdump."
-  (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
-    (let (ret-code)
-      (and (file-exists-p file)
-           (not (file-directory-p file))
-           (not (string-match-p
-                 "file format not recognized"
-                 (with-temp-buffer
-                   (setq ret-code (shell-command
-                                   (format "objdump --file-headers %s" file)
-                                   (current-buffer)))
-                   (buffer-string))))
-           (zerop ret-code)))))
-
-(when OBJDUMP-P
-  (define-derived-mode objdump-disassemble-mode
-    asm-mode "Objdump Mode"
-    "Major mode for viewing executable files disassembled using objdump."
-    (let ((file (buffer-file-name))
-          (buffer-read-only nil))
-      (if (not (+file-objdump-p))
-          (message "Objdump can not be used with this buffer.")
-        (erase-buffer)
-        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
-        (call-process "objdump" nil (current-buffer) nil "-d" file)
-        (set-buffer-modified-p nil)
-        (goto-char (point-min))
-        (view-mode)
-        (set-visited-file-name nil t))))
-
-  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
-;; Objdump mode:1 ends here
-
-;; [[file:config.org::*Binary files][Binary files:1]]
-(defun +buffer-binary-p (&optional buffer)
-  "Return whether BUFFER or the current buffer is binary.
-
-A binary buffer is defined as containing at least one null byte.
-
-Returns either nil, or the position of the first null byte."
-  (with-current-buffer (or buffer (current-buffer))
-    (save-excursion (goto-char (point-min))
-                    (search-forward (string ?\x00) nil t 1))))
-
-(defun +hexl-buffer-p ()
-  (and (+buffer-binary-p)
-       ;; Executables are viewed with objdump mode
-       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
-
-(defun +hexl-hexl-if-binary ()
-  "If `hexl-mode' is not already active, and the current buffer
-is binary, activate `hexl-mode'."
-  (interactive)
-  (unless (eq major-mode 'hexl-mode)
-    (when (+hexl-buffer-binary-p)
-      (hexl-mode))))
-
-(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
-;; Binary files:1 ends here
-
 ;; [[file:config.org::*Very large files][Very large files:2]]
 (use-package! vlf-setup
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
@@ -452,65 +330,60 @@ is binary, activate `hexl-mode'."
 (setq yas-triggers-in-field t)
 ;; YASnippet:1 ends here
 
-;; [[file:config.org::*Asynchronous tangling][Asynchronous tangling:1]]
-(defvar +literate-tangle--proc nil)
-(defvar +literate-tangle--proc-start-time nil)
+;; [[file:config.org::*Company][Company:1]]
+(setq company-global-modes
+      '(not erc-mode
+            circe-mode
+            message-mode
+            help-mode
+            gud-mode
+            vterm-mode
+            org-mode))
+;; Company:1 ends here
 
-(defadvice! +literate-tangle-async-h ()
-  "A very simplified version of `+literate-tangle-h', but async."
-  :override #'+literate-tangle-h
-  (unless (getenv "__NOTANGLE")
-    (let ((default-directory doom-user-dir))
-      (when +literate-tangle--proc
-        (message "Killing outdated tangle process...")
-        (set-process-sentinel +literate-tangle--proc #'ignore)
-        (kill-process +literate-tangle--proc)
-        (sit-for 0.3)) ; ensure the message is seen for a bit
-      (setq +literate-tangle--proc-start-time (float-time)
-            +literate-tangle--proc
-            (start-process "tangle-config"
-                           (get-buffer-create " *tangle config*")
-                           "emacs" "--batch" "--eval"
-                           (format "(progn \
-(require 'ox) \
-(require 'ob-tangle) \
-(setq org-confirm-babel-evaluate nil \
-      org-inhibit-startup t \
-      org-mode-hook nil \
-      write-file-functions nil \
-      before-save-hook nil \
-      after-save-hook nil \
-      vc-handled-backends nil \
-      org-startup-folded nil \
-      org-startup-indented nil) \
-(org-babel-tangle-file \"%s\" \"%s\"))"
-                                   +literate-config-file
-                                   (expand-file-name (concat doom-module-config-file ".el")))))
-      (set-process-sentinel +literate-tangle--proc #'+literate-tangle--sentinel)
-      (run-at-time nil nil (lambda () (message "Tangling config.org"))) ; ensure shown after a save message
-      "Tangling config.org...")))
+;; [[file:config.org::*Tweak =company-box=][Tweak =company-box=:1]]
+(after! company-box
+  (when (daemonp)
+    (defun +company-box--reload-icons-h ()
+      (setq company-box-icons-all-the-icons
+            (let ((all-the-icons-scale-factor 0.8))
+              `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
+                (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
+                (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
+                (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+                (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+                (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
+                (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
+                (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
+                (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
+                (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
+                (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
+                (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
+                (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
+                (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
+                (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
+                (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
+                (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
+                (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
+                (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
+                (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
+                (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
+                (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
+                (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+                (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
+                (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+                (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+                (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
+                (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
 
-(defun +literate-tangle--sentinel (process signal)
-  (cond
-   ((and (eq 'exit (process-status process))
-         (= 0 (process-exit-status process)))
-    (message "Tangled config.org sucessfully (took %.1fs)"
-             (- (float-time) +literate-tangle--proc-start-time))
-    (setq +literate-tangle--proc nil))
-   ((memq (process-status process) (list 'exit 'signal))
-    (pop-to-buffer (get-buffer " *tangle config*"))
-    (message "Failed to tangle config.org (after %.1fs)"
-             (- (float-time) +literate-tangle--proc-start-time))
-    (setq +literate-tangle--proc nil))))
-
-(defun +literate-tangle-check-finished ()
-  (when (and (process-live-p +literate-tangle--proc)
-             (yes-or-no-p "Config is currently retangling, would you please wait a few seconds?"))
-    (switch-to-buffer " *tangle config*")
-    (signal 'quit nil)))
-
-(add-hook! 'kill-emacs-hook #'+literate-tangle-check-finished)
-;; Asynchronous tangling:1 ends here
+    ;; Replace Doom defined icons with mine
+    (when (memq #'+company-box--load-all-the-icons server-after-make-frame-hook)
+      (remove-hook 'server-after-make-frame-hook #'+company-box--load-all-the-icons))
+    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h)))
+;; Tweak =company-box=:1 ends here
 
 ;; [[file:config.org::*Treemacs][Treemacs:2]]
 (after! treemacs
@@ -657,7 +530,7 @@ current buffer's, reload dir-locals."
   (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
 ;; Eglot:1 ends here
 
-;; [[file:config.org::*Enable some useful UI stuff][Enable some useful UI stuff:1]]
+;; [[file:config.org::*Tweak UI][Tweak UI:1]]
 (after! lsp-ui
   (setq lsp-ui-sideline-enable t
         lsp-ui-sideline-show-code-actions t
@@ -669,7 +542,7 @@ current buffer's, reload dir-locals."
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
         lsp-headerline-breadcrumb-segments '(symbols)))
-;; Enable some useful UI stuff:1 ends here
+;; Tweak UI:1 ends here
 
 ;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
 (after! lsp-clangd
@@ -877,9 +750,9 @@ current buffer's, reload dir-locals."
   :config
   (setq guess-language-languages '(en fr ar)
         guess-language-min-paragraph-length 35
-        guess-language-langcodes '((en . ("en_US" "English" "🇺🇸" "English"))
-                                   (fr . ("francais" "French" "🇫🇷" "Français"))
-                                   (ar . ("arabic" "Arabic" "🇩🇿" "Arabic"))))
+        guess-language-langcodes '((en . ("en_US"    "English" "🇺🇸" "English"))
+                                   (fr . ("francais" "French"  "🇫🇷" "Français"))
+                                   (ar . ("arabic"   "Arabic"  "🇩🇿" "Arabic"))))
   ;; :hook (text-mode . guess-language-mode)
   :commands (guess-language
              guess-language-mode
@@ -1096,10 +969,10 @@ current buffer's, reload dir-locals."
   (setq lsp-ltex-check-frequency "edit" ;; or "save"
         lsp-ltex-language "fr"
         lsp-ltex-mother-tongue "ar"
-        flycheck-checker-error-threshold 1000)
+        flycheck-checker-error-threshold 1000))
 
   ;; Disable by default
-  (add-to-list 'lsp-disabled-clients 'ltex-ls))
+  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
@@ -1408,6 +1281,12 @@ current buffer's, reload dir-locals."
              ag-project-regexp))
 ;; The Silver Searcher:2 ends here
 
+;; [[file:config.org::*Page break lines][Page break lines:2]]
+(use-package! page-break-lines
+  :diminish
+  :init (global-page-break-lines-mode))
+;; Page break lines:2 ends here
+
 ;; [[file:config.org::*Emacs Application Framework][Emacs Application Framework:1]]
 (use-package! eaf
   :when EAF-P
@@ -1689,6 +1568,68 @@ current buffer's, reload dir-locals."
 (use-package! fzf
   :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
 ;; FZF:2 ends here
+
+;; [[file:config.org::*Binary files][Binary files:1]]
+(defun +buffer-binary-p (&optional buffer)
+  "Return whether BUFFER or the current buffer is binary.
+
+A binary buffer is defined as containing at least one null byte.
+
+Returns either nil, or the position of the first null byte."
+  (with-current-buffer (or buffer (current-buffer))
+    (save-excursion (goto-char (point-min))
+                    (search-forward (string ?\x00) nil t 1))))
+
+(defun +hexl-buffer-p ()
+  (and (+buffer-binary-p)
+       ;; Executables are viewed with objdump mode
+       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
+
+(defun +hexl-hexl-if-binary ()
+  "If `hexl-mode' is not already active, and the current buffer
+is binary, activate `hexl-mode'."
+  (interactive)
+  (unless (eq major-mode 'hexl-mode)
+    (when (+hexl-buffer-binary-p)
+      (hexl-mode))))
+
+(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
+;; Binary files:1 ends here
+
+;; [[file:config.org::*Objdump mode][Objdump mode:1]]
+(defun +file-objdump-p (&optional buffer)
+  "Can the BUFFER be viewed as a disassembled code with objdump."
+  (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
+    (let (ret-code)
+      (and (file-exists-p file)
+           (not (file-directory-p file))
+           (not (string-match-p
+                 "file format not recognized"
+                 (with-temp-buffer
+                   (setq ret-code (shell-command
+                                   (format "objdump --file-headers %s" file)
+                                   (current-buffer)))
+                   (buffer-string))))
+           (zerop ret-code)))))
+
+(when OBJDUMP-P
+  (define-derived-mode objdump-disassemble-mode
+    asm-mode "Objdump Mode"
+    "Major mode for viewing executable files disassembled using objdump."
+    (let ((file (buffer-file-name))
+          (buffer-read-only nil))
+      (if (not (+file-objdump-p))
+          (message "Objdump can not be used with this buffer.")
+        (erase-buffer)
+        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
+        (call-process "objdump" nil (current-buffer) nil "-d" file)
+        (set-buffer-modified-p nil)
+        (goto-char (point-min))
+        (view-mode)
+        (set-visited-file-name nil t))))
+
+  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
+;; Objdump mode:1 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:2]]
 (use-package! speed-type
@@ -2084,8 +2025,7 @@ current buffer's, reload dir-locals."
    ((and window-system (executable-find "kdialog"))
     (setq +emms-notifier-function '+notify-via-kdialog))
    ;; Use the message system otherwise
-   (t
-    (setq +emms-notifier-function '+notify-via-messages)))
+   (t (setq +emms-notifier-function '+notify-via-messages)))
 
   (setq +emms-notification-icon "/usr/share/icons/Papirus/64x64/apps/enjoy-music-player.svg")
 
@@ -2113,7 +2053,7 @@ current buffer's, reload dir-locals."
             (lambda () (funcall +emms-notifier-function
                                 "EMMS is now playing:"
                                 (emms-track-description (emms-playlist-current-selected-track))
-                                +emms-notification-icon)))
+                                +emms-notification-icon))))
 ;; EMMS:1 ends here
 
 ;; [[file:config.org::*EMPV][EMPV:2]]
@@ -2403,7 +2343,7 @@ current buffer's, reload dir-locals."
   ;; A workaround to correctly show breakpoints
   ;; from: https://github.com/emacs-lsp/dap-mode/issues/374#issuecomment-1140399819
   (add-hook! +dap-running-session-mode
-      (set-window-buffer nil (current-buffer))))
+    (set-window-buffer nil (current-buffer))))
 ;; DAP:2 ends here
 
 ;; [[file:config.org::*Doom store][Doom store:1]]
@@ -2874,15 +2814,15 @@ if it is set to a launch.json file, it will be used instead."
 ;; Inspector:2 ends here
 
 (after! org
-  (setq org-directory "~/Dropbox/Org/"        ; let's put files here
-        org-use-property-inheritance t        ; it's convenient to have properties inherited
-        org-log-done 'time                    ; having the time an item is done sounds convenient
-        org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-        org-export-in-background nil          ; run export processes in external emacs process
-  ;;    org-export-async-debug t
+  (setq org-directory "~/Dropbox/Org/" ; let's put files here
+        org-use-property-inheritance t ; it's convenient to have properties inherited
+        org-log-done 'time             ; having the time an item is done sounds convenient
+        org-list-allow-alphabetical t  ; have a. A. a) A) list bullets
+        org-export-in-background nil   ; run export processes in external emacs process
+        org-export-async-debug t
         org-tags-column 0
-        org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
-        org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+        org-catch-invisible-edits 'smart ;; try not to accidently do weird stuff in invisible regions
+        org-export-with-sub-superscripts '{} ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
         org-pretty-entities-include-sub-superscripts nil
         org-auto-align-tags nil
         org-special-ctrl-a/e t
