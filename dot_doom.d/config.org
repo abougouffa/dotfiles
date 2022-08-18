@@ -3,6 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
+#+lastmod: 2022-08-18
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -6620,11 +6621,12 @@ Update files with last modified date, when ~#+lastmod:~ is available
 
 #+begin_src emacs-lisp
 (setq time-stamp-active t
-      time-stamp-start "#\\+lastmod:[ \t]*"
-      time-stamp-end "$"
+      time-stamp-start  "#\\+lastmod:[ \t]*"
+      time-stamp-end    "$"
       time-stamp-format "%04Y-%02m-%02d")
 
 (add-hook 'before-save-hook 'time-stamp nil)
+(setq org-hugo-auto-set-lastmod t)
 #+end_src
 
 ** Text editing :text:
