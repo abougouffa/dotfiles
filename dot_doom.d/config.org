@@ -1129,6 +1129,9 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
 
 #+begin_src emacs-lisp
 (after! evil
+  ;; This fixes https://github.com/doomemacs/doomemacs/issues/6478
+  ;; Ref: https://github.com/emacs-evil/evil/issues/1630
+  (evil-select-search-module 'evil-search-module 'isearch)
   (setq evil-kill-on-visual-paste nil ; Don't put overwritten text in the kill ring
         evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode))
 #+end_src
@@ -4944,10 +4947,6 @@ To avoid problems in the src_elisp{(after! org)} section.
 (package! org-appear)
 (package! org-super-agenda)
 (package! doct)
-
-;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1160699339
-(package! org-mode
-  :pin "971eb6885ec996c923e955730df3bafbdc244e54")
 
 (package! org-menu
   :recipe (:host github
