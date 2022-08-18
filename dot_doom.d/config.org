@@ -5962,7 +5962,7 @@ recognising the pgtk window system]].
 #+begin_src emacs-lisp
 ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
 ;; Scale image previews to 60% of the window width.
-(setq org-image-actual-width (truncate (* (window-pixel-width) 0.6)))
+(setq org-image-actual-width (truncate (* (window-pixel-width) 0.4)))
 #+end_src
 
 **** List bullet sequence :bullet:
