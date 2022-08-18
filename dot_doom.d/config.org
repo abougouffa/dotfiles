@@ -4176,7 +4176,7 @@ close Hydra when DAP is terminated.
   ;; A workaround to correctly show breakpoints
   ;; from: https://github.com/emacs-lsp/dap-mode/issues/374#issuecomment-1140399819
   (add-hook! +dap-running-session-mode
-      (set-window-buffer nil (current-buffer))))
+    (set-window-buffer nil (current-buffer))))
 #+end_src
 
 **** Doom store
@@ -4998,15 +4998,15 @@ src_elisp{(after! ...)} block.
 ***** Org basics
 
 #+begin_src emacs-lisp
-(setq org-directory "~/Dropbox/Org/"        ; let's put files here
-      org-use-property-inheritance t        ; it's convenient to have properties inherited
-      org-log-done 'time                    ; having the time an item is done sounds convenient
-      org-list-allow-alphabetical t         ; have a. A. a) A) list bullets
-      org-export-in-background nil          ; run export processes in external emacs process
-;;    org-export-async-debug t
+(setq org-directory "~/Dropbox/Org/" ; let's put files here
+      org-use-property-inheritance t ; it's convenient to have properties inherited
+      org-log-done 'time             ; having the time an item is done sounds convenient
+      org-list-allow-alphabetical t  ; have a. A. a) A) list bullets
+      org-export-in-background nil   ; run export processes in external emacs process
+      org-export-async-debug t
       org-tags-column 0
-      org-catch-invisible-edits 'smart      ;; try not to accidently do weird stuff in invisible regions
-      org-export-with-sub-superscripts '{}  ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+      org-catch-invisible-edits 'smart ;; try not to accidently do weird stuff in invisible regions
+      org-export-with-sub-superscripts '{} ;; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
       org-pretty-entities-include-sub-superscripts nil
       org-auto-align-tags nil
       org-special-ctrl-a/e t
