@@ -6048,6 +6048,34 @@ blocks. *NEEDS INVESTIGATION.*
 #+end_quote
 
 #+begin_src emacs-lisp
+(defun +parse-the-fun (str)
+  "Parse the LaTeX environment STR.
+Return an AST with newlines counts in each level."
+  (let (ast)
+    (with-temp-buffer
+      (insert str)
+      (goto-char (point-min))
+      (while (re-search-forward
+              (rx "\\"
+                  (group (or "\\" "begin" "end" "nonumber"))
+                  (zero-or-one "{" (group (* alnum)) "}"))
+              nil t)
+        (let ((cmd (match-string 1))
+              (env (match-string 2)))
+          (cond ((string= cmd "begin")
+                 (push (list :env (intern env)) ast))
+                ((string= cmd "\\")
+                 (let ((curr (pop ast)))
+                   (push (plist-put curr :newline (1+ (or (plist-get curr :newline) 0))) ast)))
+                ((string= cmd "nonumber")
+                 (let ((curr (pop ast)))
+                   (push (plist-put curr :nonumber (1+ (or (plist-get curr :nonumber) 0))) ast)))
+                ((string= cmd "end")
+                 (let ((child (pop ast))
+                       (parent (pop ast)))
+                   (push (plist-put parent :childs (cons child (plist-get parent :childs))) ast)))))))
+    (plist-get (car ast) :childs)))
+
 (defun +scimax-org-renumber-environment (orig-func &rest args)
   "A function to inject numbers in LaTeX fragment previews."
   (let ((results '())
@@ -6069,14 +6097,10 @@ blocks. *NEEDS INVESTIGATION.*
                      (prog2
                          (cl-incf counter)
                          (cons begin counter)
-                       (with-temp-buffer
-                         (insert env)
-                         (goto-char (point-min))
-                         ;; \\ is used for a new line. Each one leads to a number
-                         (cl-incf counter (count-matches "\\\\$"))
-                         ;; unless there are nonumbers.
-                         (goto-char (point-min))
-                         (cl-decf counter (count-matches "\\nonumber")))))
+                       (let ((p (car (+parse-the-fun env))))
+                         ;; Parse the `env', count new lines in the align env as equations, unless
+                         (cl-incf counter (- (or (plist-get p :newline) 0)
+                                             (or (plist-get p :nonumber) 0))))))
                     (t
                      (cons begin nil)))))
     (when-let ((number (cdr (assoc (point) results))))
@@ -6086,10 +6110,10 @@ blocks. *NEEDS INVESTIGATION.*
              (car args)))))
   (apply orig-func args))
 
-(defun +scimax-toggle-latex-equation-numbering ()
+(defun +scimax-toggle-latex-equation-numbering (&optional enable)
   "Toggle whether LaTeX fragments are numbered."
   (interactive)
-  (if (not (get '+scimax-org-renumber-environment 'enabled))
+  (if (or enable (not (get '+scimax-org-renumber-environment 'enabled)))
       (progn
         (advice-add 'org-create-formula-image :around #'+scimax-org-renumber-environment)
         (put '+scimax-org-renumber-environment 'enabled t)
@@ -6124,6 +6148,9 @@ made into an image."
     (advice-remove 'org-create-formula-image #'+scimax-org-inject-latex-fragment)
     (put '+scimax-org-inject-latex-fragment 'enabled nil)
     (message "Inject latex disabled")))
+
+;; Enable renumbering by default
+(+scimax-toggle-latex-equation-numbering t)
 #+end_src
 
 ***** Fragtog
