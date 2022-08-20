@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-08-18
+#+lastmod: 2022-08-20
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -348,7 +348,7 @@ ophints
 nav-flash
 (vc-gutter +diff-hl +pretty)
 (window-select +numbers)
-(ligatures +extra)
+;; (ligatures +extra)
 (popup +all +defaults)
 (emoji +ascii +unicode +github)
 (treemacs +lsp)
@@ -1727,15 +1727,16 @@ sometimes messes up with the parenthesis, so let's disable ligatures on Lisps.
        (append tail head)))
     tail))
 
-(setq +ligatures-extras-in-modes
-      (+appened-to-negation-list
-       +ligatures-extras-in-modes
-       '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+(when (modulep! :ui ligatures)
+  (setq +ligatures-extras-in-modes
+        (+appened-to-negation-list
+         +ligatures-extras-in-modes
+         '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
 
-(setq +ligatures-in-modes
-      (+appened-to-negation-list
-       +ligatures-in-modes
-       '(not emacs-lisp-mode scheme-mode racket-mode)))
+  (setq +ligatures-in-modes
+        (+appened-to-negation-list
+         +ligatures-in-modes
+         '(not emacs-lisp-mode scheme-mode racket-mode))))
 #+end_src
 
 ** Checkers (spell & grammar) :spell:grammar:
@@ -5928,14 +5929,15 @@ Not let's remove the overlap between the substitutions we set here and those
 that Doom applies via =:ui ligatures= and =:lang org=.
 
 #+begin_src emacs-lisp
-(defadvice! +org-init-appearance-h--no-ligatures-a ()
-  :after #'+org-init-appearance-h
-  (set-ligatures! 'org-mode
-    :name nil
-    :src_block nil
-    :src_block_end nil
-    :quote nil
-    :quote_end nil))
+(when (modulep! :ui ligatures)
+  (defadvice! +org-init-appearance-h--no-ligatures-a ()
+    :after #'+org-init-appearance-h
+    (set-ligatures! 'org-mode
+                    :name nil
+                    :src_block nil
+                    :src_block_end nil
+                    :quote nil
+                    :quote_end nil)))
 #+end_src
 
 We’ll bind this to =O= on the =org-mode= localleader, and manually apply a [[https://github.com/Townk/org-ol-tree/pull/13][PR
