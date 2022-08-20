@@ -1556,11 +1556,12 @@ use =rust_hdl= instead.
 ***** SonarLint
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! lsp-sonarlint)
+(package! lsp-sonarlint
+  :disable t)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
+(use-package! lsp-sonarlint)
 #+end_src
 
 *** Cppcheck :flycheck:cppcheck:
