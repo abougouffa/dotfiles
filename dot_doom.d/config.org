@@ -425,6 +425,7 @@ make
 tmux
 direnv
 upload
+biblio
 tree-sitter
 editorconfig
 (lsp +peek)
@@ -4944,10 +4945,13 @@ To avoid problems in the src_elisp{(after! org)} section.
 (package! org-roam-ui)
 (package! org-wild-notifier)
 (package! org-fragtog)
-(package! org-ref)
 (package! org-appear)
 (package! org-super-agenda)
 (package! doct)
+
+(package! citar-org-roam
+  :recipe (:host github
+           :repo "emacs-citar/citar-org-roam"))
 
 (package! org-menu
   :recipe (:host github
@@ -6217,6 +6221,7 @@ Use /[[https://github.com/misohena/phscroll][Partial Horizontal Scroll]]/ to dis
 
 *** Bibliography
 **** BibTeX
+
 #+begin_src emacs-lisp
 (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
       bibtex-completion-library-path '("~/Zotero/storage/")
@@ -6248,82 +6253,61 @@ example.
 #+begin_src emacs-lisp
 (after! oc
   (setq org-cite-csl-styles-dir "~/Zotero/styles")
+  ;; org-cite-global-bibliography '("~/Zotero/library.bib"))
 
-  (defun org-ref-to-org-cite ()
-    "Attempt to convert org-ref citations to org-cite syntax."
+  (defun +org-ref-to-org-cite ()
+    "Simple conversion of org-ref citations to org-cite syntax."
     (interactive)
-    (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
-                               ("nocite" . "/n")
-                               ("citep" . "") ("citep*" . "//f")
-                               ("parencite" . "") ("Parencite" . "//c")
-                               ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
-                               ("citeyear" . "/na/b")
-                               ("Citep" . "//c") ("Citealp" . "//bc")
-                               ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
-                               ("autocite" . "") ("Autocite" . "//c")
-                               ("notecite" . "/l/b") ("Notecite" . "/l/bc")
-                               ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
-           (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
-                            ":" (group (+ (not (any "\n     ,.)]}")))))))
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward cite-regexp nil t)
-          (message (format "[cite%s:@%s]"
-                           (cdr (assoc (match-string 1) cite-conversions))
-                           (match-string 2)))
-          (replace-match (format "[cite%s:@%s]"
-                                 (cdr (assoc (match-string 1) cite-conversions))
-                                 (match-string 2))))))))
-#+end_src
-
-**** Org-ref
-Use Org as LaTeX!
-
-#+begin_src emacs-lisp
-(use-package! org-ref
-  :after org
-  :init
-  ;; Add keybinding to insert link
-  (map! :localleader
-        :map org-mode-map
-        :desc "Org-ref insert link" "C" #'org-ref-insert-link))
-
-;; :config
-;; (defadvice! org-ref-open-bibtex-pdf-a ()
-;;   :override #'org-ref-open-bibtex-pdf
-;;   (save-excursion
-;;     (bibtex-beginning-of-entry)
-;;     (let* ((bibtex-expand-strings t)
-;;            (entry (bibtex-parse-entry t))
-;;            (key (reftex-get-bib-field "=key=" entry))
-;;            (pdf (or
-;;                  (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
-;;                                (split-string (reftex-get-bib-field "file" entry) ";")))
-;;                  (funcall 'org-ref-get-pdf-filename key))))
-;;       (if (file-exists-p pdf)
-;;           (org-open-file pdf)
-;;         (ding)))))
-
-;; (defadvice! org-ref-open-pdf-at-point-a ()
-;;   "Open the pdf for bibtex key under point if it exists."
-;;   :override #'org-ref-open-pdf-at-point
-;;   (interactive)
-;;   (let* ((results (org-ref-get-bibtex-key-and-file))
-;;          (key (car results))
-;;          (pdf-file (funcall 'org-ref-get-pdf-filename key)))
-;;     (with-current-buffer (find-file-noselect (cdr results))
-;;       (save-excursion
-;;         (bibtex-search-entry (car results))
-;;         (org-ref-open-bibtex-pdf))))))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\[cite\\(.*\\):\\([^]]*\\)\\]" nil t)
+        (let* ((old (substring (match-string 0) 1 (1- (length (match-string 0)))))
+               (new (s-replace "&" "@" old)))
+          (message "Replaced citation %s with %s" old new)
+          (replace-match new))))))
 #+end_src
 
 **** Citar
 
 #+begin_src emacs-lisp
-(setq citar-library-paths '("~/Zotero/storage")
-      citar-notes-paths   '("~/PhD/bibliography/notes/")
-      citar-bibliography  '("~/Zotero/library.bib"))
+(after! citar
+  (setq citar-library-paths '("~/Zotero/storage")
+        citar-notes-paths   '("~/PhD/bibliography/notes/")
+        citar-bibliography  '("~/Zotero/library.bib")
+        citar-symbol-separator "  ")
+
+  (when (display-graphic-p)
+    (setq citar-symbols
+          `((file ,(all-the-icons-octicon "file-pdf"      :face 'error) . " ")
+            (note ,(all-the-icons-octicon "file-text"     :face 'warning) . " ")
+            (link ,(all-the-icons-octicon "link-external" :face 'org-link) . " ")))))
+
+(use-package! citar-org-roam
+  :after citar org-roam
+  :no-require
+  :config (citar-org-roam-mode)
+  :init
+  ;; Modified form: https://jethrokuan.github.io/org-roam-guide/
+  (defun +org-roam-node-from-cite (entry-key)
+    (interactive (list (citar-select-ref)))
+    (let ((title (citar-format--entry
+                  "${author editor} (${date urldate}) :: ${title}"
+                  (citar-get-entry entry-key))))
+      (org-roam-capture- :templates
+                         '(("r" "reference" plain
+                            "%?"
+                            :if-new (file+head "references/${citekey}.org"
+                                               ":properties:
+:roam_refs: [cite:@${citekey}]
+:end:
+,#+title: ${title}\n")
+                            :immediate-finish t
+                            :unnarrowed t))
+                         :info (list :citekey entry-key)
+                         :node (org-roam-node-create :title title)
+                         :props '(:finalize find-file)))))
 #+end_src
+
 
 *** Exporting
 **** General settings
