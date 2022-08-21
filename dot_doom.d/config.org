@@ -6062,7 +6062,7 @@ Return an AST with newlines counts in each level."
       (while (re-search-forward
               (rx "\\"
                   (group (or "\\" "begin" "end" "nonumber"))
-                  (zero-or-one "{" (group (* alnum)) "}"))
+                  (zero-or-one "{" (group (zero-or-more not-newline)) "}"))
               nil t)
         (let ((cmd (match-string 1))
               (env (match-string 2)))
