@@ -4341,24 +4341,24 @@ arguments to pass to the program. It can be set in a per-project basis thanks to
 The list of implemented special variables are listed in the table below, they
 have been defined as specified in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]].
 
-|------------------------------+--------------------------------------------|
-| *Variable*                     | *Example*                                    |
-|------------------------------+--------------------------------------------|
-| ="${userHome}"=                | =/home/username=                             |
-| ="${workspaceFolder}"=         | =/home/username/your-project=                |
-| ="${workspaceFolderBasename}"= | =your-project=                               |
-| ="${file}"=                    | =/home/username/your-project/folder/file.cc= |
-| ="${fileWorkspaceFolder}"=     | =/home/username/your-project=                |
-| ="${relativeFile}"=            | =folder/file.cc=                             |
-| ="${relativeFileDirname}"=     | =folder=                                     |
-| ="${fileBasename}"=            | =file.cc=                                    |
-| ="${fileBasenameNoExtension}"= | =file=                                       |
-| ="${fileDirname}"=             | =/home/username/your-project/folder=         |
-| ="${fileExtname}"=             | =.cc=                                        |
-| ="${lineNumber}"=              | line number of the cursor                  |
-| ="${selectedText}"=            | text selected in your code editor          |
-| ="${pathSeparator}"=           | ="/"= on *nix, ="\"= on Windows                |
-|------------------------------+--------------------------------------------|
+|-------------------------+--------------------------------------------|
+| *Variable*                | *Example*                                    |
+|-------------------------+--------------------------------------------|
+| ~userHome~                | ~/home/username~                             |
+| ~workspaceFolder~         | ~/home/username/your-project~                |
+| ~workspaceFolderBasename~ | ~your-project~                               |
+| ~file~                    | ~/home/username/your-project/folder/file.cc~ |
+| ~fileWorkspaceFolder~     | ~/home/username/your-project~                |
+| ~relativeFile~            | ~folder/file.cc~                             |
+| ~relativeFileDirname~     | ~folder~                                     |
+| ~fileBasename~            | ~file.cc~                                    |
+| ~fileBasenameNoExtension~ | ~file~                                       |
+| ~fileDirname~             | ~/home/username/your-project/folder~         |
+| ~fileExtname~             | ~.cc~                                        |
+| ~lineNumber~              | Line number of the cursor                  |
+| ~selectedText~            | Text selected in your code editor          |
+| ~pathSeparator~           | Returns ~/~ on *nix, and ~\~ on Windows        |
+|-------------------------+--------------------------------------------|
 
 If a =launch.json= file is detected in the project directory, it gets read and
 searches for a configuration for the =realgud:gdb= debugger. So you need to have a
