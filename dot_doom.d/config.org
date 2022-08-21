@@ -5107,14 +5107,10 @@ and =.dir-locals.el=, but it didn't work. This hack should solve the problem now
 #+end_src
 
 ***** Visual line & autofill
-By default, ~visual-line-mode~ is turned =on=, and ~auto-fill-mode~ =off= by a hook.
-However, this messes with tables in Org-mode, and other plain text files (e.g.
-markdown, \LaTeX) so I'll turn it off for this, and manually enable it for more
-specific modes as desired.
 
 #+begin_src emacs-lisp
-(remove-hook 'text-mode-hook #'visual-line-mode)
-(add-hook 'text-mode-hook #'auto-fill-mode)
+;; (remove-hook 'text-mode-hook #'visual-line-mode)
+;; (add-hook 'text-mode-hook #'auto-fill-mode)
 #+end_src
 
 ***** EVIL
