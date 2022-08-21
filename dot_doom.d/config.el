@@ -172,7 +172,8 @@
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
-(setq doom-theme 'doom-one-light)
+(setq doom-theme 'doom-vibrant)
+;; (setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
@@ -241,7 +242,7 @@
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
 
-;; [[file:config.org::*SVG tag][SVG tag:2]]
+;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:2]]
 (use-package! svg-tag-mode
   :commands svg-tag-mode
   :config
@@ -265,7 +266,13 @@
                     :height 0.6
                     :padding 0
                     :margin 0))))))
-;; SVG tag:2 ends here
+;; SVG tag and =svg-lib=:2 ends here
+
+;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:3]]
+(after! svg-lib
+  ;; Set `svg-lib' cache directory
+  (setq svg-lib-icons-dir (expand-file-name "svg-lib" doom-data-dir)))
+;; SVG tag and =svg-lib=:3 ends here
 
 ;; [[file:config.org::*Focus][Focus:2]]
 (use-package! focus
@@ -971,13 +978,10 @@ current buffer's, reload dir-locals."
         :desc "Toggle grammar check" "G" #'+lsp-ltex-toggle))
 
 (after! lsp-ltex
-  (setq lsp-ltex-check-frequency "edit" ;; or "save"
-        lsp-ltex-language "fr"
+  (add-to-list 'lsp-disabled-clients 'ltex-ls)
+  (setq lsp-ltex-language "auto"
         lsp-ltex-mother-tongue "ar"
         flycheck-checker-error-threshold 1000))
-
-  ;; Disable by default
-  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
@@ -1302,11 +1306,10 @@ current buffer's, reload dir-locals."
              +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org mail browser mindmap jupyter org-previewer markdown-previewer
-          file-sender video-player))
+    '(org mail browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
 
   (defun +eaf-enabled-p (app-symbol)
-    (member app-symbol +eaf-enabled-apps))
+    (memq app-symbol +eaf-enabled-apps))
 
   :config
   ;; Generic
@@ -1411,71 +1414,75 @@ current buffer's, reload dir-locals."
     (defun +eaf-open-mail-as-html ()
       "Open the html mail in EAF Browser."
       (interactive)
-      (let ((msg (mu4e-message-at-point t)))
+      (let ((msg (mu4e-message-at-point t))
+            ;; Bind browse-url-browser-function locally, so it works
+            ;; even if EAF Browser is not set as a default browser.
+            (browse-url-browser-function #'eaf-open-browser))
         (if msg
             (mu4e-action-view-in-browser msg)
-          (message "No message at point.")))))
+          (message "No message at point."))))
 
-  ;; Org Previewer
-  (when (+eaf-enabled-p 'org-previewer)
-    (setq eaf-org-dark-mode "follow")
-    (require 'eaf-org-previewer))
+    ;; Org Previewer
+    (when (+eaf-enabled-p 'org-previewer)
+      (setq eaf-org-dark-mode "follow")
+      (require 'eaf-org-previewer))
 
-  ;; Markdown Previewer
-  (when (+eaf-enabled-p 'markdown-previewer)
-    (setq eaf-markdown-dark-mode "follow")
-    (require 'eaf-markdown-previewer))
+    ;; Markdown Previewer
+    (when (+eaf-enabled-p 'markdown-previewer)
+      (setq eaf-markdown-dark-mode "follow")
+      (require 'eaf-markdown-previewer))
 
-  ;; Jupyter
-  (when (+eaf-enabled-p 'jupyter)
-    (setq eaf-jupyter-dark-mode "follow"
-          eaf-jupyter-font-family "JuliaMono"
-          eaf-jupyter-font-size 13)
-    (require 'eaf-jupyter))
+    ;; Jupyter
+    (when (+eaf-enabled-p 'jupyter)
+      (setq eaf-jupyter-dark-mode "follow"
+            eaf-jupyter-font-family "JuliaMono"
+            eaf-jupyter-font-size 13)
+      (require 'eaf-jupyter))
 
-  ;; Mindmap
-  (when (+eaf-enabled-p 'mindmap)
-    (setq eaf-mindmap-dark-mode "follow"
-          eaf-mindmap-save-path "~/Dropbox/Mindmap")
-    (require 'eaf-mindmap))
+    ;; Mindmap
+    (when (+eaf-enabled-p 'mindmap)
+      (setq eaf-mindmap-dark-mode "follow"
+            eaf-mindmap-save-path "~/Dropbox/Mindmap")
+      (require 'eaf-mindmap))
 
-  ;; File Sender
-  (when (+eaf-enabled-p 'file-sender)
-    (require 'eaf-file-sender))
+    ;; File Sender
+    (when (+eaf-enabled-p 'file-sender)
+      (require 'eaf-file-sender))
 
-  ;; Music Player
-  (when (+eaf-enabled-p 'music-player)
-    (require 'eaf-music-player))
+    ;; Music Player
+    (when (+eaf-enabled-p 'music-player)
+      (require 'eaf-music-player))
 
-  ;; Video Player
-  (when (+eaf-enabled-p 'video-player)
-    (require 'eaf-video-player))
+    ;; Video Player
+    (when (+eaf-enabled-p 'video-player)
+      (require 'eaf-video-player))
 
-  ;; Image Viewer
-  (when (+eaf-enabled-p 'image-viewer)
-    (require 'eaf-image-viewer))
+    ;; Image Viewer
+    (when (+eaf-enabled-p 'image-viewer)
+      (require 'eaf-image-viewer))
 
-  ;; Git
-  (when (+eaf-enabled-p 'git)
-    (require 'eaf-git))
+    ;; Git
+    (when (+eaf-enabled-p 'git)
+      (require 'eaf-git))
 
-  ;; EVIL keybindings for Doom
-  (after! evil
-    (require 'eaf-evil)
-    (define-key key-translation-map (kbd "SPC")
-      (lambda (prompt)
-        (if (derived-mode-p 'eaf-mode)
-            (pcase eaf--buffer-app-name
-              ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
-                             (kbd "SPC")
-                           (kbd eaf-evil-leader-key)))
-              ("pdf-viewer" (kbd eaf-evil-leader-key))
-              ("image-viewer" (kbd eaf-evil-leader-key))
-              ("music-player" (kbd eaf-evil-leader-key))
-              ("video-player" (kbd eaf-evil-leader-key))
-              ("mindmap" (kbd eaf-evil-leader-key))
-              (_  (kbd "SPC")))
-          (kbd "SPC"))))))
+    ;; Fix EVIL keybindings
+    (after! evil
+      (require 'eaf-evil)
+      (define-key key-translation-map (kbd "SPC")
+        (lambda (prompt)
+          (if (derived-mode-p 'eaf-mode)
+              (pcase eaf--buffer-app-name
+                ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
+                               (kbd "SPC")
+                             (kbd eaf-evil-leader-key)))
+                ("pdf-viewer" (kbd eaf-evil-leader-key))
+                ("image-viewer" (kbd eaf-evil-leader-key))
+                ("music-player" (kbd eaf-evil-leader-key))
+                ("video-player" (kbd eaf-evil-leader-key))
+                ("file-sender" (kbd eaf-evil-leader-key))
+                ("mindmap" (kbd eaf-evil-leader-key))
+                (_  (kbd "SPC")))
+            (kbd "SPC")))))))
 ;; Emacs Application Framework:1 ends here
 
 ;; [[file:config.org::*Bitwarden][Bitwarden:2]]
@@ -1500,7 +1507,7 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Dark mode][Dark mode:1]]
 (after! pdf-tools
   (add-hook! 'pdf-view-mode-hook
-    (when (member doom-theme '(modus-vivandi doom-one doom-dark+ doom-vibrant))
+    (when (memq doom-theme '(modus-vivendi doom-one doom-dark+ doom-vibrant))
       ;; TODO: find a more generic way to detect if we are in a dark theme
       (pdf-view-midnight-minor-mode 1)))
 
@@ -1509,13 +1516,15 @@ current buffer's, reload dir-locals."
   (defun +pdf-tools-backdrop ()
     (face-remap-add-relative
      'default
-     `(:background ,(modus-themes-color 'bg-alt))))
+     `(:background ,(if (memq doom-theme '(modus-vivendi modus-operandi))
+                        (modus-themes-color 'bg-alt)
+                      (doom-color 'bg-alt)))))
 
   (add-hook 'pdf-tools-enabled-hook #'+pdf-tools-backdrop))
 
 (after! pdf-links
   ;; Tweak for Modus and `pdf-links'
-  (when (string-match-p "modus-" (symbol-name doom-theme))
+  (when (memq doom-theme '(modus-vivendi modus-operandi))
     ;; https://protesilaos.com/emacs/modus-themes#h:2659d13e-b1a5-416c-9a89-7c3ce3a76574
     (let ((spec (apply #'append
                        (mapcar
@@ -2342,7 +2351,7 @@ is binary, activate `hexl-mode'."
   (require 'dap-cpptools)
 
   ;; More minimal UI
-  (setq dap-auto-configure-features '(locals tooltip)
+  (setq dap-auto-configure-features '(breakpoints locals expressions tooltip)
         dap-auto-show-output nil ;; Hide the annoying server output
         lsp-enable-dap-auto-configure t)
 
@@ -3570,7 +3579,7 @@ if it is set to a launch.json file, it will be used instead."
           org-modern-table-horizontal 2
           org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
           org-modern-footnote (cons nil (cadr org-script-display))
-          org-modern-priority nil
+          org-modern-priority t
           org-modern-block t
           org-modern-horizontal-rule t
           org-modern-keyword
@@ -3746,13 +3755,12 @@ if it is set to a launch.json file, it will be used instead."
                        (cl-incf counter)
                        (cons begin counter))
                       ((string-match "\\\\begin{align}" env)
-                       (prog2
-                           (cl-incf counter)
-                           (cons begin counter)
-                         (let ((p (car (+parse-the-fun env))))
-                           ;; Parse the `env', count new lines in the align env as equations, unless
-                           (cl-incf counter (- (or (plist-get p :newline) 0)
-                                               (or (plist-get p :nonumber) 0))))))
+                       ((cl-incf counter)
+                        (let ((p (car (+parse-the-fun env))))
+                          ;; Parse the `env', count new lines in the align env as equations, unless
+                          (cl-incf counter (- (or (plist-get p :newline) 0)
+                                              (or (plist-get p :nonumber) 0))))
+                        (cons begin counter)))
                       (t
                        (cons begin nil)))))
       (when-let ((number (cdr (assoc (point) results))))

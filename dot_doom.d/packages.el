@@ -17,9 +17,9 @@
 (package! modus-themes)
 ;; Modus:1 ends here
 
-;; [[file:config.org::*SVG tag][SVG tag:1]]
+;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:1]]
 (package! svg-tag-mode)
-;; SVG tag:1 ends here
+;; SVG tag and =svg-lib=:1 ends here
 
 ;; [[file:config.org::*Focus][Focus:1]]
 (package! focus)
