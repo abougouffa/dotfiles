@@ -1296,13 +1296,14 @@ current buffer's, reload dir-locals."
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
-  :commands (eaf-open eaf-open-browser eaf-open-jupyter +eaf-open-mail-as-html)
+  :commands (eaf-open
+             eaf-open-browser
+             eaf-open-jupyter
+             +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org mail browser mindmap jupyter org-previewer markdown-previewer
-          ;; file-browser file-manager
-          file-sender music-player video-player
-          git image-viewer))
+          file-sender video-player))
 
   (defun +eaf-enabled-p (app-symbol)
     (member app-symbol +eaf-enabled-apps))
@@ -1317,9 +1318,9 @@ current buffer's, reload dir-locals."
   (setq eaf-enable-debug nil)
 
   ;; Web engine
-  (setq eaf-webengine-font-family "FantasqueSansMono Nerd Font Mono"
-        eaf-webengine-fixed-font-family "FantasqueSansMono Nerd Font Mono"
-        eaf-webengine-serif-font-family "FantasqueSansMono Nerd Font Mono"
+  (setq eaf-webengine-font-family "Iosevka Fixed"
+        eaf-webengine-fixed-font-family "Iosevka Fixed"
+        eaf-webengine-serif-font-family "Iosevka Fixed"
         eaf-webengine-font-size 14
         eaf-webengine-fixed-font-size 14
         eaf-webengine-download-path "~/Downloads"
@@ -1347,7 +1348,6 @@ current buffer's, reload dir-locals."
           eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
           eaf-browser-default-search-engine "duckduckgo"
           eaf-browser-continue-where-left-off nil)
-
     (require 'eaf-browser)
 
     ;; Make EAF Browser my default browser
