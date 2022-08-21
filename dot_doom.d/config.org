@@ -2744,7 +2744,7 @@ using the =m z=.
 #+begin_src emacs-lisp
 (after! pdf-tools
   (add-hook! 'pdf-view-mode-hook
-    (when (member doom-theme '(modus-vivandi doom-one doom-dark+ doom-vibrant))
+    (when (memq doom-theme '(modus-vivendi doom-one doom-dark+ doom-vibrant))
       ;; TODO: find a more generic way to detect if we are in a dark theme
       (pdf-view-midnight-minor-mode 1)))
 
@@ -2753,13 +2753,15 @@ using the =m z=.
   (defun +pdf-tools-backdrop ()
     (face-remap-add-relative
      'default
-     `(:background ,(modus-themes-color 'bg-alt))))
+     `(:background ,(if (memq doom-theme '(modus-vivendi modus-operandi))
+                        (modus-themes-color 'bg-alt)
+                      (doom-color 'bg-alt)))))
 
   (add-hook 'pdf-tools-enabled-hook #'+pdf-tools-backdrop))
 
 (after! pdf-links
   ;; Tweak for Modus and `pdf-links'
-  (when (string-match-p "modus-" (symbol-name doom-theme))
+  (when (memq doom-theme '(modus-vivendi modus-operandi))
     ;; https://protesilaos.com/emacs/modus-themes#h:2659d13e-b1a5-416c-9a89-7c3ce3a76574
     (let ((spec (apply #'append
                        (mapcar
