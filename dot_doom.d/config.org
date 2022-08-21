@@ -1015,7 +1015,7 @@ I'd like to have just the buffer name, then if applicable the project folder.
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 #+end_src
 
-*** SVG tag :svg:
+*** SVG tag and =svg-lib= :svg:
 
 #+begin_src emacs-lisp :tangle "packages.el"
 (package! svg-tag-mode)
@@ -1045,6 +1045,12 @@ I'd like to have just the buffer name, then if applicable the project folder.
                     :height 0.6
                     :padding 0
                     :margin 0))))))
+#+end_src
+
+#+begin_src emacs-lisp
+(after! svg-lib
+  ;; Set `svg-lib' cache directory
+  (setq svg-lib-icons-dir (expand-file-name "svg-lib" doom-data-dir)))
 #+end_src
 
 *** Focus :focus:
