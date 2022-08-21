@@ -6458,15 +6458,16 @@ with latex, and install the =python-pygments= package.
 ;; (setq org-latex-listings 'minted)
 ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
 
+;; Default `minted` options, can be overwritten in file/dir locals
 (setq org-latex-minted-options
       '(("frame"         "lines")
         ("fontsize"      "\\footnotesize")
         ("tabsize"       "2")
-        ("breaklines"    "")
-        ("breakanywhere" "") ;; break anywhere, no just on spaces
+        ("breaklines"    "true")
+        ("breakanywhere" "true") ;; break anywhere, no just on spaces
         ("style"         "default")
         ("bgcolor"       "GhostWhite")
-        ("linenos"       "")))
+        ("linenos"       "true")))
 
 ;; Link some org-mode blocks languages to lexers supported by minted
 ;; via (pygmentize), you can see supported lexers by running this command
