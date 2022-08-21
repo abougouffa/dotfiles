@@ -2637,10 +2637,12 @@ dependencies.
     (defun +eaf-open-mail-as-html ()
       "Open the html mail in EAF Browser."
       (interactive)
-      (let ((msg (mu4e-message-at-point t)))
+      (let ((msg (mu4e-message-at-point t))
+            ;; Bind browse-url-browser-function locally, so it works
+            ;; even if EAF Browser is not set as a default browser.
+            (browse-url-browser-function #'eaf-open-browser))
         (if msg
             (mu4e-action-view-in-browser msg)
-          (message "No message at point.")))))
 
   ;; Org Previewer
   (when (+eaf-enabled-p 'org-previewer)
