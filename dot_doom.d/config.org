@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-08-20
+#+lastmod: 2022-08-21
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -1059,7 +1059,7 @@ Dim the font color of text in surrounding paragraphs, focus only on the current 
   :commands focus-mode)
 #+end_src
 
-*** Smooth scrolling
+*** Scrolling
 
 #+begin_src emacs-lisp :tangle packages.el
 (unless EMACS29+
@@ -1114,7 +1114,8 @@ Map extra mouse buttons to jump between buffers
 #+end_src
 
 *** Very large files :large:vlf:
-The /very large files/ mode loads large files in chunks, allowing one to open ridiculously large files.
+The /very large files/ mode loads large files in chunks, allowing one to open
+ridiculously large files.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! vlf)
@@ -1134,8 +1135,9 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
   ;; This fixes https://github.com/doomemacs/doomemacs/issues/6478
   ;; Ref: https://github.com/emacs-evil/evil/issues/1630
   (evil-select-search-module 'evil-search-module 'isearch)
+
   (setq evil-kill-on-visual-paste nil ; Don't put overwritten text in the kill ring
-        evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode))
+        evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode
 #+end_src
 
 *** Aggressive indent
@@ -1166,8 +1168,8 @@ Thankfully Doom supports =$DOOMDIR/cli.el= file which is sourced every time a CL
 command is run, so we can just enable evaluation by setting
 ~org-confirm-babel-evaluate~ to ~nil~ there.
 
-While we're at it, we should silence ~org-babel-execute-src-block~ to
-avoid polluting the output.
+While we're at it, we should silence ~org-babel-execute-src-block~ to avoid
+polluting the output.
 
 #+begin_src emacs-lisp :tangle cli.el :comments no
 ;;; cli.el -*- lexical-binding: t; -*-
@@ -1905,6 +1907,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   :init
   (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-data-dir)
         grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-data-dir))
+
   (setq flycheck-grammalecte-report-spellcheck t
         flycheck-grammalecte-report-grammar t
         flycheck-grammalecte-report-apos nil
@@ -4626,6 +4629,7 @@ the builtin =gdb-many-windows= layout.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! company-gitcommit
+  :disable t
   :recipe (:local-repo "lisp/company-gitcommit"))
 #+end_src
 
@@ -4801,7 +4805,7 @@ For editing systemd unit files.
         :nv "K" #'journalctl-previous-chunk))
 #+end_src
 
-** PKGBUILD
+** PKGBUILD :arch:pkgbuild:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! pkgbuild-mode)
@@ -4964,8 +4968,8 @@ To avoid problems in the src_elisp{(after! org)} section.
            :repo "dengste/org-caldav"))
 
 (package! org-ol-tree
-  :recipe (:host github :repo "Townk/org-ol-tree")
-  :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
+  :recipe (:host github
+           :repo "Townk/org-ol-tree"))
 
 (package! org-modern
   :recipe (:host github
@@ -6336,7 +6340,6 @@ example.
                          :node (org-roam-node-create :title title)
                          :props '(:finalize find-file)))))
 #+end_src
-
 
 *** Exporting
 **** General settings
