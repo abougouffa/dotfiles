@@ -5972,9 +5972,17 @@ recognising the pgtk window system]].
 **** Image previews
 
 #+begin_src emacs-lisp
-;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
-;; Scale image previews to 60% of the window width.
-(setq org-image-actual-width (truncate (* (window-pixel-width) 0.4)))
+(defvar +org-responsive-image-percentage 0.4)
+(defvar +org-responsive-image-width-limits '(400 . 700)) ;; '(min-width . max-width)
+
+(defun +org--responsive-image-h ()
+  (when (eq major-mode 'org-mode)
+    (setq org-image-actual-width
+          (max (car +org-responsive-image-width-limits)
+               (min (cdr +org-responsive-image-width-limits)
+                    (truncate (* (window-pixel-width) +org-responsive-image-percentage)))))))
+
+(add-hook 'window-configuration-change-hook #'+org--responsive-image-h)
 #+end_src
 
 **** List bullet sequence :bullet:
