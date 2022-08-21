@@ -6587,16 +6587,16 @@ Supposing a document with a structure like this:
 digraph G {
   node [color=black, fillcolor=white, shape=note, style=filled, fontname="Lato"];
 
-  main    [label="main.org", fillcolor=lightgray]
-  intro   [label="intro.org"]
-  chap1   [label="chap1.org"]
-  chap2   [label="chap2.org"]
-  chap2-1 [label="chap2-part1.org"]
-  chap2-2 [label="chap2-part2.org"]
-  chapn   [label="chapN.org"]
+  main   [label="main.org", fillcolor=lightgray]
+  intro  [label="intro.org"]
+  chap1  [label="chap1.org"]
+  chap2  [label="chap2.org"]
+  chap21 [label="chap2-part1.org"]
+  chap22 [label="chap2-part2.org"]
+  chapn  [label="chapN.org"]
 
   {main}  -> {intro chap1 chap2 chapn}
-  {chap2} -> {chap2-1 chap2-2}
+  {chap2} -> {chap21 chap22}
 }
 #+end_src
 
