@@ -1917,7 +1917,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
         '("(?m)^# ?-*-.+$"
           ;; Ignore LaTeX equations (inline and block)
           "\\$.*?\\$"
-          "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
+          "(?s)\\\\begin{\\(?1:\\(?:equation.\\|align.\\)\\)}.*?\\\\end{\\1}"))
 
   (map! :leader :prefix ("l" . "custom")
         (:prefix ("g" . "grammalecte")
