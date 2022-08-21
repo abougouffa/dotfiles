@@ -4311,8 +4311,6 @@ fallback, if no =launch.json= file is present, this variable can be set in
 #+begin_src emacs-lisp
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
 ;; '(:program "..." :args ("args1" "arg2" ...))
-;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
-;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
 (defvar +realgud-debug-config nil)
 #+end_src
 
@@ -4331,9 +4329,27 @@ arguments to pass to the program. It can be set in a per-project basis thanks to
                                            "-a"))))))
 #+end_src
 
-The special variables =${workspaceFolder}= and =${workspaceFolderBasename}= are
-defined as in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]], the actual values are filled from
-=projectile-project-root=.
+The list of implemented special variables are listed in the table below, they
+have been defined as specified in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]].
+
+|------------------------------+--------------------------------------------|
+| *Variable*                     | *Example*                                    |
+|------------------------------+--------------------------------------------|
+| ="${userHome}"=                | =/home/username=                             |
+| ="${workspaceFolder}"=         | =/home/username/your-project=                |
+| ="${workspaceFolderBasename}"= | =your-project=                               |
+| ="${file}"=                    | =/home/username/your-project/folder/file.cc= |
+| ="${fileWorkspaceFolder}"=     | =/home/username/your-project=                |
+| ="${relativeFile}"=            | =folder/file.cc=                             |
+| ="${relativeFileDirname}"=     | =folder=                                     |
+| ="${fileBasename}"=            | =file.cc=                                    |
+| ="${fileBasenameNoExtension}"= | =file=                                       |
+| ="${fileDirname}"=             | =/home/username/your-project/folder=         |
+| ="${fileExtname}"=             | =.cc=                                        |
+| ="${lineNumber}"=              | line number of the cursor                  |
+| ="${selectedText}"=            | text selected in your code editor          |
+| ="${pathSeparator}"=           | ="/"= on *nix, ="\"= on Windows                |
+|------------------------------+--------------------------------------------|
 
 If a =launch.json= file is detected in the project directory, it gets read and
 searches for a configuration for the =realgud:gdb= debugger. So you need to have a
@@ -4369,17 +4385,44 @@ The example above defines several parameters, however, only =type=, =program= an
 #+begin_src emacs-lisp
 (defun +realgud--substite-special-vars (program &optional args)
   "Substitue variables in PROGRAM and ARGS.
-Return a list, in which processed PROGRAM is the first element, followed by ARGS.
-\"${workspaceFolder}\" and \"${workspaceFolderBasename}\""
-  (let* ((cmd-args (cons program args))
-         (ws-root (expand-file-name (or (projectile-project-root) ".")))
-         (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
+Return a list, in which processed PROGRAM is the first element, followed by ARGS."
+  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
+         (ws-root (string-trim-right
+                   (expand-file-name
+                    (or (projectile-project-root)
+                        (ignore-errors (file-name-directory curr-file))
+                        "."))
+                   "/"))
+         (ws-basename (file-name-nondirectory ws-root)))
     ;; Replace special variables
     (mapcar
-     (lambda (s) (+str-replace-all
-                  (list (cons "${workspaceFolder}" ws-root)
-                        (cons "${workspaceFolderBasename}" ws-basename)) s))
-     cmd-args)))
+     (lambda (str)
+       (+str-replace-all
+        (append
+         (list
+          (cons "${workspaceFolder}" ws-root)
+          (cons "${workspaceFolderBasename}" ws-basename)
+          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
+          (cons "${pathSeparator}" (if (memq system-type
+                                             '(windows-nt ms-dos cygwin))
+                                       "\\" "/"))
+          (cons "${selectedText}" (if (use-region-p)
+                                      (buffer-substring-no-properties
+                                       (region-beginning) (region-end)) "")))
+         ;; To avoid problems if launched from a non-file buffer
+         (when curr-file
+           (list
+            (cons "${file}" curr-file)
+            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
+            (cons "${relativeFileDirname}" (file-relative-name
+                                            (file-name-directory curr-file) ws-root))
+            (cons "${fileBasename}" (file-name-nondirectory curr-file))
+            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
+            (cons "${fileDirname}" (file-name-directory curr-file))
+            (cons "${fileExtname}" (file-name-extension curr-file))
+            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
+        str))
+     (cons program args))))
 
 (defun +realgud--debug-command (debugger-type debuggee-args)
   "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
