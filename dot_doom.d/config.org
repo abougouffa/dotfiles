@@ -5871,8 +5871,8 @@ sacrificing visual amenities with the =org-appear= package.
   :hook (org-mode . org-modern-mode)
   :config
   (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "✸" "▶")
-        org-modern-table-vertical 1
-        org-modern-table-horizontal 1
+        org-modern-table-vertical 5
+        org-modern-table-horizontal 2
         org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
         org-modern-footnote (cons nil (cadr org-script-display))
         org-modern-priority nil
