@@ -1544,7 +1544,7 @@ there is free and open source alternatives: =ghdl-ls= and =rust_hdl=. I have som
 issues running =ghdl-ls= installed form =pip= through the =pyghdl= package, so let's
 use =rust_hdl= instead.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! vhdl-mode
   :hook (vhdl-mode . #'+lsp-vhdl-ls-load)
   :init
@@ -1568,7 +1568,7 @@ use =rust_hdl= instead.
   :disable t)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! lsp-sonarlint)
 #+end_src
 
@@ -1597,7 +1597,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
            :repo "juanjosegarciaripoll/project-cmake"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! project-cmake
     :config
     (require 'eglot)
@@ -2532,11 +2532,10 @@ dependencies.
              +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org mail browser mindmap jupyter org-previewer markdown-previewer
-          file-sender video-player))
+    '(org mail browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
 
   (defun +eaf-enabled-p (app-symbol)
-    (member app-symbol +eaf-enabled-apps))
+    (memq app-symbol +eaf-enabled-apps))
 
   :config
   ;; Generic
@@ -2875,7 +2874,7 @@ is binary, activate `hexl-mode'."
 Define a major mode (=objdump-disassemble-mode=) to display executable files as
 assembly code using =objdump=. The file types are detected using the =file= utility.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (defun +file-objdump-p (&optional buffer)
   "Can the BUFFER be viewed as a disassembled code with objdump."
   (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
@@ -2965,7 +2964,7 @@ Let it snow in Emacs!
 * Applications :apps:
 ** Calendar :calendar:
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (setq calendar-latitude 48.7
       calendar-longitude 2.17
       calendar-location-name "Orsay, FR"
@@ -4870,7 +4869,7 @@ For editing systemd unit files.
 (package! pkgbuild-mode)
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package! pkgbuild-mode
   :commands (pkgbuild-mode)
   :mode "/PKGBUILD$")
