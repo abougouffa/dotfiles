@@ -6171,13 +6171,12 @@ Return an AST with newlines counts in each level."
                      (cl-incf counter)
                      (cons begin counter))
                     ((string-match "\\\\begin{align}" env)
-                     (prog2
-                         (cl-incf counter)
-                         (cons begin counter)
-                       (let ((p (car (+parse-the-fun env))))
-                         ;; Parse the `env', count new lines in the align env as equations, unless
-                         (cl-incf counter (- (or (plist-get p :newline) 0)
-                                             (or (plist-get p :nonumber) 0))))))
+                     ((cl-incf counter)
+                      (let ((p (car (+parse-the-fun env))))
+                        ;; Parse the `env', count new lines in the align env as equations, unless
+                        (cl-incf counter (- (or (plist-get p :newline) 0)
+                                            (or (plist-get p :nonumber) 0))))
+                      (cons begin counter)))
                     (t
                      (cons begin nil)))))
     (when-let ((number (cdr (assoc (point) results))))
