@@ -5940,7 +5940,7 @@ sacrificing visual amenities with the =org-appear= package.
         org-modern-table-horizontal 2
         org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
         org-modern-footnote (cons nil (cadr org-script-display))
-        org-modern-priority nil
+        org-modern-priority t
         org-modern-block t
         org-modern-horizontal-rule t
         org-modern-keyword
