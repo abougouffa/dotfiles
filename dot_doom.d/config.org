@@ -5143,49 +5143,56 @@ equivalents.
         ("PROJ" . (:foreground "LimeGreen" :weight bold))
         ("HOLD" . (:foreground "orange" :weight bold))))
 
+(defun +log-todo-next-creation-date (&rest ignore)
+  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+  (when (and (string= (org-get-todo-state) "NEXT")
+             (not (org-entry-get nil "ACTIVATED")))
+    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+
+(add-hook 'org-after-todo-state-change-hook #'+log-todo-next-creation-date)
+#+end_src
+
+**** Tags :tag:
+
+#+begin_src emacs-lisp
 (setq org-tag-persistent-alist
       '((:startgroup . nil)
-        ("home" . ?h)
-        ("research" . ?r)
-        ("work" . ?w)
-        (:endgroup . nil)
+        ("home"      . ?h)
+        ("research"  . ?r)
+        ("work"      . ?w)
+        (:endgroup   . nil)
         (:startgroup . nil)
-        ("tool" . ?o)
-        ("dev" . ?d)
-        ("report" . ?p)
-        (:endgroup . nil)
+        ("tool"      . ?o)
+        ("dev"       . ?d)
+        ("report"    . ?p)
+        (:endgroup   . nil)
         (:startgroup . nil)
-        ("easy" . ?e)
-        ("medium" . ?m)
-        ("hard" . ?a)
-        (:endgroup . nil)
-        ("urgent" . ?u)
-        ("key" . ?k)
-        ("bonus" . ?b)
-        ("noexport" . ?x)))
+        ("easy"      . ?e)
+        ("medium"    . ?m)
+        ("hard"      . ?a)
+        (:endgroup   . nil)
+        ("urgent"    . ?u)
+        ("key"       . ?k)
+        ("bonus"     . ?b)
+        ("ignore"    . ?i)
+        ("noexport"  . ?x)))
 
 (setq org-tag-faces
-      '(("home" . (:foreground "goldenrod" :weight bold))
-        ("research" . (:foreground "goldenrod" :weight bold))
-        ("work" . (:foreground "goldenrod" :weight bold))
-        ("tool" . (:foreground "IndianRed1" :weight bold))
-        ("dev" . (:foreground "IndianRed1" :weight bold))
-        ("report" . (:foreground "IndianRed1" :weight bold))
-        ("urgent" . (:foreground "red" :weight bold))
-        ("key" . (:foreground "red" :weight bold))
-        ("easy" . (:foreground "green4" :weight bold))
-        ("medium" . (:foreground "orange" :weight bold))
-        ("hard" . (:foreground "red" :weight bold))
-        ("bonus" . (:foreground "goldenrod" :weight bold))
-        ("noexport" . (:foreground "LimeGreen" :weight bold))))
+      '(("home"     . (:foreground "goldenrod"  :weight bold))
+        ("research" . (:foreground "goldenrod"  :weight bold))
+        ("work"     . (:foreground "goldenrod"  :weight bold))
+        ("tool"     . (:foreground "IndianRed1" :weight bold))
+        ("dev"      . (:foreground "IndianRed1" :weight bold))
+        ("report"   . (:foreground "IndianRed1" :weight bold))
+        ("urgent"   . (:foreground "red"        :weight bold))
+        ("key"      . (:foreground "red"        :weight bold))
+        ("easy"     . (:foreground "green4"     :weight bold))
+        ("medium"   . (:foreground "orange"     :weight bold))
+        ("hard"     . (:foreground "red"        :weight bold))
+        ("bonus"    . (:foreground "goldenrod"  :weight bold))
+        ("ignore"   . (:foreground "Gray"       :weight bold))
+        ("noexport" . (:foreground "LimeGreen"  :weight bold))))
 
-;; (defun log-todo-next-creation-date (&rest ignore)
-;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-;;   (when (and (string= (org-get-todo-state) "NEXT")
-;;              (not (org-entry-get nil "ACTIVATED")))
-;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-
-;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 #+end_src
 
 **** Agenda :agenda:
@@ -5313,14 +5320,15 @@ Let's set up some =org-capture= templates, and make them visually nice to access
   (defun +doct-iconify-capture-templates (groups)
     "Add declaration's :icon to each template group in GROUPS."
     (let ((templates (doct-flatten-lists-in groups)))
-      (setq doct-templates (mapcar (lambda (template)
-                                     (when-let* ((props (nthcdr (if (= (length template) 4) 2 5) template))
-                                                 (spec (plist-get (plist-get props :doct) :icon)))
-                                       (setf (nth 1 template) (concat (+doct-icon-declaration-to-icon spec)
-                                                                      "\t"
-                                                                      (nth 1 template))))
-                                     template)
-                                   templates))))
+      (setq doct-templates
+            (mapcar (lambda (template)
+                      (when-let* ((props (nthcdr (if (= (length template) 4) 2 5) template))
+                                  (spec (plist-get (plist-get props :doct) :icon)))
+                        (setf (nth 1 template) (concat (+doct-icon-declaration-to-icon spec)
+                                                       "\t"
+                                                       (nth 1 template))))
+                      template)
+                    templates))))
 
   (setq doct-after-conversion-functions '(+doct-iconify-capture-templates))
 
@@ -5386,12 +5394,12 @@ Let's set up some =org-capture= templates, and make them visually nice to access
                               "%i %a")
                    :children (("General Task" :keys "k"
                                :icon ("inbox" :set "octicon" :color "yellow")
-                               :extra ""
-                               )
+                               :extra "")
+
                               ("Task with deadline" :keys "d"
                                :icon ("timer" :set "material" :color "orange" :v-adjust -0.1)
-                               :extra "\nDEADLINE: %^{Deadline:}t"
-                               )
+                               :extra "\nDEADLINE: %^{Deadline:}t")
+
                               ("Scheduled Task" :keys "s"
                                :icon ("calendar" :set "octicon" :color "orange")
                                :extra "\nSCHEDULED: %^{Start time:}t")))
