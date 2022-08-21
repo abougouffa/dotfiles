@@ -498,7 +498,7 @@ calendar
 irc
 emms
 everywhere
-(rss +org)
+rss
 #+end_src
 
 ** Additional packages (=packages.el=) :package:
