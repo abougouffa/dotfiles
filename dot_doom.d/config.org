@@ -4189,7 +4189,7 @@ close Hydra when DAP is terminated.
   (require 'dap-cpptools)
 
   ;; More minimal UI
-  (setq dap-auto-configure-features '(locals tooltip)
+  (setq dap-auto-configure-features '(breakpoints locals expressions tooltip)
         dap-auto-show-output nil ;; Hide the annoying server output
         lsp-enable-dap-auto-configure t)
 
