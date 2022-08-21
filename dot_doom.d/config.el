@@ -37,9 +37,9 @@
 ;; Split defaults:2 ends here
 
 ;; [[file:config.org::*Messages buffer][Messages buffer:1]]
-(defvar +messages-buffer-auto-tail--enabled nil)
+(defvar +messages--auto-tail-enabled nil)
 
-(defun +messages-buffer-auto-tail--advice (&rest arg)
+(defun +messages--auto-tail-a (&rest arg)
   "Make *Messages* buffer auto-scroll to the end after each message."
   (let* ((buf-name (buffer-name (messages-buffer)))
          ;; Create *Messages* buffer if it does not exist
@@ -59,18 +59,17 @@
       (with-current-buffer buf
         (goto-char (point-max))))))
 
-(defun +messages-buffer-toggle-auto-tail ()
+(defun +messages-auto-tail-toggle ()
   "Auto tail the '*Messages*' buffer."
   (interactive)
-  ;; Add/remove an advice from the 'message' function.
-  (cond (+messages-buffer-auto-tail--enabled
-         (advice-remove 'message '+messages-buffer-auto-tail--advice)
-         (setq +messages-buffer-auto-tail--enabled nil)
-         (message "+messages-buffer-auto-tail: Disabled."))
-        (t
-         (advice-add 'message :after '+messages-buffer-auto-tail--advice)
-         (setq +messages-buffer-auto-tail--enabled t)
-         (message "+messages-buffer-auto-tail: Enabled."))))
+  (if +messages--auto-tail-enabled
+      (progn
+        (advice-remove 'message '+messages--auto-tail-a)
+        (setq +messages--auto-tail-enabled nil)
+        (message "+messages-auto-tail: Disabled."))
+    (advice-add 'message :after '+messages--auto-tail-a)
+    (setq +messages--auto-tail-enabled t)
+    (message "+messages-auto-tail: Enabled.")))
 ;; Messages buffer:1 ends here
 
 ;; [[file:config.org::*Auto-save][Auto-save:2]]
@@ -273,7 +272,7 @@
   :commands focus-mode)
 ;; Focus:2 ends here
 
-;; [[file:config.org::*Smooth scrolling][Smooth scrolling:2]]
+;; [[file:config.org::*Scrolling][Scrolling:2]]
 (if EMACS29+
     (pixel-scroll-precision-mode 1)
   (use-package! good-scroll
@@ -289,7 +288,7 @@
       scroll-preserve-screen-position 'always
       auto-window-vscroll nil
       fast-but-imprecise-scrolling nil)
-;; Smooth scrolling:2 ends here
+;; Scrolling:2 ends here
 
 ;; [[file:config.org::*All the icons][All the icons:1]]
 (after! all-the-icons
@@ -320,8 +319,9 @@
   ;; This fixes https://github.com/doomemacs/doomemacs/issues/6478
   ;; Ref: https://github.com/emacs-evil/evil/issues/1630
   (evil-select-search-module 'evil-search-module 'isearch)
+
   (setq evil-kill-on-visual-paste nil ; Don't put overwritten text in the kill ring
-        evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode))
+        evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode
 ;; Evil:1 ends here
 
 ;; [[file:config.org::*Aggressive indent][Aggressive indent:2]]
@@ -618,7 +618,7 @@ current buffer's, reload dir-locals."
 ;; VHDL:1 ends here
 
 ;; [[file:config.org::*SonarLint][SonarLint:2]]
-;; TODO: configure it, for the moment, it seems that it doesn't support C/C++
+(use-package! lsp-sonarlint)
 ;; SonarLint:2 ends here
 
 ;; [[file:config.org::*Cppcheck][Cppcheck:1]]
@@ -719,15 +719,16 @@ current buffer's, reload dir-locals."
        (append tail head)))
     tail))
 
-(setq +ligatures-extras-in-modes
-      (+appened-to-negation-list
-       +ligatures-extras-in-modes
-       '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
+(when (modulep! :ui ligatures)
+  (setq +ligatures-extras-in-modes
+        (+appened-to-negation-list
+         +ligatures-extras-in-modes
+         '(not c-mode c++-mode emacs-lisp-mode python-mode scheme-mode racket-mode rust-mode)))
 
-(setq +ligatures-in-modes
-      (+appened-to-negation-list
-       +ligatures-in-modes
-       '(not emacs-lisp-mode scheme-mode racket-mode)))
+  (setq +ligatures-in-modes
+        (+appened-to-negation-list
+         +ligatures-in-modes
+         '(not emacs-lisp-mode scheme-mode racket-mode))))
 ;; Ligatures:1 ends here
 
 ;; [[file:config.org::*Spell-Fu][Spell-Fu:1]]
@@ -837,6 +838,7 @@ current buffer's, reload dir-locals."
   :init
   (setq grammalecte-settings-file (expand-file-name "grammalecte/grammalecte-cache.el" doom-data-dir)
         grammalecte-python-package-directory (expand-file-name "grammalecte/grammalecte" doom-data-dir))
+
   (setq flycheck-grammalecte-report-spellcheck t
         flycheck-grammalecte-report-grammar t
         flycheck-grammalecte-report-apos nil
@@ -846,7 +848,7 @@ current buffer's, reload dir-locals."
         '("(?m)^# ?-*-.+$"
           ;; Ignore LaTeX equations (inline and block)
           "\\$.*?\\$"
-          "(?s)\\\\begin{equation}.*?\\\\end{equation}"))
+          "(?s)\\\\begin{\\(?1:\\(?:equation.\\|align.\\)\\)}.*?\\\\end{\\1}"))
 
   (map! :leader :prefix ("l" . "custom")
         (:prefix ("g" . "grammalecte")
@@ -1294,13 +1296,13 @@ current buffer's, reload dir-locals."
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
-  :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
+  :commands (eaf-open eaf-open-browser eaf-open-jupyter +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org mail browser mindmap jupyter org-previewer markdown-previewer))
-  ;;  file-manager file-browser
-  ;;  file-sender music-player video-player
-  ;;  git image-viewer
+    '(org mail browser mindmap jupyter org-previewer markdown-previewer
+          ;; file-browser file-manager
+          file-sender music-player video-player
+          git image-viewer))
 
   (defun +eaf-enabled-p (app-symbol)
     (member app-symbol +eaf-enabled-apps))
@@ -1401,8 +1403,18 @@ current buffer's, reload dir-locals."
     (require 'eaf-org))
 
   ;; Mail
+  ;; BUG The `eaf-open-mail-as-html' is not working,
+  ;;     I use `+eaf-open-mail-as-html' instead
   (when (+eaf-enabled-p 'mail)
-    (require 'eaf-mail))
+    ;; (require 'eaf-mail)
+
+    (defun +eaf-open-mail-as-html ()
+      "Open the html mail in EAF Browser."
+      (interactive)
+      (let ((msg (mu4e-message-at-point t)))
+        (if msg
+            (mu4e-action-view-in-browser msg)
+          (message "No message at point.")))))
 
   ;; Org Previewer
   (when (+eaf-enabled-p 'org-previewer)
@@ -2440,25 +2452,50 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:1]]
 ;; A variable which to be used in .dir-locals.el, formatted as a property list;
 ;; '(:program "..." :args ("args1" "arg2" ...))
-;; "${workspaceFolder}" => gets replaced with project workspace (from projectile)
-;; "${workspaceFolderBasename}" => gets replaced with project workspace's basename
 (defvar +realgud-debug-config nil)
 ;; RealGUD =launch.json= support:1 ends here
 
 ;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:4]]
 (defun +realgud--substite-special-vars (program &optional args)
   "Substitue variables in PROGRAM and ARGS.
-Return a list, in which processed PROGRAM is the first element, followed by ARGS.
-\"${workspaceFolder}\" and \"${workspaceFolderBasename}\""
-  (let* ((cmd-args (cons program args))
-         (ws-root (expand-file-name (or (projectile-project-root) ".")))
-         (ws-basename (file-name-nondirectory (string-trim-right ws-root "/"))))
+Return a list, in which processed PROGRAM is the first element, followed by ARGS."
+  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
+         (ws-root (string-trim-right
+                   (expand-file-name
+                    (or (projectile-project-root)
+                        (ignore-errors (file-name-directory curr-file))
+                        "."))
+                   "/"))
+         (ws-basename (file-name-nondirectory ws-root)))
     ;; Replace special variables
     (mapcar
-     (lambda (s) (+str-replace-all
-                  (list (cons "${workspaceFolder}" ws-root)
-                        (cons "${workspaceFolderBasename}" ws-basename)) s))
-     cmd-args)))
+     (lambda (str)
+       (+str-replace-all
+        (append
+         (list
+          (cons "${workspaceFolder}" ws-root)
+          (cons "${workspaceFolderBasename}" ws-basename)
+          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
+          (cons "${pathSeparator}" (if (memq system-type
+                                             '(windows-nt ms-dos cygwin))
+                                       "\\" "/"))
+          (cons "${selectedText}" (if (use-region-p)
+                                      (buffer-substring-no-properties
+                                       (region-beginning) (region-end)) "")))
+         ;; To avoid problems if launched from a non-file buffer
+         (when curr-file
+           (list
+            (cons "${file}" curr-file)
+            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
+            (cons "${relativeFileDirname}" (file-relative-name
+                                            (file-name-directory curr-file) ws-root))
+            (cons "${fileBasename}" (file-name-nondirectory curr-file))
+            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
+            (cons "${fileDirname}" (file-name-directory curr-file))
+            (cons "${fileExtname}" (file-name-extension curr-file))
+            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
+        str))
+     (cons program args))))
 
 (defun +realgud--debug-command (debugger-type debuggee-args)
   "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
@@ -2845,8 +2882,8 @@ if it is set to a launch.json file, it will be used instead."
     (not (string= lang "scheme"))) ;; Don't ask for scheme
   
   (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
-  (remove-hook 'text-mode-hook #'visual-line-mode)
-  (add-hook 'text-mode-hook #'auto-fill-mode)
+  ;; (remove-hook 'text-mode-hook #'visual-line-mode)
+  ;; (add-hook 'text-mode-hook #'auto-fill-mode)
   (map! :map evil-org-mode-map
         :after evil-org
         :n "g <up>" #'org-backward-heading-same-level
@@ -2867,49 +2904,51 @@ if it is set to a launch.json file, it will be used instead."
           ("PROJ" . (:foreground "LimeGreen" :weight bold))
           ("HOLD" . (:foreground "orange" :weight bold))))
   
+  (defun +log-todo-next-creation-date (&rest ignore)
+    "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+    (when (and (string= (org-get-todo-state) "NEXT")
+               (not (org-entry-get nil "ACTIVATED")))
+      (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+  
+  (add-hook 'org-after-todo-state-change-hook #'+log-todo-next-creation-date)
   (setq org-tag-persistent-alist
         '((:startgroup . nil)
-          ("home" . ?h)
-          ("research" . ?r)
-          ("work" . ?w)
-          (:endgroup . nil)
+          ("home"      . ?h)
+          ("research"  . ?r)
+          ("work"      . ?w)
+          (:endgroup   . nil)
           (:startgroup . nil)
-          ("tool" . ?o)
-          ("dev" . ?d)
-          ("report" . ?p)
-          (:endgroup . nil)
+          ("tool"      . ?o)
+          ("dev"       . ?d)
+          ("report"    . ?p)
+          (:endgroup   . nil)
           (:startgroup . nil)
-          ("easy" . ?e)
-          ("medium" . ?m)
-          ("hard" . ?a)
-          (:endgroup . nil)
-          ("urgent" . ?u)
-          ("key" . ?k)
-          ("bonus" . ?b)
-          ("noexport" . ?x)))
+          ("easy"      . ?e)
+          ("medium"    . ?m)
+          ("hard"      . ?a)
+          (:endgroup   . nil)
+          ("urgent"    . ?u)
+          ("key"       . ?k)
+          ("bonus"     . ?b)
+          ("ignore"    . ?i)
+          ("noexport"  . ?x)))
   
   (setq org-tag-faces
-        '(("home" . (:foreground "goldenrod" :weight bold))
-          ("research" . (:foreground "goldenrod" :weight bold))
-          ("work" . (:foreground "goldenrod" :weight bold))
-          ("tool" . (:foreground "IndianRed1" :weight bold))
-          ("dev" . (:foreground "IndianRed1" :weight bold))
-          ("report" . (:foreground "IndianRed1" :weight bold))
-          ("urgent" . (:foreground "red" :weight bold))
-          ("key" . (:foreground "red" :weight bold))
-          ("easy" . (:foreground "green4" :weight bold))
-          ("medium" . (:foreground "orange" :weight bold))
-          ("hard" . (:foreground "red" :weight bold))
-          ("bonus" . (:foreground "goldenrod" :weight bold))
-          ("noexport" . (:foreground "LimeGreen" :weight bold))))
+        '(("home"     . (:foreground "goldenrod"  :weight bold))
+          ("research" . (:foreground "goldenrod"  :weight bold))
+          ("work"     . (:foreground "goldenrod"  :weight bold))
+          ("tool"     . (:foreground "IndianRed1" :weight bold))
+          ("dev"      . (:foreground "IndianRed1" :weight bold))
+          ("report"   . (:foreground "IndianRed1" :weight bold))
+          ("urgent"   . (:foreground "red"        :weight bold))
+          ("key"      . (:foreground "red"        :weight bold))
+          ("easy"     . (:foreground "green4"     :weight bold))
+          ("medium"   . (:foreground "orange"     :weight bold))
+          ("hard"     . (:foreground "red"        :weight bold))
+          ("bonus"    . (:foreground "goldenrod"  :weight bold))
+          ("ignore"   . (:foreground "Gray"       :weight bold))
+          ("noexport" . (:foreground "LimeGreen"  :weight bold))))
   
-  ;; (defun log-todo-next-creation-date (&rest ignore)
-  ;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-  ;;   (when (and (string= (org-get-todo-state) "NEXT")
-  ;;              (not (org-entry-get nil "ACTIVATED")))
-  ;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-  
-  ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
   (setq org-agenda-files
         (list (expand-file-name "inbox.org" org-directory)
               (expand-file-name "agenda.org" org-directory)
@@ -3094,14 +3133,15 @@ if it is set to a launch.json file, it will be used instead."
     (defun +doct-iconify-capture-templates (groups)
       "Add declaration's :icon to each template group in GROUPS."
       (let ((templates (doct-flatten-lists-in groups)))
-        (setq doct-templates (mapcar (lambda (template)
-                                       (when-let* ((props (nthcdr (if (= (length template) 4) 2 5) template))
-                                                   (spec (plist-get (plist-get props :doct) :icon)))
-                                         (setf (nth 1 template) (concat (+doct-icon-declaration-to-icon spec)
-                                                                        "\t"
-                                                                        (nth 1 template))))
-                                       template)
-                                     templates))))
+        (setq doct-templates
+              (mapcar (lambda (template)
+                        (when-let* ((props (nthcdr (if (= (length template) 4) 2 5) template))
+                                    (spec (plist-get (plist-get props :doct) :icon)))
+                          (setf (nth 1 template) (concat (+doct-icon-declaration-to-icon spec)
+                                                         "\t"
+                                                         (nth 1 template))))
+                        template)
+                      templates))))
   
     (setq doct-after-conversion-functions '(+doct-iconify-capture-templates))
   
@@ -3167,12 +3207,12 @@ if it is set to a launch.json file, it will be used instead."
                                 "%i %a")
                      :children (("General Task" :keys "k"
                                  :icon ("inbox" :set "octicon" :color "yellow")
-                                 :extra ""
-                                 )
+                                 :extra "")
+  
                                 ("Task with deadline" :keys "d"
                                  :icon ("timer" :set "material" :color "orange" :v-adjust -0.1)
-                                 :extra "\nDEADLINE: %^{Deadline:}t"
-                                 )
+                                 :extra "\nDEADLINE: %^{Deadline:}t")
+  
                                 ("Scheduled Task" :keys "s"
                                  :icon ("calendar" :set "octicon" :color "orange")
                                  :extra "\nSCHEDULED: %^{Start time:}t")))
@@ -3526,8 +3566,8 @@ if it is set to a launch.json file, it will be used instead."
     :hook (org-mode . org-modern-mode)
     :config
     (setq org-modern-star '("◉" "○" "◈" "◇" "✳" "◆" "✸" "▶")
-          org-modern-table-vertical 1
-          org-modern-table-horizontal 1
+          org-modern-table-vertical 5
+          org-modern-table-horizontal 2
           org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
           org-modern-footnote (cons nil (cadr org-script-display))
           org-modern-priority nil
@@ -3588,14 +3628,15 @@ if it is set to a launch.json file, it will be used instead."
     ;; Change faces
     (custom-set-faces! '(org-modern-tag :inherit (region org-modern-label)))
     (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
-  (defadvice! +org-init-appearance-h--no-ligatures-a ()
-    :after #'+org-init-appearance-h
-    (set-ligatures! 'org-mode
-      :name nil
-      :src_block nil
-      :src_block_end nil
-      :quote nil
-      :quote_end nil))
+  (when (modulep! :ui ligatures)
+    (defadvice! +org-init-appearance-h--no-ligatures-a ()
+      :after #'+org-init-appearance-h
+      (set-ligatures! 'org-mode
+                      :name nil
+                      :src_block nil
+                      :src_block_end nil
+                      :quote nil
+                      :quote_end nil)))
   (use-package! org-ol-tree
     :commands org-ol-tree
     :config
@@ -3609,9 +3650,17 @@ if it is set to a launch.json file, it will be used instead."
   (map! :localleader
         :map org-mode-map
         :desc "Outline" "O" #'org-ol-tree)
-  ;; From https://www.reddit.com/r/orgmode/comments/i6hl8b/comment/g1vsef2/
-  ;; Scale image previews to 60% of the window width.
-  (setq org-image-actual-width (truncate (* (window-pixel-width) 0.4)))
+  (defvar +org-responsive-image-percentage 0.4)
+  (defvar +org-responsive-image-width-limits '(400 . 700)) ;; '(min-width . max-width)
+  
+  (defun +org--responsive-image-h ()
+    (when (eq major-mode 'org-mode)
+      (setq org-image-actual-width
+            (max (car +org-responsive-image-width-limits)
+                 (min (cdr +org-responsive-image-width-limits)
+                      (truncate (* (window-pixel-width) +org-responsive-image-percentage)))))))
+  
+  (add-hook 'window-configuration-change-hook #'+org--responsive-image-h)
   (setq org-list-demote-modify-bullet
         '(("+"  . "-")
           ("-"  . "+")
@@ -3651,6 +3700,34 @@ if it is set to a launch.json file, it will be used instead."
   (when (modulep! :ui zen)
     (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
     (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
+  (defun +parse-the-fun (str)
+    "Parse the LaTeX environment STR.
+  Return an AST with newlines counts in each level."
+    (let (ast)
+      (with-temp-buffer
+        (insert str)
+        (goto-char (point-min))
+        (while (re-search-forward
+                (rx "\\"
+                    (group (or "\\" "begin" "end" "nonumber"))
+                    (zero-or-one "{" (group (zero-or-more not-newline)) "}"))
+                nil t)
+          (let ((cmd (match-string 1))
+                (env (match-string 2)))
+            (cond ((string= cmd "begin")
+                   (push (list :env (intern env)) ast))
+                  ((string= cmd "\\")
+                   (let ((curr (pop ast)))
+                     (push (plist-put curr :newline (1+ (or (plist-get curr :newline) 0))) ast)))
+                  ((string= cmd "nonumber")
+                   (let ((curr (pop ast)))
+                     (push (plist-put curr :nonumber (1+ (or (plist-get curr :nonumber) 0))) ast)))
+                  ((string= cmd "end")
+                   (let ((child (pop ast))
+                         (parent (pop ast)))
+                     (push (plist-put parent :childs (cons child (plist-get parent :childs))) ast)))))))
+      (plist-get (car ast) :childs)))
+  
   (defun +scimax-org-renumber-environment (orig-func &rest args)
     "A function to inject numbers in LaTeX fragment previews."
     (let ((results '())
@@ -3672,14 +3749,10 @@ if it is set to a launch.json file, it will be used instead."
                        (prog2
                            (cl-incf counter)
                            (cons begin counter)
-                         (with-temp-buffer
-                           (insert env)
-                           (goto-char (point-min))
-                           ;; \\ is used for a new line. Each one leads to a number
-                           (cl-incf counter (count-matches "\\\\$"))
-                           ;; unless there are nonumbers.
-                           (goto-char (point-min))
-                           (cl-decf counter (count-matches "\\nonumber")))))
+                         (let ((p (car (+parse-the-fun env))))
+                           ;; Parse the `env', count new lines in the align env as equations, unless
+                           (cl-incf counter (- (or (plist-get p :newline) 0)
+                                               (or (plist-get p :nonumber) 0))))))
                       (t
                        (cons begin nil)))))
       (when-let ((number (cdr (assoc (point) results))))
@@ -3689,10 +3762,10 @@ if it is set to a launch.json file, it will be used instead."
                (car args)))))
     (apply orig-func args))
   
-  (defun +scimax-toggle-latex-equation-numbering ()
+  (defun +scimax-toggle-latex-equation-numbering (&optional enable)
     "Toggle whether LaTeX fragments are numbered."
     (interactive)
-    (if (not (get '+scimax-org-renumber-environment 'enabled))
+    (if (or enable (not (get '+scimax-org-renumber-environment 'enabled)))
         (progn
           (advice-add 'org-create-formula-image :around #'+scimax-org-renumber-environment)
           (put '+scimax-org-renumber-environment 'enabled t)
@@ -3727,6 +3800,9 @@ if it is set to a launch.json file, it will be used instead."
       (advice-remove 'org-create-formula-image #'+scimax-org-inject-latex-fragment)
       (put '+scimax-org-inject-latex-fragment 'enabled nil)
       (message "Inject latex disabled")))
+  
+  ;; Enable renumbering by default
+  (+scimax-toggle-latex-equation-numbering t)
   (use-package! org-fragtog
     :hook (org-mode . org-fragtog-mode))
   (after! org-plot
@@ -3821,70 +3897,54 @@ if it is set to a launch.json file, it will be used instead."
     :commands (org-bib-mode))
   (after! oc
     (setq org-cite-csl-styles-dir "~/Zotero/styles")
+    ;; org-cite-global-bibliography '("~/Zotero/library.bib"))
   
-    (defun org-ref-to-org-cite ()
-      "Attempt to convert org-ref citations to org-cite syntax."
+    (defun +org-ref-to-org-cite ()
+      "Simple conversion of org-ref citations to org-cite syntax."
       (interactive)
-      (let* ((cite-conversions '(("cite" . "//b") ("Cite" . "//bc")
-                                 ("nocite" . "/n")
-                                 ("citep" . "") ("citep*" . "//f")
-                                 ("parencite" . "") ("Parencite" . "//c")
-                                 ("citeauthor" . "/a/f") ("citeauthor*" . "/a")
-                                 ("citeyear" . "/na/b")
-                                 ("Citep" . "//c") ("Citealp" . "//bc")
-                                 ("Citeauthor" . "/a/cf") ("Citeauthor*" . "/a/c")
-                                 ("autocite" . "") ("Autocite" . "//c")
-                                 ("notecite" . "/l/b") ("Notecite" . "/l/bc")
-                                 ("pnotecite" . "/l") ("Pnotecite" . "/l/bc")))
-             (cite-regexp (rx (regexp (regexp-opt (mapcar #'car cite-conversions) t))
-                              ":" (group (+ (not (any "\n     ,.)]}")))))))
-        (save-excursion
-          (goto-char (point-min))
-          (while (re-search-forward cite-regexp nil t)
-            (message (format "[cite%s:@%s]"
-                             (cdr (assoc (match-string 1) cite-conversions))
-                             (match-string 2)))
-            (replace-match (format "[cite%s:@%s]"
-                                   (cdr (assoc (match-string 1) cite-conversions))
-                                   (match-string 2))))))))
-  (use-package! org-ref
-    :after org
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward "\\[cite\\(.*\\):\\([^]]*\\)\\]" nil t)
+          (let* ((old (substring (match-string 0) 1 (1- (length (match-string 0)))))
+                 (new (s-replace "&" "@" old)))
+            (message "Replaced citation %s with %s" old new)
+            (replace-match new))))))
+  (after! citar
+    (setq citar-library-paths '("~/Zotero/storage")
+          citar-notes-paths   '("~/PhD/bibliography/notes/")
+          citar-bibliography  '("~/Zotero/library.bib")
+          citar-symbol-separator "  ")
+  
+    (when (display-graphic-p)
+      (setq citar-symbols
+            `((file ,(all-the-icons-octicon "file-pdf"      :face 'error) . " ")
+              (note ,(all-the-icons-octicon "file-text"     :face 'warning) . " ")
+              (link ,(all-the-icons-octicon "link-external" :face 'org-link) . " ")))))
+  
+  (use-package! citar-org-roam
+    :after citar org-roam
+    :no-require
+    :config (citar-org-roam-mode)
     :init
-    ;; Add keybinding to insert link
-    (map! :localleader
-          :map org-mode-map
-          :desc "Org-ref insert link" "C" #'org-ref-insert-link))
-  
-  ;; :config
-  ;; (defadvice! org-ref-open-bibtex-pdf-a ()
-  ;;   :override #'org-ref-open-bibtex-pdf
-  ;;   (save-excursion
-  ;;     (bibtex-beginning-of-entry)
-  ;;     (let* ((bibtex-expand-strings t)
-  ;;            (entry (bibtex-parse-entry t))
-  ;;            (key (reftex-get-bib-field "=key=" entry))
-  ;;            (pdf (or
-  ;;                  (car (-filter (lambda (f) (string-match-p "\\.pdf$" f))
-  ;;                                (split-string (reftex-get-bib-field "file" entry) ";")))
-  ;;                  (funcall 'org-ref-get-pdf-filename key))))
-  ;;       (if (file-exists-p pdf)
-  ;;           (org-open-file pdf)
-  ;;         (ding)))))
-  
-  ;; (defadvice! org-ref-open-pdf-at-point-a ()
-  ;;   "Open the pdf for bibtex key under point if it exists."
-  ;;   :override #'org-ref-open-pdf-at-point
-  ;;   (interactive)
-  ;;   (let* ((results (org-ref-get-bibtex-key-and-file))
-  ;;          (key (car results))
-  ;;          (pdf-file (funcall 'org-ref-get-pdf-filename key)))
-  ;;     (with-current-buffer (find-file-noselect (cdr results))
-  ;;       (save-excursion
-  ;;         (bibtex-search-entry (car results))
-  ;;         (org-ref-open-bibtex-pdf))))))
-  (setq citar-library-paths '("~/Zotero/storage")
-        citar-notes-paths   '("~/PhD/bibliography/notes/")
-        citar-bibliography  '("~/Zotero/library.bib"))
+    ;; Modified form: https://jethrokuan.github.io/org-roam-guide/
+    (defun +org-roam-node-from-cite (entry-key)
+      (interactive (list (citar-select-ref)))
+      (let ((title (citar-format--entry
+                    "${author editor} (${date urldate}) :: ${title}"
+                    (citar-get-entry entry-key))))
+        (org-roam-capture- :templates
+                           '(("r" "reference" plain
+                              "%?"
+                              :if-new (file+head "references/${citekey}.org"
+                                                 ":properties:
+  :roam_refs: [cite:@${citekey}]
+  :end:
+  #+title: ${title}\n")
+                              :immediate-finish t
+                              :unnarrowed t))
+                           :info (list :citekey entry-key)
+                           :node (org-roam-node-create :title title)
+                           :props '(:finalize find-file)))))
   (setq org-export-headline-levels 5)
   (require 'ox-extra)
   (ox-extras-activate '(ignore-headlines))
@@ -3904,15 +3964,16 @@ if it is set to a launch.json file, it will be used instead."
   ;; (setq org-latex-listings 'minted)
   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
   
+  ;; Default `minted` options, can be overwritten in file/dir locals
   (setq org-latex-minted-options
         '(("frame"         "lines")
           ("fontsize"      "\\footnotesize")
           ("tabsize"       "2")
-          ("breaklines"    "")
-          ("breakanywhere" "") ;; break anywhere, no just on spaces
+          ("breaklines"    "true")
+          ("breakanywhere" "true") ;; break anywhere, no just on spaces
           ("style"         "default")
           ("bgcolor"       "GhostWhite")
-          ("linenos"       "")))
+          ("linenos"       "true")))
   
   ;; Link some org-mode blocks languages to lexers supported by minted
   ;; via (pygmentize), you can see supported lexers by running this command

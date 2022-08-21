@@ -25,10 +25,10 @@
 (package! focus)
 ;; Focus:1 ends here
 
-;; [[file:config.org::*Smooth scrolling][Smooth scrolling:1]]
+;; [[file:config.org::*Scrolling][Scrolling:1]]
 (unless EMACS29+
   (package! good-scroll))
-;; Smooth scrolling:1 ends here
+;; Scrolling:1 ends here
 
 ;; [[file:config.org::*Very large files][Very large files:1]]
 (package! vlf)
@@ -44,7 +44,8 @@
 ;; Treemacs:1 ends here
 
 ;; [[file:config.org::*SonarLint][SonarLint:1]]
-(package! lsp-sonarlint)
+(package! lsp-sonarlint
+  :disable t)
 ;; SonarLint:1 ends here
 
 ;; [[file:config.org::*Project CMake][Project CMake:1]]
@@ -328,6 +329,7 @@
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
 (package! company-gitcommit
+  :disable t
   :recipe (:local-repo "lisp/company-gitcommit"))
 ;; WIP Company for commit messages:1 ends here
 
@@ -427,10 +429,13 @@
 (package! org-roam-ui)
 (package! org-wild-notifier)
 (package! org-fragtog)
-(package! org-ref)
 (package! org-appear)
 (package! org-super-agenda)
 (package! doct)
+
+(package! citar-org-roam
+  :recipe (:host github
+           :repo "emacs-citar/citar-org-roam"))
 
 (package! org-menu
   :recipe (:host github
@@ -441,8 +446,8 @@
            :repo "dengste/org-caldav"))
 
 (package! org-ol-tree
-  :recipe (:host github :repo "Townk/org-ol-tree")
-  :pin "207c748aa5fea8626be619e8c55bdb1c16118c25")
+  :recipe (:host github
+           :repo "Townk/org-ol-tree"))
 
 (package! org-modern
   :recipe (:host github

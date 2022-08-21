@@ -26,7 +26,7 @@
   nav-flash
   (vc-gutter +diff-hl +pretty)
   (window-select +numbers)
-  (ligatures +extra)
+  ;; (ligatures +extra)
   (popup +all +defaults)
   (emoji +ascii +unicode +github)
   (treemacs +lsp)
@@ -68,6 +68,7 @@
   tmux
   direnv
   upload
+  biblio
   tree-sitter
   editorconfig
   (lsp +peek)
@@ -81,27 +82,28 @@
   (tty +osc)
 
   :lang
+  qt
+  data
   plantuml
   emacs-lisp
   common-lisp
-  data
-  qt
-  (markdown +grip)
-  (ocaml +tree-sitter)
-  (cc +lsp +tree-sitter)
-  (json +lsp +tree-sitter)
-  (julia +lsp +tree-sitter)
-  (latex +lsp +latexmk +fold)
-  (rust +lsp +tree-sitter)
   (ess +lsp)
   (yaml +lsp)
-  (lua +lsp +fennel)
-  (sh +lsp +tree-sitter)
-  (python +lsp +pyenv +pyright +tree-sitter)
+  (markdown +grip)
+  (csharp +dotnet)
   (racket +lsp +xp)
+  (lua +lsp +fennel)
+  (web +tree-sitter)
+  (ocaml +tree-sitter)
+  (cc +lsp +tree-sitter)
+  (sh +lsp +tree-sitter)
+  (json +lsp +tree-sitter)
+  (rust +lsp +tree-sitter)
+  (julia +lsp +tree-sitter)
+  (latex +lsp +latexmk +fold)
+  (python +lsp +pyenv +pyright +tree-sitter)
   (scheme +chez +mit +chicken +gauche +guile +chibi)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
-  (web +tree-sitter)
 
   :email
   (:if (executable-find "mu") (mu4e +org +gmail))
@@ -111,7 +113,7 @@
   irc
   emms
   everywhere
-  (rss +org)
+  rss
 
   :config
   literate
