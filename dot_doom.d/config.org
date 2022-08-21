@@ -2643,67 +2643,69 @@ dependencies.
             (browse-url-browser-function #'eaf-open-browser))
         (if msg
             (mu4e-action-view-in-browser msg)
+          (message "No message at point."))))
 
-  ;; Org Previewer
-  (when (+eaf-enabled-p 'org-previewer)
-    (setq eaf-org-dark-mode "follow")
-    (require 'eaf-org-previewer))
+    ;; Org Previewer
+    (when (+eaf-enabled-p 'org-previewer)
+      (setq eaf-org-dark-mode "follow")
+      (require 'eaf-org-previewer))
 
-  ;; Markdown Previewer
-  (when (+eaf-enabled-p 'markdown-previewer)
-    (setq eaf-markdown-dark-mode "follow")
-    (require 'eaf-markdown-previewer))
+    ;; Markdown Previewer
+    (when (+eaf-enabled-p 'markdown-previewer)
+      (setq eaf-markdown-dark-mode "follow")
+      (require 'eaf-markdown-previewer))
 
-  ;; Jupyter
-  (when (+eaf-enabled-p 'jupyter)
-    (setq eaf-jupyter-dark-mode "follow"
-          eaf-jupyter-font-family "JuliaMono"
-          eaf-jupyter-font-size 13)
-    (require 'eaf-jupyter))
+    ;; Jupyter
+    (when (+eaf-enabled-p 'jupyter)
+      (setq eaf-jupyter-dark-mode "follow"
+            eaf-jupyter-font-family "JuliaMono"
+            eaf-jupyter-font-size 13)
+      (require 'eaf-jupyter))
 
-  ;; Mindmap
-  (when (+eaf-enabled-p 'mindmap)
-    (setq eaf-mindmap-dark-mode "follow"
-          eaf-mindmap-save-path "~/Dropbox/Mindmap")
-    (require 'eaf-mindmap))
+    ;; Mindmap
+    (when (+eaf-enabled-p 'mindmap)
+      (setq eaf-mindmap-dark-mode "follow"
+            eaf-mindmap-save-path "~/Dropbox/Mindmap")
+      (require 'eaf-mindmap))
 
-  ;; File Sender
-  (when (+eaf-enabled-p 'file-sender)
-    (require 'eaf-file-sender))
+    ;; File Sender
+    (when (+eaf-enabled-p 'file-sender)
+      (require 'eaf-file-sender))
 
-  ;; Music Player
-  (when (+eaf-enabled-p 'music-player)
-    (require 'eaf-music-player))
+    ;; Music Player
+    (when (+eaf-enabled-p 'music-player)
+      (require 'eaf-music-player))
 
-  ;; Video Player
-  (when (+eaf-enabled-p 'video-player)
-    (require 'eaf-video-player))
+    ;; Video Player
+    (when (+eaf-enabled-p 'video-player)
+      (require 'eaf-video-player))
 
-  ;; Image Viewer
-  (when (+eaf-enabled-p 'image-viewer)
-    (require 'eaf-image-viewer))
+    ;; Image Viewer
+    (when (+eaf-enabled-p 'image-viewer)
+      (require 'eaf-image-viewer))
 
-  ;; Git
-  (when (+eaf-enabled-p 'git)
-    (require 'eaf-git))
+    ;; Git
+    (when (+eaf-enabled-p 'git)
+      (require 'eaf-git))
 
-  ;; EVIL keybindings for Doom
-  (after! evil
-    (require 'eaf-evil)
-    (define-key key-translation-map (kbd "SPC")
-      (lambda (prompt)
-        (if (derived-mode-p 'eaf-mode)
-            (pcase eaf--buffer-app-name
-              ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
-                             (kbd "SPC")
-                           (kbd eaf-evil-leader-key)))
-              ("pdf-viewer" (kbd eaf-evil-leader-key))
-              ("image-viewer" (kbd eaf-evil-leader-key))
-              ("music-player" (kbd eaf-evil-leader-key))
-              ("video-player" (kbd eaf-evil-leader-key))
-              ("mindmap" (kbd eaf-evil-leader-key))
-              (_  (kbd "SPC")))
-          (kbd "SPC"))))))
+    ;; Fix EVIL keybindings
+    (after! evil
+      (require 'eaf-evil)
+      (define-key key-translation-map (kbd "SPC")
+        (lambda (prompt)
+          (if (derived-mode-p 'eaf-mode)
+              (pcase eaf--buffer-app-name
+                ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
+                               (kbd "SPC")
+                             (kbd eaf-evil-leader-key)))
+                ("pdf-viewer" (kbd eaf-evil-leader-key))
+                ("image-viewer" (kbd eaf-evil-leader-key))
+                ("music-player" (kbd eaf-evil-leader-key))
+                ("video-player" (kbd eaf-evil-leader-key))
+                ("file-sender" (kbd eaf-evil-leader-key))
+                ("mindmap" (kbd eaf-evil-leader-key))
+                (_  (kbd "SPC")))
+            (kbd "SPC")))))))
 #+end_src
 
 *** Bitwarden :pass:bitwarden:
