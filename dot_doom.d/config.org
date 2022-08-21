@@ -2519,7 +2519,7 @@ dependencies.
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
-  :commands (eaf-open eaf-open-browser eaf-open-jupyter eaf-open-mail-as-html)
+  :commands (eaf-open eaf-open-browser eaf-open-jupyter +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org mail browser mindmap jupyter org-previewer markdown-previewer))
@@ -2626,8 +2626,18 @@ dependencies.
     (require 'eaf-org))
 
   ;; Mail
+  ;; BUG The `eaf-open-mail-as-html' is not working,
+  ;;     I use `+eaf-open-mail-as-html' instead
   (when (+eaf-enabled-p 'mail)
-    (require 'eaf-mail))
+    ;; (require 'eaf-mail)
+
+    (defun +eaf-open-mail-as-html ()
+      "Open the html mail in EAF Browser."
+      (interactive)
+      (let ((msg (mu4e-message-at-point t)))
+        (if msg
+            (mu4e-action-view-in-browser msg)
+          (message "No message at point.")))))
 
   ;; Org Previewer
   (when (+eaf-enabled-p 'org-previewer)
