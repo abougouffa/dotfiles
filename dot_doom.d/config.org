@@ -787,32 +787,31 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 20) ;; :weight 'light)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 20)
       doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ;; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed")
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
-      ;; doom-serif-font (font-spec :family "Input Serif" :weight 'light))
 #+end_src
 
 *** Theme :theme:
 **** Doom
 Set Doom's theme, some good choices:
-- =doom-one=
+- =doom-one= (Atom like)
+- =doom-vibrant= (More vibrant version of =doom-one=)
+- =doom-one-light= (Atom like)
 - =doom-dark+= (VS Code like)
-- =doom-xcode=
-- =doom-vibrant=
+- =doom-xcode= (XCode like)
 - =doom-material=
+- =doom-material-dark=
 - =doom-palenight=
-- =doom-one-light=
 - =doom-ayu-mirage=
 - =doom-monokai-pro=
+- =doom-tomorrow-day=
 - =doom-tomorrow-night=
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-vibrant)
-;; (setq doom-theme 'doom-one-light)
-;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 #+end_src
@@ -925,9 +924,9 @@ Show battery level unless battery is not present or battery information is unkno
 #+begin_src emacs-lisp
 (after! doom-modeline
   (let ((battery-str (battery)))
-     (unless (or (equal "Battery status not available" battery-str)
-                 (string-match-p (regexp-quote "unknown") battery-str)
-                 (string-match-p (regexp-quote "N/A") battery-str))
+    (unless (or (equal "Battery status not available" battery-str)
+                (string-match-p (regexp-quote "unknown") battery-str)
+                (string-match-p (regexp-quote "N/A") battery-str))
       (display-battery-mode 1))))
 #+end_src
 
@@ -977,8 +976,8 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 #+begin_src emacs-lisp
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
-(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
-(setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
+(add-hook! '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
+(setq-hook! '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 #+end_src
 
 *** Which key :key:
