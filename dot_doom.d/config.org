@@ -2879,20 +2879,20 @@ Returns either nil, or the position of the first null byte."
     (save-excursion (goto-char (point-min))
                     (search-forward (string ?\x00) nil t 1))))
 
-(defun +hexl-buffer-p ()
+(defun +hexl--buffer-p ()
   (and (+buffer-binary-p)
        ;; Executables are viewed with objdump mode
-       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
+       (not (+buffer-objdump-p))))
 
-(defun +hexl-hexl-if-binary ()
+(defun +hexl-if-binary ()
   "If `hexl-mode' is not already active, and the current buffer
 is binary, activate `hexl-mode'."
   (interactive)
   (unless (eq major-mode 'hexl-mode)
-    (when (+hexl-buffer-binary-p)
+    (when (+hexl--buffer-p)
       (hexl-mode))))
 
-(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
+(add-to-list 'magic-fallback-mode-alist '(+hexl--buffer-p . +hexl-if-binary) t)
 #+end_src
 
 *** Objdump mode :objdump:
