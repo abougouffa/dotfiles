@@ -26,8 +26,8 @@
 ;; Focus:1 ends here
 
 ;; [[file:config.org::*Scrolling][Scrolling:1]]
-(unless EMACS29+
-  (package! good-scroll))
+(package! good-scroll
+  :disable EMACS29+)
 ;; Scrolling:1 ends here
 
 ;; [[file:config.org::*Very large files][Very large files:1]]
@@ -209,6 +209,10 @@
 ;; [[file:config.org::*FZF][FZF:1]]
 (package! fzf)
 ;; FZF:1 ends here
+
+;; [[file:config.org::*Binary files][Binary files:1]]
+(package! nhexl-mode)
+;; Binary files:1 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:1]]
 (package! speed-type)

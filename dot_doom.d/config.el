@@ -124,7 +124,7 @@
 ;; Emacs sources:1 ends here
 
 ;; [[file:config.org::*Initialization][Initialization:1]]
-(defun +greedily-do-daemon-setup ()
+(defun +daemon-startup ()
   ;; mu4e
   (when (require 'mu4e nil t)
     ;; Automatically start `mu4e' in background.
@@ -135,23 +135,28 @@
         (mu4e--start)))
 
     ;; Check each 5m, if `mu4e' if closed, start it in background.
-    (run-at-time 30 (* 60 5)
-                 (lambda ()
-                   (when (and (not (mu4e-running-p))
-                              (+mu4e-lock-available))
-                     (mu4e--start)
-                     (message "Started `mu4e' in background.")))))
+    (run-at-time
+     60 (* 60 5) ;; Check each 5 minutes
+     (lambda ()
+       (when (and (not (mu4e-running-p)) (+mu4e-lock-available))
+         (mu4e--start)
+         (message "Started `mu4e' in background.")))))
 
   ;; RSS
   (when (require 'elfeed nil t)
-    (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check each 2h
+    (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check every 2h
 
 (when (daemonp)
-  (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
-  (add-hook! 'server-after-make-frame-hook
-             #'doom/reload-theme
-             (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-               (switch-to-buffer +doom-dashboard-name))))
+  ;; Daemon startup
+  (add-hook 'emacs-startup-hook #'+daemon-startup)
+  ;; After creating a new frame (via emacsclient)
+  (add-hook!
+   'server-after-make-frame-hook
+   ;; Reload Doom's theme
+   #'doom/reload-theme
+   ;; Switch to Dashboard, unless we started in one of the special buffers
+   (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
+     (switch-to-buffer +doom-dashboard-name))))
 ;; Initialization:1 ends here
 
 ;; [[file:config.org::*Save recent files][Save recent files:1]]
@@ -163,18 +168,15 @@
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font][Font:1]]
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 20) ;; :weight 'light)
+(setq doom-font (font-spec :family "Iosevka Fixed" :size 20)
       doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Iosevka Fixed") ;; inherits the :size from doom-font
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed")
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
-      ;; doom-serif-font (font-spec :family "Input Serif" :weight 'light))
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
 (setq doom-theme 'doom-vibrant)
-;; (setq doom-theme 'doom-one-light)
-;; (setq doom-theme 'modus-operandi)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 ;; Doom:1 ends here
@@ -189,9 +191,9 @@
 ;; [[file:config.org::*Battery][Battery:1]]
 (after! doom-modeline
   (let ((battery-str (battery)))
-     (unless (or (equal "Battery status not available" battery-str)
-                 (string-match-p (regexp-quote "unknown") battery-str)
-                 (string-match-p (regexp-quote "N/A") battery-str))
+    (unless (or (equal "Battery status not available" battery-str)
+                (string-match-p (regexp-quote "unknown") battery-str)
+                (string-match-p (regexp-quote "N/A") battery-str))
       (display-battery-mode 1))))
 ;; Battery:1 ends here
 
@@ -209,8 +211,8 @@
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
-(add-hook!   '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
-(setq-hook!  '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
+(add-hook! '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
+(setq-hook! '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 ;; Dashboard:1 ends here
 
 ;; [[file:config.org::*Which key][Which key:1]]
@@ -223,8 +225,8 @@
 
 (after! which-key
   (pushnew! which-key-replacement-alist
-            '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
-            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+            '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "🅔·\\1"))
+            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "Ⓔ·\\1"))))
 ;; Which key:2 ends here
 
 ;; [[file:config.org::*Window title][Window title:1]]
@@ -232,13 +234,15 @@
       '(""
         (:eval
          (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-             (replace-regexp-in-string
-              ".*/[0-9]*-?" "☰ "
-              (subst-char-in-string ?_ ?  buffer-file-name))
+             (replace-regexp-in-string ".*/[0-9]*-?" "☰ "
+                                       (subst-char-in-string ?_ ?  buffer-file-name))
            "%b"))
         (:eval
-         (let ((project-name (projectile-project-name)))
-           (unless (string= "-" project-name)
+         (let* ((project-name (projectile-project-name))
+                (project-name (if (string= "-" project-name)
+                                  (ignore-errors (file-name-base (string-trim-right (vc-root-dir))))
+                                project-name)))
+           (when project-name
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 ;; Window title:1 ends here
 
@@ -247,25 +251,27 @@
   :commands svg-tag-mode
   :config
   (setq svg-tag-tags
-      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0)))
-        ("\\(:[A-Za-z0-9]+:\\)$" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :end -1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0))))))
+        '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+           ((lambda (tag)
+              (svg-tag-make
+               tag
+               :beg 1
+               :font-family "Roboto Mono"
+               :font-size 10
+               :height 0.8
+               :padding 0
+               :margin 0))))
+          ("\\(:[A-Za-z0-9]+:\\)$" .
+           ((lambda (tag)
+              (svg-tag-make
+               tag
+               :beg 1
+               :end -1
+               :font-family "Roboto Mono"
+               :font-size 10
+               :height 0.8
+               :padding 0
+               :margin 0)))))))
 ;; SVG tag and =svg-lib=:2 ends here
 
 ;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:3]]
@@ -280,10 +286,12 @@
 ;; Focus:2 ends here
 
 ;; [[file:config.org::*Scrolling][Scrolling:2]]
-(if EMACS29+
-    (pixel-scroll-precision-mode 1)
-  (use-package! good-scroll
-    :config (good-scroll-mode 1)))
+(use-package! good-scroll
+  :unless EMACS29+
+  :config (good-scroll-mode 1))
+
+(when EMACS29+
+  (pixel-scroll-precision-mode 1))
 
 (setq hscroll-step 1
       hscroll-margin 0
@@ -929,6 +937,9 @@ current buffer's, reload dir-locals."
              +lsp-ltex-disable
              +lsp-ltex-setup)
   :hook ((text-mode latex-mode org-mode markdown-mode) . #'+lsp-ltex-setup)
+  :config
+  ;; Disable by default, can be enabled in a ber buffer (or workspace) basis
+  (add-to-list 'lsp-disabled-clients 'ltex-ls)
   :init
   (setq lsp-ltex-check-frequency "save" ;; Less overhead than the default "edit"
         lsp-ltex-log-level "warning" ;; No need to log everything
@@ -954,7 +965,7 @@ current buffer's, reload dir-locals."
     "Enable LTeX LSP for the current buffer."
     (interactive)
     (unless (+lsp-ltex--enabled-p)
-      (delq! 'ltex-ls lsp-disabled-clients)
+      (setq-local lsp-disabled-clients (delq 'ltex-ls lsp-disabled-clients))
       (message "Enabled ltex-ls"))
     (+lsp-ltex-setup))
 
@@ -962,7 +973,7 @@ current buffer's, reload dir-locals."
     "Disable LTeX LSP for the current buffer."
     (interactive)
     (when (+lsp-ltex--enabled-p)
-      (add-to-list 'lsp-disabled-clients 'ltex-ls)
+      (setq-local lsp-disabled-clients (cons 'ltex-ls lsp-disabled-clients))
       (lsp-disconnect)
       (message "Disabled ltex-ls")))
 
@@ -1311,6 +1322,9 @@ current buffer's, reload dir-locals."
   (defun +eaf-enabled-p (app-symbol)
     (memq app-symbol +eaf-enabled-apps))
 
+  ;; Use `eaf-browser' by default
+  (setq browse-url-browser-function #'eaf-open-browser)
+
   :config
   ;; Generic
   (setq eaf-start-python-process-when-require t
@@ -1324,8 +1338,8 @@ current buffer's, reload dir-locals."
   (setq eaf-webengine-font-family "Iosevka Fixed"
         eaf-webengine-fixed-font-family "Iosevka Fixed"
         eaf-webengine-serif-font-family "Iosevka Fixed"
-        eaf-webengine-font-size 14
-        eaf-webengine-fixed-font-size 14
+        eaf-webengine-font-size 16
+        eaf-webengine-fixed-font-size 16
         eaf-webengine-download-path "~/Downloads"
         eaf-webengine-enable-plugin t
         eaf-webengine-enable-javascript t
@@ -1340,7 +1354,7 @@ current buffer's, reload dir-locals."
   ;; Browser settings
   (when (+eaf-enabled-p 'browser)
     (setq eaf-browser-continue-where-left-off t
-          eaf-browser-dark-mode "follow"
+          eaf-browser-dark-mode nil ;; "follow"
           eaf-browser-enable-adblocker t
           eaf-browser-enable-autofill nil
           eaf-browser-remember-history t
@@ -1593,7 +1607,7 @@ current buffer's, reload dir-locals."
   :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
 ;; FZF:2 ends here
 
-;; [[file:config.org::*Binary files][Binary files:1]]
+;; [[file:config.org::*Binary files][Binary files:2]]
 (defun +buffer-binary-p (&optional buffer)
   "Return whether BUFFER or the current buffer is binary.
 
@@ -1604,46 +1618,46 @@ Returns either nil, or the position of the first null byte."
     (save-excursion (goto-char (point-min))
                     (search-forward (string ?\x00) nil t 1))))
 
-(defun +hexl-buffer-p ()
+(defun +hexl--buffer-p ()
   (and (+buffer-binary-p)
        ;; Executables are viewed with objdump mode
-       (not (+file-objdump-p (buffer-file-name (current-buffer))))))
+       (not (+buffer-objdump-p))))
 
-(defun +hexl-hexl-if-binary ()
+(defun +hexl-if-binary ()
   "If `hexl-mode' is not already active, and the current buffer
 is binary, activate `hexl-mode'."
   (interactive)
   (unless (eq major-mode 'hexl-mode)
-    (when (+hexl-buffer-binary-p)
+    (when (+hexl--buffer-p)
       (hexl-mode))))
 
-(add-to-list 'magic-fallback-mode-alist '(+hexl-buffer-p . hexl-mode) t)
-;; Binary files:1 ends here
+(add-to-list 'magic-fallback-mode-alist '(+hexl--buffer-p . +hexl-if-binary) t)
+;; Binary files:2 ends here
 
 ;; [[file:config.org::*Objdump mode][Objdump mode:1]]
-(defun +file-objdump-p (&optional buffer)
+(defun +buffer-objdump-p (&optional buffer file)
   "Can the BUFFER be viewed as a disassembled code with objdump."
-  (when-let ((file (buffer-file-name (or buffer (current-buffer)))))
-    (let (ret-code)
-      (and (file-exists-p file)
-           (not (file-directory-p file))
-           (not (string-match-p
-                 "file format not recognized"
-                 (with-temp-buffer
-                   (setq ret-code (shell-command
-                                   (format "objdump --file-headers %s" file)
-                                   (current-buffer)))
-                   (buffer-string))))
-           (zerop ret-code)))))
+  (when-let ((file (or file (buffer-file-name (or buffer (current-buffer))))))
+    (and
+     (file-exists-p file)
+     (not (file-directory-p file))
+     (not (zerop (file-attribute-size (file-attributes file))))
+     (not (string-match-p
+           "file format not recognized"
+           (with-temp-buffer
+             (shell-command (format "objdump --file-headers %s"
+                                    (shell-quote-argument "/home/hacko/Softwares/Kasparov/Kasparov Chessmate/KasparovChess.Stats"))
+                            (current-buffer))
+             (buffer-string)))))))
 
 (when OBJDUMP-P
   (define-derived-mode objdump-disassemble-mode
     asm-mode "Objdump Mode"
     "Major mode for viewing executable files disassembled using objdump."
-    (let ((file (buffer-file-name))
-          (buffer-read-only nil))
-      (if (not (+file-objdump-p))
-          (message "Objdump can not be used with this buffer.")
+    (if (not (+buffer-objdump-p))
+        (message "Objdump can not be used with this buffer.")
+      (let ((file (buffer-file-name))
+            (buffer-read-only nil))
         (erase-buffer)
         (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
         (call-process "objdump" nil (current-buffer) nil "-d" file)
@@ -1652,7 +1666,7 @@ is binary, activate `hexl-mode'."
         (view-mode)
         (set-visited-file-name nil t))))
 
-  (add-to-list 'magic-fallback-mode-alist '(+file-objdump-p . objdump-disassemble-mode) t))
+  (add-to-list 'magic-fallback-mode-alist '(+buffer-objdump-p . objdump-disassemble-mode) t))
 ;; Objdump mode:1 ends here
 
 ;; [[file:config.org::*Speed Type][Speed Type:2]]
@@ -2891,8 +2905,6 @@ if it is set to a launch.json file, it will be used instead."
     (not (string= lang "scheme"))) ;; Don't ask for scheme
   
   (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
-  ;; (remove-hook 'text-mode-hook #'visual-line-mode)
-  ;; (add-hook 'text-mode-hook #'auto-fill-mode)
   (map! :map evil-org-mode-map
         :after evil-org
         :n "g <up>" #'org-backward-heading-same-level
@@ -3755,12 +3767,12 @@ if it is set to a launch.json file, it will be used instead."
                        (cl-incf counter)
                        (cons begin counter))
                       ((string-match "\\\\begin{align}" env)
-                       ((cl-incf counter)
-                        (let ((p (car (+parse-the-fun env))))
-                          ;; Parse the `env', count new lines in the align env as equations, unless
-                          (cl-incf counter (- (or (plist-get p :newline) 0)
-                                              (or (plist-get p :nonumber) 0))))
-                        (cons begin counter)))
+                       (cl-incf counter)
+                       (let ((p (car (+parse-the-fun env))))
+                         ;; Parse the `env', count new lines in the align env as equations, unless
+                         (cl-incf counter (- (or (plist-get p :newline) 0)
+                                             (or (plist-get p :nonumber) 0))))
+                       (cons begin counter))
                       (t
                        (cons begin nil)))))
       (when-let ((number (cdr (assoc (point) results))))
