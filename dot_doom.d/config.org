@@ -5137,13 +5137,6 @@ and =.dir-locals.el=, but it didn't work. This hack should solve the problem now
 (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 #+end_src
 
-***** Visual line & autofill
-
-#+begin_src emacs-lisp
-;; (remove-hook 'text-mode-hook #'visual-line-mode)
-;; (add-hook 'text-mode-hook #'auto-fill-mode)
-#+end_src
-
 ***** EVIL
 There also seem to be a few keybindings which use =hjkl=, but miss arrow key
 equivalents.
