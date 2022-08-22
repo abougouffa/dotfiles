@@ -2860,7 +2860,13 @@ Add the =tldr.el= client for [[https://github.com/tldr-pages/tldr][TLDR pages]].
 #+end_src
 
 *** Binary files :binary:hexl:
-Taken from [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this answer]].
+Inspired by [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this discussion]].
+
+Add the new ~nhexl-mode~ which allows editing files in Hex mode.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! nhexl-mode)
+#+end_src
 
 #+begin_src emacs-lisp
 (defun +buffer-binary-p (&optional buffer)
