@@ -1009,13 +1009,15 @@ I'd like to have just the buffer name, then if applicable the project folder.
       '(""
         (:eval
          (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-             (replace-regexp-in-string
-              ".*/[0-9]*-?" "☰ "
-              (subst-char-in-string ?_ ?  buffer-file-name))
+             (replace-regexp-in-string ".*/[0-9]*-?" "☰ "
+                                       (subst-char-in-string ?_ ?  buffer-file-name))
            "%b"))
         (:eval
-         (let ((project-name (projectile-project-name)))
-           (unless (string= "-" project-name)
+         (let* ((project-name (projectile-project-name))
+                (project-name (if (string= "-" project-name)
+                                  (ignore-errors (file-name-base (string-trim-right (vc-root-dir))))
+                                project-name)))
+           (when project-name
              (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
 #+end_src
 
