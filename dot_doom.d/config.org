@@ -2547,6 +2547,9 @@ dependencies.
   (defun +eaf-enabled-p (app-symbol)
     (memq app-symbol +eaf-enabled-apps))
 
+  ;; Use `eaf-browser' by default
+  (setq browse-url-browser-function #'eaf-open-browser)
+
   :config
   ;; Generic
   (setq eaf-start-python-process-when-require t
