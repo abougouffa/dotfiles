@@ -2579,7 +2579,7 @@ dependencies.
   ;; Browser settings
   (when (+eaf-enabled-p 'browser)
     (setq eaf-browser-continue-where-left-off t
-          eaf-browser-dark-mode "follow"
+          eaf-browser-dark-mode nil ;; "follow"
           eaf-browser-enable-adblocker t
           eaf-browser-enable-autofill nil
           eaf-browser-remember-history t
