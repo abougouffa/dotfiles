@@ -2563,8 +2563,8 @@ dependencies.
   (setq eaf-webengine-font-family "Iosevka Fixed"
         eaf-webengine-fixed-font-family "Iosevka Fixed"
         eaf-webengine-serif-font-family "Iosevka Fixed"
-        eaf-webengine-font-size 14
-        eaf-webengine-fixed-font-size 14
+        eaf-webengine-font-size 16
+        eaf-webengine-fixed-font-size 16
         eaf-webengine-download-path "~/Downloads"
         eaf-webengine-enable-plugin t
         eaf-webengine-enable-javascript t
