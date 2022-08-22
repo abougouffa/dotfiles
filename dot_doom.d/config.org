@@ -1032,25 +1032,27 @@ I'd like to have just the buffer name, then if applicable the project folder.
   :commands svg-tag-mode
   :config
   (setq svg-tag-tags
-      '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0)))
-        ("\\(:[A-Za-z0-9]+:\\)$" .
-         ((lambda (tag) (svg-tag-make)
-                    tag
-                    :beg 1
-                    :end -1
-                    :font-family "Roboto Mono"
-                    :font-size 6
-                    :height 0.6
-                    :padding 0
-                    :margin 0))))))
+        '(("^\\*.* .* \\(:[A-Za-z0-9]+\\)" .
+           ((lambda (tag)
+              (svg-tag-make
+               tag
+               :beg 1
+               :font-family "Roboto Mono"
+               :font-size 10
+               :height 0.8
+               :padding 0
+               :margin 0))))
+          ("\\(:[A-Za-z0-9]+:\\)$" .
+           ((lambda (tag)
+              (svg-tag-make
+               tag
+               :beg 1
+               :end -1
+               :font-family "Roboto Mono"
+               :font-size 10
+               :height 0.8
+               :padding 0
+               :margin 0)))))))
 #+end_src
 
 #+begin_src emacs-lisp
