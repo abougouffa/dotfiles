@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-08-22
+#+lastmod: 2022-08-23
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -708,7 +708,7 @@ new Emacs client frames start on the =*scratch*= buffer instead of the dashboard
 I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
 #+begin_src emacs-lisp
-(defun +greedily-do-daemon-setup ()
+(defun +daemon-startup ()
   ;; mu4e
   (when (require 'mu4e nil t)
     ;; Automatically start `mu4e' in background.
@@ -719,23 +719,28 @@ I prefer the dashboard, so let's ensure that's always switched to in new frames.
         (mu4e--start)))
 
     ;; Check each 5m, if `mu4e' if closed, start it in background.
-    (run-at-time 30 (* 60 5)
-                 (lambda ()
-                   (when (and (not (mu4e-running-p))
-                              (+mu4e-lock-available))
-                     (mu4e--start)
-                     (message "Started `mu4e' in background.")))))
+    (run-at-time
+     60 (* 60 5) ;; Check each 5 minutes
+     (lambda ()
+       (when (and (not (mu4e-running-p)) (+mu4e-lock-available))
+         (mu4e--start)
+         (message "Started `mu4e' in background.")))))
 
   ;; RSS
   (when (require 'elfeed nil t)
-    (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check each 2h
+    (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check every 2h
 
 (when (daemonp)
-  (add-hook 'emacs-startup-hook #'+greedily-do-daemon-setup)
-  (add-hook! 'server-after-make-frame-hook
-             #'doom/reload-theme
-             (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-               (switch-to-buffer +doom-dashboard-name))))
+  ;; Daemon startup
+  (add-hook 'emacs-startup-hook #'+daemon-startup)
+  ;; After creating a new frame (via emacsclient)
+  (add-hook!
+   'server-after-make-frame-hook
+   ;; Reload Doom's theme
+   #'doom/reload-theme
+   ;; Switch to Dashboard, unless we started in one of the special buffers
+   (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
+     (switch-to-buffer +doom-dashboard-name))))
 #+end_src
 
 ** Tweaks :tweak:
