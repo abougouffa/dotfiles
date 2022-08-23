@@ -2292,6 +2292,17 @@ reduces the false positives due to the marking and special commands.
           (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
 
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
+
+(map! :leader :prefix ("l" . "custom")
+      (:prefix ("t" . "tools")
+       (:when CHEZMOI-P
+        :prefix ("c" . "chezmoi")
+        :desc "Magit status" "g" #'chezmoi-magit-status
+        :desc "Find source"  "f" #'chezmoi-find
+        :desc "Sync files"   "s" #'chezmoi-sync-files
+        :desc "Diff"         "d" #'chezmoi-diff
+        :desc "EDiff"        "e" #'chezmoi-ediff
+        :desc "Open other"   "o" #'chezmoi-open-other)))
 #+end_src
 
 *** Aweshell :eshell:shell:
