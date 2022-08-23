@@ -4249,7 +4249,15 @@ close Hydra when DAP is terminated.
 
 #+begin_src emacs-lisp
 (after! dap-mode
+  ;; Set latest versions
+  (setq dap-cpptools-extension-version "1.11.5")
   (require 'dap-cpptools)
+
+  (setq dap-codelldb-extension-version "1.7.4")
+  (require 'dap-codelldb)
+
+  (setq dap-gdb-lldb-extension-version "0.26.0")
+  (require 'dap-gdb-lldb)
 
   ;; More minimal UI
   (setq dap-auto-configure-features '(breakpoints locals expressions tooltip)
