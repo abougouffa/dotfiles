@@ -3427,15 +3427,17 @@ I configure my email accounts in a private file in
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
 
+
   ;; Use msmtp instead of smtpmail
-  (setq sendmail-program "/usr/bin/msmtp"
+  (setq sendmail-program (executable-find "msmtp")
+        send-mail-function #'smtpmail-send-it
         message-sendmail-f-is-evil t
-        message-sendmail-envelope-from 'header
-        message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
+        message-sendmail-extra-arguments '("--read-envelope-from")
         message-send-mail-function #'message-send-mail-with-sendmail
+        message-sendmail-envelope-from 'obey-mail-envelope-from
+        mail-envelope-from 'header
         mail-personal-alias-file (expand-file-name "mail-aliases.mailrc" doom-user-dir)
-        mail-specify-envelope-from t
-        mail-envelope-from 'header)
+        mail-specify-envelope-from t)
 
   (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
                               (:account-stripe . 2)
