@@ -2400,12 +2400,14 @@ reduces the false positives due to the marking and special commands.
     (interactive)
     (while (string-match-p "Sessions still open, not unmounting"
                            (shell-command-to-string +ecryptfs--umount-private-cmd)))
-    (message "Unmounted private directory."))
+    (message "Unmounted private directory.")))
 
-  (map! :leader :prefix ("l" . "custom")
-        (:prefix ("t" . "tools")
-         :desc "eCryptfs mount private"    "e" #'+ecryptfs-mount-private
-         :desc "eCryptfs un-mount private"  "E" #'+ecryptfs-umount-private)))
+(map! :leader :prefix ("l" . "custom")
+      (:prefix ("t" . "tools")
+       (:when ECRYPTFS-P
+        :prefix ("e" . "ecryptfs")
+        :desc "eCryptfs mount private"    "e" #'+ecryptfs-mount-private
+        :desc "eCryptfs un-mount private" "E" #'+ecryptfs-umount-private)))
 #+end_src
 
 ** Features :features:
