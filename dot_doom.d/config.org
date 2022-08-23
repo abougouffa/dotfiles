@@ -2596,19 +2596,19 @@ dependencies.
   (setq eaf-enable-debug nil)
 
   ;; Web engine
-  (setq eaf-webengine-font-family "Iosevka Fixed"
-        eaf-webengine-fixed-font-family "Iosevka Fixed"
-        eaf-webengine-serif-font-family "Iosevka Fixed"
+  (setq eaf-webengine-font-family (symbol-name (font-get doom-font :family))
+        eaf-webengine-fixed-font-family (symbol-name (font-get doom-font :family))
+        eaf-webengine-serif-font-family (symbol-name (font-get doom-serif-font :family))
         eaf-webengine-font-size 16
         eaf-webengine-fixed-font-size 16
-        eaf-webengine-default-zoom 1.25
+        eaf-webengine-enable-scrollbar t
         eaf-webengine-scroll-step 200
+        eaf-webengine-default-zoom 1.25
+        eaf-webengine-show-hover-link t
         eaf-webengine-download-path "~/Downloads"
         eaf-webengine-enable-plugin t
         eaf-webengine-enable-javascript t
-        eaf-webengine-enable-javascript-access-clipboard t
-        eaf-webengine-enable-scrollbar t
-        eaf-webengine-show-hover-link t)
+        eaf-webengine-enable-javascript-access-clipboard t)
 
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
@@ -2626,7 +2626,8 @@ dependencies.
           eaf-browser-blank-page-url "https://www.duckduckgo.com"
           eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
           eaf-browser-default-search-engine "duckduckgo"
-          eaf-browser-continue-where-left-off t)
+          eaf-browser-continue-where-left-off t
+          eaf-browser-aria2-auto-file-renaming t)
 
     (require 'eaf-browser)
 
@@ -2682,55 +2683,54 @@ dependencies.
     (setq eaf-org-dark-mode "follow")
     (require 'eaf-org-previewer))
 
-    ;; Markdown Previewer
+  ;; Markdown Previewer
   (when (+eaf-app-p 'markdown-previewer)
     (setq eaf-markdown-dark-mode "follow")
     (require 'eaf-markdown-previewer))
 
-    ;; Jupyter
+  ;; Jupyter
   (when (+eaf-app-p 'jupyter)
     (setq eaf-jupyter-dark-mode "follow"
-          eaf-jupyter-font-family "JuliaMono"
+          eaf-jupyter-font-family (symbol-name (font-get doom-font :family))
           eaf-jupyter-font-size 13)
     (require 'eaf-jupyter))
 
-    ;; Mindmap
+  ;; Mindmap
   (when (+eaf-app-p 'mindmap)
     (setq eaf-mindmap-dark-mode "follow"
           eaf-mindmap-save-path "~/Dropbox/Mindmap")
     (require 'eaf-mindmap))
 
-    ;; File Sender
+  ;; File Sender
   (when (+eaf-app-p 'file-sender)
     (require 'eaf-file-sender))
 
-    ;; Music Player
+  ;; Music Player
   (when (+eaf-app-p 'music-player)
     (require 'eaf-music-player))
 
-    ;; Video Player
+  ;; Video Player
   (when (+eaf-app-p 'video-player)
     (setq eaf-video-player-keybinding
-          '(("SPC" . "toggle_play")
-            ("x"   . "close_buffer")
-            ("h"   . "play_backward")
-            ("l"   . "play_forward")
-            ("j"   . "decrease_volume")
-            ("k"   . "increase_volume")
-            ("f"   . "toggle_fullscreen")
-            ("r"   . "restart")))
-
+          '(("p" . "toggle_play")
+            ("q" . "close_buffer")
+            ("h" . "play_backward")
+            ("l" . "play_forward")
+            ("j" . "decrease_volume")
+            ("k" . "increase_volume")
+            ("f" . "toggle_fullscreen")
+            ("R" . "restart")))
     (require 'eaf-video-player))
 
-    ;; Image Viewer
+  ;; Image Viewer
   (when (+eaf-app-p 'image-viewer)
     (require 'eaf-image-viewer))
 
-    ;; Git
+  ;; Git
   (when (+eaf-app-p 'git)
     (require 'eaf-git))
 
-    ;; Fix EVIL keybindings
+  ;; Fix EVIL keybindings
   (after! evil
     (require 'eaf-evil)
     (define-key key-translation-map (kbd "SPC")
