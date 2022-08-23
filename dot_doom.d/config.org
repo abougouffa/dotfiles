@@ -2553,13 +2553,38 @@ dependencies.
              +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org mail browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
+    '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player pdf-viewer))
 
-  (defun +eaf-enabled-p (app-symbol)
+  (defun +eaf-app-p (app-symbol)
     (memq app-symbol +eaf-enabled-apps))
 
-  ;; Use `eaf-browser' by default
-  (setq browse-url-browser-function #'eaf-open-browser)
+  (when (+eaf-app-p 'browser)
+    ;; Make EAF Browser my default browser
+    (setq browse-url-browser-function #'eaf-open-browser)
+    (defalias 'browse-web #'eaf-open-browser)
+
+    (map! :localleader
+          :map (mu4e-headers-mode-map mu4e-view-mode-map)
+          :desc "Open mail as HTML" "h" #'+eaf-open-mail-as-html))
+
+  (when (+eaf-app-p 'pdf-viewer)
+    (after! org
+      ;; Use EAF PDF Viewer in Org
+      (defun +eaf--org-open-file-fn (file &optional link)
+        "An wrapper function on `eaf-open'."
+        (eaf-open file))
+
+      ;; use `emacs-application-framework' to open PDF file: link
+      (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf--org-open-file-fn)))
+
+    (after! latex
+      ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
+      ;; the Command>Compile and view (C-c C-a) option will compile the .tex
+      ;; file into a .pdf file and display it using EAF. Double clicking on the
+      ;; PDF side jumps to editing the clicked section.
+      (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
+      (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
+      (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
 
   :config
   ;; Generic
@@ -2576,19 +2601,20 @@ dependencies.
         eaf-webengine-serif-font-family "Iosevka Fixed"
         eaf-webengine-font-size 16
         eaf-webengine-fixed-font-size 16
+        eaf-webengine-default-zoom 1.25
+        eaf-webengine-scroll-step 200
         eaf-webengine-download-path "~/Downloads"
         eaf-webengine-enable-plugin t
         eaf-webengine-enable-javascript t
         eaf-webengine-enable-javascript-access-clipboard t
         eaf-webengine-enable-scrollbar t
-        eaf-webengine-default-zoom 1.25
-        eaf-webengine-scroll-step 200)
+        eaf-webengine-show-hover-link t)
 
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
 
   ;; Browser settings
-  (when (+eaf-enabled-p 'browser)
+  (when (+eaf-app-p 'browser)
     (setq eaf-browser-continue-where-left-off t
           eaf-browser-dark-mode nil ;; "follow"
           eaf-browser-enable-adblocker t
@@ -2600,66 +2626,9 @@ dependencies.
           eaf-browser-blank-page-url "https://www.duckduckgo.com"
           eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
           eaf-browser-default-search-engine "duckduckgo"
-          eaf-browser-continue-where-left-off nil)
+          eaf-browser-continue-where-left-off t)
+
     (require 'eaf-browser)
-
-    ;; Make EAF Browser my default browser
-    (setq browse-url-browser-function #'eaf-open-browser)
-    (defalias 'browse-web #'eaf-open-browser))
-
-  ;; File manager settings
-  (when (+eaf-enabled-p 'file-manager)
-    (setq eaf-file-manager-show-preview nil
-          eaf-find-alternate-file-in-dired t
-          eaf-file-manager-show-hidden-file t
-          eaf-file-manager-show-icon t)
-    (require 'eaf-file-manager))
-
-  ;; File Browser
-  (when (+eaf-enabled-p 'file-browser)
-    (require 'eaf-file-browser))
-
-  ;; PDF Viewer settings
-  (when (+eaf-enabled-p 'pdf-viewer)
-    (setq eaf-pdf-dark-mode "follow"
-          eaf-pdf-show-progress-on-page nil
-          eaf-pdf-dark-exclude-image t
-          eaf-pdf-notify-file-changed t)
-    (require 'eaf-pdf-viewer)
-
-    (after! org
-      ;; Use EAF PDF Viewer in Org
-      (defun +eaf-org-open-file-fn (file &optional link)
-        "An wrapper function on `eaf-open'."
-        (eaf-open file))
-
-      ;; use `emacs-application-framework' to open PDF file: link
-      (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
-
-    (after! latex
-      ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
-      ;; the Command>Compile and view (C-c C-a) option will compile the .tex
-      ;; file into a .pdf file and display it using EAF. Double clicking on the
-      ;; PDF side jumps to editing the clicked section.
-      (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
-      (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
-      (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
-
-  ;; Org
-  (when (+eaf-enabled-p 'rss-reader)
-    (setq eaf-rss-reader-split-horizontally nil
-          eaf-rss-reader-web-page-other-window t)
-    (require 'eaf-org))
-
-  ;; Org
-  (when (+eaf-enabled-p 'org)
-    (require 'eaf-org))
-
-  ;; Mail
-  ;; BUG The `eaf-open-mail-as-html' is not working,
-  ;;     I use `+eaf-open-mail-as-html' instead
-  (when (+eaf-enabled-p 'mail)
-    ;; (require 'eaf-mail)
 
     (defun +eaf-open-mail-as-html ()
       "Open the html mail in EAF Browser."
@@ -2670,69 +2639,115 @@ dependencies.
             (browse-url-browser-function #'eaf-open-browser))
         (if msg
             (mu4e-action-view-in-browser msg)
-          (message "No message at point."))))
+          (message "No message at point.")))))
 
-    ;; Org Previewer
-    (when (+eaf-enabled-p 'org-previewer)
-      (setq eaf-org-dark-mode "follow")
-      (require 'eaf-org-previewer))
+  ;; File manager settings
+  (when (+eaf-app-p 'file-manager)
+    (setq eaf-file-manager-show-preview nil
+          eaf-find-alternate-file-in-dired t
+          eaf-file-manager-show-hidden-file t
+          eaf-file-manager-show-icon t)
+    (require 'eaf-file-manager))
+
+  ;; File Browser
+  (when (+eaf-app-p 'file-browser)
+    (require 'eaf-file-browser))
+
+  ;; PDF Viewer settings
+  (when (+eaf-app-p 'pdf-viewer)
+    (setq eaf-pdf-dark-mode "follow"
+          eaf-pdf-show-progress-on-page nil
+          eaf-pdf-dark-exclude-image t
+          eaf-pdf-notify-file-changed t)
+    (require 'eaf-pdf-viewer))
+
+  ;; Org
+  (when (+eaf-app-p 'rss-reader)
+    (setq eaf-rss-reader-split-horizontally nil
+          eaf-rss-reader-web-page-other-window t)
+    (require 'eaf-org))
+
+  ;; Org
+  (when (+eaf-app-p 'org)
+    (require 'eaf-org))
+
+  ;; Mail
+  ;; BUG The `eaf-open-mail-as-html' is not working,
+  ;;     I use `+eaf-open-mail-as-html' instead
+  (when (+eaf-app-p 'mail)
+    (require 'eaf-mail))
+
+  ;; Org Previewer
+  (when (+eaf-app-p 'org-previewer)
+    (setq eaf-org-dark-mode "follow")
+    (require 'eaf-org-previewer))
 
     ;; Markdown Previewer
-    (when (+eaf-enabled-p 'markdown-previewer)
-      (setq eaf-markdown-dark-mode "follow")
-      (require 'eaf-markdown-previewer))
+  (when (+eaf-app-p 'markdown-previewer)
+    (setq eaf-markdown-dark-mode "follow")
+    (require 'eaf-markdown-previewer))
 
     ;; Jupyter
-    (when (+eaf-enabled-p 'jupyter)
-      (setq eaf-jupyter-dark-mode "follow"
-            eaf-jupyter-font-family "JuliaMono"
-            eaf-jupyter-font-size 13)
-      (require 'eaf-jupyter))
+  (when (+eaf-app-p 'jupyter)
+    (setq eaf-jupyter-dark-mode "follow"
+          eaf-jupyter-font-family "JuliaMono"
+          eaf-jupyter-font-size 13)
+    (require 'eaf-jupyter))
 
     ;; Mindmap
-    (when (+eaf-enabled-p 'mindmap)
-      (setq eaf-mindmap-dark-mode "follow"
-            eaf-mindmap-save-path "~/Dropbox/Mindmap")
-      (require 'eaf-mindmap))
+  (when (+eaf-app-p 'mindmap)
+    (setq eaf-mindmap-dark-mode "follow"
+          eaf-mindmap-save-path "~/Dropbox/Mindmap")
+    (require 'eaf-mindmap))
 
     ;; File Sender
-    (when (+eaf-enabled-p 'file-sender)
-      (require 'eaf-file-sender))
+  (when (+eaf-app-p 'file-sender)
+    (require 'eaf-file-sender))
 
     ;; Music Player
-    (when (+eaf-enabled-p 'music-player)
-      (require 'eaf-music-player))
+  (when (+eaf-app-p 'music-player)
+    (require 'eaf-music-player))
 
     ;; Video Player
-    (when (+eaf-enabled-p 'video-player)
-      (require 'eaf-video-player))
+  (when (+eaf-app-p 'video-player)
+    (setq eaf-video-player-keybinding
+          '(("SPC" . "toggle_play")
+            ("x"   . "close_buffer")
+            ("h"   . "play_backward")
+            ("l"   . "play_forward")
+            ("j"   . "decrease_volume")
+            ("k"   . "increase_volume")
+            ("f"   . "toggle_fullscreen")
+            ("r"   . "restart")))
+
+    (require 'eaf-video-player))
 
     ;; Image Viewer
-    (when (+eaf-enabled-p 'image-viewer)
-      (require 'eaf-image-viewer))
+  (when (+eaf-app-p 'image-viewer)
+    (require 'eaf-image-viewer))
 
     ;; Git
-    (when (+eaf-enabled-p 'git)
-      (require 'eaf-git))
+  (when (+eaf-app-p 'git)
+    (require 'eaf-git))
 
     ;; Fix EVIL keybindings
-    (after! evil
-      (require 'eaf-evil)
-      (define-key key-translation-map (kbd "SPC")
-        (lambda (prompt)
-          (if (derived-mode-p 'eaf-mode)
-              (pcase eaf--buffer-app-name
-                ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
-                               (kbd "SPC")
-                             (kbd eaf-evil-leader-key)))
-                ("pdf-viewer" (kbd eaf-evil-leader-key))
-                ("image-viewer" (kbd eaf-evil-leader-key))
-                ("music-player" (kbd eaf-evil-leader-key))
-                ("video-player" (kbd eaf-evil-leader-key))
-                ("file-sender" (kbd eaf-evil-leader-key))
-                ("mindmap" (kbd eaf-evil-leader-key))
-                (_  (kbd "SPC")))
-            (kbd "SPC")))))))
+  (after! evil
+    (require 'eaf-evil)
+    (define-key key-translation-map (kbd "SPC")
+      (lambda (prompt)
+        (if (derived-mode-p 'eaf-mode)
+            (pcase eaf--buffer-app-name
+              ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
+                             (kbd "SPC")
+                           (kbd eaf-evil-leader-key)))
+              ("pdf-viewer" (kbd eaf-evil-leader-key))
+              ("image-viewer" (kbd eaf-evil-leader-key))
+              ("music-player" (kbd eaf-evil-leader-key))
+              ("video-player" (kbd eaf-evil-leader-key))
+              ("file-sender" (kbd eaf-evil-leader-key))
+              ("mindmap" (kbd eaf-evil-leader-key))
+              (_  (kbd "SPC")))
+          (kbd "SPC"))))))
 #+end_src
 
 *** Bitwarden :pass:bitwarden:
