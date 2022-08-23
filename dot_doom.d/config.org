@@ -519,6 +519,14 @@ This file shouldn't be byte compiled.
       user-mail-address "abougouffa@fedoraproject.org")
 #+end_src
 
+** Shared informations
+
+#+begin_src emacs-lisp
+(defvar +my/mother-tongue  "ar")
+(defvar +my/main-lang      "en")
+(defvar +my/secondary-lang "fr")
+#+end_src
+
 ** Secrets :gpg:pass:secret:
 Set the path to my GPG encrypted secrets. I like to set the cache expiry to =nil=
 instead of the default 2 hours.
@@ -1785,8 +1793,8 @@ So I can "mélanger les langues sans avoir de problèmes!".
 
   (add-hook 'spell-fu-mode-hook
             (lambda ()
-              (+spell-fu-register-dictionary "en")
-              (+spell-fu-register-dictionary "fr"))))
+              (+spell-fu-register-dictionary +my/main-lang)
+              (+spell-fu-register-dictionary +my/secondary-lang))))
 #+end_src
 
 *** Guess language :language:text:
@@ -2097,7 +2105,7 @@ reduces the false positives due to the marking and special commands.
 (after! lsp-ltex
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
-        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-mother-tongue +my/mother-tongue
         flycheck-checker-error-threshold 1000))
 #+end_src
 
@@ -2119,8 +2127,8 @@ reduces the false positives due to the marking and special commands.
         flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
-        '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue" . "ar"))))
+        `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
+          ("motherTongue"  . ,+my/mother-tongue))))
 #+end_src
 
 *** Go Translate (Google, Bing and DeepL)
@@ -2138,7 +2146,10 @@ reduces the false positives due to the marking and special commands.
              +gts-translate-with)
   :init
   ;; Your languages pairs
-  (setq gts-translate-list '(("en" "fr") ("fr" "en") ("en" "ar") ("fr" "ar")))
+  (setq gts-translate-list (list (list +my/main-lang +my/secondary-lang)
+                                 (list +my/main-lang +my/mother-tongue)
+                                 (list +my/secondary-lang +my/mother-tongue)
+                                 (list +my/secondary-lang +my/main-lang)))
 
   (map! :localleader
         :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
@@ -2585,7 +2596,7 @@ dependencies.
           eaf-browser-remember-history t
           eaf-browser-ignore-history-list '("google.com/search" "file://")
           eaf-browser-text-selection-color "auto"
-          eaf-browser-translate-language "fr"
+          eaf-browser-translate-language +my/main-lang
           eaf-browser-blank-page-url "https://www.duckduckgo.com"
           eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
           eaf-browser-default-search-engine "duckduckgo"
