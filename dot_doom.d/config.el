@@ -5,6 +5,12 @@
       user-mail-address "abougouffa@fedoraproject.org")
 ;; User information:1 ends here
 
+;; [[file:config.org::*Shared informations][Shared informations:1]]
+(defvar +my/mother-tongue  "ar")
+(defvar +my/main-lang      "en")
+(defvar +my/secondary-lang "fr")
+;; Shared informations:1 ends here
+
 ;; [[file:config.org::*Secrets][Secrets:1]]
 (setq auth-sources '("~/.authinfo.gpg")
       auth-source-do-cache t
@@ -760,8 +766,8 @@ current buffer's, reload dir-locals."
 
   (add-hook 'spell-fu-mode-hook
             (lambda ()
-              (+spell-fu-register-dictionary "en")
-              (+spell-fu-register-dictionary "fr"))))
+              (+spell-fu-register-dictionary +my/main-lang)
+              (+spell-fu-register-dictionary +my/secondary-lang))))
 ;; Spell-Fu:1 ends here
 
 ;; [[file:config.org::*Guess language][Guess language:2]]
@@ -991,7 +997,7 @@ current buffer's, reload dir-locals."
 (after! lsp-ltex
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
-        lsp-ltex-mother-tongue "ar"
+        lsp-ltex-mother-tongue +my/mother-tongue
         flycheck-checker-error-threshold 1000))
 ;; LTeX:2 ends here
 
@@ -1004,8 +1010,8 @@ current buffer's, reload dir-locals."
         flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
-        '(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue" . "ar"))))
+        `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
+          ("motherTongue"  . ,+my/mother-tongue))))
 ;; Flycheck:2 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
@@ -1015,7 +1021,10 @@ current buffer's, reload dir-locals."
              +gts-translate-with)
   :init
   ;; Your languages pairs
-  (setq gts-translate-list '(("en" "fr") ("fr" "en") ("en" "ar") ("fr" "ar")))
+  (setq gts-translate-list (list (list +my/main-lang +my/secondary-lang)
+                                 (list +my/main-lang +my/mother-tongue)
+                                 (list +my/secondary-lang +my/mother-tongue)
+                                 (list +my/secondary-lang +my/main-lang)))
 
   (map! :localleader
         :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
@@ -1317,13 +1326,38 @@ current buffer's, reload dir-locals."
              +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org mail browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
+    '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player pdf-viewer))
 
-  (defun +eaf-enabled-p (app-symbol)
+  (defun +eaf-app-p (app-symbol)
     (memq app-symbol +eaf-enabled-apps))
 
-  ;; Use `eaf-browser' by default
-  (setq browse-url-browser-function #'eaf-open-browser)
+  (when (+eaf-app-p 'browser)
+    ;; Make EAF Browser my default browser
+    (setq browse-url-browser-function #'eaf-open-browser)
+    (defalias 'browse-web #'eaf-open-browser)
+
+    (map! :localleader
+          :map (mu4e-headers-mode-map mu4e-view-mode-map)
+          :desc "Open mail as HTML" "h" #'+eaf-open-mail-as-html))
+
+  (when (+eaf-app-p 'pdf-viewer)
+    (after! org
+      ;; Use EAF PDF Viewer in Org
+      (defun +eaf--org-open-file-fn (file &optional link)
+        "An wrapper function on `eaf-open'."
+        (eaf-open file))
+
+      ;; use `emacs-application-framework' to open PDF file: link
+      (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf--org-open-file-fn)))
+
+    (after! latex
+      ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
+      ;; the Command>Compile and view (C-c C-a) option will compile the .tex
+      ;; file into a .pdf file and display it using EAF. Double clicking on the
+      ;; PDF side jumps to editing the clicked section.
+      (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
+      (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
+      (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
 
   :config
   ;; Generic
@@ -1340,19 +1374,20 @@ current buffer's, reload dir-locals."
         eaf-webengine-serif-font-family "Iosevka Fixed"
         eaf-webengine-font-size 16
         eaf-webengine-fixed-font-size 16
+        eaf-webengine-default-zoom 1.25
+        eaf-webengine-scroll-step 200
         eaf-webengine-download-path "~/Downloads"
         eaf-webengine-enable-plugin t
         eaf-webengine-enable-javascript t
         eaf-webengine-enable-javascript-access-clipboard t
         eaf-webengine-enable-scrollbar t
-        eaf-webengine-default-zoom 1.25
-        eaf-webengine-scroll-step 200)
+        eaf-webengine-show-hover-link t)
 
   (when (display-graphic-p)
     (require 'eaf-all-the-icons))
 
   ;; Browser settings
-  (when (+eaf-enabled-p 'browser)
+  (when (+eaf-app-p 'browser)
     (setq eaf-browser-continue-where-left-off t
           eaf-browser-dark-mode nil ;; "follow"
           eaf-browser-enable-adblocker t
@@ -1360,70 +1395,13 @@ current buffer's, reload dir-locals."
           eaf-browser-remember-history t
           eaf-browser-ignore-history-list '("google.com/search" "file://")
           eaf-browser-text-selection-color "auto"
-          eaf-browser-translate-language "fr"
+          eaf-browser-translate-language +my/main-lang
           eaf-browser-blank-page-url "https://www.duckduckgo.com"
           eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
           eaf-browser-default-search-engine "duckduckgo"
-          eaf-browser-continue-where-left-off nil)
+          eaf-browser-continue-where-left-off t)
+
     (require 'eaf-browser)
-
-    ;; Make EAF Browser my default browser
-    (setq browse-url-browser-function #'eaf-open-browser)
-    (defalias 'browse-web #'eaf-open-browser))
-
-  ;; File manager settings
-  (when (+eaf-enabled-p 'file-manager)
-    (setq eaf-file-manager-show-preview nil
-          eaf-find-alternate-file-in-dired t
-          eaf-file-manager-show-hidden-file t
-          eaf-file-manager-show-icon t)
-    (require 'eaf-file-manager))
-
-  ;; File Browser
-  (when (+eaf-enabled-p 'file-browser)
-    (require 'eaf-file-browser))
-
-  ;; PDF Viewer settings
-  (when (+eaf-enabled-p 'pdf-viewer)
-    (setq eaf-pdf-dark-mode "follow"
-          eaf-pdf-show-progress-on-page nil
-          eaf-pdf-dark-exclude-image t
-          eaf-pdf-notify-file-changed t)
-    (require 'eaf-pdf-viewer)
-
-    (after! org
-      ;; Use EAF PDF Viewer in Org
-      (defun +eaf-org-open-file-fn (file &optional link)
-        "An wrapper function on `eaf-open'."
-        (eaf-open file))
-
-      ;; use `emacs-application-framework' to open PDF file: link
-      (add-to-list 'org-file-apps '("\\.pdf\\'" . +eaf-org-open-file-fn)))
-
-    (after! latex
-      ;; Link EAF with the LaTeX compiler in emacs. When a .tex file is open,
-      ;; the Command>Compile and view (C-c C-a) option will compile the .tex
-      ;; file into a .pdf file and display it using EAF. Double clicking on the
-      ;; PDF side jumps to editing the clicked section.
-      (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))
-      (add-to-list 'TeX-view-program-list '("eaf" eaf-pdf-synctex-forward-view))
-      (add-to-list 'TeX-view-program-selection '(output-pdf "eaf"))))
-
-  ;; Org
-  (when (+eaf-enabled-p 'rss-reader)
-    (setq eaf-rss-reader-split-horizontally nil
-          eaf-rss-reader-web-page-other-window t)
-    (require 'eaf-org))
-
-  ;; Org
-  (when (+eaf-enabled-p 'org)
-    (require 'eaf-org))
-
-  ;; Mail
-  ;; BUG The `eaf-open-mail-as-html' is not working,
-  ;;     I use `+eaf-open-mail-as-html' instead
-  (when (+eaf-enabled-p 'mail)
-    ;; (require 'eaf-mail)
 
     (defun +eaf-open-mail-as-html ()
       "Open the html mail in EAF Browser."
@@ -1434,69 +1412,115 @@ current buffer's, reload dir-locals."
             (browse-url-browser-function #'eaf-open-browser))
         (if msg
             (mu4e-action-view-in-browser msg)
-          (message "No message at point."))))
+          (message "No message at point.")))))
 
-    ;; Org Previewer
-    (when (+eaf-enabled-p 'org-previewer)
-      (setq eaf-org-dark-mode "follow")
-      (require 'eaf-org-previewer))
+  ;; File manager settings
+  (when (+eaf-app-p 'file-manager)
+    (setq eaf-file-manager-show-preview nil
+          eaf-find-alternate-file-in-dired t
+          eaf-file-manager-show-hidden-file t
+          eaf-file-manager-show-icon t)
+    (require 'eaf-file-manager))
+
+  ;; File Browser
+  (when (+eaf-app-p 'file-browser)
+    (require 'eaf-file-browser))
+
+  ;; PDF Viewer settings
+  (when (+eaf-app-p 'pdf-viewer)
+    (setq eaf-pdf-dark-mode "follow"
+          eaf-pdf-show-progress-on-page nil
+          eaf-pdf-dark-exclude-image t
+          eaf-pdf-notify-file-changed t)
+    (require 'eaf-pdf-viewer))
+
+  ;; Org
+  (when (+eaf-app-p 'rss-reader)
+    (setq eaf-rss-reader-split-horizontally nil
+          eaf-rss-reader-web-page-other-window t)
+    (require 'eaf-org))
+
+  ;; Org
+  (when (+eaf-app-p 'org)
+    (require 'eaf-org))
+
+  ;; Mail
+  ;; BUG The `eaf-open-mail-as-html' is not working,
+  ;;     I use `+eaf-open-mail-as-html' instead
+  (when (+eaf-app-p 'mail)
+    (require 'eaf-mail))
+
+  ;; Org Previewer
+  (when (+eaf-app-p 'org-previewer)
+    (setq eaf-org-dark-mode "follow")
+    (require 'eaf-org-previewer))
 
     ;; Markdown Previewer
-    (when (+eaf-enabled-p 'markdown-previewer)
-      (setq eaf-markdown-dark-mode "follow")
-      (require 'eaf-markdown-previewer))
+  (when (+eaf-app-p 'markdown-previewer)
+    (setq eaf-markdown-dark-mode "follow")
+    (require 'eaf-markdown-previewer))
 
     ;; Jupyter
-    (when (+eaf-enabled-p 'jupyter)
-      (setq eaf-jupyter-dark-mode "follow"
-            eaf-jupyter-font-family "JuliaMono"
-            eaf-jupyter-font-size 13)
-      (require 'eaf-jupyter))
+  (when (+eaf-app-p 'jupyter)
+    (setq eaf-jupyter-dark-mode "follow"
+          eaf-jupyter-font-family "JuliaMono"
+          eaf-jupyter-font-size 13)
+    (require 'eaf-jupyter))
 
     ;; Mindmap
-    (when (+eaf-enabled-p 'mindmap)
-      (setq eaf-mindmap-dark-mode "follow"
-            eaf-mindmap-save-path "~/Dropbox/Mindmap")
-      (require 'eaf-mindmap))
+  (when (+eaf-app-p 'mindmap)
+    (setq eaf-mindmap-dark-mode "follow"
+          eaf-mindmap-save-path "~/Dropbox/Mindmap")
+    (require 'eaf-mindmap))
 
     ;; File Sender
-    (when (+eaf-enabled-p 'file-sender)
-      (require 'eaf-file-sender))
+  (when (+eaf-app-p 'file-sender)
+    (require 'eaf-file-sender))
 
     ;; Music Player
-    (when (+eaf-enabled-p 'music-player)
-      (require 'eaf-music-player))
+  (when (+eaf-app-p 'music-player)
+    (require 'eaf-music-player))
 
     ;; Video Player
-    (when (+eaf-enabled-p 'video-player)
-      (require 'eaf-video-player))
+  (when (+eaf-app-p 'video-player)
+    (setq eaf-video-player-keybinding
+          '(("SPC" . "toggle_play")
+            ("x"   . "close_buffer")
+            ("h"   . "play_backward")
+            ("l"   . "play_forward")
+            ("j"   . "decrease_volume")
+            ("k"   . "increase_volume")
+            ("f"   . "toggle_fullscreen")
+            ("r"   . "restart")))
+
+    (require 'eaf-video-player))
 
     ;; Image Viewer
-    (when (+eaf-enabled-p 'image-viewer)
-      (require 'eaf-image-viewer))
+  (when (+eaf-app-p 'image-viewer)
+    (require 'eaf-image-viewer))
 
     ;; Git
-    (when (+eaf-enabled-p 'git)
-      (require 'eaf-git))
+  (when (+eaf-app-p 'git)
+    (require 'eaf-git))
 
     ;; Fix EVIL keybindings
-    (after! evil
-      (require 'eaf-evil)
-      (define-key key-translation-map (kbd "SPC")
-        (lambda (prompt)
-          (if (derived-mode-p 'eaf-mode)
-              (pcase eaf--buffer-app-name
-                ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
-                               (kbd "SPC")
-                             (kbd eaf-evil-leader-key)))
-                ("pdf-viewer" (kbd eaf-evil-leader-key))
-                ("image-viewer" (kbd eaf-evil-leader-key))
-                ("music-player" (kbd eaf-evil-leader-key))
-                ("video-player" (kbd eaf-evil-leader-key))
-                ("file-sender" (kbd eaf-evil-leader-key))
-                ("mindmap" (kbd eaf-evil-leader-key))
-                (_  (kbd "SPC")))
-            (kbd "SPC")))))))
+  (after! evil
+    (require 'eaf-evil)
+    (define-key key-translation-map (kbd "SPC")
+      (lambda (prompt)
+        (if (derived-mode-p 'eaf-mode)
+            (pcase eaf--buffer-app-name
+              ("browser" (if (eaf-call-sync "execute_function" eaf--buffer-id "is_focus")
+                             (kbd "SPC")
+                           (kbd eaf-evil-leader-key)))
+              ("pdf-viewer" (kbd eaf-evil-leader-key))
+              ("image-viewer" (kbd eaf-evil-leader-key))
+              ("music-player" (kbd eaf-evil-leader-key))
+              ("video-player" (kbd eaf-evil-leader-key))
+              ("file-sender" (kbd eaf-evil-leader-key))
+              ("mindmap" (kbd eaf-evil-leader-key))
+              (_  (kbd "SPC")))
+          (kbd "SPC"))))))
 ;; Emacs Application Framework:1 ends here
 
 ;; [[file:config.org::*Bitwarden][Bitwarden:2]]
@@ -1821,15 +1845,17 @@ is binary, activate `hexl-mode'."
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
 
+
   ;; Use msmtp instead of smtpmail
-  (setq sendmail-program "/usr/bin/msmtp"
+  (setq sendmail-program (executable-find "msmtp")
+        send-mail-function #'smtpmail-send-it
         message-sendmail-f-is-evil t
-        message-sendmail-envelope-from 'header
-        message-sendmail-extra-arguments '("--read-envelope-from") ;; "--read-recipients"
+        message-sendmail-extra-arguments '("--read-envelope-from")
         message-send-mail-function #'message-send-mail-with-sendmail
+        message-sendmail-envelope-from 'obey-mail-envelope-from
+        mail-envelope-from 'header
         mail-personal-alias-file (expand-file-name "mail-aliases.mailrc" doom-user-dir)
-        mail-specify-envelope-from t
-        mail-envelope-from 'header)
+        mail-specify-envelope-from t)
 
   (setq mu4e-headers-fields '((:flags . 6) ;; 3 flags
                               (:account-stripe . 2)
