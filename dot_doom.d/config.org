@@ -7870,6 +7870,22 @@ set debuginfod enabled on
 # Set pretty print
 set print pretty on
 
+skip pending on
+python
+import os
+
+# Add libs here
+LIB_PATHS = ["/usr/include"]
+
+for lib_path in LIB_PATHS:
+  for root, dirs, files in os.walk(lib_path):
+    for file in files:
+      # if file.endswith(".hpp") or file.endswith(".h"):
+      cmd = f"skip file {os.path.join(root, file)}"
+      gdb.execute(cmd, True, to_string=True)
+end
+skip enable
+
 # This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
 define cc
   continue
