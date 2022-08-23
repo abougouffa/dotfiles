@@ -1154,6 +1154,17 @@ current buffer's, reload dir-locals."
           (remove-hook 'evil-insert-state-exit-hook #'+chezmoi--evil-insert-state-exit-h 1))))
 
     (add-hook 'chezmoi-mode-hook #'+chezmoi--evil-h)))
+
+(map! :leader :prefix ("l" . "custom")
+      (:prefix ("t" . "tools")
+       (:when CHEZMOI-P
+        :prefix ("c" . "chezmoi")
+        :desc "Magit status" "g" #'chezmoi-magit-status
+        :desc "Find source"  "f" #'chezmoi-find
+        :desc "Sync files"   "s" #'chezmoi-sync-files
+        :desc "Diff"         "d" #'chezmoi-diff
+        :desc "EDiff"        "e" #'chezmoi-ediff
+        :desc "Open other"   "o" #'chezmoi-open-other)))
 ;; Chezmoi:2 ends here
 
 ;; [[file:config.org::*Aweshell][Aweshell:2]]
@@ -1233,12 +1244,14 @@ current buffer's, reload dir-locals."
     (interactive)
     (while (string-match-p "Sessions still open, not unmounting"
                            (shell-command-to-string +ecryptfs--umount-private-cmd)))
-    (message "Unmounted private directory."))
+    (message "Unmounted private directory.")))
 
-  (map! :leader :prefix ("l" . "custom")
-        (:prefix ("t" . "tools")
-         :desc "eCryptfs mount private"    "e" #'+ecryptfs-mount-private
-         :desc "eCryptfs un-mount private"  "E" #'+ecryptfs-umount-private)))
+(map! :leader :prefix ("l" . "custom")
+      (:prefix ("t" . "tools")
+       (:when ECRYPTFS-P
+        :prefix ("e" . "ecryptfs")
+        :desc "eCryptfs mount private"    "e" #'+ecryptfs-mount-private
+        :desc "eCryptfs un-mount private" "E" #'+ecryptfs-umount-private)))
 ;; eCryptfs:1 ends here
 
 ;; [[file:config.org::*Weather][Weather:2]]
@@ -2388,7 +2401,15 @@ is binary, activate `hexl-mode'."
 
 ;; [[file:config.org::*DAP][DAP:2]]
 (after! dap-mode
+  ;; Set latest versions
+  (setq dap-cpptools-extension-version "1.11.5")
   (require 'dap-cpptools)
+
+  (setq dap-codelldb-extension-version "1.7.4")
+  (require 'dap-codelldb)
+
+  (setq dap-gdb-lldb-extension-version "0.26.0")
+  (require 'dap-gdb-lldb)
 
   ;; More minimal UI
   (setq dap-auto-configure-features '(breakpoints locals expressions tooltip)
