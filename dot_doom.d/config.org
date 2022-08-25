@@ -4406,186 +4406,6 @@ reverse debugging commands for usage with [[https://rr-project.org][rr]] (which 
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 #+end_src
 
-**** RealGUD =launch.json= support :locals:
-I do a lot of development on C/C++ apps that gets data from command line
-arguments, which means I have to type my arguments manually after calling
-=realgud:gdb=, which is very annoying.
-
-For DAP mode, there is a support for either =dap-debug-edit-template=, or
-=launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
-this. So let's code it!
-
-I like to define a parameter list named =+realgud-debug-config= to use as a
-fallback, if no =launch.json= file is present, this variable can be set in
-=.dir-locals.el= for example.
-
-#+begin_src emacs-lisp
-;; A variable which to be used in .dir-locals.el, formatted as a property list;
-;; '(:program "..." :args ("args1" "arg2" ...))
-(defvar +realgud-debug-config nil)
-#+end_src
-
-The =+realgud-debug-config= variable supports two parameters: =:program= and =:args=.
-The first is a string of the program path, and the second is a list of string
-arguments to pass to the program. It can be set in a per-project basis thanks to
-=.dir-locals.el=, something like this:
-
-#+begin_src lisp-data :tangle no
-;; Example entry in .dir-locals.el
-((nil . ((+realgud-debug-config . '(:type "realgud:gdb"
-                                    :program "${workspaceFolder}/build/bin/my_prog"
-                                    :args ("--in_file=${workspaceFolder}/some/file.csv"
-                                           "--some-parameter" "-a" "-b"
-                                           "--out_file=/tmp/some_randome_file"
-                                           "-a"))))))
-#+end_src
-
-The list of implemented special variables are listed in the table below, they
-have been defined as specified in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]].
-
-|-------------------------+--------------------------------------------|
-| *Variable*                | *Example*                                    |
-|-------------------------+--------------------------------------------|
-| ~userHome~                | ~/home/username~                             |
-| ~workspaceFolder~         | ~/home/username/your-project~                |
-| ~workspaceFolderBasename~ | ~your-project~                               |
-| ~file~                    | ~/home/username/your-project/folder/file.cc~ |
-| ~fileWorkspaceFolder~     | ~/home/username/your-project~                |
-| ~relativeFile~            | ~folder/file.cc~                             |
-| ~relativeFileDirname~     | ~folder~                                     |
-| ~fileBasename~            | ~file.cc~                                    |
-| ~fileBasenameNoExtension~ | ~file~                                       |
-| ~fileDirname~             | ~/home/username/your-project/folder~         |
-| ~fileExtname~             | ~.cc~                                        |
-| ~lineNumber~              | Line number of the cursor                  |
-| ~selectedText~            | Text selected in your code editor          |
-| ~pathSeparator~           | Returns ~/~ on *nix, and ~\~ on Windows        |
-|-------------------------+--------------------------------------------|
-
-If a =launch.json= file is detected in the project directory, it gets read and
-searches for a configuration for the =realgud:gdb= debugger. So you need to have a
-section with type =realgud:gdb=. This is an example of a valid =launch.json= file.
-
-#+begin_src json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Emacs::RealGUD:GDB (view_trajectory)",
-      "type": "realgud:gdb",
-      "request": "launch",
-      "dap-compilation": "cmake --build build/debug -- -j 8",
-      "dap-compilation-dir": "${workspaceFolder}",
-      "program": "${workspaceFolder}/build/debug/bin/view_trajectory",
-      "args": [
-        "htraj=${workspaceFolder}/data/seq1/h_poses.csv",
-        "traj=${workspaceFolder}/data/seq1/poses.csv"
-      ],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
-      "environment": [],
-      "externalConsole": false
-    }
-  ]
-}
-#+end_src
-
-The example above defines several parameters, however, only =type=, =program= and
-=args= are used at the moment.
-
-#+begin_src emacs-lisp
-(defun +realgud--substite-special-vars (program &optional args)
-  "Substitue variables in PROGRAM and ARGS.
-Return a list, in which processed PROGRAM is the first element, followed by ARGS."
-  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
-         (ws-root (string-trim-right
-                   (expand-file-name
-                    (or (projectile-project-root)
-                        (ignore-errors (file-name-directory curr-file))
-                        "."))
-                   "/"))
-         (ws-basename (file-name-nondirectory ws-root)))
-    ;; Replace special variables
-    (mapcar
-     (lambda (str)
-       (+str-replace-all
-        (append
-         (list
-          (cons "${workspaceFolder}" ws-root)
-          (cons "${workspaceFolderBasename}" ws-basename)
-          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
-          (cons "${pathSeparator}" (if (memq system-type
-                                             '(windows-nt ms-dos cygwin))
-                                       "\\" "/"))
-          (cons "${selectedText}" (if (use-region-p)
-                                      (buffer-substring-no-properties
-                                       (region-beginning) (region-end)) "")))
-         ;; To avoid problems if launched from a non-file buffer
-         (when curr-file
-           (list
-            (cons "${file}" curr-file)
-            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
-            (cons "${relativeFileDirname}" (file-relative-name
-                                            (file-name-directory curr-file) ws-root))
-            (cons "${fileBasename}" (file-name-nondirectory curr-file))
-            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
-            (cons "${fileDirname}" (file-name-directory curr-file))
-            (cons "${fileExtname}" (file-name-extension curr-file))
-            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
-        str))
-     (cons program args))))
-
-(defun +realgud--debug-command (debugger-type debuggee-args)
-  "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
-  (let* ((prog (car debuggee-args))
-         (args (+str-join " " (cdr debuggee-args))))
-    (when args
-      (setq args (pcase (intern debugger-type)
-                   ('realgud:gdb (format " --args %s %s" prog args))
-                   ('realgud:lldb (format " -- %s %s" prog args))
-                   ;; Default case "prog [args]" for `bashdb', `zshdb', `pdb', etc.
-                   (t (format " %s %s" prog args)))))
-    (concat (eval (intern (concat debugger-type "-command-name"))) ;; evaluates to `realgud:gdb-command-name' for "realgud:gdb" debugger type
-            (if args args ""))))
-
-(defun +realgud-config-from-launch-json (&optional file)
-  "Return the first RealGUD configuration in launch.json file.
-If FILE is nil, launch.json will be searched in the current project,
-if it is set to a launch.json file, it will be used instead."
-  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
-    (when (file-exists-p launch-json)
-      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
-      (let* ((launch (with-temp-buffer
-                       (insert-file-contents launch-json)
-                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
-             (configs (plist-get launch :configurations)))
-        (catch 'config
-          (dolist (conf configs)
-            (let* ((conf-type (plist-get conf :type))
-                   (conf-name (or (plist-get conf :name) conf-type))) ;; fallback to type when no name
-              (when (string-match "realgud:.*" conf-type)
-                (message "[RealGUD]: Found configuration \"%s\" of type `%s'" conf-name conf-type)
-                (throw 'config conf)))))))))
-
-(defun +debugger/realgud-launch (&optional file)
-  "Launch RealGUD with parameters from `+realgud-debug-config' or launch.json file."
-  (interactive)
-  (require 'realgud)
-  (let* ((conf (or (+realgud-config-from-launch-json file)
-                   +realgud-debug-config))
-         (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
-         (type (plist-get conf :type)))
-    (if (and type (fboundp (intern type)))
-        (funcall (intern type) ;; for type="realgud:gdb", this should return the `realgud:gdb' function
-                 (+realgud--debug-command type args))
-      (message "[RealGUD]: Unknown debugger `%s'." (if type type "NIL")))))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when (modulep! :tools debugger)
-       :prefix ("d" . "debugger")
-       :desc "RealGUD launch" "d" #'+debugger/realgud-launch))
-#+end_src
-
 **** Record and replay =rr= :rr:reverse:
 We then add some shortcuts to run =rr= from Emacs, the =rr record= takes the program
 name and arguments from my local =+realgud-debug-config=, when =rr replay= respects
@@ -4629,7 +4449,7 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
 **** Emacs GDB /a.k.a./ =gdb-mi= :gdb:
 DAP mode is great, however, it is not mature for C/C++ debugging, it does not
 support some basic features like /Run until cursor/, /Show disassembled code/, etc.
-Emacs have builtin =gdb= support through =gdb-mi= and =gud=.
+Emacs have builtin =gdb= support through =gdb-mi= and =gud-gdb=.
 
 The =emacs-gdb= package overwrites the builtin =gdb-mi=, it is much faster (thanks
 to it's C module), and it defines some easy to use UI, with Visual Studio like
@@ -4741,6 +4561,255 @@ the builtin =gdb-many-windows= layout.
       (delete-overlay gud-overlay)))
 
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
+#+end_src
+
+*** WIP =launch.json= support for GUD and RealGUD :launch:
+I do a lot of development on C/C++ apps that gets data from command line
+arguments, which means I have to type my arguments manually after calling
+=realgud:gdb=, which is very annoying.
+
+For DAP mode, there is a support for either =dap-debug-edit-template=, or
+=launch.json=. For RealGUD though, I didn't find any ready-to-use feature like
+this. So let's code it!
+
+I like to define a parameter list named =+realgud-debug-config= to use as a
+fallback, if no =launch.json= file is present, this variable can be set in
+=.dir-locals.el= for example.
+
+#+begin_src emacs-lisp
+;; A variable which to be used in .dir-locals.el, formatted as a property list;
+;; '(:program "..." :args ("args1" "arg2" ...))
+(defvar +realgud-debug-config nil)
+#+end_src
+
+The =+realgud-debug-config= variable supports two parameters: =:program= and =:args=.
+The first is a string of the program path, and the second is a list of string
+arguments to pass to the program. It can be set in a per-project basis thanks to
+=.dir-locals.el=, something like this:
+
+#+begin_src lisp-data :tangle no
+;; Example entry in .dir-locals.el
+((nil . ((+realgud-debug-config . '(:type "realgud:gdb"
+                                    :program "${workspaceFolder}/build/bin/my_prog"
+                                    :args ("--in_file=${workspaceFolder}/some/file.csv"
+                                           "--some-parameter" "-a" "-b"
+                                           "--out_file=/tmp/some_randome_file"
+                                           "-a"))))))
+#+end_src
+
+The list of implemented special variables are listed in the table below, they
+have been defined as specified in [[https://code.visualstudio.com/docs/editor/variables-reference][VS Code]].
+
+|-------------------------+--------------------------------------------|
+| *Variable*                | *Example*                                    |
+|-------------------------+--------------------------------------------|
+| ~userHome~                | ~/home/username~                             |
+| ~workspaceFolder~         | ~/home/username/your-project~                |
+| ~workspaceFolderBasename~ | ~your-project~                               |
+| ~file~                    | ~/home/username/your-project/folder/file.cc~ |
+| ~fileWorkspaceFolder~     | ~/home/username/your-project~                |
+| ~relativeFile~            | ~folder/file.cc~                             |
+| ~relativeFileDirname~     | ~folder~                                     |
+| ~fileBasename~            | ~file.cc~                                    |
+| ~fileBasenameNoExtension~ | ~file~                                       |
+| ~fileDirname~             | ~/home/username/your-project/folder~         |
+| ~fileExtname~             | ~.cc~                                        |
+| ~lineNumber~              | Line number of the cursor                  |
+| ~selectedText~            | Text selected in your code editor          |
+| ~pathSeparator~           | Returns ~/~ on *nix, and ~\~ on Windows        |
+|-------------------------+--------------------------------------------|
+
+If a =launch.json= file is detected in the project directory, it gets read and
+searches for a configuration for the =realgud:gdb= debugger. So you need to have a
+section with type =realgud:gdb=. This is an example of a valid =launch.json= file.
+
+#+begin_src json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Emacs::RealGUD:GDB (view_trajectory)",
+      "type": "realgud:gdb",
+      "request": "launch",
+      "dap-compilation": "cmake --build build/debug -- -j 8",
+      "dap-compilation-dir": "${workspaceFolder}",
+      "program": "${workspaceFolder}/build/debug/bin/view_trajectory",
+      "args": [
+        "htraj=${workspaceFolder}/data/seq1/h_poses.csv",
+        "traj=${workspaceFolder}/data/seq1/poses.csv"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false
+    }
+  ]
+}
+#+end_src
+
+The example above defines several parameters, however, only =type=, =program= and
+=args= are used at the moment.
+
+#+begin_src emacs-lisp
+(defvar launch-json--gud-debugger-regex
+  (rx (group (or "gdb" "gud-gdb" "perldb" "pdb" "jdb" "guiler" "dbx" "sdb" "xdb"))))
+
+(defvar launch-json--realgud-debugger-regex
+  (rx (or (seq "realgud:" (group-n 1 (or "bashdb" "common" "gdb" "kshdb" "pdb"
+                                         "perldb" "rdebug" "remake"
+                                         "trepan" "trepan2" "trepan3k" "trepanjs" "trepan.pl"
+                                         "zshd")))
+          (seq "realgud-" (group-n 1 (or "gub")))
+          ;; Additional debuggers
+          (seq "realgud:" (group-n 1 (or "xdebug" "pry" "jdb" "ipdb" "trepan-xpy" "node-inspect")))
+          (seq "realgud--" (group-n 1 (or "lldb"))))))
+
+(defvar launch-json--last-config nil)
+
+(defun launch-json-last-config-clear ()
+  (interactive)
+  (setq-local launch-json--last-config nil))
+
+(defun launch-json--substite-special-vars (program &optional args)
+  "Substitue variables in PROGRAM and ARGS.
+Return a list, in which processed PROGRAM is the first element, followed by ARGS."
+  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
+         (ws-root (string-trim-right
+                   (expand-file-name
+                    (or (projectile-project-root)
+                        (ignore-errors (file-name-directory curr-file))
+                        "."))
+                   "/"))
+         (ws-basename (file-name-nondirectory ws-root)))
+    ;; Replace special variables
+    (mapcar
+     (lambda (str)
+       (+str-replace-all
+        (append
+         (list
+          (cons "${workspaceFolder}" ws-root)
+          (cons "${workspaceFolderBasename}" ws-basename)
+          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
+          (cons "${pathSeparator}" (if (memq system-type
+                                             '(windows-nt ms-dos cygwin))
+                                       "\\" "/"))
+          (cons "${selectedText}" (if (use-region-p)
+                                      (buffer-substring-no-properties
+                                       (region-beginning) (region-end)) "")))
+         ;; To avoid problems if launched from a non-file buffer
+         (when curr-file
+           (list
+            (cons "${file}" curr-file)
+            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
+            (cons "${relativeFileDirname}" (file-relative-name
+                                            (file-name-directory curr-file) ws-root))
+            (cons "${fileBasename}" (file-name-nondirectory curr-file))
+            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
+            (cons "${fileDirname}" (file-name-directory curr-file))
+            (cons "${fileExtname}" (file-name-extension curr-file))
+            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
+        str))
+     (cons program args))))
+
+(defun launch-json--debugger-params (type)
+  (let ((cmd-sym
+         (intern
+          (format
+           (if (string-match-p "^realgud:" type) "%s-%s" "gud-%s-%s")
+           type
+           "command-name"))))
+    (message "[launch.json:params]: parsing")
+    (cond
+     ((string= "gdb-mi" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd gdb
+        :args-format " --args %s %s"
+        :cmd gud-gdb-command-name
+        :require gdb-mi))
+     ((string-match-p "^\\(?:gud-\\|realgud:\\)gdb$" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd ,(intern type)
+        :args-format " --args %s %s"
+        :cmd ,cmd-sym
+        :require ,(cond ((string-match-p "^gud-" type) 'gud)
+                        ((string-match-p "^realgud:" type) 'realgud))))
+     ((string-match-p "^\\(?:gud-\\|realgud:\\)lldb$" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd ,(intern type)
+        :args-format " -- %s %s"
+        :cmd ,cmd-sym
+        :require ,(intern (+str-replace ":" "-" type))))
+     ;; gud.el
+     ((string-match-p "^\\(?:realgud:\\)?\\(?:\\(?:bash\\|ksh\\|perl\\|zsh\\|ip\\|[jpsx]\\)db\\|\\(?:trepan\\(?:2\\|3k\\|js\\|[.]?pl\\|-ni\\)?\\)\\)$" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd ,(intern type)
+        :args-format " %s %s"
+        :cmd ,(if (string= "realgud:ipdb" type) 'realgud--ipdb-command-name cmd-sym)
+        :require ,(cond ((string= "realgud:trepan-ni" type) 'realgud-trepan-ni)
+                        ((string-match-p "^realgud:" type) 'realgud)
+                        ((not (string-match-p "^realgud:" type)) 'gud)))))))
+
+(defun launch-json--debug-command (params debuggee-args)
+  "Return the debug command for PARAMS with DEBUGGEE-ARGS."
+  (when-let* ((prog (car debuggee-args))
+              (cmd (plist-get params :cmd)))
+    (when (require (plist-get params :require) nil t)
+      (let ((args (+str-join " " (cdr debuggee-args))))
+        (when args (setq args (format (plist-get params :args-format) prog args)))
+        (if (bound-and-true-p cmd)
+            (concat (eval cmd) (if args args ""))
+          (message "[launch.json]: Invalid command for debugger %s" (plist-get params :type))
+          nil)))))
+
+(defun launch-json-read (&optional file)
+  "Return the first RealGUD configuration in launch.json file.
+If FILE is nil, launch.json will be searched in the current project,
+if it is set to a launch.json file, it will be used instead."
+  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
+    (when (file-exists-p launch-json)
+      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
+      (let* ((launch (with-temp-buffer
+                       (insert-file-contents launch-json)
+                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
+             (configs (plist-get launch :configurations)))
+        (+filter (lambda (conf) (string-match "^\\(gdb-mi\\|gud-.*\\|realgud:.*\\)$" (plist-get conf :type)))
+                 configs)))))
+
+(defun launch-json--config-choice (&optional file)
+  (let* ((confs (or (launch-json-read file)
+                    +realgud-debug-config))
+         (candidates (mapcar (lambda (conf)
+                               (cons (format "%s [%s]" (plist-get conf :name) (plist-get conf :type))
+                                     conf))
+                             confs)))
+    (cond ((eq (length confs) 1)
+           (car confs))
+          ((> (length confs) 1)
+           (cdr (assoc (completing-read "Configuration: " candidates) candidates))))))
+
+(defun +debugger/launch-json (&optional file)
+  "Launch RealGUD or GDB with parameters from `+realgud-debug-config' or launch.json file."
+  (interactive)
+  (let* ((conf (or launch-json--last-config
+                   (launch-json--config-choice file)))
+         (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
+         (type (plist-get conf :type))
+         (params (launch-json--debugger-params type)))
+    (when params
+      (let ((debug-cmd (plist-get params :debug-cmd)))
+        (when (fboundp debug-cmd)
+          (setq-local launch-json--last-config conf)
+          (funcall debug-cmd
+                   (launch-json--debug-command params args)))))))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (modulep! :tools debugger)
+       :prefix ("d" . "debugger")
+       :desc "GUD/RealGUD launch.json" "d" #'+debugger/launch-json))
 #+end_src
 
 *** Valgrind :valgrind:
