@@ -710,6 +710,12 @@ After some investigations, I found that this issue is probably KDE specific, the
 issue goes away by setting: *Window Management > Window Behavior > Focus > Focus
 stealing prevention* to /None/ in the KDE Settings.
 
+*** Browsers
+
+#+begin_src emacs-lisp
+(setq browse-url-chrome-program "brave")
+#+end_src
+
 * Emacs daemon :daemon:
 ** Initialization :init:
 When the daemon is running, I almost always want to do a few particular things
