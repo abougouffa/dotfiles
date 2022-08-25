@@ -2580,7 +2580,7 @@ dependencies.
              +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player pdf-viewer))
+    '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
 
   (defun +eaf-app-p (app-symbol)
     (memq app-symbol +eaf-enabled-apps))
@@ -2592,7 +2592,8 @@ dependencies.
 
     (map! :localleader
           :map (mu4e-headers-mode-map mu4e-view-mode-map)
-          :desc "Open mail as HTML" "h" #'+eaf-open-mail-as-html))
+          :desc "Open mail as HTML" "h" #'+eaf-open-mail-as-html
+          :desc "Open URL (EAF)" "o" #'eaf-open-browser))
 
   (when (+eaf-app-p 'pdf-viewer)
     (after! org
@@ -2638,7 +2639,9 @@ dependencies.
         eaf-webengine-enable-javascript-access-clipboard t)
 
   (when (display-graphic-p)
-    (require 'eaf-all-the-icons))
+    (require 'eaf-all-the-icons)
+    (mapc (lambda (v) (eaf-all-the-icons-icon (car v)))
+          eaf-all-the-icons-alist))
 
   ;; Browser settings
   (when (+eaf-app-p 'browser)
