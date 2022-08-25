@@ -3562,6 +3562,11 @@ I configure my email accounts in a private file in
         :after org-msg
         :n "G" #'org-msg-goto-body)
 
+  (map! :localleader
+      :map (mu4e-headers-mode-map mu4e-view-mode-map)
+      :desc "Open URL in Brave"   "b" #'browse-url-chrome ;; Brave
+      :desc "Open URL in Firefox" "f" #'browse-url-firefox)
+
   ;; I like to always BCC myself
   (defun +bbc-me ()
     "Add my email to BCC."
