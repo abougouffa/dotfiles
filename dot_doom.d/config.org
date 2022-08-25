@@ -830,7 +830,7 @@ Set Doom's theme, some good choices:
 - =doom-tomorrow-night=
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-vibrant)
+(setq doom-theme 'doom-one-light)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 #+end_src
@@ -953,9 +953,12 @@ Show battery level unless battery is not present or battery information is unkno
 
 #+begin_src emacs-lisp
 (after! doom-modeline
-  (setq doom-modeline-major-mode-icon t
+  (setq doom-modeline-bar-width 4
+        doom-modeline-mu4e t
+        doom-modeline-minor-modes nil
+        doom-modeline-major-mode-icon t
         doom-modeline-major-mode-color-icon t
-        doom-modeline-buffer-state-icon t))
+        doom-modeline-buffer-file-name-style 'truncate-upto-project))
 #+end_src
 
 *** Set transparency :transparent:
