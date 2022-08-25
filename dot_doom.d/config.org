@@ -7955,8 +7955,9 @@ set history save on
 set history filename ~/.gdb_history
 set history remove-duplicates 2048
 
-# Enable Debuginfod, automatically download debug symbols for Arch Linux system libraries
-set debuginfod enabled on
+# When debugging my apps, debug information of system libraries
+# aren't that important
+set debuginfod enabled off
 
 # Set pretty print
 set print pretty on
@@ -7971,9 +7972,14 @@ LIB_PATHS = ["/usr/include"]
 for lib_path in LIB_PATHS:
   for root, dirs, files in os.walk(lib_path):
     for file in files:
-      # if file.endswith(".hpp") or file.endswith(".h"):
       cmd = f"skip file {os.path.join(root, file)}"
       gdb.execute(cmd, True, to_string=True)
+end
+skip enable
+
+skip pending on
+guile
+<<gdb-init-guile>>
 end
 skip enable
 
