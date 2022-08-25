@@ -128,7 +128,6 @@
 
 ;; [[file:config.org::*Flycheck][Flycheck:1]]
 (package! flycheck-languagetool
-  :disable t ;; Disabled, using LTeX LSP
   :recipe (:host github
            :repo "emacs-languagetool/flycheck-languagetool"))
 ;; Flycheck:1 ends here

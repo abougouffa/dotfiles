@@ -5,11 +5,16 @@
       user-mail-address "abougouffa@fedoraproject.org")
 ;; User information:1 ends here
 
-;; [[file:config.org::*Shared informations][Shared informations:1]]
-(defvar +my/mother-tongue  "ar")
-(defvar +my/main-lang      "en")
-(defvar +my/secondary-lang "fr")
-;; Shared informations:1 ends here
+;; [[file:config.org::*Shared information][Shared information:1]]
+(defvar +my/lang-mother-tongue "ar")
+(defvar +my/lang-main          "en")
+(defvar +my/lang-secondary     "fr")
+
+(defvar +my/biblio-libraries-list (list (expand-file-name "~/Zotero/library.bib")))
+(defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
+(defvar +my/biblio-notes-path     (expand-file-name "~/PhD/bibliography/notes/"))
+(defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
+;; Shared information:1 ends here
 
 ;; [[file:config.org::*Secrets][Secrets:1]]
 (setq auth-sources '("~/.authinfo.gpg")
@@ -129,6 +134,10 @@
       (expand-file-name "~/Softwares/src/emacs"))
 ;; Emacs sources:1 ends here
 
+;; [[file:config.org::*Browsers][Browsers:1]]
+(setq browse-url-chrome-program "brave")
+;; Browsers:1 ends here
+
 ;; [[file:config.org::*Initialization][Initialization:1]]
 (defun +daemon-startup ()
   ;; mu4e
@@ -182,7 +191,7 @@
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
-(setq doom-theme 'doom-vibrant)
+(setq doom-theme 'doom-one-light)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 ;; Doom:1 ends here
@@ -205,9 +214,12 @@
 
 ;; [[file:config.org::*Mode line customization][Mode line customization:1]]
 (after! doom-modeline
-  (setq doom-modeline-major-mode-icon t
+  (setq doom-modeline-bar-width 4
+        doom-modeline-mu4e t
+        doom-modeline-minor-modes nil
+        doom-modeline-major-mode-icon t
         doom-modeline-major-mode-color-icon t
-        doom-modeline-buffer-state-icon t))
+        doom-modeline-buffer-file-name-style 'truncate-upto-project))
 ;; Mode line customization:1 ends here
 
 ;; [[file:config.org::*Custom splash image][Custom splash image:1]]
@@ -766,8 +778,8 @@ current buffer's, reload dir-locals."
 
   (add-hook 'spell-fu-mode-hook
             (lambda ()
-              (+spell-fu-register-dictionary +my/main-lang)
-              (+spell-fu-register-dictionary +my/secondary-lang))))
+              (+spell-fu-register-dictionary +my/lang-main)
+              (+spell-fu-register-dictionary +my/lang-secondary))))
 ;; Spell-Fu:1 ends here
 
 ;; [[file:config.org::*Guess language][Guess language:2]]
@@ -997,21 +1009,22 @@ current buffer's, reload dir-locals."
 (after! lsp-ltex
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
-        lsp-ltex-mother-tongue +my/mother-tongue
+        lsp-ltex-mother-tongue +my/lang-mother-tongue
         flycheck-checker-error-threshold 1000))
 ;; LTeX:2 ends here
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
 (use-package! flycheck-languagetool
-  :when LANGUAGETOOL-P
-  :hook (text-mode . flycheck-languagetool-setup)
+  :when (and nil LANGUAGETOOL-P)
+  :hook (org-msg-edit-mode . flycheck-languagetool-setup)
   :init
-  (setq flycheck-languagetool-server-command '("languagetool" "--http")
+  (setq flycheck-languagetool-server-command '("languagetool" "--http" "--port" "9091")
         flycheck-languagetool-language "auto"
+        flycheck-languagetool-server-port 9091
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
         `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue"  . ,+my/mother-tongue))))
+          ("motherTongue"  . ,+my/lang-mother-tongue))))
 ;; Flycheck:2 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
@@ -1021,10 +1034,10 @@ current buffer's, reload dir-locals."
              +gts-translate-with)
   :init
   ;; Your languages pairs
-  (setq gts-translate-list (list (list +my/main-lang +my/secondary-lang)
-                                 (list +my/main-lang +my/mother-tongue)
-                                 (list +my/secondary-lang +my/mother-tongue)
-                                 (list +my/secondary-lang +my/main-lang)))
+  (setq gts-translate-list (list (list +my/lang-main +my/lang-secondary)
+                                 (list +my/lang-main +my/lang-mother-tongue)
+                                 (list +my/lang-secondary +my/lang-mother-tongue)
+                                 (list +my/lang-secondary +my/lang-main)))
 
   (map! :localleader
         :map (org-mode-map markdown-mode-map latex-mode-map text-mode-map)
@@ -1339,7 +1352,7 @@ current buffer's, reload dir-locals."
              +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
-    '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player pdf-viewer))
+    '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
 
   (defun +eaf-app-p (app-symbol)
     (memq app-symbol +eaf-enabled-apps))
@@ -1351,7 +1364,8 @@ current buffer's, reload dir-locals."
 
     (map! :localleader
           :map (mu4e-headers-mode-map mu4e-view-mode-map)
-          :desc "Open mail as HTML" "h" #'+eaf-open-mail-as-html))
+          :desc "Open mail as HTML" "h" #'+eaf-open-mail-as-html
+          :desc "Open URL (EAF)" "o" #'eaf-open-browser))
 
   (when (+eaf-app-p 'pdf-viewer)
     (after! org
@@ -1397,7 +1411,9 @@ current buffer's, reload dir-locals."
         eaf-webengine-enable-javascript-access-clipboard t)
 
   (when (display-graphic-p)
-    (require 'eaf-all-the-icons))
+    (require 'eaf-all-the-icons)
+    (mapc (lambda (v) (eaf-all-the-icons-icon (car v)))
+          eaf-all-the-icons-alist))
 
   ;; Browser settings
   (when (+eaf-app-p 'browser)
@@ -1408,7 +1424,7 @@ current buffer's, reload dir-locals."
           eaf-browser-remember-history t
           eaf-browser-ignore-history-list '("google.com/search" "file://")
           eaf-browser-text-selection-color "auto"
-          eaf-browser-translate-language +my/main-lang
+          eaf-browser-translate-language +my/lang-main
           eaf-browser-blank-page-url "https://www.duckduckgo.com"
           eaf-browser-chrome-history-file "~/.config/google-chrome/Default/History"
           eaf-browser-default-search-engine "duckduckgo"
@@ -1962,6 +1978,11 @@ is binary, activate `hexl-mode'."
   (map! :map org-msg-edit-mode-map
         :after org-msg
         :n "G" #'org-msg-goto-body)
+
+  (map! :localleader
+      :map (mu4e-headers-mode-map mu4e-view-mode-map)
+      :desc "Open URL in Brave"   "b" #'browse-url-chrome ;; Brave
+      :desc "Open URL in Firefox" "f" #'browse-url-firefox)
 
   ;; I like to always BCC myself
   (defun +bbc-me ()
@@ -2519,105 +2540,6 @@ is binary, activate `hexl-mode'."
          :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
 ;; Additional commands:1 ends here
 
-;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:1]]
-;; A variable which to be used in .dir-locals.el, formatted as a property list;
-;; '(:program "..." :args ("args1" "arg2" ...))
-(defvar +realgud-debug-config nil)
-;; RealGUD =launch.json= support:1 ends here
-
-;; [[file:config.org::*RealGUD =launch.json= support][RealGUD =launch.json= support:4]]
-(defun +realgud--substite-special-vars (program &optional args)
-  "Substitue variables in PROGRAM and ARGS.
-Return a list, in which processed PROGRAM is the first element, followed by ARGS."
-  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
-         (ws-root (string-trim-right
-                   (expand-file-name
-                    (or (projectile-project-root)
-                        (ignore-errors (file-name-directory curr-file))
-                        "."))
-                   "/"))
-         (ws-basename (file-name-nondirectory ws-root)))
-    ;; Replace special variables
-    (mapcar
-     (lambda (str)
-       (+str-replace-all
-        (append
-         (list
-          (cons "${workspaceFolder}" ws-root)
-          (cons "${workspaceFolderBasename}" ws-basename)
-          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
-          (cons "${pathSeparator}" (if (memq system-type
-                                             '(windows-nt ms-dos cygwin))
-                                       "\\" "/"))
-          (cons "${selectedText}" (if (use-region-p)
-                                      (buffer-substring-no-properties
-                                       (region-beginning) (region-end)) "")))
-         ;; To avoid problems if launched from a non-file buffer
-         (when curr-file
-           (list
-            (cons "${file}" curr-file)
-            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
-            (cons "${relativeFileDirname}" (file-relative-name
-                                            (file-name-directory curr-file) ws-root))
-            (cons "${fileBasename}" (file-name-nondirectory curr-file))
-            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
-            (cons "${fileDirname}" (file-name-directory curr-file))
-            (cons "${fileExtname}" (file-name-extension curr-file))
-            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
-        str))
-     (cons program args))))
-
-(defun +realgud--debug-command (debugger-type debuggee-args)
-  "Return the debug command for DEBUGGER-TYPE with DEBUGGEE-ARGS."
-  (let* ((prog (car debuggee-args))
-         (args (+str-join " " (cdr debuggee-args))))
-    (when args
-      (setq args (pcase (intern debugger-type)
-                   ('realgud:gdb (format " --args %s %s" prog args))
-                   ('realgud:lldb (format " -- %s %s" prog args))
-                   ;; Default case "prog [args]" for `bashdb', `zshdb', `pdb', etc.
-                   (t (format " %s %s" prog args)))))
-    (concat (eval (intern (concat debugger-type "-command-name"))) ;; evaluates to `realgud:gdb-command-name' for "realgud:gdb" debugger type
-            (if args args ""))))
-
-(defun +realgud-config-from-launch-json (&optional file)
-  "Return the first RealGUD configuration in launch.json file.
-If FILE is nil, launch.json will be searched in the current project,
-if it is set to a launch.json file, it will be used instead."
-  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
-    (when (file-exists-p launch-json)
-      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
-      (let* ((launch (with-temp-buffer
-                       (insert-file-contents launch-json)
-                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
-             (configs (plist-get launch :configurations)))
-        (catch 'config
-          (dolist (conf configs)
-            (let* ((conf-type (plist-get conf :type))
-                   (conf-name (or (plist-get conf :name) conf-type))) ;; fallback to type when no name
-              (when (string-match "realgud:.*" conf-type)
-                (message "[RealGUD]: Found configuration \"%s\" of type `%s'" conf-name conf-type)
-                (throw 'config conf)))))))))
-
-(defun +debugger/realgud-launch (&optional file)
-  "Launch RealGUD with parameters from `+realgud-debug-config' or launch.json file."
-  (interactive)
-  (require 'realgud)
-  (let* ((conf (or (+realgud-config-from-launch-json file)
-                   +realgud-debug-config))
-         (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
-         (type (plist-get conf :type)))
-    (if (and type (fboundp (intern type)))
-        (funcall (intern type) ;; for type="realgud:gdb", this should return the `realgud:gdb' function
-                 (+realgud--debug-command type args))
-      (message "[RealGUD]: Unknown debugger `%s'." (if type type "NIL")))))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when (modulep! :tools debugger)
-       :prefix ("d" . "debugger")
-       :desc "RealGUD launch" "d" #'+debugger/realgud-launch))
-;; RealGUD =launch.json= support:4 ends here
-
 ;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
 (after! realgud
   (defun +debugger/rr-replay ()
@@ -2735,6 +2657,174 @@ if it is set to a launch.json file, it will be used instead."
 
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 ;; Highlight current line:1 ends here
+
+;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:1]]
+;; A variable which to be used in .dir-locals.el, formatted as a property list;
+;; '(:program "..." :args ("args1" "arg2" ...))
+(defvar +realgud-debug-config nil)
+;; WIP =launch.json= support for GUD and RealGUD:1 ends here
+
+;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:4]]
+(defvar launch-json--gud-debugger-regex
+  (rx (group (or "gdb" "gud-gdb" "perldb" "pdb" "jdb" "guiler" "dbx" "sdb" "xdb"))))
+
+(defvar launch-json--realgud-debugger-regex
+  (rx (or (seq "realgud:" (group-n 1 (or "bashdb" "common" "gdb" "kshdb" "pdb"
+                                         "perldb" "rdebug" "remake"
+                                         "trepan" "trepan2" "trepan3k" "trepanjs" "trepan.pl"
+                                         "zshd")))
+          (seq "realgud-" (group-n 1 (or "gub")))
+          ;; Additional debuggers
+          (seq "realgud:" (group-n 1 (or "xdebug" "pry" "jdb" "ipdb" "trepan-xpy" "node-inspect")))
+          (seq "realgud--" (group-n 1 (or "lldb"))))))
+
+(defvar launch-json--last-config nil)
+
+(defun launch-json-last-config-clear ()
+  (interactive)
+  (setq-local launch-json--last-config nil))
+
+(defun launch-json--substite-special-vars (program &optional args)
+  "Substitue variables in PROGRAM and ARGS.
+Return a list, in which processed PROGRAM is the first element, followed by ARGS."
+  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
+         (ws-root (string-trim-right
+                   (expand-file-name
+                    (or (projectile-project-root)
+                        (ignore-errors (file-name-directory curr-file))
+                        "."))
+                   "/"))
+         (ws-basename (file-name-nondirectory ws-root)))
+    ;; Replace special variables
+    (mapcar
+     (lambda (str)
+       (+str-replace-all
+        (append
+         (list
+          (cons "${workspaceFolder}" ws-root)
+          (cons "${workspaceFolderBasename}" ws-basename)
+          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
+          (cons "${pathSeparator}" (if (memq system-type
+                                             '(windows-nt ms-dos cygwin))
+                                       "\\" "/"))
+          (cons "${selectedText}" (if (use-region-p)
+                                      (buffer-substring-no-properties
+                                       (region-beginning) (region-end)) "")))
+         ;; To avoid problems if launched from a non-file buffer
+         (when curr-file
+           (list
+            (cons "${file}" curr-file)
+            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
+            (cons "${relativeFileDirname}" (file-relative-name
+                                            (file-name-directory curr-file) ws-root))
+            (cons "${fileBasename}" (file-name-nondirectory curr-file))
+            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
+            (cons "${fileDirname}" (file-name-directory curr-file))
+            (cons "${fileExtname}" (file-name-extension curr-file))
+            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
+        str))
+     (cons program args))))
+
+(defun launch-json--debugger-params (type)
+  (let ((cmd-sym
+         (intern
+          (format
+           (if (string-match-p "^realgud:" type) "%s-%s" "gud-%s-%s")
+           type
+           "command-name"))))
+    (message "[launch.json:params]: parsing")
+    (cond
+     ((string= "gdb-mi" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd gdb
+        :args-format " --args %s %s"
+        :cmd gud-gdb-command-name
+        :require gdb-mi))
+     ((string-match-p "^\\(?:gud-\\|realgud:\\)gdb$" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd ,(intern type)
+        :args-format " --args %s %s"
+        :cmd ,cmd-sym
+        :require ,(cond ((string-match-p "^gud-" type) 'gud)
+                        ((string-match-p "^realgud:" type) 'realgud))))
+     ((string-match-p "^\\(?:gud-\\|realgud:\\)lldb$" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd ,(intern type)
+        :args-format " -- %s %s"
+        :cmd ,cmd-sym
+        :require ,(intern (+str-replace ":" "-" type))))
+     ;; gud.el
+     ((string-match-p "^\\(?:realgud:\\)?\\(?:\\(?:bash\\|ksh\\|perl\\|zsh\\|ip\\|[jpsx]\\)db\\|\\(?:trepan\\(?:2\\|3k\\|js\\|[.]?pl\\|-ni\\)?\\)\\)$" type)
+      (message "[launch.json:params]: found %s match" type)
+      `(:type ,type
+        :debug-cmd ,(intern type)
+        :args-format " %s %s"
+        :cmd ,(if (string= "realgud:ipdb" type) 'realgud--ipdb-command-name cmd-sym)
+        :require ,(cond ((string= "realgud:trepan-ni" type) 'realgud-trepan-ni)
+                        ((string-match-p "^realgud:" type) 'realgud)
+                        ((not (string-match-p "^realgud:" type)) 'gud)))))))
+
+(defun launch-json--debug-command (params debuggee-args)
+  "Return the debug command for PARAMS with DEBUGGEE-ARGS."
+  (when-let* ((prog (car debuggee-args))
+              (cmd (plist-get params :cmd)))
+    (when (require (plist-get params :require) nil t)
+      (let ((args (+str-join " " (cdr debuggee-args))))
+        (when args (setq args (format (plist-get params :args-format) prog args)))
+        (if (bound-and-true-p cmd)
+            (concat (eval cmd) (if args args ""))
+          (message "[launch.json]: Invalid command for debugger %s" (plist-get params :type))
+          nil)))))
+
+(defun launch-json-read (&optional file)
+  "Return the first RealGUD configuration in launch.json file.
+If FILE is nil, launch.json will be searched in the current project,
+if it is set to a launch.json file, it will be used instead."
+  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
+    (when (file-exists-p launch-json)
+      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
+      (let* ((launch (with-temp-buffer
+                       (insert-file-contents launch-json)
+                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
+             (configs (plist-get launch :configurations)))
+        (+filter (lambda (conf) (string-match "^\\(gdb-mi\\|gud-.*\\|realgud:.*\\)$" (plist-get conf :type)))
+                 configs)))))
+
+(defun launch-json--config-choice (&optional file)
+  (let* ((confs (or (launch-json-read file)
+                    +realgud-debug-config))
+         (candidates (mapcar (lambda (conf)
+                               (cons (format "%s [%s]" (plist-get conf :name) (plist-get conf :type))
+                                     conf))
+                             confs)))
+    (cond ((eq (length confs) 1)
+           (car confs))
+          ((> (length confs) 1)
+           (cdr (assoc (completing-read "Configuration: " candidates) candidates))))))
+
+(defun +debugger/launch-json (&optional file)
+  "Launch RealGUD or GDB with parameters from `+realgud-debug-config' or launch.json file."
+  (interactive)
+  (let* ((conf (or launch-json--last-config
+                   (launch-json--config-choice file)))
+         (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
+         (type (plist-get conf :type))
+         (params (launch-json--debugger-params type)))
+    (when params
+      (let ((debug-cmd (plist-get params :debug-cmd)))
+        (when (fboundp debug-cmd)
+          (setq-local launch-json--last-config conf)
+          (funcall debug-cmd
+                   (launch-json--debug-command params args)))))))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (modulep! :tools debugger)
+       :prefix ("d" . "debugger")
+       :desc "GUD/RealGUD launch.json" "d" #'+debugger/launch-json))
+;; WIP =launch.json= support for GUD and RealGUD:4 ends here
 
 ;; [[file:config.org::*Valgrind][Valgrind:2]]
 (use-package! valgrind
@@ -3946,9 +4036,9 @@ if it is set to a launch.json file, it will be used instead."
           org-plot/gnuplot-term-extra #'org-plot/gnuplot-term-properties))
   (use-package! org-phscroll
     :hook (org-mode . org-phscroll-mode))
-  (setq bibtex-completion-bibliography '("~/Zotero/library.bib")
-        bibtex-completion-library-path '("~/Zotero/storage/")
-        bibtex-completion-notes-path "~/PhD/bibliography/notes/"
+  (setq bibtex-completion-bibliography +my/biblio-libraries-list
+        bibtex-completion-library-path +my/biblio-storage-list
+        bibtex-completion-notes-path +my/biblio-notes-path
         bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
         bibtex-completion-additional-search-fields '(keywords)
         bibtex-completion-display-formats
@@ -3963,8 +4053,8 @@ if it is set to a launch.json file, it will be used instead."
   (use-package! org-bib
     :commands (org-bib-mode))
   (after! oc
-    (setq org-cite-csl-styles-dir "~/Zotero/styles")
-    ;; org-cite-global-bibliography '("~/Zotero/library.bib"))
+    (setq org-cite-csl-styles-dir +my/biblio-styles-path)
+          ;; org-cite-global-bibliography +my/biblio-libraries-list)
   
     (defun +org-ref-to-org-cite ()
       "Simple conversion of org-ref citations to org-cite syntax."
@@ -3977,9 +4067,9 @@ if it is set to a launch.json file, it will be used instead."
             (message "Replaced citation %s with %s" old new)
             (replace-match new))))))
   (after! citar
-    (setq citar-library-paths '("~/Zotero/storage")
-          citar-notes-paths   '("~/PhD/bibliography/notes/")
-          citar-bibliography  '("~/Zotero/library.bib")
+    (setq citar-library-paths +my/biblio-storage-list
+          citar-notes-paths  (list +my/biblio-notes-path)
+          citar-bibliography  +my/biblio-libraries-list
           citar-symbol-separator "  ")
   
     (when (display-graphic-p)
