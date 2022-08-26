@@ -3875,7 +3875,11 @@ default backend EMMS is using.
          :desc "Play radio"    "r" #'empv-play-radio))
   :config
   ;; See https://docs.invidious.io/instances/
-  (setq empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"
+  (setq empv-invidious-instance "https://inv.privacy.com.de/api/v1"
+        empv-audio-dir "~/Music"
+        empv-video-dir "~/Videos"
+        empv-max-directory-search-depth 6
+        empv-radio-log-file (expand-file-name "logged-radio-songs.org" org-directory)
         ;; Links from https://www.radio-browser.info
         empv-radio-channels
         '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
@@ -3890,7 +3894,9 @@ default backend EMMS is using.
           ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
           ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
           ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-          ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))))
+          ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k")))
+
+  (empv-playlist-loop-on))
 #+end_src
 
 *** Keybindings
