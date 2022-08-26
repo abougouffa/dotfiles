@@ -7453,6 +7453,29 @@ export EDITOR="$HOME/.local/bin/et"
 # export VISUAL=$HOME/.local/bin/ev
 #+end_src
 
+** LanguageTool server
+
+#+name: emacs daemon
+#+begin_src systemd :tangle ~/.config/systemd/user/languagetool.service :mkdirp yes
+[Unit]
+Description=LanguageTool server
+Documentation=https://laungaugetool.org
+
+[Service]
+Type=simple
+ExecStart=languagetool --http --languageModel /usr/share/ngrams
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+#+end_src
+
+Which is then enabled by:
+
+#+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled languagetool.service")) "no" "setup.sh")
+systemctl --user enable emacs.service
+#+end_src
+
 ** AppImage :appimage:
 Install/update the =appimageupdatetool.AppImage= tool:
 
