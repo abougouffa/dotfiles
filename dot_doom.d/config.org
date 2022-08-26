@@ -3870,12 +3870,13 @@ default backend EMMS is using.
   :init
   (map! :leader :prefix ("l m")
         (:prefix ("v" . "empv")
-         :desc "Play"          "p" #'empv-play
-         :desc "Seach Youtube" "y" #'consult-empv-youtube
-         :desc "Play radio"    "r" #'empv-play-radio))
+         :desc "Play"                  "p" #'empv-play
+         :desc "Seach Youtube"         "y" #'consult-empv-youtube
+         :desc "Play radio"            "r" #'empv-play-radio
+         :desc "Save current playlist" "s" #'+empv-save-playtlist-to-file))
   :config
   ;; See https://docs.invidious.io/instances/
-  (setq empv-invidious-instance "https://inv.privacy.com.de/api/v1"
+  (setq empv-invidious-instance "https://y.com.sb/api/v1"
         empv-audio-dir "~/Music"
         empv-video-dir "~/Videos"
         empv-max-directory-search-depth 6
@@ -3896,7 +3897,47 @@ default backend EMMS is using.
           ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
           ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k")))
 
-  (empv-playlist-loop-on))
+  (empv-playlist-loop-on)
+
+  ;; Hacky palylist management (only supports saving playlist,
+  ;; loading a playlist can be achieved using `empv-play-file')
+
+  (defvar +empv-playlist-dir empv-audio-dir)
+
+  ;; Only for internal usage with `empv--cmd' call backs
+  (defvar empv---pl-cb)
+  (defvar empv---pl-curr)
+  (defvar empv---pl-count)
+  (defvar empv---pl-playlist)
+
+  (defun +empv-get-current-playlist (&optional cb &rest args)
+    (when (empv--running?)
+      (setq empv---pl-cb (cons cb args))
+      (setq empv---pl-playlist nil)
+      (empv--cmd
+       'get_property 'playlist/count
+       (setq empv---pl-count it)
+       (setq empv---pl-curr 0)
+       (dotimes (i it)
+         (empv--cmd
+          'get_property (intern (format "playlist/%d/filename" i))
+          (add-to-list 'empv---pl-playlist it)
+          (setq empv---pl-curr (1+ empv---pl-curr))
+          (when (and (eq empv---pl-count empv---pl-curr)
+                     (fboundp (car empv---pl-cb)))
+            ;; Call on the last element
+            (apply (car empv---pl-cb) empv---pl-playlist (cdr empv---pl-cb))))))))
+
+  (defun +empv-save-playtlist-to-file (path)
+    (interactive "FSave playlist to: ")
+    (+empv-get-current-playlist #'+empv--save-playlist-to-file path))
+
+  (defun +empv--save-playlist-to-file (playlist &optional filename)
+    (with-temp-buffer
+      (insert (+str-join "\n" playlist))
+      (let* ((last-pl (file-name-sans-extension (car (last (directory-files +empv-playlist-dir nil "empv-playlist-\\([[:digit:]]+\\)\\.m3u")))))
+             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-"))))))))
+        (write-file (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir)))))))
 #+end_src
 
 *** Keybindings
