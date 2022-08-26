@@ -8166,11 +8166,7 @@ tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib
 #+end_src
 
 ** Packages
-I like to use the BMC class, however, I do not like to manually install stuff in
-system directories, so I made an Arch Linux AUR package [[https://aur.archlinux.org/packages/bmc-git][=bmc-git=]] for it.
-
-I do use the =metropolis= theme for Beamer presentations, so I'm maintaining a
-package of it in the AUR too.
+Here, we install Arch packages
 
 #+begin_src shell
 check_and_install_pkg () {
@@ -8182,8 +8178,11 @@ check_and_install_pkg () {
   fi
 }
 
-check_and_install_pkg bmc-git
-check_and_install_pkg beamer-theme-metropolis
+PKGS_LIST=(mpv mpc mpd vlc)
+
+for PKG in PKGS_LIST ; do
+  check_and_install_pkg
+done
 #+end_src
 
 ** KDE Plasma :kde:
