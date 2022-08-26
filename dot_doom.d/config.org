@@ -2087,6 +2087,13 @@ reduces the false positives due to the marking and special commands.
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 
+  (unless (+languagetool-server-running-p)
+    (+languagetool-server-restart)
+    (sit-for 5))
+
+  (when (+languagetool-server-running-p)
+    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
+
   ;; When n-gram data sets are available, use them to detect errors with words
   ;; that are often confused (like their and there).
   (when (file-directory-p "/usr/share/ngrams")
