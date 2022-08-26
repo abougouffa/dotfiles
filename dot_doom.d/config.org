@@ -2001,40 +2001,31 @@ then by =ltex-ls=.
 
 #+begin_src emacs-lisp
 (when LANGUAGETOOL-P
-  (defvar +languagetool--process-name "languagetool-server")
-
   (defun +languagetool-server-running-p ()
     (and LANGUAGETOOL-P
-         (process-live-p (get-process +languagetool--process-name))))
+         (+systemd-running-p "languagetool")))
 
-  (defun +languagetool-server-start (&optional port)
+  (defun +languagetool-server-start ()
     "Start LanguageTool server with PORT."
     (interactive)
-    (if (+languagetool-server-running-p)
-        (message "LanguageTool server already running.")
-      (when (start-process
-             +languagetool--process-name
-             " *LanguageTool server*"
-             (executable-find "languagetool")
-             "--http" "--port" (format "%s" (or port 8081))
-             "--languageModel" "/usr/share/ngrams")
-        (message "Started LanguageTool server."))))
+    (unless (+languagetool-server-running-p)
+      (+systemd-start "languagetool")))
 
   (defun +languagetool-server-stop ()
     "Stop the LanguageTool server."
     (interactive)
     (if (+languagetool-server-running-p)
-        (when (kill-process +languagetool--process-name)
-          (message "Stopped LanguageTool server."))
-      (message "No LanguageTool server running.")))
+        (progn
+          (+systemd-stop "languagetool")
+          (message "Stopped LanguageTool server.")))
+    (message "No LanguageTool server running."))
 
-  (defun +languagetool-server-restart (&optional port)
-    "Restart the LanguageTool server with PORT, start new instance if not running."
+  (defun +languagetool-server-restart ()
     (interactive)
     (when (+languagetool-server-running-p)
       (+languagetool-server-stop))
     (sit-for 5)
-    (+languagetool-server-start port)))
+    (+languagetool-server-start)))
 
 (map! :leader :prefix ("l" . "custom")
       (:when LANGUAGETOOL-P
