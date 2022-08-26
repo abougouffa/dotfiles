@@ -4496,7 +4496,7 @@ be found [[http://notes.secretsauce.net/notes/2017/02/24_interfacing-rr-to-gdb-i
 #+begin_src emacs-lisp :tangle packages.el
 (package! realgud-lldb)
 (package! realgud-ipdb)
-(package! realgud-dgawk :recipe (:host github :repo "realgud/realgud-dgawk"))
+(package! realgud-trepan-xpy :recipe (:host github :repo "realgud/trepan-xpy"))
 (package! realgud-maxima :recipe (:host github :repo "realgud/realgud-maxima"))
 #+end_src
 
