@@ -313,7 +313,7 @@
 ;; [[file:config.org::*Additional debuggers for RealGUD][Additional debuggers for RealGUD:1]]
 (package! realgud-lldb)
 (package! realgud-ipdb)
-(package! realgud-dgawk :recipe (:host github :repo "realgud/realgud-dgawk"))
+(package! realgud-trepan-xpy :recipe (:host github :repo "realgud/trepan-xpy"))
 (package! realgud-maxima :recipe (:host github :repo "realgud/realgud-maxima"))
 ;; Additional debuggers for RealGUD:1 ends here
 

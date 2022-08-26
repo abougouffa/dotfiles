@@ -900,40 +900,31 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
 (when LANGUAGETOOL-P
-  (defvar +languagetool--process-name "languagetool-server")
-
   (defun +languagetool-server-running-p ()
     (and LANGUAGETOOL-P
-         (process-live-p (get-process +languagetool--process-name))))
+         (+systemd-running-p "languagetool")))
 
-  (defun +languagetool-server-start (&optional port)
+  (defun +languagetool-server-start ()
     "Start LanguageTool server with PORT."
     (interactive)
-    (if (+languagetool-server-running-p)
-        (message "LanguageTool server already running.")
-      (when (start-process
-             +languagetool--process-name
-             " *LanguageTool server*"
-             (executable-find "languagetool")
-             "--http" "--port" (format "%s" (or port 8081))
-             "--languageModel" "/usr/share/ngrams")
-        (message "Started LanguageTool server."))))
+    (unless (+languagetool-server-running-p)
+      (+systemd-start "languagetool")))
 
   (defun +languagetool-server-stop ()
     "Stop the LanguageTool server."
     (interactive)
     (if (+languagetool-server-running-p)
-        (when (kill-process +languagetool--process-name)
-          (message "Stopped LanguageTool server."))
-      (message "No LanguageTool server running.")))
+        (progn
+          (+systemd-stop "languagetool")
+          (message "Stopped LanguageTool server.")))
+    (message "No LanguageTool server running."))
 
-  (defun +languagetool-server-restart (&optional port)
-    "Restart the LanguageTool server with PORT, start new instance if not running."
+  (defun +languagetool-server-restart ()
     (interactive)
     (when (+languagetool-server-running-p)
       (+languagetool-server-stop))
     (sit-for 5)
-    (+languagetool-server-start port)))
+    (+languagetool-server-start)))
 
 (map! :leader :prefix ("l" . "custom")
       (:when LANGUAGETOOL-P
@@ -963,6 +954,13 @@ current buffer's, reload dir-locals."
         lsp-ltex-log-level "warning" ;; No need to log everything
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
+
+  (unless (+languagetool-server-running-p)
+    (+languagetool-server-restart)
+    (sit-for 5))
+
+  (when (+languagetool-server-running-p)
+    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   ;; When n-gram data sets are available, use them to detect errors with words
   ;; that are often confused (like their and there).
@@ -1821,6 +1819,7 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (setq elfeed-feeds
       '("https://this-week-in-rust.org/rss.xml"
+        "https://planet.emacslife.com/atom.xml"
         "https://www.omgubuntu.co.uk/feed"
         "https://itsfoss.com/feed"
         "https://linuxhandbook.com/feed"
@@ -2160,12 +2159,17 @@ is binary, activate `hexl-mode'."
   :init
   (map! :leader :prefix ("l m")
         (:prefix ("v" . "empv")
-         :desc "Play"          "p" #'empv-play
-         :desc "Seach Youtube" "y" #'consult-empv-youtube
-         :desc "Play radio"    "r" #'empv-play-radio))
+         :desc "Play"                  "p" #'empv-play
+         :desc "Seach Youtube"         "y" #'consult-empv-youtube
+         :desc "Play radio"            "r" #'empv-play-radio
+         :desc "Save current playlist" "s" #'+empv-save-playtlist-to-file))
   :config
   ;; See https://docs.invidious.io/instances/
-  (setq empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"
+  (setq empv-invidious-instance "https://y.com.sb/api/v1"
+        empv-audio-dir "~/Music"
+        empv-video-dir "~/Videos"
+        empv-max-directory-search-depth 6
+        empv-radio-log-file (expand-file-name "logged-radio-songs.org" org-directory)
         ;; Links from https://www.radio-browser.info
         empv-radio-channels
         '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
@@ -2180,7 +2184,49 @@ is binary, activate `hexl-mode'."
           ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
           ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
           ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-          ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))))
+          ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k")))
+
+  (empv-playlist-loop-on)
+
+  ;; Hacky palylist management (only supports saving playlist,
+  ;; loading a playlist can be achieved using `empv-play-file')
+
+  (defvar +empv-playlist-dir empv-audio-dir)
+
+  ;; Only for internal usage with `empv--cmd' call backs
+  (defvar empv---pl-cb)
+  (defvar empv---pl-curr)
+  (defvar empv---pl-count)
+  (defvar empv---pl-playlist)
+
+  (defun +empv-get-current-playlist (&optional cb &rest args)
+    (when (empv--running?)
+      (setq empv---pl-cb (cons cb args))
+      (setq empv---pl-playlist nil)
+      (empv--cmd
+       'get_property 'playlist/count
+       (setq empv---pl-count it)
+       (setq empv---pl-curr 0)
+       (dotimes (i it)
+         (empv--cmd
+          'get_property (intern (format "playlist/%d/filename" i))
+          (add-to-list 'empv---pl-playlist it)
+          (setq empv---pl-curr (1+ empv---pl-curr))
+          (when (and (eq empv---pl-count empv---pl-curr)
+                     (fboundp (car empv---pl-cb)))
+            ;; Call on the last element
+            (apply (car empv---pl-cb) empv---pl-playlist (cdr empv---pl-cb))))))))
+
+  (defun +empv-save-playtlist-to-file (path)
+    (interactive "FSave playlist to: ")
+    (+empv-get-current-playlist #'+empv--save-playlist-to-file path))
+
+  (defun +empv--save-playlist-to-file (playlist &optional filename)
+    (with-temp-buffer
+      (insert (+str-join "\n" playlist))
+      (let* ((last-pl (file-name-sans-extension (car (last (directory-files +empv-playlist-dir nil "empv-playlist-\\([[:digit:]]+\\)\\.m3u")))))
+             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-"))))))))
+        (write-file (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir)))))))
 ;; EMPV:2 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
@@ -2331,6 +2377,34 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*GNU Octave][GNU Octave:1]]
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 ;; GNU Octave:1 ends here
+
+;; [[file:config.org::*GNU Octave][GNU Octave:2]]
+(defun +octave-eval-last-sexp ()
+  "Evaluate Octave sexp before point and print value into current buffer."
+  (interactive)
+  (inferior-octave t)
+  (let ((print-escape-newlines nil)
+        (opoint (point)))
+    (prin1
+     (save-excursion
+       (forward-sexp -1)
+       (inferior-octave-send-list-and-digest
+        (list (concat (buffer-substring-no-properties (point) opoint)
+                      "\n")))
+       (mapconcat 'identity inferior-octave-output-list "\n")))))
+
+(defun +eros-octave-eval-last-sexp ()
+  "Wrapper for `+octave-eval-last-sexp' that overlays results."
+  (interactive)
+  (eros--eval-overlay
+   (octave-eval-last-sexp)
+   (point)))
+
+(map! :localleader
+      :map (octave-mode-map)
+      (:prefix ("e" . "eval")
+       :desc "Eval and print last sexp" "e" #'+eros-octave-eval-last-sexp))
+;; GNU Octave:2 ends here
 
 ;; [[file:config.org::*Extensions][Extensions:1]]
 (add-to-list 'auto-mode-alist '("\\.rviz\\'"   . conf-unix-mode))

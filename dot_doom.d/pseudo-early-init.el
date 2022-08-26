@@ -69,6 +69,28 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
   (replace-regexp-in-string (regexp-opt (mapcar 'car replacements))
                             (lambda (it) (cdr (assoc-string it replacements)))
                             s t t))
+
+(defun +systemd-running-p (service)
+  "Check if the systemd SERVICE is running."
+  (zerop (call-process "systemctl" nil nil nil "--user" "is-active" "--quiet" service ".service")))
+
+(defun +systemd-start (service &optional pre-fn post-fn)
+  "Start systemd SERVICE"
+  (interactive)
+  (when pre-fn (funcall pre-fn))
+  (if (zerop (call-process "systemctl" nil nil nil "--user" "start" service ".service"))
+      (progn
+        (when post-fn (funcall post-fn))
+        (message "[systemd]: Service %s.service started successfully."))
+    (message "[systemd]: Failed to start %s.service." service)))
+
+(defun +systemd-stop (service &optional pre-fn post-fn)
+  "Stops the systemd SERVICE."
+  (interactive)
+  (when pre-fn (funcall pre-fn))
+  (call-process "systemctl" nil nil nil "--user" "stop" service ".service")
+  (when post-fn (funcall post-fn))
+  (message "[systemd]: Stopped service %s." service))
 ;; Useful functions:1 ends here
 
 ;; [[file:config.org::*Fixes][Fixes:1]]
