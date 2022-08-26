@@ -4136,6 +4136,34 @@ Octave/Matlab files.
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 #+end_src
 
+#+begin_src emacs-lisp
+(defun +octave-eval-last-sexp ()
+  "Evaluate Octave sexp before point and print value into current buffer."
+  (interactive)
+  (inferior-octave t)
+  (let ((print-escape-newlines nil)
+        (opoint (point)))
+    (prin1
+     (save-excursion
+       (forward-sexp -1)
+       (inferior-octave-send-list-and-digest
+        (list (concat (buffer-substring-no-properties (point) opoint)
+                      "\n")))
+       (mapconcat 'identity inferior-octave-output-list "\n")))))
+
+(defun +eros-octave-eval-last-sexp ()
+  "Wrapper for `+octave-eval-last-sexp' that overlays results."
+  (interactive)
+  (eros--eval-overlay
+   (octave-eval-last-sexp)
+   (point)))
+
+(map! :localleader
+      :map (octave-mode-map)
+      (:prefix ("e" . "eval")
+       :desc "Eval and print last sexp" "e" #'+eros-octave-eval-last-sexp))
+#+end_src
+
 ** ROS :ros:
 *** Extensions :files:
 Add ROS specific file formats:
