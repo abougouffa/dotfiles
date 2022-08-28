@@ -3926,12 +3926,12 @@ default backend EMMS is using.
 
   (defun +empv-get-current-playlist (&optional cb &rest args)
     (when (empv--running?)
-      (setq empv---pl-cb (cons cb args))
-      (setq empv---pl-playlist nil)
+      (setq empv---pl-playlist nil
+            empv---pl-cb (cons cb args))
       (empv--cmd
        'get_property 'playlist/count
-       (setq empv---pl-count it)
-       (setq empv---pl-curr 0)
+       (setq empv---pl-curr 0
+             empv---pl-count it)
        (dotimes (i it)
          (empv--cmd
           'get_property (intern (format "playlist/%d/filename" i))
@@ -3950,8 +3950,11 @@ default backend EMMS is using.
     (with-temp-buffer
       (insert (+str-join "\n" playlist))
       (let* ((last-pl (file-name-sans-extension (car (last (directory-files +empv-playlist-dir nil "empv-playlist-\\([[:digit:]]+\\)\\.m3u")))))
-             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-"))))))))
-        (write-file (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir)))))))
+             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-")))))))
+             (filename (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir))))
+        ;; (if (file-exists-p filename)
+        ;;     (append-to-file (point-min) (point-max) filename)
+        (write-file filename)))))
 #+end_src
 
 *** Keybindings
