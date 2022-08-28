@@ -3890,7 +3890,7 @@ default backend EMMS is using.
          :desc "Save current playlist" "s" #'+empv-save-playtlist-to-file))
   :config
   ;; See https://docs.invidious.io/instances/
-  (setq empv-invidious-instance "https://y.com.sb/api/v1"
+  (setq empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"
         empv-audio-dir "~/Music"
         empv-video-dir "~/Videos"
         empv-max-directory-search-depth 6
