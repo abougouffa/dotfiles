@@ -542,7 +542,7 @@ This file shouldn't be byte compiled.
       user-mail-address "abougouffa@fedoraproject.org")
 #+end_src
 
-** Shared information
+** Common variables
 
 #+begin_src emacs-lisp
 (defvar +my/lang-mother-tongue "ar")
