@@ -5,7 +5,7 @@
       user-mail-address "abougouffa@fedoraproject.org")
 ;; User information:1 ends here
 
-;; [[file:config.org::*Shared information][Shared information:1]]
+;; [[file:config.org::*Common variables][Common variables:1]]
 (defvar +my/lang-mother-tongue "ar")
 (defvar +my/lang-main          "en")
 (defvar +my/lang-secondary     "fr")
@@ -14,7 +14,7 @@
 (defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
 (defvar +my/biblio-notes-path     (expand-file-name "~/PhD/bibliography/notes/"))
 (defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
-;; Shared information:1 ends here
+;; Common variables:1 ends here
 
 ;; [[file:config.org::*Secrets][Secrets:1]]
 (setq auth-sources '("~/.authinfo.gpg")
@@ -329,6 +329,18 @@
           (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
 ;; All the icons:1 ends here
 
+;; [[file:config.org::*Tabs][Tabs:1]]
+(after! centaur-tabs
+  ;; For some reason, setting `centaur-tabs-set-bar' this to `right'
+  ;; instead of Doom's default `left', fixes this issue with Emacs daemon:
+  ;; https://github.com/doomemacs/doomemacs/issues/6647#issuecomment-1229365473
+  (setq centaur-tabs-set-bar 'right
+        centaur-tabs-gray-out-icons 'buffer
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-close-button "⨂"
+        centaur-tabs-modified-marker "⨀"))
+;; Tabs:1 ends here
+
 ;; [[file:config.org::*Scratch buffer][Scratch buffer:1]]
 (setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
 ;; Scratch buffer:1 ends here
@@ -353,8 +365,7 @@
   ;; Ref: https://github.com/emacs-evil/evil/issues/1630
   (evil-select-search-module 'evil-search-module 'isearch)
 
-  (setq evil-kill-on-visual-paste nil ; Don't put overwritten text in the kill ring
-        evil-move-cursor-back nil))   ; Don't move the block cursor when toggling insert mode
+  (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
 ;; Evil:1 ends here
 
 ;; [[file:config.org::*Aggressive indent][Aggressive indent:2]]
@@ -1013,12 +1024,12 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
 (use-package! flycheck-languagetool
-  :when (and nil LANGUAGETOOL-P)
+  :when LANGUAGETOOL-P
   :hook (org-msg-edit-mode . flycheck-languagetool-setup)
   :init
-  (setq flycheck-languagetool-server-command '("languagetool" "--http" "--port" "9091")
+  (setq flycheck-languagetool-url "http://localhost"
+        flycheck-languagetool-server-port 8081
         flycheck-languagetool-language "auto"
-        flycheck-languagetool-server-port 9091
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
         `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
@@ -2165,7 +2176,7 @@ is binary, activate `hexl-mode'."
          :desc "Save current playlist" "s" #'+empv-save-playtlist-to-file))
   :config
   ;; See https://docs.invidious.io/instances/
-  (setq empv-invidious-instance "https://y.com.sb/api/v1"
+  (setq empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"
         empv-audio-dir "~/Music"
         empv-video-dir "~/Videos"
         empv-max-directory-search-depth 6
@@ -2201,12 +2212,12 @@ is binary, activate `hexl-mode'."
 
   (defun +empv-get-current-playlist (&optional cb &rest args)
     (when (empv--running?)
-      (setq empv---pl-cb (cons cb args))
-      (setq empv---pl-playlist nil)
+      (setq empv---pl-playlist nil
+            empv---pl-cb (cons cb args))
       (empv--cmd
        'get_property 'playlist/count
-       (setq empv---pl-count it)
-       (setq empv---pl-curr 0)
+       (setq empv---pl-curr 0
+             empv---pl-count it)
        (dotimes (i it)
          (empv--cmd
           'get_property (intern (format "playlist/%d/filename" i))
@@ -2225,8 +2236,11 @@ is binary, activate `hexl-mode'."
     (with-temp-buffer
       (insert (+str-join "\n" playlist))
       (let* ((last-pl (file-name-sans-extension (car (last (directory-files +empv-playlist-dir nil "empv-playlist-\\([[:digit:]]+\\)\\.m3u")))))
-             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-"))))))))
-        (write-file (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir)))))))
+             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-")))))))
+             (filename (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir))))
+        ;; (if (file-exists-p filename)
+        ;;     (append-to-file (point-min) (point-max) filename)
+        (write-file filename)))))
 ;; EMPV:2 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
@@ -2622,10 +2636,10 @@ is binary, activate `hexl-mode'."
     (realgud:gdb (+str-replace "gdb" "rr replay" realgud:gdb-command-name)))
 
   (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from launch.json or `+realgud-debug-config'."
+    "Launch `rr record' with parameters from launch.json or `+launch-json-debug-config'."
     (interactive)
-    (let* ((conf (or (+realgud-config-from-launch-json) +realgud-debug-config))
-           (args (+realgud--substite-special-vars (plist-get conf :program) (plist-get conf :args))))
+    (let* ((conf (launch-json--config-choice))
+           (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args))))
       (unless (make-process :name "rr-record"
                             :buffer "*rr record*"
                             :command (append '("rr" "record") args))
@@ -2733,24 +2747,35 @@ is binary, activate `hexl-mode'."
 ;; Highlight current line:1 ends here
 
 ;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:1]]
-;; A variable which to be used in .dir-locals.el, formatted as a property list;
-;; '(:program "..." :args ("args1" "arg2" ...))
-(defvar +realgud-debug-config nil)
+;; A variable which to be used in .dir-locals.el, formatted as a list of plists;
+;; '((:program "..." :args ("args1" "arg2" ...)))
+(defvar +launch-json-debug-config nil)
 ;; WIP =launch.json= support for GUD and RealGUD:1 ends here
 
 ;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:4]]
 (defvar launch-json--gud-debugger-regex
-  (rx (group (or "gdb" "gud-gdb" "perldb" "pdb" "jdb" "guiler" "dbx" "sdb" "xdb"))))
+  (rx (seq bol (group-n 1 (or "gdb" "gud-gdb" "perldb" "pdb" "jdb" "guiler" "dbx" "sdb" "xdb") eol))))
 
 (defvar launch-json--realgud-debugger-regex
-  (rx (or (seq "realgud:" (group-n 1 (or "bashdb" "common" "gdb" "kshdb" "pdb"
-                                         "perldb" "rdebug" "remake"
-                                         "trepan" "trepan2" "trepan3k" "trepanjs" "trepan.pl"
-                                         "zshd")))
-          (seq "realgud-" (group-n 1 (or "gub")))
-          ;; Additional debuggers
-          (seq "realgud:" (group-n 1 (or "xdebug" "pry" "jdb" "ipdb" "trepan-xpy" "node-inspect")))
-          (seq "realgud--" (group-n 1 (or "lldb"))))))
+  (rx (seq bol (or (seq "realgud:" (group-n 1 (or "gdb" "pdb"
+                                                  "bashdb"  "kshdb" "zshd"
+                                                  "perldb" "rdebug" "remake"
+                                                  "trepan" "trepan2" "trepan3k" "trepanjs" "trepan.pl")))
+                   (seq "realgud-" (group-n 1 (or "gub")))
+                   ;; Additional debuggers
+                   (seq "realgud:" (group-n 1 (or "xdebug" "pry" "jdb" "ipdb" "trepan-xpy" "trepan-ni" "node-inspect")))
+                   ;; `realgud-lldb' defines the debug command as `realgud--lldb',
+                   ;; We accept both `realgud:lldb' and `realgud--lldb' in the config
+                   (seq "realgud" (or ":" "--") (group-n 1 (or "lldb")))) eol)))
+
+;; Define aliases for realgud-lldb
+(with-eval-after-load 'realgud-lldb
+  (defalias 'realgud:lldb 'realgud--lldb)
+  (defalias 'realgud:lldb-command-name 'realgud--lldb-command-name))
+
+;; Define aliases for realgud-ipdb
+(with-eval-after-load 'realgud-ipdb
+  (defalias 'realgud:ipdb-command-name 'realgud--ipdb-command-name))
 
 (defvar launch-json--last-config nil)
 
@@ -2800,76 +2825,85 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
      (cons program args))))
 
 (defun launch-json--debugger-params (type)
-  (let ((cmd-sym
-         (intern
-          (format
-           (if (string-match-p "^realgud:" type) "%s-%s" "gud-%s-%s")
-           type
-           "command-name"))))
-    (message "[launch.json:params]: parsing")
-    (cond
-     ((string= "gdb-mi" type)
-      (message "[launch.json:params]: found %s match" type)
-      `(:type ,type
-        :debug-cmd gdb
-        :args-format " --args %s %s"
-        :cmd gud-gdb-command-name
-        :require gdb-mi))
-     ((string-match-p "^\\(?:gud-\\|realgud:\\)gdb$" type)
-      (message "[launch.json:params]: found %s match" type)
-      `(:type ,type
-        :debug-cmd ,(intern type)
-        :args-format " --args %s %s"
-        :cmd ,cmd-sym
-        :require ,(cond ((string-match-p "^gud-" type) 'gud)
-                        ((string-match-p "^realgud:" type) 'realgud))))
-     ((string-match-p "^\\(?:gud-\\|realgud:\\)lldb$" type)
-      (message "[launch.json:params]: found %s match" type)
-      `(:type ,type
-        :debug-cmd ,(intern type)
-        :args-format " -- %s %s"
-        :cmd ,cmd-sym
-        :require ,(intern (+str-replace ":" "-" type))))
-     ;; gud.el
-     ((string-match-p "^\\(?:realgud:\\)?\\(?:\\(?:bash\\|ksh\\|perl\\|zsh\\|ip\\|[jpsx]\\)db\\|\\(?:trepan\\(?:2\\|3k\\|js\\|[.]?pl\\|-ni\\)?\\)\\)$" type)
-      (message "[launch.json:params]: found %s match" type)
-      `(:type ,type
-        :debug-cmd ,(intern type)
-        :args-format " %s %s"
-        :cmd ,(if (string= "realgud:ipdb" type) 'realgud--ipdb-command-name cmd-sym)
-        :require ,(cond ((string= "realgud:trepan-ni" type) 'realgud-trepan-ni)
-                        ((string-match-p "^realgud:" type) 'realgud)
-                        ((not (string-match-p "^realgud:" type)) 'gud)))))))
+  (let* ((front/backend
+          (cond ((string-match launch-json--realgud-debugger-regex type)
+                 (cons 'realgud (intern (match-string 1 type))))
+                ((string-match launch-json--gud-debugger-regex type)
+                 (cons 'gud (intern (match-string 1 type))))
+                (t
+                 (cons 'unknown 'unknown))))
+         (frontend (car front/backend))
+         (backend (cdr front/backend))
+         (cmd-sym (unless (eq frontend 'unknown)
+                    (intern (format (cond ((eq frontend 'gud) "gud-%s-%s")
+                                          ((eq frontend 'realgud) "%s-%s")
+                                          (t "%s-%s"))
+                                    type
+                                    "command-name")))))
+    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }" type (symbol-name frontend) (symbol-name backend))
+    (cond ((memq backend '(gud-gdb gdb))
+           ;; Special case for '(gud . gdb), uses `gdb-mi'
+           (let ((use-gdb-mi (equal front/backend '(gud . gdb))))
+             `(:type ,type
+               :debug-cmd ,(if use-gdb-mi 'gdb (intern type))
+               :args-format " --args %s %s"
+               :cmd ,cmd-sym
+               :require ,(if use-gdb-mi 'gdb-mi frontend))))
+          ((eq backend 'lldb)
+           `(:type ,type
+             :debug-cmd ,(intern type)
+             :args-format " -- %s %s"
+             :cmd ,cmd-sym
+             :require ,(intern (if (eq frontend 'realgud)
+                                   (+str-replace-all '(("--" . "-") (":" . "-")) type)
+                                 type))))
+          (t ;; TODO: to be expanded for each debugger
+           `(:type ,type
+             :debug-cmd ,(intern type)
+             :args-format " %s %s"
+             :cmd ,(if (equal front/backend '(realgud . ipdb)) 'realgud--ipdb-command-name cmd-sym)
+             :require ,(cond ((equal front/backend '(realgud . trepan-ni)) 'realgud-trepan-ni)
+                             (t frontend)))))))
 
 (defun launch-json--debug-command (params debuggee-args)
   "Return the debug command for PARAMS with DEBUGGEE-ARGS."
   (when-let* ((prog (car debuggee-args))
-              (cmd (plist-get params :cmd)))
-    (when (require (plist-get params :require) nil t)
-      (let ((args (+str-join " " (cdr debuggee-args))))
-        (when args (setq args (format (plist-get params :args-format) prog args)))
-        (if (bound-and-true-p cmd)
-            (concat (eval cmd) (if args args ""))
-          (message "[launch.json]: Invalid command for debugger %s" (plist-get params :type))
-          nil)))))
+              (cmd (plist-get params :cmd))
+              (pkg (plist-get params :require)))
+    (if (or (not pkg) (eq pkg 'unknown))
+        (progn (message "[launch-json:command]: Unknown debugger")
+               nil)
+      (if (not (require (plist-get params :require) nil t))
+          (progn (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
+                 nil)
+        (let ((args (+str-join " " (cdr debuggee-args))))
+          (when args (setq args (format (plist-get params :args-format) prog args)))
+          (if (bound-and-true-p cmd)
+              (concat (eval cmd) (if args args ""))
+            (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
+            nil))))))
+
+(launch-json--debug-command (launch-json--debugger-params "realgud:gdb") '("prog" "arg1" "arg2"))
 
 (defun launch-json-read (&optional file)
-  "Return the first RealGUD configuration in launch.json file.
+  "Return the configurations section from a launch.json FILE.
 If FILE is nil, launch.json will be searched in the current project,
 if it is set to a launch.json file, it will be used instead."
   (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
     (when (file-exists-p launch-json)
-      (message "[RealGUD]: Found \"launch.json\" at %s" launch-json)
+      (message "[launch-json]: Found \"launch.json\" at %s" launch-json)
       (let* ((launch (with-temp-buffer
                        (insert-file-contents launch-json)
                        (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
              (configs (plist-get launch :configurations)))
-        (+filter (lambda (conf) (string-match "^\\(gdb-mi\\|gud-.*\\|realgud:.*\\)$" (plist-get conf :type)))
+        (+filter (lambda (conf)
+                   (or (string-match-p launch-json--gud-debugger-regex (plist-get conf :type))
+                       (string-match-p launch-json--realgud-debugger-regex (plist-get conf :type))))
                  configs)))))
 
 (defun launch-json--config-choice (&optional file)
   (let* ((confs (or (launch-json-read file)
-                    +realgud-debug-config))
+                    +launch-json-debug-config))
          (candidates (mapcar (lambda (conf)
                                (cons (format "%s [%s]" (plist-get conf :name) (plist-get conf :type))
                                      conf))
@@ -2879,8 +2913,8 @@ if it is set to a launch.json file, it will be used instead."
           ((> (length confs) 1)
            (cdr (assoc (completing-read "Configuration: " candidates) candidates))))))
 
-(defun +debugger/launch-json (&optional file)
-  "Launch RealGUD or GDB with parameters from `+realgud-debug-config' or launch.json file."
+(defun launch-json-debug (&optional file)
+  "Launch RealGUD or GDB with parameters from `+launch-json-debug-config' or launch.json file."
   (interactive)
   (let* ((conf (or launch-json--last-config
                    (launch-json--config-choice file)))
@@ -2897,7 +2931,7 @@ if it is set to a launch.json file, it will be used instead."
 (map! :leader :prefix ("l" . "custom")
       (:when (modulep! :tools debugger)
        :prefix ("d" . "debugger")
-       :desc "GUD/RealGUD launch.json" "d" #'+debugger/launch-json))
+       :desc "GUD/RealGUD launch.json" "d" #'launch-json-debug))
 ;; WIP =launch.json= support for GUD and RealGUD:4 ends here
 
 ;; [[file:config.org::*Valgrind][Valgrind:2]]
@@ -3744,6 +3778,36 @@ if it is set to a launch.json file, it will be used instead."
     (map! :localleader
           :map org-mode-map
           :desc "Org menu" "M" #'org-menu))
+  (cl-defmacro +lsp-org-babel-enable (lang)
+    "Support LANG in org source code block."
+    ;; (setq centaur-lsp 'lsp-mode)
+    (cl-check-type lang stringp)
+    (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
+           (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
+      `(progn
+         (defun ,intern-pre (info)
+           (let ((file-name (->> info caddr (alist-get :file))))
+             (unless file-name
+               (setq file-name (make-temp-file "babel-lsp-")))
+             (setq buffer-file-name file-name)
+             (lsp-deferred)))
+         (put ',intern-pre 'function-documentation
+              (format "Enable lsp-mode in the buffer of org source block (%s)."
+                      (upcase ,lang)))
+         (if (fboundp ',edit-pre)
+             (advice-add ',edit-pre :after ',intern-pre)
+           (progn
+             (defun ,edit-pre (info)
+               (,intern-pre info))
+             (put ',edit-pre 'function-documentation
+                  (format "Prepare local buffer environment for org source block (%s)."
+                          (upcase ,lang))))))))
+  
+  (defvar +org-babel-lang-list
+    '("go" "python" "ipython" "bash" "sh"))
+  
+  (dolist (lang +org-babel-lang-list)
+    (eval `(+lsp-org-babel-enable ,lang)))
   (org-link-set-parameters
    "subfig"
    :follow (lambda (file) (find-file file))

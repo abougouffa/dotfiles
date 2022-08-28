@@ -22,6 +22,7 @@
   hydra
   modeline
   zen
+  tabs
   ophints
   nav-flash
   (vc-gutter +diff-hl +pretty)
