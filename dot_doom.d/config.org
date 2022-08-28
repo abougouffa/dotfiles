@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-08-26
+#+lastmod: 2022-08-28
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -366,6 +366,7 @@ hl-todo
 hydra
 modeline
 zen
+tabs
 ophints
 nav-flash
 (vc-gutter +diff-hl +pretty)
@@ -1151,6 +1152,20 @@ Set some custom icons for some file extensions, basically for =.m= files.
 (after! all-the-icons
   (setcdr (assoc "m" all-the-icons-extension-icon-alist)
           (cdr (assoc "matlab" all-the-icons-extension-icon-alist))))
+#+end_src
+
+*** Tabs
+
+#+begin_src emacs-lisp
+(after! centaur-tabs
+  ;; For some reason, setting `centaur-tabs-set-bar' this to `right'
+  ;; instead of Doom's default `left', fixes this issue with Emacs daemon:
+  ;; https://github.com/doomemacs/doomemacs/issues/6647#issuecomment-1229365473
+  (setq centaur-tabs-set-bar 'right
+        centaur-tabs-gray-out-icons 'buffer
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-close-button "⨂"
+        centaur-tabs-modified-marker "⨀"))
 #+end_src
 
 ** Editing :edit:
