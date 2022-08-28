@@ -2167,12 +2167,12 @@ reduces the false positives due to the marking and special commands.
 
 #+begin_src emacs-lisp
 (use-package! flycheck-languagetool
-  :when (and nil LANGUAGETOOL-P)
+  :when LANGUAGETOOL-P
   :hook (org-msg-edit-mode . flycheck-languagetool-setup)
   :init
-  (setq flycheck-languagetool-server-command '("languagetool" "--http" "--port" "9091")
+  (setq flycheck-languagetool-url "http://localhost"
+        flycheck-languagetool-server-port 8081
         flycheck-languagetool-language "auto"
-        flycheck-languagetool-server-port 9091
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
         `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
