@@ -4879,7 +4879,8 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
                                           (t "%s-%s"))
                                     type
                                     "command-name")))))
-    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }" type (symbol-name frontend) (symbol-name backend))
+    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }"
+             type (symbol-name frontend) (symbol-name backend))
     (cond ((memq backend '(gud-gdb gdb))
            ;; Special case for '(gud . gdb), uses `gdb-mi'
            (let ((use-gdb-mi (equal front/backend '(gud . gdb))))
@@ -4912,17 +4913,15 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
     (if (or (not pkg) (eq pkg 'unknown))
         (progn (message "[launch-json:command]: Unknown debugger")
                nil)
-      (if (not (require (plist-get params :require) nil t))
-          (progn (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
-                 nil)
-        (let ((args (+str-join " " (cdr debuggee-args))))
-          (when args (setq args (format (plist-get params :args-format) prog args)))
-          (if (bound-and-true-p cmd)
-              (concat (eval cmd) (if args args ""))
-            (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
-            nil))))))
-
-(launch-json--debug-command (launch-json--debugger-params "realgud:gdb") '("prog" "arg1" "arg2"))
+      (if (require (plist-get params :require) nil t)
+          (let ((args (+str-join " " (cdr debuggee-args))))
+            (when args (setq args (format (plist-get params :args-format) prog args)))
+            (if (bound-and-true-p cmd)
+                (concat (eval cmd) (if args args ""))
+              (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
+              nil))
+        (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
+        nil))))
 
 (defun launch-json-read (&optional file)
   "Return the configurations section from a launch.json FILE.
