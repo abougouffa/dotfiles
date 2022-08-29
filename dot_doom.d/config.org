@@ -191,23 +191,24 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
   "Check if the systemd SERVICE is running."
   (zerop (call-process "systemctl" nil nil nil "--user" "is-active" "--quiet" service ".service")))
 
-(defun +systemd-start (service &optional pre-fn post-fn)
-  "Start systemd SERVICE"
+(defun +systemd-command (service command &optional pre-fn post-fn)
+  "Call systemd with COMMAND and SERVICE."
   (interactive)
   (when pre-fn (funcall pre-fn))
-  (if (zerop (call-process "systemctl" nil nil nil "--user" "start" service ".service"))
-      (progn
-        (when post-fn (funcall post-fn))
-        (message "[systemd]: Service %s.service started successfully."))
-    (message "[systemd]: Failed to start %s.service." service)))
+  (let ((success (zerop (call-process "systemctl" nil nil nil "--user" command service ".service"))))
+    (unless success
+      (message "[systemd]: Failed on calling '%s' on service %s.service." command service))
+    (when post-fn (funcall post-fn success))))
+
+(defun +systemd-start (service &optional pre-fn post-fn)
+  "Start systemd SERVICE."
+  (interactive)
+  (+systemd-command service "start" pre-fn post-fn))
 
 (defun +systemd-stop (service &optional pre-fn post-fn)
   "Stops the systemd SERVICE."
   (interactive)
-  (when pre-fn (funcall pre-fn))
-  (call-process "systemctl" nil nil nil "--user" "stop" service ".service")
-  (when post-fn (funcall post-fn))
-  (message "[systemd]: Stopped service %s." service))
+  (+systemd-command service "stop" pre-fn post-fn))
 #+end_src
 
 *** Fixes
@@ -2037,9 +2038,7 @@ then by =ltex-ls=.
   (defun +languagetool-server-restart ()
     (interactive)
     (when (+languagetool-server-running-p)
-      (+languagetool-server-stop))
-    (sit-for 5)
-    (+languagetool-server-start)))
+      (+systemd-command "languagetool" "restart"))))
 
 (map! :leader :prefix ("l" . "custom")
       (:when LANGUAGETOOL-P
