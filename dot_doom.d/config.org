@@ -226,7 +226,7 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
             try-again (1- try-again))
       (unless unlocked
         (message "GPG: failed to unlock, please try again (%d)" try-again)))
-    (unless unlocked
+    (unless unlocked ;; Exit Emacs, systemd will restart it
       (kill-emacs 1))))
 #+end_src
 
@@ -979,7 +979,6 @@ Show battery level unless battery is not present or battery information is unkno
 (after! doom-modeline
   (setq doom-modeline-bar-width 4
         doom-modeline-mu4e t
-        doom-modeline-minor-modes nil
         doom-modeline-major-mode-icon t
         doom-modeline-major-mode-color-icon t
         doom-modeline-buffer-file-name-style 'truncate-upto-project))
@@ -1012,9 +1011,11 @@ Change the logo to an image, a set of beautiful images can be found in =assets=.
 |----------------------|
 | =doom-emacs-dark.svg=  |
 |----------------------|
+| =doom-emacs-gray.svg=  |
+|----------------------|
 
 #+begin_src emacs-lisp
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-user-dir))
+(setq fancy-splash-image (expand-file-name "assets/doom-emacs-gray.svg" doom-user-dir))
 #+end_src
 
 **** Dashboard
