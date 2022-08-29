@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-08-28
+#+lastmod: 2022-08-29
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -29,7 +29,7 @@ generate some other user configuration files (define aliases, environment
 variables, user tools, Git configuration...).
 
 ** How to install
-Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][*chezmoi*]] to manage my Dotfiles.
+Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][chezmoi]] to manage my Dotfiles.
 
 Now the Dotfiles can be installed using the following command; however, I don't
 recommend installing all of my dotfiles, try instead to adapt them or to copy
