@@ -2145,15 +2145,22 @@ reduces the false positives due to the marking and special commands.
 #+begin_src emacs-lisp
 (use-package! flycheck-languagetool
   :when LANGUAGETOOL-P
-  :hook (org-msg-edit-mode . flycheck-languagetool-setup)
+  :commands (+flycheck-languagetool-setup-locally)
+  :hook (org-msg-edit-mode . +flycheck-languagetool-setup-locally)
   :init
-  (setq flycheck-languagetool-url "http://localhost"
+  (setq flycheck-languagetool-url "http://localhost:8081"
         flycheck-languagetool-server-port 8081
         flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
         `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue"  . ,+my/lang-mother-tongue))))
+          ("motherTongue"  . ,+my/lang-mother-tongue)))
+
+  (defun +flycheck-languagetool-setup-locally ()
+    "Setup flycheck-languagetool locally."
+    (interactive)
+    (setq-local flycheck-checkers
+                (append '(languagetool) flycheck-checkers))))
 #+end_src
 
 *** Go Translate (Google, Bing and DeepL)
