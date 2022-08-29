@@ -216,14 +216,13 @@
 (after! doom-modeline
   (setq doom-modeline-bar-width 4
         doom-modeline-mu4e t
-        doom-modeline-minor-modes nil
         doom-modeline-major-mode-icon t
         doom-modeline-major-mode-color-icon t
         doom-modeline-buffer-file-name-style 'truncate-upto-project))
 ;; Mode line customization:1 ends here
 
 ;; [[file:config.org::*Custom splash image][Custom splash image:1]]
-(setq fancy-splash-image (expand-file-name "assets/emacs-e.png" doom-user-dir))
+(setq fancy-splash-image (expand-file-name "assets/doom-emacs-gray.svg" doom-user-dir))
 ;; Custom splash image:1 ends here
 
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
@@ -489,7 +488,7 @@
   (defun +treemacs-ignore-filter (file full-path)
     "Ignore files specified by `+treemacs-file-ignore-extensions', and `+treemacs-file-ignore-regexps'"
     (or (member (file-name-extension file) +treemacs-file-ignore-extensions)
-        (let ((ignore-file nil))
+        (let (( ignore-file nil))
           (dolist (regexp +treemacs-file-ignore-regexps ignore-file)
             (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
 
@@ -933,9 +932,7 @@ current buffer's, reload dir-locals."
   (defun +languagetool-server-restart ()
     (interactive)
     (when (+languagetool-server-running-p)
-      (+languagetool-server-stop))
-    (sit-for 5)
-    (+languagetool-server-start)))
+      (+systemd-command "languagetool" "restart"))))
 
 (map! :leader :prefix ("l" . "custom")
       (:when LANGUAGETOOL-P
@@ -1025,15 +1022,22 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Flycheck][Flycheck:2]]
 (use-package! flycheck-languagetool
   :when LANGUAGETOOL-P
-  :hook (org-msg-edit-mode . flycheck-languagetool-setup)
+  :commands (+flycheck-languagetool-setup-locally)
+  :hook (org-msg-edit-mode . +flycheck-languagetool-setup-locally)
   :init
-  (setq flycheck-languagetool-url "http://localhost"
+  (setq flycheck-languagetool-url "http://localhost:8081"
         flycheck-languagetool-server-port 8081
         flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
         `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue"  . ,+my/lang-mother-tongue))))
+          ("motherTongue"  . ,+my/lang-mother-tongue)))
+
+  (defun +flycheck-languagetool-setup-locally ()
+    "Setup flycheck-languagetool locally."
+    (interactive)
+    (setq-local flycheck-checkers
+                (append '(languagetool) flycheck-checkers))))
 ;; Flycheck:2 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
@@ -1275,6 +1279,35 @@ current buffer's, reload dir-locals."
         :desc "eCryptfs mount private"    "e" #'+ecryptfs-mount-private
         :desc "eCryptfs un-mount private" "E" #'+ecryptfs-umount-private)))
 ;; eCryptfs:1 ends here
+
+;; [[file:config.org::*Workspaces][Workspaces:1]]
+(map! :leader
+      (:when (modulep! :ui workspaces)
+       :prefix ("TAB" . "workspace")
+       :desc "Display tab bar"           "TAB" #'+workspace/display
+       :desc "Switch workspace"          "."   #'+workspace/switch-to
+       :desc "Switch to last workspace"  "$"   #'+workspace/other ;; Modified
+       :desc "New workspace"             "n"   #'+workspace/new
+       :desc "New named workspace"       "N"   #'+workspace/new-named
+       :desc "Load workspace from file"  "l"   #'+workspace/load
+       :desc "Save workspace to file"    "s"   #'+workspace/save
+       :desc "Delete session"            "x"   #'+workspace/kill-session
+       :desc "Delete this workspace"     "d"   #'+workspace/delete
+       :desc "Rename workspace"          "r"   #'+workspace/rename
+       :desc "Restore last session"      "R"   #'+workspace/restore-last-session
+       :desc "Next workspace"            ">"   #'+workspace/switch-right ;; Modified
+       :desc "Previous workspace"        "<"   #'+workspace/switch-left ;; Modified
+       :desc "Switch to 1st workspace"   "1"   #'+workspace/switch-to-0
+       :desc "Switch to 2nd workspace"   "2"   #'+workspace/switch-to-1
+       :desc "Switch to 3rd workspace"   "3"   #'+workspace/switch-to-2
+       :desc "Switch to 4th workspace"   "4"   #'+workspace/switch-to-3
+       :desc "Switch to 5th workspace"   "5"   #'+workspace/switch-to-4
+       :desc "Switch to 6th workspace"   "6"   #'+workspace/switch-to-5
+       :desc "Switch to 7th workspace"   "7"   #'+workspace/switch-to-6
+       :desc "Switch to 8th workspace"   "8"   #'+workspace/switch-to-7
+       :desc "Switch to 9th workspace"   "9"   #'+workspace/switch-to-8
+       :desc "Switch to final workspace" "0"   #'+workspace/switch-to-final))
+;; Workspaces:1 ends here
 
 ;; [[file:config.org::*Weather][Weather:2]]
 (use-package! wttrin
@@ -2840,7 +2873,8 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
                                           (t "%s-%s"))
                                     type
                                     "command-name")))))
-    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }" type (symbol-name frontend) (symbol-name backend))
+    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }"
+             type (symbol-name frontend) (symbol-name backend))
     (cond ((memq backend '(gud-gdb gdb))
            ;; Special case for '(gud . gdb), uses `gdb-mi'
            (let ((use-gdb-mi (equal front/backend '(gud . gdb))))
@@ -2873,17 +2907,15 @@ Return a list, in which processed PROGRAM is the first element, followed by ARGS
     (if (or (not pkg) (eq pkg 'unknown))
         (progn (message "[launch-json:command]: Unknown debugger")
                nil)
-      (if (not (require (plist-get params :require) nil t))
-          (progn (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
-                 nil)
-        (let ((args (+str-join " " (cdr debuggee-args))))
-          (when args (setq args (format (plist-get params :args-format) prog args)))
-          (if (bound-and-true-p cmd)
-              (concat (eval cmd) (if args args ""))
-            (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
-            nil))))))
-
-(launch-json--debug-command (launch-json--debugger-params "realgud:gdb") '("prog" "arg1" "arg2"))
+      (if (require (plist-get params :require) nil t)
+          (let ((args (+str-join " " (cdr debuggee-args))))
+            (when args (setq args (format (plist-get params :args-format) prog args)))
+            (if (bound-and-true-p cmd)
+                (concat (eval cmd) (if args args ""))
+              (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
+              nil))
+        (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
+        nil))))
 
 (defun launch-json-read (&optional file)
   "Return the configurations section from a launch.json FILE.
