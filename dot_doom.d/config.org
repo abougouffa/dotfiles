@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-08-29
+#+lastmod: 2022-08-30
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -554,6 +554,9 @@ This file shouldn't be byte compiled.
 (defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
 (defvar +my/biblio-notes-path     (expand-file-name "~/PhD/bibliography/notes/"))
 (defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
+
+;; Set it early, to avoid creating "~/org" at startup
+(setq org-directory "~/Dropbox/Org")
 #+end_src
 
 ** Secrets :gpg:pass:secret:
