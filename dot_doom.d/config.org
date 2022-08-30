@@ -4117,7 +4117,6 @@ I configure my email accounts in a private file in
 
 #+begin_src emacs-lisp
 (after! mu4e
-  (require 'org-msg)
   (require 'mu4e-contrib)
   (require 'mu4e-icalendar)
   (require 'org-agenda)
@@ -4131,7 +4130,6 @@ I configure my email accounts in a private file in
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
-
 
   ;; Use msmtp instead of smtpmail
   (setq sendmail-program (executable-find "msmtp")
@@ -4233,14 +4231,22 @@ I configure my email accounts in a private file in
 
   ;; Org-Msg stuff
   ;; org-msg-[signature|greeting-fmt] are separately set for each account
+  (setq mail-user-agent 'mu4e-user-agent) ;; Needed by OrgMsg
+  (require 'org-msg)
+  (setq org-msg-convert-citation t
+        org-msg-default-alternatives
+        '((new           . (utf-8 html))
+          (reply-to-html . (utf-8 html))
+          (reply-to-text . (utf-8 html))))
+
   (map! :map org-msg-edit-mode-map
         :after org-msg
         :n "G" #'org-msg-goto-body)
 
   (map! :localleader
-      :map (mu4e-headers-mode-map mu4e-view-mode-map)
-      :desc "Open URL in Brave"   "b" #'browse-url-chrome ;; Brave
-      :desc "Open URL in Firefox" "f" #'browse-url-firefox)
+        :map (mu4e-headers-mode-map mu4e-view-mode-map)
+        :desc "Open URL in Brave"   "b" #'browse-url-chrome ;; Brave
+        :desc "Open URL in Firefox" "f" #'browse-url-firefox)
 
   ;; I like to always BCC myself
   (defun +bbc-me ()
