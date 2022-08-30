@@ -693,10 +693,23 @@ Tweak =undo-fu= and other stuff from Doom's =:emacs undo=.
 #+begin_src emacs-lisp
 (use-package! vundo
   :defer t
-  :custom
-  (vundo-glyph-alist vundo-unicode-symbols)
-  (vundo-compact-display t)
-  (vundo-window-max-height 5))
+  :init
+  (defconst +vundo-unicode-symbols
+   '((selected-node   . ?●)
+     (node            . ?○)
+     (vertical-stem   . ?│)
+     (branch          . ?├)
+     (last-branch     . ?╰)
+     (horizontal-stem . ?─)))
+
+  (map! :leader
+        (:prefix ("o")
+         :desc "vundo" "v" #'vundo))
+
+  :config
+  (setq vundo-glyph-alist +vundo-unicode-symbols
+        vundo-compact-display t
+        vundo-window-max-height 6))
 #+end_src
 
 *** Editing :edit:cursor:
