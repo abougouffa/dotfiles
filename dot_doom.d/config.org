@@ -5055,7 +5055,17 @@ if it is set to a launch.json file, it will be used instead."
 
 #+begin_src emacs-lisp
 (use-package! magit-pretty-graph
-  :after magit)
+  :after magit
+  :init
+  (setq magit-pg-command
+        (concat "git --no-pager log"
+                " --topo-order --decorate=full"
+                " --pretty=format:\"%H%x00%P%x00%an%x00%ar%x00%s%x00%d\""
+                " -n 2000")) ;; Increase the default 100 limit
+
+  (map! :localleader
+        :map (magit-mode-map)
+        :desc "Magit pretty graph" "p" (lambda () (interactive) (magit-pg-repo (magit-toplevel)))))
 #+end_src
 
 *** Repo :repo:
