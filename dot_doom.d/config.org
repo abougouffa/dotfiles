@@ -5013,7 +5013,7 @@ if it is set to a launch.json file, it will be used instead."
 #+begin_src emacs-lisp
 (after! magit
   ;; Disable if it causes performance issues
-  (setq magit-diff-refine-hunk 'all))
+  (setq magit-diff-refine-hunk t))
 #+end_src
 
 **** Gravatars
