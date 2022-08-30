@@ -14,6 +14,9 @@
 (defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
 (defvar +my/biblio-notes-path     (expand-file-name "~/PhD/bibliography/notes/"))
 (defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
+
+;; Set it early, to avoid creating "~/org" at startup
+(setq org-directory "~/Dropbox/Org")
 ;; Common variables:1 ends here
 
 ;; [[file:config.org::*Secrets][Secrets:1]]
@@ -112,10 +115,23 @@
 ;; [[file:config.org::*Visual Undo (=vundo=)][Visual Undo (=vundo=):2]]
 (use-package! vundo
   :defer t
-  :custom
-  (vundo-glyph-alist vundo-unicode-symbols)
-  (vundo-compact-display t)
-  (vundo-window-max-height 5))
+  :init
+  (defconst +vundo-unicode-symbols
+   '((selected-node   . ?●)
+     (node            . ?○)
+     (vertical-stem   . ?│)
+     (branch          . ?├)
+     (last-branch     . ?╰)
+     (horizontal-stem . ?─)))
+
+  (map! :leader
+        (:prefix ("o")
+         :desc "vundo" "v" #'vundo))
+
+  :config
+  (setq vundo-glyph-alist +vundo-unicode-symbols
+        vundo-compact-display t
+        vundo-window-max-height 6))
 ;; Visual Undo (=vundo=):2 ends here
 
 ;; [[file:config.org::*Editing][Editing:1]]
@@ -340,6 +356,12 @@
         centaur-tabs-modified-marker "⨀"))
 ;; Tabs:1 ends here
 
+;; [[file:config.org::*File templates][File templates:1]]
+(set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
+(set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
+(set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
+;; File templates:1 ends here
+
 ;; [[file:config.org::*Scratch buffer][Scratch buffer:1]]
 (setq doom-scratch-initial-major-mode 'emacs-lisp-mode)
 ;; Scratch buffer:1 ends here
@@ -488,7 +510,7 @@
   (defun +treemacs-ignore-filter (file full-path)
     "Ignore files specified by `+treemacs-file-ignore-extensions', and `+treemacs-file-ignore-regexps'"
     (or (member (file-name-extension file) +treemacs-file-ignore-extensions)
-        (let (( ignore-file nil))
+        (let ((ignore-file nil))
           (dolist (regexp +treemacs-file-ignore-regexps ignore-file)
             (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
 
@@ -705,6 +727,436 @@ current buffer's, reload dir-locals."
              lorem-ipsum-insert-paragraphs
              lorem-ipsum-insert-list))
 ;; Lorem ipsum:2 ends here
+
+;; [[file:config.org::*DAP][DAP:2]]
+(after! dap-mode
+  ;; Set latest versions
+  (setq dap-cpptools-extension-version "1.11.5")
+  (require 'dap-cpptools)
+
+  (setq dap-codelldb-extension-version "1.7.4")
+  (require 'dap-codelldb)
+
+  (setq dap-gdb-lldb-extension-version "0.26.0")
+  (require 'dap-gdb-lldb)
+
+  ;; More minimal UI
+  (setq dap-auto-configure-features '(breakpoints locals expressions tooltip)
+        dap-auto-show-output nil ;; Hide the annoying server output
+        lsp-enable-dap-auto-configure t)
+
+  ;; Automatically trigger dap-hydra when a program hits a breakpoint.
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+
+  ;; Automatically delete session and close dap-hydra when DAP is terminated.
+  (add-hook 'dap-terminated-hook
+            (lambda (arg)
+              (call-interactively #'dap-delete-session)
+              (dap-hydra/nil)))
+
+  ;; A workaround to correctly show breakpoints
+  ;; from: https://github.com/emacs-lsp/dap-mode/issues/374#issuecomment-1140399819
+  (add-hook! +dap-running-session-mode
+    (set-window-buffer nil (current-buffer))))
+;; DAP:2 ends here
+
+;; [[file:config.org::*Doom store][Doom store:1]]
+(defun +debugger/clear-last-session ()
+  "Clear the last stored session"
+  (interactive)
+  (doom-store-clear "+debugger"))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (modulep! :tools debugger +lsp)
+       :prefix ("d" . "debugger")
+       :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
+;; Doom store:1 ends here
+
+;; [[file:config.org::*Additional commands][Additional commands:1]]
+(after! realgud
+  (require 'hydra)
+
+  ;; Add some missing gdb/rr commands
+  (defun +realgud:cmd-start (arg)
+    "start = break main + run"
+    (interactive "p")
+    (realgud-command "start"))
+
+  (defun +realgud:cmd-reverse-next (arg)
+    "Reverse next"
+    (interactive "p")
+    (realgud-command "reverse-next"))
+
+  (defun +realgud:cmd-reverse-step (arg)
+    "Reverse step"
+    (interactive "p")
+    (realgud-command "reverse-step"))
+
+  (defun +realgud:cmd-reverse-continue (arg)
+    "Reverse continue"
+    (interactive "p")
+    (realgud-command "reverse-continue"))
+
+  (defun +realgud:cmd-reverse-finish (arg)
+    "Reverse finish"
+    (interactive "p")
+    (realgud-command "reverse-finish"))
+
+  ;; Define a hydra binding
+  (defhydra realgud-hydra (:color pink :hint nil :foreign-keys run)
+    "
+ Stepping  |  _n_: next      |  _i_: step    |  _o_: finish  |  _c_: continue  |  _R_: restart  |  _u_: until-here
+ Revese    | _rn_: next      | _ri_: step    | _ro_: finish  | _rc_: continue  |
+ Breakpts  | _ba_: break     | _bD_: delete  | _bt_: tbreak  | _bd_: disable   | _be_: enable   | _tr_: backtrace
+ Eval      | _ee_: at-point  | _er_: region  | _eE_: eval    |
+           |  _!_: shell     | _Qk_: kill    | _Qq_: quit    | _Sg_: gdb       | _Ss_: start
+"
+    ("n"  realgud:cmd-next)
+    ("i"  realgud:cmd-step)
+    ("o"  realgud:cmd-finish)
+    ("c"  realgud:cmd-continue)
+    ("R"  realgud:cmd-restart)
+    ("u"  realgud:cmd-until-here)
+    ("rn" +realgud:cmd-reverse-next)
+    ("ri" +realgud:cmd-reverse-step)
+    ("ro" +realgud:cmd-reverse-finish)
+    ("rc" +realgud:cmd-reverse-continue)
+    ("ba" realgud:cmd-break)
+    ("bt" realgud:cmd-tbreak)
+    ("bD" realgud:cmd-delete)
+    ("be" realgud:cmd-enable)
+    ("bd" realgud:cmd-disable)
+    ("ee" realgud:cmd-eval-at-point)
+    ("er" realgud:cmd-eval-region)
+    ("tr" realgud:cmd-backtrace)
+    ("eE" realgud:cmd-eval)
+    ("!"  realgud:cmd-shell)
+    ("Qk" realgud:cmd-kill)
+    ("Sg" realgud:gdb)
+    ("Ss" +realgud:cmd-start)
+    ("q"  nil "quit" :color blue) ;; :exit
+    ("Qq" realgud:cmd-quit :color blue)) ;; :exit
+
+  (defun +debugger/realgud:gdb-hydra ()
+    "Run `realgud-hydra'."
+    (interactive)
+    (realgud-hydra/body))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:when (modulep! :tools debugger)
+         :prefix ("d" . "debugger")
+         :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
+;; Additional commands:1 ends here
+
+;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
+(after! realgud
+  (defun +debugger/rr-replay ()
+    "Launch `rr replay'."
+    (interactive)
+    (realgud:gdb (+str-replace "gdb" "rr replay" realgud:gdb-command-name)))
+
+  (defun +debugger/rr-record ()
+    "Launch `rr record' with parameters from launch.json or `+launch-json-debug-config'."
+    (interactive)
+    (let* ((conf (launch-json--config-choice))
+           (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args))))
+      (unless (make-process :name "rr-record"
+                            :buffer "*rr record*"
+                            :command (append '("rr" "record") args))
+        (message "Cannot start the 'rr record' process"))))
+
+  (map! :leader :prefix ("l" . "custom")
+        (:when (modulep! :tools debugger)
+         :prefix ("d" . "debugger")
+         :desc "rr record" "r" #'+debugger/rr-record
+         :desc "rr replay" "R" #'+debugger/rr-replay)))
+;; Record and replay =rr=:1 ends here
+
+;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:2]]
+(use-package! gdb-mi
+  :init
+  (fmakunbound 'gdb)
+  (fmakunbound 'gdb-enable-debug)
+
+  :config
+  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
+        gdb-ignore-gdbinit nil) ;; I use gdbinit to define some useful stuff
+  ;; History
+  (defvar +gdb-history-file "~/.gdb_history")
+  (defun +gud-gdb-mode-hook-setup ()
+    "GDB setup."
+
+    ;; Suposes "~/.gdbinit" contains:
+    ;; set history save on
+    ;; set history filename ~/.gdb_history
+    ;; set history remove-duplicates 2048
+    (when (and (ring-empty-p comint-input-ring)
+               (file-exists-p +gdb-history-file))
+      (setq comint-input-ring-file-name +gdb-history-file)
+      (comint-read-input-ring t)))
+
+  (add-hook 'gud-gdb-mode-hook '+gud-gdb-mode-hook-setup))
+;; Emacs GDB /a.k.a./ =gdb-mi=:2 ends here
+
+;; [[file:config.org::*Custom layout for =gdb-many-windows=][Custom layout for =gdb-many-windows=:1]]
+(setq gdb-many-windows nil)
+
+(defun set-gdb-layout(&optional c-buffer)
+  (if (not c-buffer)
+      (setq c-buffer (window-buffer (selected-window)))) ;; save current buffer
+
+  ;; from http://stackoverflow.com/q/39762833/846686
+  (set-window-dedicated-p (selected-window) nil) ;; unset dedicate state if needed
+  (switch-to-buffer gud-comint-buffer)
+  (delete-other-windows) ;; clean all
+
+  (let* ((w-source (selected-window)) ;; left top
+         (w-gdb (split-window w-source nil 'right)) ;; right bottom
+         (w-locals (split-window w-gdb nil 'above)) ;; right middle bottom
+         (w-stack (split-window w-locals nil 'above)) ;; right middle top
+         (w-breakpoints (split-window w-stack nil 'above)) ;; right top
+         (w-io (split-window w-source (floor(* 0.9 (window-body-height))) 'below))) ;; left bottom
+    (set-window-buffer w-io (gdb-get-buffer-create 'gdb-inferior-io))
+    (set-window-dedicated-p w-io t)
+    (set-window-buffer w-breakpoints (gdb-get-buffer-create 'gdb-breakpoints-buffer))
+    (set-window-dedicated-p w-breakpoints t)
+    (set-window-buffer w-locals (gdb-get-buffer-create 'gdb-locals-buffer))
+    (set-window-dedicated-p w-locals t)
+    (set-window-buffer w-stack (gdb-get-buffer-create 'gdb-stack-buffer))
+    (set-window-dedicated-p w-stack t)
+
+    (set-window-buffer w-gdb gud-comint-buffer)
+
+    (select-window w-source)
+    (set-window-buffer w-source c-buffer)))
+
+(defadvice gdb (around args activate)
+  "Change the way to gdb works."
+  (setq global-config-editing (current-window-configuration)) ;; to restore: (set-window-configuration c-editing)
+  (let ((c-buffer (window-buffer (selected-window)))) ;; save current buffer
+    ad-do-it
+    (set-gdb-layout c-buffer)))
+
+(defadvice gdb-reset (around args activate)
+  "Change the way to gdb exit."
+  ad-do-it
+  (set-window-configuration global-config-editing))
+;; Custom layout for =gdb-many-windows=:1 ends here
+
+;; [[file:config.org::*Highlight current line][Highlight current line:1]]
+(defvar gud-overlay
+  (let* ((ov (make-overlay (point-min) (point-min))))
+    (overlay-put ov 'face 'secondary-selection)
+    ov)
+  "Overlay variable for GUD highlighting.")
+
+(defadvice gud-display-line (after my-gud-highlight act)
+  "Highlight current line."
+  (let* ((ov gud-overlay)
+         (bf (gud-find-file true-file)))
+    (with-current-buffer bf
+      (move-overlay ov (line-beginning-position) (line-beginning-position 2)
+                    ;; (move-overlay ov (line-beginning-position) (line-end-position)
+                    (current-buffer)))))
+
+(defun gud-kill-buffer ()
+  (if (derived-mode-p 'gud-mode)
+      (delete-overlay gud-overlay)))
+
+(add-hook 'kill-buffer-hook 'gud-kill-buffer)
+;; Highlight current line:1 ends here
+
+;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:1]]
+;; A variable which to be used in .dir-locals.el, formatted as a list of plists;
+;; '((:program "..." :args ("args1" "arg2" ...)))
+(defvar +launch-json-debug-config nil)
+;; WIP =launch.json= support for GUD and RealGUD:1 ends here
+
+;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:4]]
+(defvar launch-json--gud-debugger-regex
+  (rx (seq bol (group-n 1 (or "gdb" "gud-gdb" "perldb" "pdb" "jdb" "guiler" "dbx" "sdb" "xdb") eol))))
+
+(defvar launch-json--realgud-debugger-regex
+  (rx (seq bol (or (seq "realgud:" (group-n 1 (or "gdb" "pdb"
+                                                  "bashdb"  "kshdb" "zshd"
+                                                  "perldb" "rdebug" "remake"
+                                                  "trepan" "trepan2" "trepan3k" "trepanjs" "trepan.pl")))
+                   (seq "realgud-" (group-n 1 (or "gub")))
+                   ;; Additional debuggers
+                   (seq "realgud:" (group-n 1 (or "xdebug" "pry" "jdb" "ipdb" "trepan-xpy" "trepan-ni" "node-inspect")))
+                   ;; `realgud-lldb' defines the debug command as `realgud--lldb',
+                   ;; We accept both `realgud:lldb' and `realgud--lldb' in the config
+                   (seq "realgud" (or ":" "--") (group-n 1 (or "lldb")))) eol)))
+
+;; Define aliases for realgud-lldb
+(with-eval-after-load 'realgud-lldb
+  (defalias 'realgud:lldb 'realgud--lldb)
+  (defalias 'realgud:lldb-command-name 'realgud--lldb-command-name))
+
+;; Define aliases for realgud-ipdb
+(with-eval-after-load 'realgud-ipdb
+  (defalias 'realgud:ipdb-command-name 'realgud--ipdb-command-name))
+
+(defvar launch-json--last-config nil)
+
+(defun launch-json-last-config-clear ()
+  (interactive)
+  (setq-local launch-json--last-config nil))
+
+(defun launch-json--substite-special-vars (program &optional args)
+  "Substitue variables in PROGRAM and ARGS.
+Return a list, in which processed PROGRAM is the first element, followed by ARGS."
+  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
+         (ws-root (string-trim-right
+                   (expand-file-name
+                    (or (projectile-project-root)
+                        (ignore-errors (file-name-directory curr-file))
+                        "."))
+                   "/"))
+         (ws-basename (file-name-nondirectory ws-root)))
+    ;; Replace special variables
+    (mapcar
+     (lambda (str)
+       (+str-replace-all
+        (append
+         (list
+          (cons "${workspaceFolder}" ws-root)
+          (cons "${workspaceFolderBasename}" ws-basename)
+          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
+          (cons "${pathSeparator}" (if (memq system-type
+                                             '(windows-nt ms-dos cygwin))
+                                       "\\" "/"))
+          (cons "${selectedText}" (if (use-region-p)
+                                      (buffer-substring-no-properties
+                                       (region-beginning) (region-end)) "")))
+         ;; To avoid problems if launched from a non-file buffer
+         (when curr-file
+           (list
+            (cons "${file}" curr-file)
+            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
+            (cons "${relativeFileDirname}" (file-relative-name
+                                            (file-name-directory curr-file) ws-root))
+            (cons "${fileBasename}" (file-name-nondirectory curr-file))
+            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
+            (cons "${fileDirname}" (file-name-directory curr-file))
+            (cons "${fileExtname}" (file-name-extension curr-file))
+            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
+        str))
+     (cons program args))))
+
+(defun launch-json--debugger-params (type)
+  (let* ((front/backend
+          (cond ((string-match launch-json--realgud-debugger-regex type)
+                 (cons 'realgud (intern (match-string 1 type))))
+                ((string-match launch-json--gud-debugger-regex type)
+                 (cons 'gud (intern (match-string 1 type))))
+                (t
+                 (cons 'unknown 'unknown))))
+         (frontend (car front/backend))
+         (backend (cdr front/backend))
+         (cmd-sym (unless (eq frontend 'unknown)
+                    (intern (format (cond ((eq frontend 'gud) "gud-%s-%s")
+                                          ((eq frontend 'realgud) "%s-%s")
+                                          (t "%s-%s"))
+                                    type
+                                    "command-name")))))
+    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }"
+             type (symbol-name frontend) (symbol-name backend))
+    (cond ((memq backend '(gud-gdb gdb))
+           ;; Special case for '(gud . gdb), uses `gdb-mi'
+           (let ((use-gdb-mi (equal front/backend '(gud . gdb))))
+             `(:type ,type
+               :debug-cmd ,(if use-gdb-mi 'gdb (intern type))
+               :args-format " --args %s %s"
+               :cmd ,cmd-sym
+               :require ,(if use-gdb-mi 'gdb-mi frontend))))
+          ((eq backend 'lldb)
+           `(:type ,type
+             :debug-cmd ,(intern type)
+             :args-format " -- %s %s"
+             :cmd ,cmd-sym
+             :require ,(intern (if (eq frontend 'realgud)
+                                   (+str-replace-all '(("--" . "-") (":" . "-")) type)
+                                 type))))
+          (t ;; TODO: to be expanded for each debugger
+           `(:type ,type
+             :debug-cmd ,(intern type)
+             :args-format " %s %s"
+             :cmd ,(if (equal front/backend '(realgud . ipdb)) 'realgud--ipdb-command-name cmd-sym)
+             :require ,(cond ((equal front/backend '(realgud . trepan-ni)) 'realgud-trepan-ni)
+                             (t frontend)))))))
+
+(defun launch-json--debug-command (params debuggee-args)
+  "Return the debug command for PARAMS with DEBUGGEE-ARGS."
+  (when-let* ((prog (car debuggee-args))
+              (cmd (plist-get params :cmd))
+              (pkg (plist-get params :require)))
+    (if (or (not pkg) (eq pkg 'unknown))
+        (progn (message "[launch-json:command]: Unknown debugger")
+               nil)
+      (if (require (plist-get params :require) nil t)
+          (let ((args (+str-join " " (cdr debuggee-args))))
+            (when args (setq args (format (plist-get params :args-format) prog args)))
+            (if (bound-and-true-p cmd)
+                (concat (eval cmd) (if args args ""))
+              (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
+              nil))
+        (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
+        nil))))
+
+(defun launch-json-read (&optional file)
+  "Return the configurations section from a launch.json FILE.
+If FILE is nil, launch.json will be searched in the current project,
+if it is set to a launch.json file, it will be used instead."
+  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
+    (when (file-exists-p launch-json)
+      (message "[launch-json]: Found \"launch.json\" at %s" launch-json)
+      (let* ((launch (with-temp-buffer
+                       (insert-file-contents launch-json)
+                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
+             (configs (plist-get launch :configurations)))
+        (+filter (lambda (conf)
+                   (or (string-match-p launch-json--gud-debugger-regex (plist-get conf :type))
+                       (string-match-p launch-json--realgud-debugger-regex (plist-get conf :type))))
+                 configs)))))
+
+(defun launch-json--config-choice (&optional file)
+  (let* ((confs (or (launch-json-read file)
+                    +launch-json-debug-config))
+         (candidates (mapcar (lambda (conf)
+                               (cons (format "%s [%s]" (plist-get conf :name) (plist-get conf :type))
+                                     conf))
+                             confs)))
+    (cond ((eq (length confs) 1)
+           (car confs))
+          ((> (length confs) 1)
+           (cdr (assoc (completing-read "Configuration: " candidates) candidates))))))
+
+(defun launch-json-debug (&optional file)
+  "Launch RealGUD or GDB with parameters from `+launch-json-debug-config' or launch.json file."
+  (interactive)
+  (let* ((conf (or launch-json--last-config
+                   (launch-json--config-choice file)))
+         (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
+         (type (plist-get conf :type))
+         (params (launch-json--debugger-params type)))
+    (when params
+      (let ((debug-cmd (plist-get params :debug-cmd)))
+        (when (fboundp debug-cmd)
+          (setq-local launch-json--last-config conf)
+          (funcall debug-cmd
+                   (launch-json--debug-command params args)))))))
+
+(map! :leader :prefix ("l" . "custom")
+      (:when (modulep! :tools debugger)
+       :prefix ("d" . "debugger")
+       :desc "GUD/RealGUD launch.json" "d" #'launch-json-debug))
+;; WIP =launch.json= support for GUD and RealGUD:4 ends here
+
+;; [[file:config.org::*Valgrind][Valgrind:2]]
+(use-package! valgrind
+  :commands valgrind)
+;; Valgrind:2 ends here
 
 ;; [[file:config.org::*Emojify][Emojify:1]]
 (setq emojify-emoji-set "twemoji-v2")
@@ -1186,6 +1638,8 @@ current buffer's, reload dir-locals."
        (:when CHEZMOI-P
         :prefix ("c" . "chezmoi")
         :desc "Magit status" "g" #'chezmoi-magit-status
+        :desc "Write"        "w" #'chezmoi-write
+        :desc "Write files"  "W" #'chezmoi-write-files
         :desc "Find source"  "f" #'chezmoi-find
         :desc "Sync files"   "s" #'chezmoi-sync-files
         :desc "Diff"         "d" #'chezmoi-diff
@@ -1902,7 +2356,6 @@ is binary, activate `hexl-mode'."
 
 ;; [[file:config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):2]]
 (after! mu4e
-  (require 'org-msg)
   (require 'mu4e-contrib)
   (require 'mu4e-icalendar)
   (require 'org-agenda)
@@ -1916,7 +2369,6 @@ is binary, activate `hexl-mode'."
         mu4e-sent-messages-behavior 'sent ;; Save sent messages
         mu4e-context-policy 'pick-first   ;; Start with the first context
         mu4e-compose-context-policy 'ask) ;; Always ask which context to use when composing a new mail
-
 
   ;; Use msmtp instead of smtpmail
   (setq sendmail-program (executable-find "msmtp")
@@ -2018,14 +2470,22 @@ is binary, activate `hexl-mode'."
 
   ;; Org-Msg stuff
   ;; org-msg-[signature|greeting-fmt] are separately set for each account
+  (setq mail-user-agent 'mu4e-user-agent) ;; Needed by OrgMsg
+  (require 'org-msg)
+  (setq org-msg-convert-citation t
+        org-msg-default-alternatives
+        '((new           . (utf-8 html))
+          (reply-to-html . (utf-8 html))
+          (reply-to-text . (utf-8 html))))
+
   (map! :map org-msg-edit-mode-map
         :after org-msg
         :n "G" #'org-msg-goto-body)
 
   (map! :localleader
-      :map (mu4e-headers-mode-map mu4e-view-mode-map)
-      :desc "Open URL in Brave"   "b" #'browse-url-chrome ;; Brave
-      :desc "Open URL in Firefox" "f" #'browse-url-firefox)
+        :map (mu4e-headers-mode-map mu4e-view-mode-map)
+        :desc "Open URL in Brave"   "b" #'browse-url-chrome ;; Brave
+        :desc "Open URL in Firefox" "f" #'browse-url-firefox)
 
   ;; I like to always BCC myself
   (defun +bbc-me ()
@@ -2214,6 +2674,7 @@ is binary, activate `hexl-mode'."
         empv-video-dir "~/Videos"
         empv-max-directory-search-depth 6
         empv-radio-log-file (expand-file-name "logged-radio-songs.org" org-directory)
+        empv-audio-file-extensions '("webm" "mp3" "ogg" "wav" "m4a" "flac" "aac" "opus")
         ;; Links from https://www.radio-browser.info
         empv-radio-channels
         '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
@@ -2273,7 +2734,47 @@ is binary, activate `hexl-mode'."
              (filename (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir))))
         ;; (if (file-exists-p filename)
         ;;     (append-to-file (point-min) (point-max) filename)
-        (write-file filename)))))
+        (write-file filename))))
+
+  (defun +empv--dl-playlist (playlist &optional dist)
+    (let ((default-directory
+            (or dist
+                (let ((d (expand-file-name "empv-downloads" empv-audio-dir)))
+                  (unless (file-directory-p d) (mkdir d t)) d)))
+          (vids (+filter
+                 'identity ;; Filter nils
+                 (mapcar
+                  (lambda (item)
+                    (when-let
+                        ((vid (when (string-match
+                                     (rx (seq "watch?v=" (group-n 1 (one-or-more (or alnum "_" "-")))))
+                                     item)
+                                (match-string 1 item))))
+                      vid))
+                  playlist)))
+          (proc-name "empv-yt-dlp"))
+      (unless (zerop (length vids))
+        (message "Downloading %d songs to %s" (length vids) default-directory)
+        (when (get-process proc-name)
+          (kill-process proc-name))
+        (make-process :name proc-name
+                      :buffer (format "*%s*" proc-name)
+                      :command (append
+                                (list
+                                 (executable-find "yt-dlp")
+                                 "--no-abort-on-error"
+                                 "--no-colors"
+                                 "--extract-audio"
+                                 "--no-progress"
+                                 "-f" "bestaudio")
+                                vids)
+                      :sentinel (lambda (prc event)
+                                  (when (string= event "finished\n")
+                                    (message "Finished downloading playlist files!")))))))
+
+  (defun +empv-download-playtlist-files (&optional path)
+    (interactive "DSave download playlist files to: ")
+    (+empv-get-current-playlist #'+empv--dl-playlist path)))
 ;; EMPV:2 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
@@ -2372,12 +2873,6 @@ is binary, activate `hexl-mode'."
   :commands (fricas-mode fricas-eval fricas))
 ;; FriCAS:1 ends here
 
-;; [[file:config.org::*File templates][File templates:1]]
-(set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
-(set-file-template! "\\.org$" :trigger "__" :mode 'org-mode)
-(set-file-template! "/LICEN[CS]E$" :trigger '+file-templates/insert-license)
-;; File templates:1 ends here
-
 ;; [[file:config.org::*CSV rainbow][CSV rainbow:1]]
 (after! csv-mode
   ;; TODO: Need to fix the case of two commas, example "a,b,,c,d"
@@ -2405,10 +2900,10 @@ is binary, activate `hexl-mode'."
 ;; (add-hook 'csv-mode-hook (lambda () (+csv-rainbow)))
 ;; CSV rainbow:1 ends here
 
-;; [[file:config.org::*Vim][Vim:2]]
+;; [[file:config.org::*Vimrc][Vimrc:2]]
 (use-package! vimrc-mode
   :mode "\\.vim\\(rc\\)?\\'")
-;; Vim:2 ends here
+;; Vimrc:2 ends here
 
 ;; [[file:config.org::*Python IDE][Python IDE:2]]
 (use-package! elpy
@@ -2541,436 +3036,6 @@ is binary, activate `hexl-mode'."
              bitbake-task-log-mode))
 ;; Bitbake (Yocto):2 ends here
 
-;; [[file:config.org::*DAP][DAP:2]]
-(after! dap-mode
-  ;; Set latest versions
-  (setq dap-cpptools-extension-version "1.11.5")
-  (require 'dap-cpptools)
-
-  (setq dap-codelldb-extension-version "1.7.4")
-  (require 'dap-codelldb)
-
-  (setq dap-gdb-lldb-extension-version "0.26.0")
-  (require 'dap-gdb-lldb)
-
-  ;; More minimal UI
-  (setq dap-auto-configure-features '(breakpoints locals expressions tooltip)
-        dap-auto-show-output nil ;; Hide the annoying server output
-        lsp-enable-dap-auto-configure t)
-
-  ;; Automatically trigger dap-hydra when a program hits a breakpoint.
-  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
-
-  ;; Automatically delete session and close dap-hydra when DAP is terminated.
-  (add-hook 'dap-terminated-hook
-            (lambda (arg)
-              (call-interactively #'dap-delete-session)
-              (dap-hydra/nil)))
-
-  ;; A workaround to correctly show breakpoints
-  ;; from: https://github.com/emacs-lsp/dap-mode/issues/374#issuecomment-1140399819
-  (add-hook! +dap-running-session-mode
-    (set-window-buffer nil (current-buffer))))
-;; DAP:2 ends here
-
-;; [[file:config.org::*Doom store][Doom store:1]]
-(defun +debugger/clear-last-session ()
-  "Clear the last stored session"
-  (interactive)
-  (doom-store-clear "+debugger"))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when (modulep! :tools debugger +lsp)
-       :prefix ("d" . "debugger")
-       :desc "Clear last DAP session" "c" #'+debugger/clear-last-session))
-;; Doom store:1 ends here
-
-;; [[file:config.org::*Additional commands][Additional commands:1]]
-(after! realgud
-  (require 'hydra)
-
-  ;; Add some missing gdb/rr commands
-  (defun +realgud:cmd-start (arg)
-    "start = break main + run"
-    (interactive "p")
-    (realgud-command "start"))
-
-  (defun +realgud:cmd-reverse-next (arg)
-    "Reverse next"
-    (interactive "p")
-    (realgud-command "reverse-next"))
-
-  (defun +realgud:cmd-reverse-step (arg)
-    "Reverse step"
-    (interactive "p")
-    (realgud-command "reverse-step"))
-
-  (defun +realgud:cmd-reverse-continue (arg)
-    "Reverse continue"
-    (interactive "p")
-    (realgud-command "reverse-continue"))
-
-  (defun +realgud:cmd-reverse-finish (arg)
-    "Reverse finish"
-    (interactive "p")
-    (realgud-command "reverse-finish"))
-
-  ;; Define a hydra binding
-  (defhydra realgud-hydra (:color pink :hint nil :foreign-keys run)
-    "
- Stepping  |  _n_: next      |  _i_: step    |  _o_: finish  |  _c_: continue  |  _R_: restart  |  _u_: until-here
- Revese    | _rn_: next      | _ri_: step    | _ro_: finish  | _rc_: continue  |
- Breakpts  | _ba_: break     | _bD_: delete  | _bt_: tbreak  | _bd_: disable   | _be_: enable   | _tr_: backtrace
- Eval      | _ee_: at-point  | _er_: region  | _eE_: eval    |
-           |  _!_: shell     | _Qk_: kill    | _Qq_: quit    | _Sg_: gdb       | _Ss_: start
-"
-    ("n"  realgud:cmd-next)
-    ("i"  realgud:cmd-step)
-    ("o"  realgud:cmd-finish)
-    ("c"  realgud:cmd-continue)
-    ("R"  realgud:cmd-restart)
-    ("u"  realgud:cmd-until-here)
-    ("rn" +realgud:cmd-reverse-next)
-    ("ri" +realgud:cmd-reverse-step)
-    ("ro" +realgud:cmd-reverse-finish)
-    ("rc" +realgud:cmd-reverse-continue)
-    ("ba" realgud:cmd-break)
-    ("bt" realgud:cmd-tbreak)
-    ("bD" realgud:cmd-delete)
-    ("be" realgud:cmd-enable)
-    ("bd" realgud:cmd-disable)
-    ("ee" realgud:cmd-eval-at-point)
-    ("er" realgud:cmd-eval-region)
-    ("tr" realgud:cmd-backtrace)
-    ("eE" realgud:cmd-eval)
-    ("!"  realgud:cmd-shell)
-    ("Qk" realgud:cmd-kill)
-    ("Sg" realgud:gdb)
-    ("Ss" +realgud:cmd-start)
-    ("q"  nil "quit" :color blue) ;; :exit
-    ("Qq" realgud:cmd-quit :color blue)) ;; :exit
-
-  (defun +debugger/realgud:gdb-hydra ()
-    "Run `realgud-hydra'."
-    (interactive)
-    (realgud-hydra/body))
-
-  (map! :leader :prefix ("l" . "custom")
-        (:when (modulep! :tools debugger)
-         :prefix ("d" . "debugger")
-         :desc "RealGUD hydra" "h" #'+debugger/realgud:gdb-hydra)))
-;; Additional commands:1 ends here
-
-;; [[file:config.org::*Record and replay =rr=][Record and replay =rr=:1]]
-(after! realgud
-  (defun +debugger/rr-replay ()
-    "Launch `rr replay'."
-    (interactive)
-    (realgud:gdb (+str-replace "gdb" "rr replay" realgud:gdb-command-name)))
-
-  (defun +debugger/rr-record ()
-    "Launch `rr record' with parameters from launch.json or `+launch-json-debug-config'."
-    (interactive)
-    (let* ((conf (launch-json--config-choice))
-           (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args))))
-      (unless (make-process :name "rr-record"
-                            :buffer "*rr record*"
-                            :command (append '("rr" "record") args))
-        (message "Cannot start the 'rr record' process"))))
-
-  (map! :leader :prefix ("l" . "custom")
-        (:when (modulep! :tools debugger)
-         :prefix ("d" . "debugger")
-         :desc "rr record" "r" #'+debugger/rr-record
-         :desc "rr replay" "R" #'+debugger/rr-replay)))
-;; Record and replay =rr=:1 ends here
-
-;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:2]]
-(use-package! gdb-mi
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug)
-
-  :config
-  (setq gdb-window-setup-function #'gdb--setup-windows ;; TODO: Customize this
-        gdb-ignore-gdbinit nil) ;; I use gdbinit to define some useful stuff
-  ;; History
-  (defvar +gdb-history-file "~/.gdb_history")
-  (defun +gud-gdb-mode-hook-setup ()
-    "GDB setup."
-
-    ;; Suposes "~/.gdbinit" contains:
-    ;; set history save on
-    ;; set history filename ~/.gdb_history
-    ;; set history remove-duplicates 2048
-    (when (and (ring-empty-p comint-input-ring)
-               (file-exists-p +gdb-history-file))
-      (setq comint-input-ring-file-name +gdb-history-file)
-      (comint-read-input-ring t)))
-
-  (add-hook 'gud-gdb-mode-hook '+gud-gdb-mode-hook-setup))
-;; Emacs GDB /a.k.a./ =gdb-mi=:2 ends here
-
-;; [[file:config.org::*Custom layout for =gdb-many-windows=][Custom layout for =gdb-many-windows=:1]]
-(setq gdb-many-windows nil)
-
-(defun set-gdb-layout(&optional c-buffer)
-  (if (not c-buffer)
-      (setq c-buffer (window-buffer (selected-window)))) ;; save current buffer
-
-  ;; from http://stackoverflow.com/q/39762833/846686
-  (set-window-dedicated-p (selected-window) nil) ;; unset dedicate state if needed
-  (switch-to-buffer gud-comint-buffer)
-  (delete-other-windows) ;; clean all
-
-  (let* ((w-source (selected-window)) ;; left top
-         (w-gdb (split-window w-source nil 'right)) ;; right bottom
-         (w-locals (split-window w-gdb nil 'above)) ;; right middle bottom
-         (w-stack (split-window w-locals nil 'above)) ;; right middle top
-         (w-breakpoints (split-window w-stack nil 'above)) ;; right top
-         (w-io (split-window w-source (floor(* 0.9 (window-body-height))) 'below))) ;; left bottom
-    (set-window-buffer w-io (gdb-get-buffer-create 'gdb-inferior-io))
-    (set-window-dedicated-p w-io t)
-    (set-window-buffer w-breakpoints (gdb-get-buffer-create 'gdb-breakpoints-buffer))
-    (set-window-dedicated-p w-breakpoints t)
-    (set-window-buffer w-locals (gdb-get-buffer-create 'gdb-locals-buffer))
-    (set-window-dedicated-p w-locals t)
-    (set-window-buffer w-stack (gdb-get-buffer-create 'gdb-stack-buffer))
-    (set-window-dedicated-p w-stack t)
-
-    (set-window-buffer w-gdb gud-comint-buffer)
-
-    (select-window w-source)
-    (set-window-buffer w-source c-buffer)))
-
-(defadvice gdb (around args activate)
-  "Change the way to gdb works."
-  (setq global-config-editing (current-window-configuration)) ;; to restore: (set-window-configuration c-editing)
-  (let ((c-buffer (window-buffer (selected-window)))) ;; save current buffer
-    ad-do-it
-    (set-gdb-layout c-buffer)))
-
-(defadvice gdb-reset (around args activate)
-  "Change the way to gdb exit."
-  ad-do-it
-  (set-window-configuration global-config-editing))
-;; Custom layout for =gdb-many-windows=:1 ends here
-
-;; [[file:config.org::*Highlight current line][Highlight current line:1]]
-(defvar gud-overlay
-  (let* ((ov (make-overlay (point-min) (point-min))))
-    (overlay-put ov 'face 'secondary-selection)
-    ov)
-  "Overlay variable for GUD highlighting.")
-
-(defadvice gud-display-line (after my-gud-highlight act)
-  "Highlight current line."
-  (let* ((ov gud-overlay)
-         (bf (gud-find-file true-file)))
-    (with-current-buffer bf
-      (move-overlay ov (line-beginning-position) (line-beginning-position 2)
-                    ;; (move-overlay ov (line-beginning-position) (line-end-position)
-                    (current-buffer)))))
-
-(defun gud-kill-buffer ()
-  (if (derived-mode-p 'gud-mode)
-      (delete-overlay gud-overlay)))
-
-(add-hook 'kill-buffer-hook 'gud-kill-buffer)
-;; Highlight current line:1 ends here
-
-;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:1]]
-;; A variable which to be used in .dir-locals.el, formatted as a list of plists;
-;; '((:program "..." :args ("args1" "arg2" ...)))
-(defvar +launch-json-debug-config nil)
-;; WIP =launch.json= support for GUD and RealGUD:1 ends here
-
-;; [[file:config.org::*WIP =launch.json= support for GUD and RealGUD][WIP =launch.json= support for GUD and RealGUD:4]]
-(defvar launch-json--gud-debugger-regex
-  (rx (seq bol (group-n 1 (or "gdb" "gud-gdb" "perldb" "pdb" "jdb" "guiler" "dbx" "sdb" "xdb") eol))))
-
-(defvar launch-json--realgud-debugger-regex
-  (rx (seq bol (or (seq "realgud:" (group-n 1 (or "gdb" "pdb"
-                                                  "bashdb"  "kshdb" "zshd"
-                                                  "perldb" "rdebug" "remake"
-                                                  "trepan" "trepan2" "trepan3k" "trepanjs" "trepan.pl")))
-                   (seq "realgud-" (group-n 1 (or "gub")))
-                   ;; Additional debuggers
-                   (seq "realgud:" (group-n 1 (or "xdebug" "pry" "jdb" "ipdb" "trepan-xpy" "trepan-ni" "node-inspect")))
-                   ;; `realgud-lldb' defines the debug command as `realgud--lldb',
-                   ;; We accept both `realgud:lldb' and `realgud--lldb' in the config
-                   (seq "realgud" (or ":" "--") (group-n 1 (or "lldb")))) eol)))
-
-;; Define aliases for realgud-lldb
-(with-eval-after-load 'realgud-lldb
-  (defalias 'realgud:lldb 'realgud--lldb)
-  (defalias 'realgud:lldb-command-name 'realgud--lldb-command-name))
-
-;; Define aliases for realgud-ipdb
-(with-eval-after-load 'realgud-ipdb
-  (defalias 'realgud:ipdb-command-name 'realgud--ipdb-command-name))
-
-(defvar launch-json--last-config nil)
-
-(defun launch-json-last-config-clear ()
-  (interactive)
-  (setq-local launch-json--last-config nil))
-
-(defun launch-json--substite-special-vars (program &optional args)
-  "Substitue variables in PROGRAM and ARGS.
-Return a list, in which processed PROGRAM is the first element, followed by ARGS."
-  (let* ((curr-file (ignore-errors (expand-file-name (buffer-file-name))))
-         (ws-root (string-trim-right
-                   (expand-file-name
-                    (or (projectile-project-root)
-                        (ignore-errors (file-name-directory curr-file))
-                        "."))
-                   "/"))
-         (ws-basename (file-name-nondirectory ws-root)))
-    ;; Replace special variables
-    (mapcar
-     (lambda (str)
-       (+str-replace-all
-        (append
-         (list
-          (cons "${workspaceFolder}" ws-root)
-          (cons "${workspaceFolderBasename}" ws-basename)
-          (cons "${userHome}" (or (getenv "HOME") (expand-file-name "~")))
-          (cons "${pathSeparator}" (if (memq system-type
-                                             '(windows-nt ms-dos cygwin))
-                                       "\\" "/"))
-          (cons "${selectedText}" (if (use-region-p)
-                                      (buffer-substring-no-properties
-                                       (region-beginning) (region-end)) "")))
-         ;; To avoid problems if launched from a non-file buffer
-         (when curr-file
-           (list
-            (cons "${file}" curr-file)
-            (cons "${relativeFile}" (file-relative-name curr-file ws-root))
-            (cons "${relativeFileDirname}" (file-relative-name
-                                            (file-name-directory curr-file) ws-root))
-            (cons "${fileBasename}" (file-name-nondirectory curr-file))
-            (cons "${fileBasenameNoExtension}" (file-name-base curr-file))
-            (cons "${fileDirname}" (file-name-directory curr-file))
-            (cons "${fileExtname}" (file-name-extension curr-file))
-            (cons "${lineNumber}" (line-number-at-pos (point) t)))))
-        str))
-     (cons program args))))
-
-(defun launch-json--debugger-params (type)
-  (let* ((front/backend
-          (cond ((string-match launch-json--realgud-debugger-regex type)
-                 (cons 'realgud (intern (match-string 1 type))))
-                ((string-match launch-json--gud-debugger-regex type)
-                 (cons 'gud (intern (match-string 1 type))))
-                (t
-                 (cons 'unknown 'unknown))))
-         (frontend (car front/backend))
-         (backend (cdr front/backend))
-         (cmd-sym (unless (eq frontend 'unknown)
-                    (intern (format (cond ((eq frontend 'gud) "gud-%s-%s")
-                                          ((eq frontend 'realgud) "%s-%s")
-                                          (t "%s-%s"))
-                                    type
-                                    "command-name")))))
-    (message "[launch-json:params]: Found type: %s -> { frontend: %s | backend: %s }"
-             type (symbol-name frontend) (symbol-name backend))
-    (cond ((memq backend '(gud-gdb gdb))
-           ;; Special case for '(gud . gdb), uses `gdb-mi'
-           (let ((use-gdb-mi (equal front/backend '(gud . gdb))))
-             `(:type ,type
-               :debug-cmd ,(if use-gdb-mi 'gdb (intern type))
-               :args-format " --args %s %s"
-               :cmd ,cmd-sym
-               :require ,(if use-gdb-mi 'gdb-mi frontend))))
-          ((eq backend 'lldb)
-           `(:type ,type
-             :debug-cmd ,(intern type)
-             :args-format " -- %s %s"
-             :cmd ,cmd-sym
-             :require ,(intern (if (eq frontend 'realgud)
-                                   (+str-replace-all '(("--" . "-") (":" . "-")) type)
-                                 type))))
-          (t ;; TODO: to be expanded for each debugger
-           `(:type ,type
-             :debug-cmd ,(intern type)
-             :args-format " %s %s"
-             :cmd ,(if (equal front/backend '(realgud . ipdb)) 'realgud--ipdb-command-name cmd-sym)
-             :require ,(cond ((equal front/backend '(realgud . trepan-ni)) 'realgud-trepan-ni)
-                             (t frontend)))))))
-
-(defun launch-json--debug-command (params debuggee-args)
-  "Return the debug command for PARAMS with DEBUGGEE-ARGS."
-  (when-let* ((prog (car debuggee-args))
-              (cmd (plist-get params :cmd))
-              (pkg (plist-get params :require)))
-    (if (or (not pkg) (eq pkg 'unknown))
-        (progn (message "[launch-json:command]: Unknown debugger")
-               nil)
-      (if (require (plist-get params :require) nil t)
-          (let ((args (+str-join " " (cdr debuggee-args))))
-            (when args (setq args (format (plist-get params :args-format) prog args)))
-            (if (bound-and-true-p cmd)
-                (concat (eval cmd) (if args args ""))
-              (message "[launch-json:command]: Invalid command for type %s" (plist-get params :type))
-              nil))
-        (message "[launch-json:command]: Cannot add package %s" (symbol-name pkg))
-        nil))))
-
-(defun launch-json-read (&optional file)
-  "Return the configurations section from a launch.json FILE.
-If FILE is nil, launch.json will be searched in the current project,
-if it is set to a launch.json file, it will be used instead."
-  (let ((launch-json (expand-file-name (or file "launch.json") (or (projectile-project-root) "."))))
-    (when (file-exists-p launch-json)
-      (message "[launch-json]: Found \"launch.json\" at %s" launch-json)
-      (let* ((launch (with-temp-buffer
-                       (insert-file-contents launch-json)
-                       (json-parse-buffer :object-type 'plist :array-type 'list :null-object nil :false-object nil)))
-             (configs (plist-get launch :configurations)))
-        (+filter (lambda (conf)
-                   (or (string-match-p launch-json--gud-debugger-regex (plist-get conf :type))
-                       (string-match-p launch-json--realgud-debugger-regex (plist-get conf :type))))
-                 configs)))))
-
-(defun launch-json--config-choice (&optional file)
-  (let* ((confs (or (launch-json-read file)
-                    +launch-json-debug-config))
-         (candidates (mapcar (lambda (conf)
-                               (cons (format "%s [%s]" (plist-get conf :name) (plist-get conf :type))
-                                     conf))
-                             confs)))
-    (cond ((eq (length confs) 1)
-           (car confs))
-          ((> (length confs) 1)
-           (cdr (assoc (completing-read "Configuration: " candidates) candidates))))))
-
-(defun launch-json-debug (&optional file)
-  "Launch RealGUD or GDB with parameters from `+launch-json-debug-config' or launch.json file."
-  (interactive)
-  (let* ((conf (or launch-json--last-config
-                   (launch-json--config-choice file)))
-         (args (launch-json--substite-special-vars (plist-get conf :program) (plist-get conf :args)))
-         (type (plist-get conf :type))
-         (params (launch-json--debugger-params type)))
-    (when params
-      (let ((debug-cmd (plist-get params :debug-cmd)))
-        (when (fboundp debug-cmd)
-          (setq-local launch-json--last-config conf)
-          (funcall debug-cmd
-                   (launch-json--debug-command params args)))))))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when (modulep! :tools debugger)
-       :prefix ("d" . "debugger")
-       :desc "GUD/RealGUD launch.json" "d" #'launch-json-debug))
-;; WIP =launch.json= support for GUD and RealGUD:4 ends here
-
-;; [[file:config.org::*Valgrind][Valgrind:2]]
-(use-package! valgrind
-  :commands valgrind)
-;; Valgrind:2 ends here
-
 ;; [[file:config.org::*Magit][Magit:1]]
 (after! code-review
   (setq code-review-auth-login-marker 'forge))
@@ -2979,7 +3044,7 @@ if it is set to a launch.json file, it will be used instead."
 ;; [[file:config.org::*Granular diff-highlights for /all/ hunks][Granular diff-highlights for /all/ hunks:1]]
 (after! magit
   ;; Disable if it causes performance issues
-  (setq magit-diff-refine-hunk 'all))
+  (setq magit-diff-refine-hunk t))
 ;; Granular diff-highlights for /all/ hunks:1 ends here
 
 ;; [[file:config.org::*Gravatars][Gravatars:1]]
@@ -3003,7 +3068,17 @@ if it is set to a launch.json file, it will be used instead."
 
 ;; [[file:config.org::*Pretty graph][Pretty graph:2]]
 (use-package! magit-pretty-graph
-  :after magit)
+  :after magit
+  :init
+  (setq magit-pg-command
+        (concat "git --no-pager log"
+                " --topo-order --decorate=full"
+                " --pretty=format:\"%H%x00%P%x00%an%x00%ar%x00%s%x00%d\""
+                " -n 2000")) ;; Increase the default 100 limit
+
+  (map! :localleader
+        :map (magit-mode-map)
+        :desc "Magit pretty graph" "p" (lambda () (interactive) (magit-pg-repo (magit-toplevel)))))
 ;; Pretty graph:2 ends here
 
 ;; [[file:config.org::*Repo][Repo:2]]

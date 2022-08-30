@@ -77,6 +77,30 @@
            :repo "jschaf/emacs-lorem-ipsum"))
 ;; Lorem ipsum:1 ends here
 
+;; [[file:config.org::*DAP][DAP:1]]
+(unpin! dap-mode)
+;; DAP:1 ends here
+
+;; [[file:config.org::*Additional debuggers for RealGUD][Additional debuggers for RealGUD:1]]
+(package! realgud-lldb)
+(package! realgud-ipdb)
+(package! realgud-trepan-xpy :recipe (:host github :repo "realgud/trepan-xpy"))
+(package! realgud-maxima :recipe (:host github :repo "realgud/realgud-maxima"))
+;; Additional debuggers for RealGUD:1 ends here
+
+;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:1]]
+(package! gdb-mi
+  :disable t
+  :recipe (:host github
+           :repo "weirdNox/emacs-gdb"
+           :files ("*.el" "*.c" "*.h" "Makefile")))
+;; Emacs GDB /a.k.a./ =gdb-mi=:1 ends here
+
+;; [[file:config.org::*Valgrind][Valgrind:1]]
+(package! valgrind
+  :recipe (:local-repo "lisp/valgrind"))
+;; Valgrind:1 ends here
+
 ;; [[file:config.org::*Guess language][Guess language:1]]
 (package! guess-language
   :recipe (:host github
@@ -265,11 +289,11 @@
            :files ("interfaces/emacs/imaxima/*")))
 ;; IMaxima:1 ends here
 
-;; [[file:config.org::*Vim][Vim:1]]
+;; [[file:config.org::*Vimrc][Vimrc:1]]
 (package! vimrc-mode
   :recipe (:host github
            :repo "mcandre/vimrc-mode"))
-;; Vim:1 ends here
+;; Vimrc:1 ends here
 
 ;; [[file:config.org::*ESS][ESS:1]]
 (package! ess-view)
@@ -305,30 +329,6 @@
   :recipe (:host bitbucket
            :repo "olanilsson/bitbake-modes"))
 ;; Bitbake (Yocto):1 ends here
-
-;; [[file:config.org::*DAP][DAP:1]]
-(unpin! dap-mode)
-;; DAP:1 ends here
-
-;; [[file:config.org::*Additional debuggers for RealGUD][Additional debuggers for RealGUD:1]]
-(package! realgud-lldb)
-(package! realgud-ipdb)
-(package! realgud-trepan-xpy :recipe (:host github :repo "realgud/trepan-xpy"))
-(package! realgud-maxima :recipe (:host github :repo "realgud/realgud-maxima"))
-;; Additional debuggers for RealGUD:1 ends here
-
-;; [[file:config.org::*Emacs GDB /a.k.a./ =gdb-mi=][Emacs GDB /a.k.a./ =gdb-mi=:1]]
-(package! gdb-mi
-  :disable t
-  :recipe (:host github
-           :repo "weirdNox/emacs-gdb"
-           :files ("*.el" "*.c" "*.h" "Makefile")))
-;; Emacs GDB /a.k.a./ =gdb-mi=:1 ends here
-
-;; [[file:config.org::*Valgrind][Valgrind:1]]
-(package! valgrind
-  :recipe (:local-repo "lisp/valgrind"))
-;; Valgrind:1 ends here
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
 (package! company-gitcommit
