@@ -4541,6 +4541,7 @@ default backend EMMS is using.
         empv-video-dir "~/Videos"
         empv-max-directory-search-depth 6
         empv-radio-log-file (expand-file-name "logged-radio-songs.org" org-directory)
+        empv-audio-file-extensions '("webm" "mp3" "ogg" "wav" "m4a" "flac" "aac" "opus")
         ;; Links from https://www.radio-browser.info
         empv-radio-channels
         '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
