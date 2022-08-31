@@ -5317,6 +5317,20 @@ description language (~*.dot~ / ~*.gv~ files).
   :after graphviz-dot-mode)
 #+end_src
 
+*** LSP
+There is a [[https://github.com/nikeee/dot-language-server][DOT language LSP server]] out there, I made an LSP Mode client for it,
+so lets use it.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lsp-dot
+  :recipe (:host github
+           :repo "abougouffa/emacs-lsp-dot"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lsp-dot)
+#+end_src
+
 ** Modula-II
 Gaius Mulley is doing a great job, bringing Modula-II support to GCC, he also
 created a new mode for Modula-II with extended features. The mode is included
