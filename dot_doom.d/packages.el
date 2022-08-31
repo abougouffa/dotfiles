@@ -403,6 +403,12 @@
 (package! graphviz-dot-mode)
 ;; Graphviz:1 ends here
 
+;; [[file:config.org::*LSP][LSP:1]]
+(package! lsp-dot
+  :recipe (:host github
+           :repo "abougouffa/emacs-lsp-dot"))
+;; LSP:1 ends here
+
 ;; [[file:config.org::*Modula-II][Modula-II:1]]
 (package! gm2-mode
   :recipe (:local-repo "lisp/gm2-mode"))

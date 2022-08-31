@@ -2698,33 +2698,14 @@ is binary, activate `hexl-mode'."
 
   (defvar +empv-playlist-dir empv-audio-dir)
 
-  ;; Only for internal usage with `empv--cmd' call backs
-  (defvar empv---pl-cb)
-  (defvar empv---pl-curr)
-  (defvar empv---pl-count)
-  (defvar empv---pl-playlist)
-
-  (defun +empv-get-current-playlist (&optional cb &rest args)
-    (when (empv--running?)
-      (setq empv---pl-playlist nil
-            empv---pl-cb (cons cb args))
-      (empv--cmd
-       'get_property 'playlist/count
-       (setq empv---pl-curr 0
-             empv---pl-count it)
-       (dotimes (i it)
-         (empv--cmd
-          'get_property (intern (format "playlist/%d/filename" i))
-          (add-to-list 'empv---pl-playlist it)
-          (setq empv---pl-curr (1+ empv---pl-curr))
-          (when (and (eq empv---pl-count empv---pl-curr)
-                     (fboundp (car empv---pl-cb)))
-            ;; Call on the last element
-            (apply (car empv---pl-cb) empv---pl-playlist (cdr empv---pl-cb))))))))
+  (defun +empv--playlist-apply (fn &rest args)
+    (empv--let-properties '(playlist)
+     (let ((files (mapcar (lambda (it) (alist-get 'filename it)) .playlist)))
+       (apply fn files args))))
 
   (defun +empv-save-playtlist-to-file (path)
     (interactive "FSave playlist to: ")
-    (+empv-get-current-playlist #'+empv--save-playlist-to-file path))
+    (+empv--playlist-apply #'+empv--save-playlist-to-file path))
 
   (defun +empv--save-playlist-to-file (playlist &optional filename)
     (with-temp-buffer
@@ -2774,7 +2755,7 @@ is binary, activate `hexl-mode'."
 
   (defun +empv-download-playtlist-files (&optional path)
     (interactive "DSave download playlist files to: ")
-    (+empv-get-current-playlist #'+empv--dl-playlist path)))
+    (+empv--playlist-apply #'+empv--dl-playlist path)))
 ;; EMPV:2 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
@@ -3200,6 +3181,10 @@ is binary, activate `hexl-mode'."
 (use-package! company-graphviz-dot
   :after graphviz-dot-mode)
 ;; Graphviz:2 ends here
+
+;; [[file:config.org::*LSP][LSP:2]]
+(use-package! lsp-dot)
+;; LSP:2 ends here
 
 ;; [[file:config.org::*Mermaid][Mermaid:2]]
 (use-package! mermaid-mode
@@ -3975,6 +3960,7 @@ is binary, activate `hexl-mode'."
           org-modern-footnote (cons nil (cadr org-script-display))
           org-modern-priority t
           org-modern-block t
+          org-modern-block-fringe nil
           org-modern-horizontal-rule t
           org-modern-keyword
           '((t                     . t)
@@ -4024,9 +4010,6 @@ is binary, activate `hexl-mode'."
             ("created"             . "⏱")
             ("export_select_tags"  . "✔")
             ("export_exclude_tags" . "❌")))
-  
-    ;; Workaround to disable drawing on fringes
-    (advice-add 'org-modern--block-fringe :override (lambda ()))
   
     ;; Change faces
     (custom-set-faces! '(org-modern-tag :inherit (region org-modern-label)))
