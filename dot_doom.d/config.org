@@ -787,13 +787,6 @@ stealing prevention* to /None/ in the KDE Settings.
 
 * Emacs daemon :daemon:
 ** Initialization :init:
-When the daemon is running, I almost always want to do a few particular things
-with it, so I may as well eat the load time at startup. We also want to keep
-=mu4e= running.
-
-Lastly, while I'm not sure quite why it happens, but after a bit it seems that
-new Emacs client frames start on the =*scratch*= buffer instead of the dashboard.
-I prefer the dashboard, so let's ensure that's always switched to in new frames.
 
 #+begin_src emacs-lisp
 (defun +daemon-startup ()
