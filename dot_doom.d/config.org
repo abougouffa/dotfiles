@@ -4376,6 +4376,53 @@ Regards,
   (+mu4e-initialise-icons))
 #+end_src
 
+*** Save all attachements
+
+#+begin_src emacs-lisp :tangle yes
+(after! mu4e
+  ;; From https://github.com/sje30/emacs/blob/d7e21b94c79a5b6f244f33faff514036226e183c/mu4e-view-save-all-attachments.el
+
+  (defun +cleanse-subject (sub)
+    (replace-regexp-in-string "[^A-Z0-9]+" "-" (downcase sub)))
+
+  (defun +mu4e-view-save-all-attachments (&optional arg)
+    "Save all MIME parts from current mu4e gnus view buffer."
+    ;; Copied from mu4e-view-save-attachments
+    (interactive "P")
+    (cl-assert (and (eq major-mode 'mu4e-view-mode)
+                    (derived-mode-p 'gnus-article-mode)))
+    (let* ((msg (mu4e-message-at-point))
+           (id (+cleanse-subject (mu4e-message-field msg :subject)))
+           (attachdir (expand-file-name id mu4e-attachment-dir))
+           (parts (mu4e~view-gather-mime-parts))
+           (handles '())
+           (files '())
+           dir)
+      (mkdir attachdir t)
+      (dolist (part parts)
+        (let ((fname (or (cdr (assoc 'filename (assoc "attachment" (cdr part))))
+                         (seq-find #'stringp
+                                   (mapcar (lambda (item) (cdr (assoc 'name item)))
+                                           (seq-filter 'listp (cdr part)))))))
+          (when fname
+            (push `(,fname . ,(cdr part)) handles)
+            (push fname files))))
+      (if files
+          (progn
+            (setq dir
+                  (if arg (read-directory-name "Save to directory: ")
+                    attachdir))
+            (cl-loop for (f . h) in handles
+                     when (member f files)
+                     do (mm-save-part-to-file h
+                                              (+file-name-incremental
+                                               (expand-file-name f dir)))))
+        (mu4e-message "No attached files found"))))
+
+  (map! :map mu4e-view-mode-map
+     :ne "P" #'+mu4e-view-save-all-attachments))
+#+end_src
+
 ** IRC
 
 #+begin_src emacs-lisp :tangle no
