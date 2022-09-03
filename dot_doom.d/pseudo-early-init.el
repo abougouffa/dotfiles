@@ -3,8 +3,12 @@
 ;; Pseudo early-init:1 ends here
 
 ;; [[file:config.org::*Useful functions][Useful functions:1]]
+;;; === Primitives ===
+
 ;; (+bool "someval") ;; ==> t
 (defun +bool (val) (not (null val)))
+
+;;; === Higher order functions ===
 
 ;; (+foldr (lambda (a b) (message "(%d + %d)" a b) (+ a b)) 0 '(1 2 3 4 5)) ;; ==> 15
 ;; (5 + 0) -> (4 + 5) -> (3 + 9) -> (2 + 12) --> (1 + 14)
@@ -28,12 +32,20 @@
 
 ;; (+filter 'stringp '("A" 2 "C" nil 3)) ;; ==> ("A" "C")
 (defun +filter (fun seq)
-  (if (null seq) nil
+  (when seq
     (let ((head (car seq))
           (tail (cdr seq)))
       (if (funcall fun head)
           (cons head (+filter fun tail))
         (+filter fun tail)))))
+
+;; (+zip '(1 2 3 4) '(a b c d) '("A" "B" "C" "D")) ;; ==> ((1 a "A") (2 b "B") (3 c "C") (4 d "D"))
+(defun +zip (&rest seqs)
+  (if (null (car seqs)) nil
+    (cons (mapcar #'car seqs)
+          (apply #'+zip (mapcar #'cdr seqs)))))
+
+;;; === Strings ===
 
 ;; (+str-join ", " '("foo" "10" "bar")) ;; ==> "foo, 10, bar"
 (defun +str-join (sep seq)
@@ -47,19 +59,6 @@
                 (+str-split (substring str (+ s (length sep))) sep))
       (list str))))
 
-;; (+zip '(1 2 3 4) '(a b c d) '("A" "B" "C" "D")) ;; ==> ((1 a "A") (2 b "B") (3 c "C") (4 d "D"))
-(defun +zip (&rest seqs)
-  (if (null (car seqs)) nil
-    (cons (mapcar #'car seqs)
-          (apply #'+zip (mapcar #'cdr seqs)))))
-
-(defun +file-mime-type (file)
-  "Get MIME type for FILE based on magic codes provided by the 'file' command.
-Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
-`application/x-object', `application/octet-stream', etc."
-  (let ((mime-type (shell-command-to-string (format "file --brief --mime-type %s" file))))
-    (intern (string-trim-right mime-type))))
-
 (defun +str-replace (old new s)
   "Replaces OLD with NEW in S."
   (replace-regexp-in-string (regexp-quote old) new s t t))
@@ -69,6 +68,37 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
   (replace-regexp-in-string (regexp-opt (mapcar 'car replacements))
                             (lambda (it) (cdr (assoc-string it replacements)))
                             s t t))
+
+;;; === Files, IO ===
+
+(defun +file-mime-type (file)
+  "Get MIME type for FILE based on magic codes provided by the 'file' command.
+Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
+`application/x-object', `application/octet-stream', etc."
+  (let ((mime-type (shell-command-to-string (format "file --brief --mime-type %s" file))))
+    (intern (string-trim-right mime-type))))
+
+(defun +file-name-incremental (filename)
+  "Return an unique file name for FILENAME.
+If \"file.ext\" exists, returns \"file-0.ext\"."
+  (let* ((ext (file-name-extension filename))
+         (dir (file-name-directory filename))
+         (file (file-name-base filename))
+         (filename-regex (concat "^" file "\\(?:-\\(?1:[[:digit:]]+\\)\\)?" (if ext (concat "\\." ext) "")))
+         (last-file (car (last (directory-files dir nil filename-regex))))
+         (last-file-num (when (and last-file (string-match filename-regex last-file) (match-string 1 last-file))))
+         (num (1+ (string-to-number (or last-file-num "-1"))))
+         (filename (file-name-concat dir (format "%s%s%s" file (if last-file (format "-%d" num) "") (if ext (concat "." ext) "")))))
+    filename))
+
+(defun +file-read-to-string (filename)
+  "Return a string with the contents of FILENAME."
+  (when (and (file-exists-p filename) (not (file-directory-p filename)))
+    (with-temp-buffer
+      (insert-file-contents filename)
+      (buffer-string))))
+
+;;; === Systemd ===
 
 (defun +systemd-running-p (service)
   "Check if the systemd SERVICE is running."
@@ -81,7 +111,8 @@ Return a symbol of the MIME type, ex: `text/x-lisp', `text/plain',
   (let ((success (zerop (call-process "systemctl" nil nil nil "--user" command service ".service"))))
     (unless success
       (message "[systemd]: Failed on calling '%s' on service %s.service." command service))
-    (when post-fn (funcall post-fn success))))
+    (when post-fn (funcall post-fn success))
+    success))
 
 (defun +systemd-start (service &optional pre-fn post-fn)
   "Start systemd SERVICE."

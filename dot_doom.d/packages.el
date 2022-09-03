@@ -43,6 +43,10 @@
 (unpin! lsp-treemacs)
 ;; Treemacs:1 ends here
 
+;; [[file:config.org::*Unpin package][Unpin package:1]]
+(unpin! lsp-mode)
+;; Unpin package:1 ends here
+
 ;; [[file:config.org::*SonarLint][SonarLint:1]]
 (package! lsp-sonarlint
   :disable t)
@@ -65,11 +69,11 @@
            :repo "emacsorphanage/cpp-auto-include"))
 ;; Auto-include C++ headers:1 ends here
 
-;; [[file:config.org::*Emacs Refactor][Emacs Refactor:1]]
+;; [[file:config.org::*Erefactor][Erefactor:1]]
 (package! erefactor
   :recipe (:host github
            :repo "mhayashi1120/Emacs-erefactor"))
-;; Emacs Refactor:1 ends here
+;; Erefactor:1 ends here
 
 ;; [[file:config.org::*Lorem ipsum][Lorem ipsum:1]]
 (package! emacs-lorem-ipsum
@@ -402,12 +406,6 @@
 ;; [[file:config.org::*Graphviz][Graphviz:1]]
 (package! graphviz-dot-mode)
 ;; Graphviz:1 ends here
-
-;; [[file:config.org::*LSP][LSP:1]]
-(package! lsp-dot
-  :recipe (:host github
-           :repo "abougouffa/emacs-lsp-dot"))
-;; LSP:1 ends here
 
 ;; [[file:config.org::*Modula-II][Modula-II:1]]
 (package! gm2-mode

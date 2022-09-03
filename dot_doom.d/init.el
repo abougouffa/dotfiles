@@ -22,7 +22,7 @@
   hydra
   modeline
   zen
-  tabs
+  ;; tabs
   ophints
   nav-flash
   (vc-gutter +diff-hl +pretty)
@@ -95,13 +95,12 @@
   (racket +lsp +xp)
   (lua +lsp +fennel)
   (web +tree-sitter)
-  (ocaml +tree-sitter)
   (cc +lsp +tree-sitter)
   (sh +lsp +tree-sitter)
   (json +lsp +tree-sitter)
   (rust +lsp +tree-sitter)
   (julia +lsp +tree-sitter)
-  (latex +lsp +latexmk +fold)
+  (latex +lsp +latexmk)
   (python +lsp +pyenv +pyright +tree-sitter)
   (scheme +chez +mit +chicken +gauche +guile +chibi)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)

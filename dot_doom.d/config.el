@@ -716,10 +716,10 @@ current buffer's, reload dir-locals."
   :commands cpp-auto-include)
 ;; Auto-include C++ headers:2 ends here
 
-;; [[file:config.org::*Emacs Refactor][Emacs Refactor:2]]
+;; [[file:config.org::*Erefactor][Erefactor:2]]
 (use-package! erefactor
   :defer t)
-;; Emacs Refactor:2 ends here
+;; Erefactor:2 ends here
 
 ;; [[file:config.org::*Lorem ipsum][Lorem ipsum:2]]
 (use-package! lorem-ipsum
@@ -1360,41 +1360,6 @@ if it is set to a launch.json file, it will be used instead."
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 ;; Grammalecte:2 ends here
 
-;; [[file:config.org::*LanguageTool Server][LanguageTool Server:1]]
-(when LANGUAGETOOL-P
-  (defun +languagetool-server-running-p ()
-    (and LANGUAGETOOL-P
-         (+systemd-running-p "languagetool")))
-
-  (defun +languagetool-server-start ()
-    "Start LanguageTool server with PORT."
-    (interactive)
-    (unless (+languagetool-server-running-p)
-      (+systemd-start "languagetool")))
-
-  (defun +languagetool-server-stop ()
-    "Stop the LanguageTool server."
-    (interactive)
-    (if (+languagetool-server-running-p)
-        (progn
-          (+systemd-stop "languagetool")
-          (message "Stopped LanguageTool server.")))
-    (message "No LanguageTool server running."))
-
-  (defun +languagetool-server-restart ()
-    (interactive)
-    (when (+languagetool-server-running-p)
-      (+systemd-command "languagetool" "restart"))))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when LANGUAGETOOL-P
-       :prefix ("l" . "languagetool")
-       (:prefix ("s" . "server")
-        :desc "Start server"     "s" #'+languagetool-server-start
-        :desc "Stop server"      "q" #'+languagetool-server-stop
-        :desc "Restart server"   "r" #'+languagetool-server-restart)))
-;; LanguageTool Server:1 ends here
-
 ;; [[file:config.org::*LTeX][LTeX:2]]
 ;; NOTE To be removed by 1 Sep 2022,
 ;; after https://github.com/doomemacs/doomemacs/pull/6683 gets merged
@@ -1414,13 +1379,6 @@ if it is set to a launch.json file, it will be used instead."
         lsp-ltex-log-level "warning" ;; No need to log everything
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
-
-  (unless (+languagetool-server-running-p)
-    (+languagetool-server-restart)
-    (sit-for 5))
-
-  (when (+languagetool-server-running-p)
-    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
 
   ;; When n-gram data sets are available, use them to detect errors with words
   ;; that are often confused (like their and there).
@@ -1467,6 +1425,8 @@ if it is set to a launch.json file, it will be used instead."
 (after! lsp-ltex
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
+        lsp-ltex-log-level "finest"
+        lsp-ltex-diagnostic-severity "hint"
         lsp-ltex-mother-tongue +my/lang-mother-tongue
         flycheck-checker-error-threshold 1000))
 ;; LTeX:2 ends here
@@ -1477,8 +1437,9 @@ if it is set to a launch.json file, it will be used instead."
   :commands (+flycheck-languagetool-setup-locally)
   :hook (org-msg-edit-mode . +flycheck-languagetool-setup-locally)
   :init
-  (setq flycheck-languagetool-url "http://localhost:8081"
-        flycheck-languagetool-server-port 8081
+  (setq ;; flycheck-languagetool-url nil
+        ;; flycheck-languagetool-server-command (executable-find "true") ;; Server is already launched
+        ;; flycheck-languagetool-server-port 8081
         flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
@@ -2427,7 +2388,7 @@ is binary, activate `hexl-mode'."
           (from-query (+mu-long-query "from" "or" +my-addresses)))
       (add-to-list
        'mu4e-bookmarks
-       (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?k) t)))
+       (list :name "My black copies" :query (format "maildir:/.*inbox/ and %s and %s" from-query bcc-query) :key ?k) t)))
 
   ;; `mu4e-alert' configuration
   ;; Use a nicer icon in alerts
@@ -2490,7 +2451,7 @@ is binary, activate `hexl-mode'."
   ;; I like to always BCC myself
   (defun +bbc-me ()
     "Add my email to BCC."
-    (save-excursion (message-add-header (format "Bcc: %s\n" user-mail-address))))
+    (save-excursion (message-add-header (format "Bcc: %s\n" +my-bcc-trash))))
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
@@ -2509,6 +2470,74 @@ is binary, activate `hexl-mode'."
   (gnus-icalendar-org-setup))
 ;; Mail client and indexer (=mu= and =mu4e=):2 ends here
 
+;; [[file:config.org::*Dashboard][Dashboard:1]]
+(after! mu4e
+  ;; Fix icons
+  (defun +mu4e-initialise-icons ()
+    (setq mu4e-use-fancy-chars t
+          mu4e-headers-draft-mark      (cons "D" (+mu4e-normalised-icon "edit"           :set "material"))
+          mu4e-headers-flagged-mark    (cons "F" (+mu4e-normalised-icon "flag"           :set "material"))
+          mu4e-headers-new-mark        (cons "N" (+mu4e-normalised-icon "file_download"  :set "material" :color "dred"))
+          mu4e-headers-passed-mark     (cons "P" (+mu4e-normalised-icon "forward"        :set "material"))
+          mu4e-headers-replied-mark    (cons "R" (+mu4e-normalised-icon "reply"          :set "material"))
+          mu4e-headers-seen-mark       (cons "S" "")
+          mu4e-headers-trashed-mark    (cons "T" (+mu4e-normalised-icon "delete"         :set "material"))
+          mu4e-headers-attach-mark     (cons "a" (+mu4e-normalised-icon "attach_file"    :set "material"))
+          mu4e-headers-encrypted-mark  (cons "x" (+mu4e-normalised-icon "lock"           :set "material"))
+          mu4e-headers-signed-mark     (cons "s" (+mu4e-normalised-icon "verified_user"  :set "material" :color "dpurple"))
+          mu4e-headers-unread-mark     (cons "u" (+mu4e-normalised-icon "remove_red_eye" :set "material" :color "dred"))
+          mu4e-headers-list-mark       (cons "l" (+mu4e-normalised-icon "list"           :set "material"))
+          mu4e-headers-personal-mark   (cons "p" (+mu4e-normalised-icon "person"         :set "material"))
+          mu4e-headers-calendar-mark   (cons "c" (+mu4e-normalised-icon "date_range"     :set "material"))))
+
+  (+mu4e-initialise-icons))
+;; Dashboard:1 ends here
+
+;; [[file:config.org::*Save all attachements][Save all attachements:1]]
+(after! mu4e
+  ;; From https://github.com/sje30/emacs/blob/d7e21b94c79a5b6f244f33faff514036226e183c/mu4e-view-save-all-attachments.el
+
+  (defun +cleanse-subject (sub)
+    (replace-regexp-in-string "[^A-Z0-9]+" "-" (downcase sub)))
+
+  (defun +mu4e-view-save-all-attachments (&optional arg)
+    "Save all MIME parts from current mu4e gnus view buffer."
+    ;; Copied from mu4e-view-save-attachments
+    (interactive "P")
+    (cl-assert (and (eq major-mode 'mu4e-view-mode)
+                    (derived-mode-p 'gnus-article-mode)))
+    (let* ((msg (mu4e-message-at-point))
+           (id (+cleanse-subject (mu4e-message-field msg :subject)))
+           (attachdir (expand-file-name id mu4e-attachment-dir))
+           (parts (mu4e~view-gather-mime-parts))
+           (handles '())
+           (files '())
+           dir)
+      (mkdir attachdir t)
+      (dolist (part parts)
+        (let ((fname (or (cdr (assoc 'filename (assoc "attachment" (cdr part))))
+                         (seq-find #'stringp
+                                   (mapcar (lambda (item) (cdr (assoc 'name item)))
+                                           (seq-filter 'listp (cdr part)))))))
+          (when fname
+            (push `(,fname . ,(cdr part)) handles)
+            (push fname files))))
+      (if files
+          (progn
+            (setq dir
+                  (if arg (read-directory-name "Save to directory: ")
+                    attachdir))
+            (cl-loop for (f . h) in handles
+                     when (member f files)
+                     do (mm-save-part-to-file h
+                                              (+file-name-incremental
+                                               (expand-file-name f dir)))))
+        (mu4e-message "No attached files found"))))
+
+  (map! :map mu4e-view-mode-map
+     :ne "P" #'+mu4e-view-save-all-attachments))
+;; Save all attachements:1 ends here
+
 ;; [[file:config.org::*MPD and MPC][MPD and MPC:1]]
 ;; Not sure if it is required!
 (after! mpc
@@ -2522,7 +2551,7 @@ is binary, activate `hexl-mode'."
   (let ((mpd-daemon-running-p (+mpd-daemon-running-p)))
     (unless mpd-daemon-running-p
       ;; Start the daemon if it is not already running.
-      (setq mpd-daemon-running-p (zerop (call-process "systemctl" nil nil nil "--user" "start" "mpd.service"))))
+      (setq mpd-daemon-running-p (+systemd-start "mpd")))
     (cond ((+mpd-daemon-running-p)
            (+mpd-mpc-update)
            (emms-player-mpd-connect)
@@ -2535,12 +2564,12 @@ is binary, activate `hexl-mode'."
   "Stops playback and kill the MPD daemon."
   (interactive)
   (emms-stop)
-  (call-process "systemctl" nil nil nil "--user" "stop" "mpd.service")
+  (+systemd-stop "mpd")
   (message "MPD stopped!"))
 
 (defun +mpd-daemon-running-p ()
   "Check if the MPD service is running."
-  (zerop (call-process "systemctl" nil nil nil "--user" "is-active" "--quiet" "mpd.service")))
+  (+systemd-running-p "mpd"))
 
 (defun +mpd-mpc-update ()
   "Updates the MPD database synchronously."
@@ -2696,27 +2725,6 @@ is binary, activate `hexl-mode'."
   ;; Hacky palylist management (only supports saving playlist,
   ;; loading a playlist can be achieved using `empv-play-file')
 
-  (defvar +empv-playlist-dir empv-audio-dir)
-
-  (defun +empv--playlist-apply (fn &rest args)
-    (empv--let-properties '(playlist)
-     (let ((files (mapcar (lambda (it) (alist-get 'filename it)) .playlist)))
-       (apply fn files args))))
-
-  (defun +empv-save-playtlist-to-file (path)
-    (interactive "FSave playlist to: ")
-    (+empv--playlist-apply #'+empv--save-playlist-to-file path))
-
-  (defun +empv--save-playlist-to-file (playlist &optional filename)
-    (with-temp-buffer
-      (insert (+str-join "\n" playlist))
-      (let* ((last-pl (file-name-sans-extension (car (last (directory-files +empv-playlist-dir nil "empv-playlist-\\([[:digit:]]+\\)\\.m3u")))))
-             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-")))))))
-             (filename (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir))))
-        ;; (if (file-exists-p filename)
-        ;;     (append-to-file (point-min) (point-max) filename)
-        (write-file filename))))
-
   (defun +empv--dl-playlist (playlist &optional dist)
     (let ((default-directory
             (or dist
@@ -2755,7 +2763,7 @@ is binary, activate `hexl-mode'."
 
   (defun +empv-download-playtlist-files (&optional path)
     (interactive "DSave download playlist files to: ")
-    (+empv--playlist-apply #'+empv--dl-playlist path)))
+    (empv--playlist-apply #'+empv--dl-playlist path)))
 ;; EMPV:2 ends here
 
 ;; [[file:config.org::*Keybindings][Keybindings:1]]
@@ -2853,6 +2861,78 @@ is binary, activate `hexl-mode'."
   :load-path "/usr/lib/fricas/emacs"
   :commands (fricas-mode fricas-eval fricas))
 ;; FriCAS:1 ends here
+
+;; [[file:config.org::*Roam][Roam:1]]
+(use-package! websocket
+  :after org-roam-ui)
+
+(use-package! org-roam-ui
+  :commands org-roam-ui-open
+  :config (setq org-roam-ui-sync-theme t
+                org-roam-ui-follow t
+                org-roam-ui-update-on-save t
+                org-roam-ui-open-on-start t))
+;; Roam:1 ends here
+
+;; [[file:config.org::*Basic settings][Basic settings:1]]
+(use-package! org-roam
+  :init
+  (setq org-roam-directory "~/Dropbox/Org/slip-box"
+        org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory)))
+;; Basic settings:1 ends here
+
+;; [[file:config.org::*Mode line file name][Mode line file name:1]]
+(defadvice! doom-modeline--buffer-file-name-roam-aware-a (orig-fun)
+  :around #'doom-modeline-buffer-file-name ; takes no args
+  (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+      (replace-regexp-in-string
+       "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
+       "🢔(\\1-\\2-\\3) "
+       (subst-char-in-string ?_ ?  buffer-file-name))
+    (funcall orig-fun)))
+;; Mode line file name:1 ends here
+
+;; [[file:config.org::*Org Roam Capture template][Org Roam Capture template:1]]
+(after! org-roam
+  (setq org-roam-capture-ref-templates
+        '(("r" "ref" plain "%?"
+           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
+           :unnarrowed t))))
+;; Org Roam Capture template:1 ends here
+
+;; [[file:config.org::*View notes in Deft][View notes in Deft:1]]
+;; From https://org-roam.discourse.group/t/configure-deft-title-stripping-to-hide-org-roam-template-headers/478/10
+(use-package! deft
+  :after org
+  :ensure t
+  :bind
+  ("C-c n d" . deft)
+  :init
+  (setq deft-directory org-roam-directory
+        ;; deft-recursive t
+        deft-use-filter-string-for-filename t
+        deft-default-extension "org")
+  :config
+  (defun +deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+     If `deft-use-filename-as-title' is nil, the title is taken to
+     be the first non-empty line of the FILE.  Else the base name of the FILE is
+     used as title."
+    (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+      (if begin
+          (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+        (deft-base-filename file))))
+
+  (advice-add 'deft-parse-title :override #'+deft-parse-title)
+
+  (setq deft-strip-summary-regexp
+        (concat "\\("
+                "[\n\t]" ;; blank
+                "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+                "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n" ;; org-roam ID
+                "\\|\\[\\[\\(.*\\]\\)" ;; any link
+                "\\)")))
+;; View notes in Deft:1 ends here
 
 ;; [[file:config.org::*CSV rainbow][CSV rainbow:1]]
 (after! csv-mode
@@ -3059,7 +3139,7 @@ is binary, activate `hexl-mode'."
 
   (map! :localleader
         :map (magit-mode-map)
-        :desc "Magit pretty graph" "p" (lambda () (interactive) (magit-pg-repo (magit-toplevel)))))
+        :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
 ;; Pretty graph:2 ends here
 
 ;; [[file:config.org::*Repo][Repo:2]]
@@ -3176,15 +3256,11 @@ is binary, activate `hexl-mode'."
   :mode ("\\.dot\\'" "\\.gv\\'")
   :init
   (after! org
-    (setcdr (assoc "dot" org-src-lang-modes) 'graphviz-dot)))
+    (setcdr (assoc "dot" org-src-lang-modes) 'graphviz-dot))
 
-(use-package! company-graphviz-dot
-  :after graphviz-dot-mode)
+  :config
+  (require 'company-graphviz-dot))
 ;; Graphviz:2 ends here
-
-;; [[file:config.org::*LSP][LSP:2]]
-(use-package! lsp-dot)
-;; LSP:2 ends here
 
 ;; [[file:config.org::*Mermaid][Mermaid:2]]
 (use-package! mermaid-mode
@@ -3744,30 +3820,6 @@ is binary, activate `hexl-mode'."
           (interactive)
           (set-window-parameter nil 'mode-line-format 'none)
           (org-capture)))
-  (use-package! websocket
-    :after org-roam-ui)
-  
-  (use-package! org-roam-ui
-    :commands org-roam-ui-open
-    :config (setq org-roam-ui-sync-theme t
-                  org-roam-ui-follow t
-                  org-roam-ui-update-on-save t
-                  org-roam-ui-open-on-start t))
-  (setq org-roam-directory "~/Dropbox/Org/slip-box")
-  (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
-  (defadvice! doom-modeline--buffer-file-name-roam-aware-a (orig-fun)
-    :around #'doom-modeline-buffer-file-name ; takes no args
-    (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-        (replace-regexp-in-string
-         "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-         "🢔(\\1-\\2-\\3) "
-         (subst-char-in-string ?_ ?  buffer-file-name))
-      (funcall orig-fun)))
-  (after! org-roam
-    (setq org-roam-capture-ref-templates
-          '(("r" "ref" plain "%?"
-             :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
-             :unnarrowed t))))
   (defun +yas/org-src-header-p ()
     "Determine whether `point' is within a src-block header or header-args."
     (pcase (org-element-type (org-element-context))
