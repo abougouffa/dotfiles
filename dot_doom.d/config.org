@@ -8158,6 +8158,8 @@ fi
 
 # Add ~/.config/emacs/bin to path (for DOOM Emacs stuff)
 export PATH=$PATH:$HOME/.config/emacs/bin
+
+export TEXMFHOME=$HOME/.texmf
 #+end_src
 
 Define some environment variables.
