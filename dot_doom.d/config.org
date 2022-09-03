@@ -4656,27 +4656,6 @@ default backend EMMS is using.
   ;; Hacky palylist management (only supports saving playlist,
   ;; loading a playlist can be achieved using `empv-play-file')
 
-  (defvar +empv-playlist-dir empv-audio-dir)
-
-  (defun +empv--playlist-apply (fn &rest args)
-    (empv--let-properties '(playlist)
-     (let ((files (mapcar (lambda (it) (alist-get 'filename it)) .playlist)))
-       (apply fn files args))))
-
-  (defun +empv-save-playtlist-to-file (path)
-    (interactive "FSave playlist to: ")
-    (+empv--playlist-apply #'+empv--save-playlist-to-file path))
-
-  (defun +empv--save-playlist-to-file (playlist &optional filename)
-    (with-temp-buffer
-      (insert (+str-join "\n" playlist))
-      (let* ((last-pl (file-name-sans-extension (car (last (directory-files +empv-playlist-dir nil "empv-playlist-\\([[:digit:]]+\\)\\.m3u")))))
-             (num (if (null last-pl) 0 (1+ (string-to-number (car (last (+str-split last-pl "-")))))))
-             (filename (or filename (expand-file-name (format "empv-playlist-%d.m3u" num) +empv-playlist-dir))))
-        ;; (if (file-exists-p filename)
-        ;;     (append-to-file (point-min) (point-max) filename)
-        (write-file filename))))
-
   (defun +empv--dl-playlist (playlist &optional dist)
     (let ((default-directory
             (or dist
@@ -4715,7 +4694,7 @@ default backend EMMS is using.
 
   (defun +empv-download-playtlist-files (&optional path)
     (interactive "DSave download playlist files to: ")
-    (+empv--playlist-apply #'+empv--dl-playlist path)))
+    (empv--playlist-apply #'+empv--dl-playlist path)))
 #+end_src
 
 *** Keybindings
