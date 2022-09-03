@@ -4351,6 +4351,31 @@ Regards,
 (setq +mu4e-gmail-accounts '(("username@gmail.com" . "/gmail-dir")))
 #+end_src
 
+*** Dashboard
+
+#+begin_src emacs-lisp
+(after! mu4e
+  ;; Fix icons
+  (defun +mu4e-initialise-icons ()
+    (setq mu4e-use-fancy-chars t
+          mu4e-headers-draft-mark      (cons "D" (+mu4e-normalised-icon "edit"           :set "material"))
+          mu4e-headers-flagged-mark    (cons "F" (+mu4e-normalised-icon "flag"           :set "material"))
+          mu4e-headers-new-mark        (cons "N" (+mu4e-normalised-icon "file_download"  :set "material" :color "dred"))
+          mu4e-headers-passed-mark     (cons "P" (+mu4e-normalised-icon "forward"        :set "material"))
+          mu4e-headers-replied-mark    (cons "R" (+mu4e-normalised-icon "reply"          :set "material"))
+          mu4e-headers-seen-mark       (cons "S" "")
+          mu4e-headers-trashed-mark    (cons "T" (+mu4e-normalised-icon "delete"         :set "material"))
+          mu4e-headers-attach-mark     (cons "a" (+mu4e-normalised-icon "attach_file"    :set "material"))
+          mu4e-headers-encrypted-mark  (cons "x" (+mu4e-normalised-icon "lock"           :set "material"))
+          mu4e-headers-signed-mark     (cons "s" (+mu4e-normalised-icon "verified_user"  :set "material" :color "dpurple"))
+          mu4e-headers-unread-mark     (cons "u" (+mu4e-normalised-icon "remove_red_eye" :set "material" :color "dred"))
+          mu4e-headers-list-mark       (cons "l" (+mu4e-normalised-icon "list"           :set "material"))
+          mu4e-headers-personal-mark   (cons "p" (+mu4e-normalised-icon "person"         :set "material"))
+          mu4e-headers-calendar-mark   (cons "c" (+mu4e-normalised-icon "date_range"     :set "material"))))
+
+  (+mu4e-initialise-icons))
+#+end_src
+
 ** IRC
 
 #+begin_src emacs-lisp :tangle no
