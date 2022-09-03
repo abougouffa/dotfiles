@@ -5476,24 +5476,10 @@ description language (~*.dot~ / ~*.gv~ files).
   :mode ("\\.dot\\'" "\\.gv\\'")
   :init
   (after! org
-    (setcdr (assoc "dot" org-src-lang-modes) 'graphviz-dot)))
+    (setcdr (assoc "dot" org-src-lang-modes) 'graphviz-dot))
 
-(use-package! company-graphviz-dot
-  :after graphviz-dot-mode)
-#+end_src
-
-*** LSP
-There is a [[https://github.com/nikeee/dot-language-server][DOT language LSP server]] out there, I made an LSP Mode client for it,
-so lets use it.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! lsp-dot
-  :recipe (:host github
-           :repo "abougouffa/emacs-lsp-dot"))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! lsp-dot)
+  :config
+  (require 'company-graphviz-dot))
 #+end_src
 
 ** Modula-II
