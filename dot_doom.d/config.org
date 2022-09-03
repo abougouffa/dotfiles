@@ -4209,7 +4209,7 @@ I configure my email accounts in a private file in
           (from-query (+mu-long-query "from" "or" +my-addresses)))
       (add-to-list
        'mu4e-bookmarks
-       (list :name "My black copies" :query (format "%s and %s" from-query bcc-query) :key ?k) t)))
+       (list :name "My black copies" :query (format "maildir:/.*inbox/ and %s and %s" from-query bcc-query) :key ?k) t)))
 
   ;; `mu4e-alert' configuration
   ;; Use a nicer icon in alerts
