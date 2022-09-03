@@ -1730,7 +1730,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
   :commands cpp-auto-include)
 #+end_src
 
-*** Emacs Refactor
+*** Erefactor
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! erefactor
