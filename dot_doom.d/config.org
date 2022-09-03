@@ -2639,15 +2639,14 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 #+end_src
 
 *** LanguageTool :languagetool:
-**** LanguageTool Server :server:
+**** COMMENT LanguageTool Server :server:
 This will launch the LanguageTool Server at startup, this server will be used
 then by =ltex-ls=.
 
 #+begin_src emacs-lisp
 (when LANGUAGETOOL-P
   (defun +languagetool-server-running-p ()
-    (and LANGUAGETOOL-P
-         (+systemd-running-p "languagetool")))
+    (+systemd-running-p "languagetool"))
 
   (defun +languagetool-server-start ()
     "Start LanguageTool server with PORT."
@@ -2729,13 +2728,6 @@ reduces the false positives due to the marking and special commands.
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 
-  (unless (+languagetool-server-running-p)
-    (+languagetool-server-restart)
-    (sit-for 5))
-
-  (when (+languagetool-server-running-p)
-    (setq lsp-ltex-languagetool-http-server-uri "http://localhost:8081"))
-
   ;; When n-gram data sets are available, use them to detect errors with words
   ;; that are often confused (like their and there).
   (when (file-directory-p "/usr/share/ngrams")
@@ -2799,8 +2791,9 @@ reduces the false positives due to the marking and special commands.
   :commands (+flycheck-languagetool-setup-locally)
   :hook (org-msg-edit-mode . +flycheck-languagetool-setup-locally)
   :init
-  (setq flycheck-languagetool-url "http://localhost:8081"
-        flycheck-languagetool-server-port 8081
+  (setq ;; flycheck-languagetool-url nil
+        ;; flycheck-languagetool-server-command (executable-find "true") ;; Server is already launched
+        ;; flycheck-languagetool-server-port 8081
         flycheck-languagetool-language "auto"
         ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
         flycheck-languagetool-check-params
@@ -7722,7 +7715,7 @@ export EDITOR="$HOME/.local/bin/et"
 # export VISUAL=$HOME/.local/bin/ev
 #+end_src
 
-** LanguageTool server
+** COMMENT LanguageTool server
 
 #+name: emacs daemon
 #+begin_src systemd :tangle ~/.config/systemd/user/languagetool.service :mkdirp yes
@@ -7742,7 +7735,7 @@ WantedBy=default.target
 Which is then enabled by:
 
 #+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled languagetool.service")) "no" "setup.sh")
-systemctl --user enable emacs.service
+systemctl --user enable languagetool.service
 #+end_src
 
 ** AppImage :appimage:
