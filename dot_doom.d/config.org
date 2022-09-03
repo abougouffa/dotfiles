@@ -4470,7 +4470,7 @@ in Emacs to start/kill the server:
   (let ((mpd-daemon-running-p (+mpd-daemon-running-p)))
     (unless mpd-daemon-running-p
       ;; Start the daemon if it is not already running.
-      (setq mpd-daemon-running-p (zerop (call-process "systemctl" nil nil nil "--user" "start" "mpd.service"))))
+      (setq mpd-daemon-running-p (+systemd-start "mpd")))
     (cond ((+mpd-daemon-running-p)
            (+mpd-mpc-update)
            (emms-player-mpd-connect)
@@ -4483,12 +4483,12 @@ in Emacs to start/kill the server:
   "Stops playback and kill the MPD daemon."
   (interactive)
   (emms-stop)
-  (call-process "systemctl" nil nil nil "--user" "stop" "mpd.service")
+  (+systemd-stop "mpd")
   (message "MPD stopped!"))
 
 (defun +mpd-daemon-running-p ()
   "Check if the MPD service is running."
-  (zerop (call-process "systemctl" nil nil nil "--user" "is-active" "--quiet" "mpd.service")))
+  (+systemd-running-p "mpd"))
 
 (defun +mpd-mpc-update ()
   "Updates the MPD database synchronously."
