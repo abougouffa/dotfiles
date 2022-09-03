@@ -1514,6 +1514,12 @@ it work with =projectile=:
 #+end_src
 
 **** LSP mode :ide:lsp:
+***** Unpin package
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! lsp-mode)
+#+end_src
+
 ***** Tweak UI :diagnostics:ui:
 LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]]. By default, Doom Emacs
 disables some UI components; however, I like to enable some less intrusive, more
