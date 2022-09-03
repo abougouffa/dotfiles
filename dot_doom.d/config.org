@@ -4848,6 +4848,99 @@ The FriCAS cames bundled with an Emacs mode, let's load it.
   :commands (fricas-mode fricas-eval fricas))
 #+end_src
 
+** Roam :roam:
+Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
+with it.
+
+#+begin_src emacs-lisp
+(use-package! websocket
+  :after org-roam-ui)
+
+(use-package! org-roam-ui
+  :commands org-roam-ui-open
+  :config (setq org-roam-ui-sync-theme t
+                org-roam-ui-follow t
+                org-roam-ui-update-on-save t
+                org-roam-ui-open-on-start t))
+#+end_src
+
+*** Basic settings
+
+#+begin_src emacs-lisp
+(use-package! org-roam
+  :init
+  (setq org-roam-directory "~/Dropbox/Org/slip-box"
+        org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory)))
+#+end_src
+
+Let's disable =org-roam= if the directory doesn't exist.
+
+#+begin_src emacs-lisp :noweb-ref none :tangle (if (file-exists-p "~/Dropbox/Org/slip-box") "no" "packages.el")
+(package! org-roam
+  :disable t)
+#+end_src
+
+*** Mode line file name :modeline:
+All those numbers! It's messy. Let's adjust this similarly that I have in
+the window title
+
+#+begin_src emacs-lisp
+(defadvice! doom-modeline--buffer-file-name-roam-aware-a (orig-fun)
+  :around #'doom-modeline-buffer-file-name ; takes no args
+  (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+      (replace-regexp-in-string
+       "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
+       "🢔(\\1-\\2-\\3) "
+       (subst-char-in-string ?_ ?  buffer-file-name))
+    (funcall orig-fun)))
+#+end_src
+
+*** Org Roam Capture template :template:
+
+#+begin_src emacs-lisp
+(after! org-roam
+  (setq org-roam-capture-ref-templates
+        '(("r" "ref" plain "%?"
+           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
+           :unnarrowed t))))
+#+end_src
+
+*** View notes in Deft
+
+#+begin_src emacs-lisp
+;; From https://org-roam.discourse.group/t/configure-deft-title-stripping-to-hide-org-roam-template-headers/478/10
+(use-package! deft
+  :after org
+  :ensure t
+  :bind
+  ("C-c n d" . deft)
+  :init
+  (setq deft-directory org-roam-directory
+        ;; deft-recursive t
+        deft-use-filter-string-for-filename t
+        deft-default-extension "org")
+  :config
+  (defun +deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+     If `deft-use-filename-as-title' is nil, the title is taken to
+     be the first non-empty line of the FILE.  Else the base name of the FILE is
+     used as title."
+    (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+      (if begin
+          (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+        (deft-base-filename file))))
+
+  (advice-add 'deft-parse-title :override #'+deft-parse-title)
+
+  (setq deft-strip-summary-regexp
+        (concat "\\("
+                "[\n\t]" ;; blank
+                "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+                "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n" ;; org-roam ID
+                "\\|\\[\\[\\(.*\\]\\)" ;; any link
+                "\\)")))
+#+end_src
+
 * Programming :programming:
 ** CSV rainbow :csv:
 Stolen from [[https://www.reddit.com/r/emacs/comments/26c71k/comment/chq2r8m/?utm_source=reddit&utm_medium=web2x&context=3][here]].
@@ -6051,63 +6144,6 @@ no modeline.
         (interactive)
         (set-window-parameter nil 'mode-line-format 'none)
         (org-capture)))
-#+end_src
-
-**** Roam :roam:
-Org-roam is nice by itself, but there are so /extra/ nice packages which integrate
-with it.
-
-#+begin_src emacs-lisp
-(use-package! websocket
-  :after org-roam-ui)
-
-(use-package! org-roam-ui
-  :commands org-roam-ui-open
-  :config (setq org-roam-ui-sync-theme t
-                org-roam-ui-follow t
-                org-roam-ui-update-on-save t
-                org-roam-ui-open-on-start t))
-#+end_src
-
-***** Basic settings
-
-#+begin_src emacs-lisp
-(setq org-roam-directory "~/Dropbox/Org/slip-box")
-(setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
-#+end_src
-
-That said, if the directory doesn't exist we likely don't want to be using roam.
-Since we don't want to trigger errors (which will happen as soon as roam tries
-to initialize), let's not load roam.
-
-#+begin_src emacs-lisp :noweb-ref none :tangle (if (file-exists-p "~/Dropbox/Org/slip-box") "no" "packages.el")
-(package! org-roam
-  :disable t)
-#+end_src
-
-***** Mode line file name :modeline:
-All those numbers! It's messy. Let's adjust this similarly that I have in
-the window title
-
-#+begin_src emacs-lisp
-(defadvice! doom-modeline--buffer-file-name-roam-aware-a (orig-fun)
-  :around #'doom-modeline-buffer-file-name ; takes no args
-  (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-      (replace-regexp-in-string
-       "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-       "🢔(\\1-\\2-\\3) "
-       (subst-char-in-string ?_ ?  buffer-file-name))
-    (funcall orig-fun)))
-#+end_src
-
-***** Org Roam Capture template :template:
-
-#+begin_src emacs-lisp
-(after! org-roam
-  (setq org-roam-capture-ref-templates
-        '(("r" "ref" plain "%?"
-           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
-           :unnarrowed t))))
 #+end_src
 
 **** Snippet Helpers
