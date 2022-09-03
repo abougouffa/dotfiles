@@ -4272,7 +4272,7 @@ I configure my email accounts in a private file in
   ;; I like to always BCC myself
   (defun +bbc-me ()
     "Add my email to BCC."
-    (save-excursion (message-add-header (format "Bcc: %s\n" user-mail-address))))
+    (save-excursion (message-add-header (format "Bcc: %s\n" +my-bcc-trash))))
 
   (add-hook 'mu4e-compose-mode-hook '+bbc-me)
 
