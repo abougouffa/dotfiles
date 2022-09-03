@@ -5260,7 +5260,7 @@ Add support for Yocto Project files.
 
   (map! :localleader
         :map (magit-mode-map)
-        :desc "Magit pretty graph" "p" (lambda () (interactive) (magit-pg-repo (magit-toplevel)))))
+        :desc "Magit pretty graph" "p" (cmd! (magit-pg-repo (magit-toplevel)))))
 #+end_src
 
 *** Repo :repo:
