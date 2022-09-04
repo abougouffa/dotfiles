@@ -1766,6 +1766,12 @@ together =project=, =eglot=, =cmake= and =clangd=.
              lorem-ipsum-insert-list))
 #+end_src
 
+*** Coverage test
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! cov)
+#+end_src
+
 ** Debugging :debug:
 *** DAP :dap:ide:
 I like to use [[https://github.com/Microsoft/vscode-cpptools][=cpptools=]] over [[https://github.com/WebFreak001/code-debug][=webfreak.debug=]]. So I enable it after loading
