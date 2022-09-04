@@ -81,6 +81,10 @@
            :repo "jschaf/emacs-lorem-ipsum"))
 ;; Lorem ipsum:1 ends here
 
+;; [[file:config.org::*Coverage test][Coverage test:1]]
+(package! cov)
+;; Coverage test:1 ends here
+
 ;; [[file:config.org::*DAP][DAP:1]]
 (unpin! dap-mode)
 ;; DAP:1 ends here
@@ -377,7 +381,6 @@
 
 ;; [[file:config.org::*Systemd][Systemd:1]]
 (package! systemd)
-
 (package! journalctl-mode)
 ;; Systemd:1 ends here
 

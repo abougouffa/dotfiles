@@ -22,12 +22,12 @@
   hydra
   modeline
   zen
-  ;; tabs
   ophints
   nav-flash
+  indent-guides
   (vc-gutter +diff-hl +pretty)
   (window-select +numbers)
-  ;; (ligatures +extra)
+  (ligatures +extra)
   (popup +all +defaults)
   (emoji +ascii +unicode +github)
   (treemacs +lsp)

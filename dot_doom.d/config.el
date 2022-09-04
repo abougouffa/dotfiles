@@ -163,31 +163,25 @@
       (setq +mu4e-lock-greedy t
             +mu4e-lock-relaxed t)
       (when (+mu4e-lock-available t)
-        (mu4e--start)))
-
-    ;; Check each 5m, if `mu4e' if closed, start it in background.
-    (run-at-time
-     60 (* 60 5) ;; Check each 5 minutes
-     (lambda ()
-       (when (and (not (mu4e-running-p)) (+mu4e-lock-available))
-         (mu4e--start)
-         (message "Started `mu4e' in background.")))))
+        ;; Check each 5m, if `mu4e' if closed, start it in background.
+        (run-at-time nil ;; Launch now
+                     (* 60 5) ;; Check each 5 minutes
+                     (lambda ()
+                       (when (and (not (mu4e-running-p)) (+mu4e-lock-available))
+                         (mu4e--start)
+                         (message "Started `mu4e' in background.")))))))
 
   ;; RSS
   (when (require 'elfeed nil t)
     (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check every 2h
 
 (when (daemonp)
-  ;; Daemon startup
+  ;; At daemon startup
   (add-hook 'emacs-startup-hook #'+daemon-startup)
+
   ;; After creating a new frame (via emacsclient)
-  (add-hook!
-   'server-after-make-frame-hook
-   ;; Reload Doom's theme
-   #'doom/reload-theme
-   ;; Switch to Dashboard, unless we started in one of the special buffers
-   (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-     (switch-to-buffer +doom-dashboard-name))))
+  ;; Reload Doom's theme
+  (add-hook 'server-after-make-frame-hook #'doom/reload-theme))
 ;; Initialization:1 ends here
 
 ;; [[file:config.org::*Save recent files][Save recent files:1]]
@@ -216,7 +210,12 @@
 (after! doom-modeline
   (setq display-time-string-forms
         '((propertize (concat " 🕘 " 24-hours ":" minutes))))
-  (display-time-mode 1)) ; Enable time in the mode-line
+  (display-time-mode 1) ; Enable time in the mode-line
+
+  ;; Add padding to the right
+  (doom-modeline-def-modeline 'main
+    '(bar matches buffer-info remote-host buffer-position parrot selection-info)
+    '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "   "))) ; <-- added padding here
 ;; Clock:1 ends here
 
 ;; [[file:config.org::*Battery][Battery:1]]
@@ -355,6 +354,12 @@
         centaur-tabs-close-button "⨂"
         centaur-tabs-modified-marker "⨀"))
 ;; Tabs:1 ends here
+
+;; [[file:config.org::*Highlight indent guides][Highlight indent guides:1]]
+(after! highlight-indent-guides
+  (setq highlight-indent-guides-character ?│
+        highlight-indent-guides-responsive 'stack))
+;; Highlight indent guides:1 ends here
 
 ;; [[file:config.org::*File templates][File templates:1]]
 (set-file-template! "\\.tex$" :trigger "__" :mode 'latex-mode)
