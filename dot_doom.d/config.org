@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-04
+#+lastmod: 2022-09-05
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -27,6 +27,8 @@ This is the main configuration file [[https://github.com/abougouffa/dotfiles/dot
 file]]), it contains the literal configuration for [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and I use it to
 generate some other user configuration files (define aliases, environment
 variables, user tools, Git configuration...).
+
+[[file:assets/doom-emacs-gray.svg]]
 
 ** How to install
 Since commit [[https://github.com/abougouffa/dotfiles/commit/55c928109e6198e48749acca9171cf70372ce806][55c92810]], I'm using [[https://chezmoi.io][chezmoi]] to manage my Dotfiles.
