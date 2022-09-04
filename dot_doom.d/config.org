@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-03
+#+lastmod: 2022-09-04
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -797,31 +797,25 @@ stealing prevention* to /None/ in the KDE Settings.
       (setq +mu4e-lock-greedy t
             +mu4e-lock-relaxed t)
       (when (+mu4e-lock-available t)
-        (mu4e--start)))
-
-    ;; Check each 5m, if `mu4e' if closed, start it in background.
-    (run-at-time
-     60 (* 60 5) ;; Check each 5 minutes
-     (lambda ()
-       (when (and (not (mu4e-running-p)) (+mu4e-lock-available))
-         (mu4e--start)
-         (message "Started `mu4e' in background.")))))
+        ;; Check each 5m, if `mu4e' if closed, start it in background.
+        (run-at-time nil ;; Launch now
+                     (* 60 5) ;; Check each 5 minutes
+                     (lambda ()
+                       (when (and (not (mu4e-running-p)) (+mu4e-lock-available))
+                         (mu4e--start)
+                         (message "Started `mu4e' in background.")))))))
 
   ;; RSS
   (when (require 'elfeed nil t)
     (run-at-time nil (* 2 60 60) #'elfeed-update))) ;; Check every 2h
 
 (when (daemonp)
-  ;; Daemon startup
+  ;; At daemon startup
   (add-hook 'emacs-startup-hook #'+daemon-startup)
+
   ;; After creating a new frame (via emacsclient)
-  (add-hook!
-   'server-after-make-frame-hook
-   ;; Reload Doom's theme
-   #'doom/reload-theme
-   ;; Switch to Dashboard, unless we started in one of the special buffers
-   (unless (string-match-p "\\*draft\\|\\*stdin\\|emacs-everywhere" (buffer-name))
-     (switch-to-buffer +doom-dashboard-name))))
+  ;; Reload Doom's theme
+  (add-hook 'server-after-make-frame-hook #'doom/reload-theme))
 #+end_src
 
 ** Tweaks :tweak:
