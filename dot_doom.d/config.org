@@ -2460,10 +2460,6 @@ sometimes messes up with the parenthesis, so let's disable ligatures on Lisps.
 *** Spell-Fu :spell:
 Install the =aspell= back-end and the dictionaries to use with =spell-fu=
 
-#+begin_example shell
-sudo pacman -S aspell aspell-en aspell-fr
-#+end_example
-
 Now, =spell-fu= supports multiple languages! Let's add English, French and Arabic.
 So I can "mélanger les langues sans avoir de problèmes!".
 
@@ -5401,7 +5397,6 @@ For editing systemd unit files.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! systemd)
-
 (package! journalctl-mode)
 #+end_src
 
@@ -8481,19 +8476,32 @@ tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib
 Here, we install Arch packages
 
 #+begin_src shell
-check_and_install_pkg () {
-  PKG_NAME="$1"
-  if ! pacman -Qiq ${PKG_NAME} &> /dev/null
-  then
-    echo "Package ${PKG_NAME} is missing, installing it using yay"
-    yay -S ${PKG_NAME}
-  fi
+check_and_install_pkg() {
+    PKG_NAME="$1"
+    if ! pacman -Qiq "${PKG_NAME}" &>/dev/null; then
+        echo "Package ${PKG_NAME} is missing, installing it using yay"
+        yay -S "${PKG_NAME}"
+    fi
 }
 
-PKGS_LIST=(mpv mpc mpd vlc)
+PKGS_LIST=(
+    git ripgrep fd gnupg fzf the_silver_searcher
+    ttc-iosevka ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
+    ttf-iosevka-nerd ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono
+    ccls cppcheck clang gcc gdb lldb valgrind rr openocd
+    sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken
+    vls vlang rustup
+    mu isync msmtp xsel xorg-xhost
+    mpc mpv mpd vlc yt-dlp
+    maxima fricas octave scilab-bin graphviz
+    djvulibre catdoc unrtf perl-image-exiftool
+    chezmoi neovim repo ecryptfs-utils
+    pandoc quarto-cli-bin hugo inkscape imagemagick
+    aspell aspell-en aspell-fr aspell-ar grammalecte
+    libvterm brave zotero bitwarden-cli binutils)
 
-for PKG in PKGS_LIST ; do
-  check_and_install_pkg
+for PKG in "${PKGS_LIST[@]}"; do
+    check_and_install_pkg "$PKG"
 done
 #+end_src
 
