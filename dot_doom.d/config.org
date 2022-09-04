@@ -400,6 +400,7 @@ modeline
 zen
 ophints
 nav-flash
+indent-guides
 (vc-gutter +diff-hl +pretty)
 (window-select +numbers)
 (ligatures +extra)
@@ -1205,6 +1206,14 @@ Set some custom icons for some file extensions, basically for =.m= files.
         centaur-tabs-set-modified-marker t
         centaur-tabs-close-button "⨂"
         centaur-tabs-modified-marker "⨀"))
+#+end_src
+
+** Highlight indent guides
+
+#+begin_src emacs-lisp
+(after! highlight-indent-guides
+  (setq highlight-indent-guides-character ?│
+        highlight-indent-guides-responsive 'stack))
 #+end_src
 
 ** Editing :edit:
