@@ -278,11 +278,13 @@ store the result in global constants.
 (defconst REPO-P (executable-find "repo"))
 (defconst FRICAS-P (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs")))
 (defconst MAXIMA-P (executable-find "maxima"))
+(defconst TUNTOX-P (executable-find "tuntox"))
 (defconst QUARTO-P (executable-find "quarto"))
 (defconst ROSBAG-P (executable-find "rosbag"))
 (defconst ZOTERO-P (executable-find "zotero"))
 (defconst CHEZMOI-P (executable-find "chezmoi"))
 (defconst OBJDUMP-P (executable-find "objdump"))
+(defconst STUNNEL-P (executable-find "stunnel"))
 (defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
 (defconst BITWARDEN-P (executable-find "bw"))
 (defconst YOUTUBE-DL-P (+some (mapcar #'executable-find '("yt-dlp" "youtube-dl"))))
@@ -3233,9 +3235,12 @@ Replicated Data Type]]/.
 #+begin_src emacs-lisp
 (use-package! crdt
   :commands (crdt-share-buffer
-             crdt-connect
-             crdt-visualize-author-mode
-             crdt-org-sync-overlay-mode))
+             crdt-connect)
+  :init
+  (cond
+   (TUNTOX-P  (setq crdt-use-tuntox t
+                    crdt-tuntox-password-in-url t))
+   (STUNNEL-P (setq crdt-use-stunnel t))))
 #+end_src
 
 *** The Silver Searcher :search:
