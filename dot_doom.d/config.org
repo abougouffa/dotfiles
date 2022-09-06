@@ -2739,7 +2739,7 @@ reduces the false positives due to the marking and special commands.
   ;; Disable by default, can be enabled in a ber buffer (or workspace) basis
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   :init
-  (setq lsp-ltex-check-frequency "save" ;; Less overhead than the default "edit"
+  (setq lsp-ltex-check-frequency "edit" ;; Less overhead than the default ""
         lsp-ltex-log-level "warning" ;; No need to log everything
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
