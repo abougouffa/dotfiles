@@ -34,6 +34,10 @@
 (package! vlf)
 ;; Very large files:1 ends here
 
+;; [[file:config.org::*Evil][Evil:2]]
+(package! evil-escape :disable t)
+;; Evil:2 ends here
+
 ;; [[file:config.org::*Aggressive indent][Aggressive indent:1]]
 (package! aggressive-indent)
 ;; Aggressive indent:1 ends here

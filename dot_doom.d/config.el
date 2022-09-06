@@ -1380,7 +1380,7 @@ if it is set to a launch.json file, it will be used instead."
   ;; Disable by default, can be enabled in a ber buffer (or workspace) basis
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   :init
-  (setq lsp-ltex-check-frequency "save" ;; Less overhead than the default "edit"
+  (setq lsp-ltex-check-frequency "edit" ;; Less overhead than the default ""
         lsp-ltex-log-level "warning" ;; No need to log everything
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
@@ -1430,7 +1430,7 @@ if it is set to a launch.json file, it will be used instead."
 (after! lsp-ltex
   (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
-        lsp-ltex-log-level "finest"
+        lsp-ltex-log-level "fine"
         lsp-ltex-diagnostic-severity "hint"
         lsp-ltex-mother-tongue +my/lang-mother-tongue
         flycheck-checker-error-threshold 1000))
