@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-05
+#+lastmod: 2022-09-06
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -1271,6 +1271,10 @@ To make VLF available without delaying startup, we'll just load it in quiet mome
   (evil-select-search-module 'evil-search-module 'isearch)
 
   (setq evil-kill-on-visual-paste nil)) ; Don't put overwritten text in the kill ring
+#+end_src
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! evil-escape :disable t)
 #+end_src
 
 *** Aggressive indent
