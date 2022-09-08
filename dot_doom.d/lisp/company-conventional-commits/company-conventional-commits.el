@@ -1,11 +1,11 @@
-;;; company-gitcommit.el --- Company backend for git commits -*- lexical-binding: t; -*-
+;;; company-conventional-commits.el --- Company backend for git commits -*- lexical-binding: t; -*-
 ;; Copyright (C) 2022 Abdelhak Bougouffa
 
 ;; Author: Abdelhak Bougouffa <abougouffa@fedoraproject.org>
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "27"))
 ;; Keywords: vc
-;; URL: https://github.com/abougouffa/company-gitcommit
+;; URL: https://github.com/abougouffa/company-conventional-commits
 
 ;;; Commentary:
 
@@ -16,7 +16,7 @@
 
 (require 'cl-lib)
 
-(defvar company-gitcommit-keywords
+(defvar company-conventional-commits-keywords
   '(("feat"     "New feature or extending an existing one")
     ("fix"      "A bug fix")
     ("docs"     "Documentation only changes")
@@ -34,36 +34,36 @@
     ("merge"    "TODO")
     ("revert"   "Reverts a previous commit")))
 
-(defun company-gitcommit--make-candidate (candidate)
+(defun company-conventional-commits--make-candidate (candidate)
   (let ((text (car candidate))
         (meta (cadr candidate)))
     (propertize text 'meta meta)))
 
-(defun company-gitcommit--candidates (prefix)
+(defun company-conventional-commits--candidates (prefix)
   (let (res)
-    (dolist (item company-gitcommit-keywords)
+    (dolist (item company-conventional-commits-keywords)
       (when (string-prefix-p prefix (car item))
-        (push (company-gitcommit--make-candidate item) res)))
+        (push (company-conventional-commits--make-candidate item) res)))
     res))
 
-(defun company-gitcommit--meta (candidate)
+(defun company-conventional-commits--meta (candidate)
   (format "This will use %s of %s"
           (get-text-property 0 'meta candidate)
           (substring-no-properties candidate)))
 
-(defun company-gitcommit--annotation (candidate)
-  (format " (%s)" (get-text-property 0 'meta candidate)))
+(defun company-conventional-commits--annotation (candidate)
+  (format " %s" (get-text-property 0 'meta candidate)))
 
 ;;;###autoload
-(defun company-gitcommit (command &optional arg &rest ignored)
+(defun company-conventional-commits (command &optional arg &rest ignored)
   (interactive (list 'interactive))
   (cl-case command
-    (interactive (company-begin-backend 'company-gitcommit))
+    (interactive (company-begin-backend 'company-conventional-commits))
     (prefix (company-grab-symbol-cons "\\.\\|->" 2))
-    (candidates (company-gitcommit--candidates arg))
-    (annotation (company-gitcommit--annotation arg))
-    (meta (company-gitcommit--meta arg))))
+    (candidates (company-conventional-commits--candidates arg))
+    (annotation (company-conventional-commits--annotation arg))
+    (meta (company-conventional-commits--meta arg))))
 
-(provide 'company-gitcommit)
+(provide 'company-conventional-commits)
 
-;;; company-gitcommit.el ends here
+;;; company-conventional-commits.el ends here
