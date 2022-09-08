@@ -15,23 +15,23 @@
   (company +childframe)
 
   :ui
+  zen
   deft
   doom
-  doom-dashboard
-  hl-todo
   hydra
-  modeline
-  zen
+  hl-todo
   ophints
+  modeline
   nav-flash
+  workspaces
   indent-guides
-  (vc-gutter +diff-hl +pretty)
-  (window-select +numbers)
+  doom-dashboard
+  (treemacs +lsp)
   (ligatures +extra)
   (popup +all +defaults)
-  (emoji +ascii +unicode +github)
-  (treemacs +lsp)
-  workspaces
+  (emoji +ascii +github)
+  (window-select +numbers)
+  (vc-gutter +diff-hl +pretty)
 
   :editor
   (evil +everywhere)

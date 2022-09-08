@@ -113,12 +113,6 @@
   :recipe (:local-repo "lisp/valgrind"))
 ;; Valgrind:1 ends here
 
-;; [[file:config.org::*Guess language][Guess language:1]]
-(package! guess-language
-  :recipe (:host github
-           :repo "tmalsburg/guess-language.el"))
-;; Guess language:1 ends here
-
 ;; [[file:config.org::*Grammarly][Grammarly:1]]
 (package! grammarly
   :recipe (:host github
@@ -144,29 +138,6 @@
   :recipe (:host github
            :repo "milouse/flycheck-grammalecte"))
 ;; Grammalecte:1 ends here
-
-;; [[file:config.org::*LTeX][LTeX:1]]
-;; Needed for automatic installation, but not installed automatically
-(package! github-tags
-  :recipe (:host github
-           :repo "jcs-elpa/github-tags"))
-
-(package! lsp-ltex
- :disable (and (not (modulep! :tools lsp)) (modulep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-languagetool/lsp-ltex"))
-
-(package! eglot-ltex
-  :disable (not (modulep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-languagetool/eglot-ltex"))
-;; LTeX:1 ends here
-
-;; [[file:config.org::*Flycheck][Flycheck:1]]
-(package! flycheck-languagetool
-  :recipe (:host github
-           :repo "emacs-languagetool/flycheck-languagetool"))
-;; Flycheck:1 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):1]]
 (package! go-translate
@@ -343,9 +314,8 @@
 ;; Bitbake (Yocto):1 ends here
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
-(package! company-gitcommit
-  :disable t
-  :recipe (:local-repo "lisp/company-gitcommit"))
+(package! company-conventional-commits
+  :recipe (:local-repo "lisp/company-conventional-commits"))
 ;; WIP Company for commit messages:1 ends here
 
 ;; [[file:config.org::*Pretty graph][Pretty graph:1]]

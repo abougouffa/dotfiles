@@ -193,11 +193,11 @@
 ;; Save recent files:1 ends here
 
 ;; [[file:config.org::*Font][Font:1]]
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 20)
-      doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Iosevka Fixed")
+(setq doom-font (font-spec :family "Iosevka Fixed Curly Slab" :size 20)
+      doom-big-font (font-spec :family "Iosevka Fixed Curly Slab" :size 30 :weight 'light)
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed Curly Slab")
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
+      doom-serif-font (font-spec :family "Iosevka Fixed Curly Slab" :weight 'light))
 ;; Font:1 ends here
 
 ;; [[file:config.org::*Doom][Doom:1]]
@@ -358,7 +358,7 @@
 ;; [[file:config.org::*Highlight indent guides][Highlight indent guides:1]]
 (after! highlight-indent-guides
   (setq highlight-indent-guides-character ?│
-        highlight-indent-guides-responsive 'stack))
+        highlight-indent-guides-responsive 'top))
 ;; Highlight indent guides:1 ends here
 
 ;; [[file:config.org::*File templates][File templates:1]]
@@ -1213,10 +1213,10 @@ if it is set to a launch.json file, it will be used instead."
 ;; [[file:config.org::*Ligatures][Ligatures:1]]
 (defun +appened-to-negation-list (head tail)
   (if (sequencep head)
-    (delete-dups
-     (if (eq (car tail) 'not)
-         (append head tail)
-       (append tail head)))
+      (delete-dups
+       (if (eq (car tail) 'not)
+           (append head tail)
+         (append tail head)))
     tail))
 
 (when (modulep! :ui ligatures)
@@ -1248,21 +1248,6 @@ if it is set to a launch.json file, it will be used instead."
               (+spell-fu-register-dictionary +my/lang-main)
               (+spell-fu-register-dictionary +my/lang-secondary))))
 ;; Spell-Fu:1 ends here
-
-;; [[file:config.org::*Guess language][Guess language:2]]
-(use-package! guess-language
-  :config
-  (setq guess-language-languages '(en fr ar)
-        guess-language-min-paragraph-length 35
-        guess-language-langcodes '((en . ("en_US"    "English" "🇺🇸" "English"))
-                                   (fr . ("francais" "French"  "🇫🇷" "Français"))
-                                   (ar . ("arabic"   "Arabic"  "🇩🇿" "Arabic"))))
-  ;; :hook (text-mode . guess-language-mode)
-  :commands (guess-language
-             guess-language-mode
-             guess-language-region
-             guess-language-mark-lines))
-;; Guess language:2 ends here
 
 ;; [[file:config.org::*Grammarly][Grammarly:2]]
 (use-package! grammarly
@@ -1365,98 +1350,13 @@ if it is set to a launch.json file, it will be used instead."
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 ;; Grammalecte:2 ends here
 
-;; [[file:config.org::*LTeX][LTeX:2]]
-;; NOTE To be removed by 1 Sep 2022,
-;; after https://github.com/doomemacs/doomemacs/pull/6683 gets merged
-(use-package! lsp-ltex
-  :when (modulep! :checkers grammar +lsp)
-  :unless (modulep! :tools lsp +eglot)
-  :commands (+lsp-ltex-toggle
-             +lsp-ltex-enable
-             +lsp-ltex-disable
-             +lsp-ltex-setup)
-  :hook ((text-mode latex-mode org-mode markdown-mode) . #'+lsp-ltex-setup)
-  :config
-  ;; Disable by default, can be enabled in a ber buffer (or workspace) basis
-  (add-to-list 'lsp-disabled-clients 'ltex-ls)
-  :init
-  (setq lsp-ltex-check-frequency "edit" ;; Less overhead than the default ""
-        lsp-ltex-log-level "warning" ;; No need to log everything
-        ;; Path in which, interactively added words and rules will be stored.
-        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
-
-  ;; When n-gram data sets are available, use them to detect errors with words
-  ;; that are often confused (like their and there).
-  (when (file-directory-p "/usr/share/ngrams")
-    (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"))
-
-  (defun +lsp-ltex-setup ()
-    "Load LTeX LSP server."
-    (interactive)
-    (require 'lsp-ltex)
-    (when (+lsp-ltex--enabled-p)
-      (lsp-deferred)))
-
-  (defun +lsp-ltex--enabled-p ()
-    (not (memq 'ltex-ls lsp-disabled-clients)))
-
-  (defun +lsp-ltex-enable ()
-    "Enable LTeX LSP for the current buffer."
-    (interactive)
-    (unless (+lsp-ltex--enabled-p)
-      (setq-local lsp-disabled-clients (delq 'ltex-ls lsp-disabled-clients))
-      (message "Enabled ltex-ls"))
-    (+lsp-ltex-setup))
-
-  (defun +lsp-ltex-disable ()
-    "Disable LTeX LSP for the current buffer."
-    (interactive)
-    (when (+lsp-ltex--enabled-p)
-      (setq-local lsp-disabled-clients (cons 'ltex-ls lsp-disabled-clients))
-      (lsp-disconnect)
-      (message "Disabled ltex-ls")))
-
-  (defun +lsp-ltex-toggle ()
-    "Toggle LTeX LSP for the current buffer."
-    (interactive)
-    (if (+lsp-ltex--enabled-p)
-        (+lsp-ltex-disable)
-      (+lsp-ltex-enable)))
-
-  (map! :localleader
-        :map (text-mode-map latex-mode-map org-mode-map markdown-mode-map)
-        :desc "Toggle grammar check" "G" #'+lsp-ltex-toggle))
-
+;; [[file:config.org::*LTeX][LTeX:1]]
 (after! lsp-ltex
-  (add-to-list 'lsp-disabled-clients 'ltex-ls)
+  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
-        lsp-ltex-log-level "fine"
-        lsp-ltex-diagnostic-severity "hint"
         lsp-ltex-mother-tongue +my/lang-mother-tongue
         flycheck-checker-error-threshold 1000))
-;; LTeX:2 ends here
-
-;; [[file:config.org::*Flycheck][Flycheck:2]]
-(use-package! flycheck-languagetool
-  :when LANGUAGETOOL-P
-  :commands (+flycheck-languagetool-setup-locally)
-  :hook (org-msg-edit-mode . +flycheck-languagetool-setup-locally)
-  :init
-  (setq ;; flycheck-languagetool-url nil
-        ;; flycheck-languagetool-server-command (executable-find "true") ;; Server is already launched
-        ;; flycheck-languagetool-server-port 8081
-        flycheck-languagetool-language "auto"
-        ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
-        flycheck-languagetool-check-params
-        `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue"  . ,+my/lang-mother-tongue)))
-
-  (defun +flycheck-languagetool-setup-locally ()
-    "Setup flycheck-languagetool locally."
-    (interactive)
-    (setq-local flycheck-checkers
-                (append '(languagetool) flycheck-checkers))))
-;; Flycheck:2 ends here
+;; LTeX:1 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
 (use-package! go-translate
@@ -1782,9 +1682,12 @@ if it is set to a launch.json file, it will be used instead."
 ;; [[file:config.org::*CRDT][CRDT:2]]
 (use-package! crdt
   :commands (crdt-share-buffer
-             crdt-connect
-             crdt-visualize-author-mode
-             crdt-org-sync-overlay-mode))
+             crdt-connect)
+  :init
+  (cond
+   (TUNTOX-P  (setq crdt-use-tuntox t
+                    crdt-tuntox-password-in-url t))
+   (STUNNEL-P (setq crdt-use-stunnel t))))
 ;; CRDT:2 ends here
 
 ;; [[file:config.org::*The Silver Searcher][The Silver Searcher:2]]
@@ -2317,7 +2220,14 @@ is binary, activate `hexl-mode'."
     (when (get-process +netextender-process-name)
       (if (kill-buffer +netextender-buffer-name)
           (message "Killed NetExtender VPN session")
-        (message "Cannot kill NetExtender")))))
+        (message "Cannot kill NetExtender"))))
+
+  (map! :leader
+        :prefix ("l")
+        (:prefix ("t")
+         (:prefix ("n" . "netExtender")
+          :desc "Start" "s" #'+netextender-start
+          :desc "Kill"  "k" #'+netextender-kill))))
 ;; Emacs + NetExtender:1 ends here
 
 ;; [[file:config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):2]]
@@ -3120,16 +3030,12 @@ is binary, activate `hexl-mode'."
 ;; Gravatars:1 ends here
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:2]]
-(use-package! company-gitcommit
+(use-package! company-conventional-commits
+  :after (magit company)
   :init
-  (add-hook
-   'git-commit-setup-hook
-   (lambda ()
-     (let ((backends (car company-backends)))
-       (setq company-backend
-             (if (listp backends)
-                 (cons (append backends 'company-gitcommit) (car company-backends))
-               (append company-backends (list 'company-gitcommit))))))))
+  (add-hook 'git-commit-setup-hook
+            (lambda ()
+              (add-to-list 'company-backends 'company-conventional-commits))))
 ;; WIP Company for commit messages:2 ends here
 
 ;; [[file:config.org::*Pretty graph][Pretty graph:2]]
@@ -4033,6 +3939,7 @@ is binary, activate `hexl-mode'."
             ("macro"               . "𝓜")
             ("bind"                . #("" 0 1 (display (raise -0.1))))
             ("bibliography"        . "")
+            ("print_bibliography"  . #("" 0 1 (display (raise -0.1))))
             ("print_bibliography"  . #("" 0 1 (display (raise -0.1))))
             ("cite_export"         . "⮭")
             ("print_glossary"      . #("ᴬᶻ" 0 1 (display (raise -0.1))))
