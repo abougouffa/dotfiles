@@ -8256,12 +8256,14 @@ set debuginfod enabled off
 # Set pretty print
 set print pretty on
 
+# I hate stepping into system libraries when I'm debugging my
+# crappy stuff, so lets add system headers to skipped files
 skip pending on
 python
 import os
 
-# Add libs here
-LIB_PATHS = ["/usr/include"]
+# Add paths here, they will be explored recursivly
+LIB_PATHS = ["/usr/include" "/usr/local/include"]
 
 for lib_path in LIB_PATHS:
   for root, dirs, files in os.walk(lib_path):
