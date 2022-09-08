@@ -3802,7 +3802,14 @@ echo "Y\n" | netExtender --auto-reconnect \
     (when (get-process +netextender-process-name)
       (if (kill-buffer +netextender-buffer-name)
           (message "Killed NetExtender VPN session")
-        (message "Cannot kill NetExtender")))))
+        (message "Cannot kill NetExtender"))))
+
+  (map! :leader
+        :prefix ("l")
+        (:prefix ("t")
+         (:prefix ("n" . "netExtender")
+          :desc "Start" "s" #'+netextender-start
+          :desc "Kill"  "k" #'+netextender-kill))))
 #+end_src
 
 ** Email (=mu4e=) :mail:mu4e:
