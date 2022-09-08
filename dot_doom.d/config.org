@@ -1,9 +1,9 @@
-# -*- coding: utf-8-unix; lsp-ltex-language: "en"; eval: (spell-fu-mode -1); -*-
+# -*- coding: utf-8-unix; -*-
 #+title: Doom Emacs Configuration
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-06
+#+lastmod: 2022-09-08
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -395,23 +395,23 @@ Enables some user interface features for better user experience, the beautiful
 
 #+name: doom-ui
 #+begin_src emacs-lisp
+zen
 deft
 doom
-doom-dashboard
-hl-todo
 hydra
-modeline
-zen
+hl-todo
 ophints
+modeline
 nav-flash
+workspaces
 indent-guides
-(vc-gutter +diff-hl +pretty)
-(window-select +numbers)
+doom-dashboard
+(treemacs +lsp)
 (ligatures +extra)
 (popup +all +defaults)
-(emoji +ascii +unicode +github)
-(treemacs +lsp)
-workspaces
+(emoji +ascii +github)
+(window-select +numbers)
+(vc-gutter +diff-hl +pretty)
 #+end_src
 
 *** Editor (=:editor=)
@@ -867,11 +867,11 @@ Some good fonts:
 - =Fira Code=
 
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "Iosevka Fixed" :size 20)
-      doom-big-font (font-spec :family "Iosevka Fixed" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Iosevka Fixed")
+(setq doom-font (font-spec :family "Iosevka Fixed Curly Slab" :size 20)
+      doom-big-font (font-spec :family "Iosevka Fixed Curly Slab" :size 30 :weight 'light)
+      doom-variable-pitch-font (font-spec :family "Iosevka Fixed Curly Slab")
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "Iosevka Fixed" :weight 'light))
+      doom-serif-font (font-spec :family "Iosevka Fixed Curly Slab" :weight 'light))
 #+end_src
 
 *** Theme :theme:
@@ -1217,7 +1217,7 @@ Set some custom icons for some file extensions, basically for =.m= files.
 #+begin_src emacs-lisp
 (after! highlight-indent-guides
   (setq highlight-indent-guides-character ?│
-        highlight-indent-guides-responsive 'stack))
+        highlight-indent-guides-responsive 'top))
 #+end_src
 
 ** Editing :edit:
@@ -2452,10 +2452,10 @@ sometimes messes up with the parenthesis, so let's disable ligatures on Lisps.
 #+begin_src emacs-lisp
 (defun +appened-to-negation-list (head tail)
   (if (sequencep head)
-    (delete-dups
-     (if (eq (car tail) 'not)
-         (append head tail)
-       (append tail head)))
+      (delete-dups
+       (if (eq (car tail) 'not)
+           (append head tail)
+         (append tail head)))
     tail))
 
 (when (modulep! :ui ligatures)
@@ -2493,31 +2493,6 @@ So I can "mélanger les langues sans avoir de problèmes!".
             (lambda ()
               (+spell-fu-register-dictionary +my/lang-main)
               (+spell-fu-register-dictionary +my/lang-secondary))))
-#+end_src
-
-*** Guess language :language:text:
-Can be interesting for automatically switching the language for spell checking,
-grammar...
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! guess-language
-  :recipe (:host github
-           :repo "tmalsburg/guess-language.el"))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! guess-language
-  :config
-  (setq guess-language-languages '(en fr ar)
-        guess-language-min-paragraph-length 35
-        guess-language-langcodes '((en . ("en_US"    "English" "🇺🇸" "English"))
-                                   (fr . ("francais" "French"  "🇫🇷" "Français"))
-                                   (ar . ("arabic"   "Arabic"  "🇩🇿" "Arabic"))))
-  ;; :hook (text-mode . guess-language-mode)
-  :commands (guess-language
-             guess-language-mode
-             guess-language-region
-             guess-language-mark-lines))
 #+end_src
 
 *** Grammarly :language:grammar:
@@ -2702,100 +2677,15 @@ several markup languages such as BibTeX, ConTeXt, LaTeX, Markdown, Org,
 reStructuredText... and others. Alongside, it provides interfacing with
 LanguageTool to implement natural language checking.
 
-#+begin_quote
-*TO BE WATCHED:* Other WIP LanguageTool LSP implementations for both [[https://github.com/emacs-languagetool/lsp-languagetool][LSP Mode]] and
-[[https://github.com/emacs-languagetool/eglot-languagetool][Eglot]] can be interesting. However, LTeX seems to be a good solution, as it
-understands the structure of plain text formats such as Org and Markdown, which
-reduces the false positives due to the marking and special commands.
-#+end_quote
-
-#+begin_src emacs-lisp :tangle packages.el
-;; Needed for automatic installation, but not installed automatically
-(package! github-tags
-  :recipe (:host github
-           :repo "jcs-elpa/github-tags"))
-
-(package! lsp-ltex
- :disable (and (not (modulep! :tools lsp)) (modulep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-languagetool/lsp-ltex"))
-
-(package! eglot-ltex
-  :disable (not (modulep! :tools lsp +eglot))
-  :recipe (:host github
-           :repo "emacs-languagetool/eglot-ltex"))
-#+end_src
-
 #+begin_src emacs-lisp
-;; NOTE To be removed by 1 Sep 2022,
-;; after https://github.com/doomemacs/doomemacs/pull/6683 gets merged
-(use-package! lsp-ltex
-  :when (modulep! :checkers grammar +lsp)
-  :unless (modulep! :tools lsp +eglot)
-  :commands (+lsp-ltex-toggle
-             +lsp-ltex-enable
-             +lsp-ltex-disable
-             +lsp-ltex-setup)
-  :hook ((text-mode latex-mode org-mode markdown-mode) . #'+lsp-ltex-setup)
-  :config
-  ;; Disable by default, can be enabled in a ber buffer (or workspace) basis
-  (add-to-list 'lsp-disabled-clients 'ltex-ls)
-  :init
-  (setq lsp-ltex-check-frequency "edit" ;; Less overhead than the default ""
-        lsp-ltex-log-level "warning" ;; No need to log everything
-        ;; Path in which, interactively added words and rules will be stored.
-        lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
-
-  ;; When n-gram data sets are available, use them to detect errors with words
-  ;; that are often confused (like their and there).
-  (when (file-directory-p "/usr/share/ngrams")
-    (setq lsp-ltex-additional-rules-language-model "/usr/share/ngrams"))
-
-  (defun +lsp-ltex-setup ()
-    "Load LTeX LSP server."
-    (interactive)
-    (require 'lsp-ltex)
-    (when (+lsp-ltex--enabled-p)
-      (lsp-deferred)))
-
-  (defun +lsp-ltex--enabled-p ()
-    (not (memq 'ltex-ls lsp-disabled-clients)))
-
-  (defun +lsp-ltex-enable ()
-    "Enable LTeX LSP for the current buffer."
-    (interactive)
-    (unless (+lsp-ltex--enabled-p)
-      (setq-local lsp-disabled-clients (delq 'ltex-ls lsp-disabled-clients))
-      (message "Enabled ltex-ls"))
-    (+lsp-ltex-setup))
-
-  (defun +lsp-ltex-disable ()
-    "Disable LTeX LSP for the current buffer."
-    (interactive)
-    (when (+lsp-ltex--enabled-p)
-      (setq-local lsp-disabled-clients (cons 'ltex-ls lsp-disabled-clients))
-      (lsp-disconnect)
-      (message "Disabled ltex-ls")))
-
-  (defun +lsp-ltex-toggle ()
-    "Toggle LTeX LSP for the current buffer."
-    (interactive)
-    (if (+lsp-ltex--enabled-p)
-        (+lsp-ltex-disable)
-      (+lsp-ltex-enable)))
-
-  (map! :localleader
-        :map (text-mode-map latex-mode-map org-mode-map markdown-mode-map)
-        :desc "Toggle grammar check" "G" #'+lsp-ltex-toggle))
-
 (after! lsp-ltex
-  (add-to-list 'lsp-disabled-clients 'ltex-ls)
+  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
         lsp-ltex-mother-tongue +my/lang-mother-tongue
         flycheck-checker-error-threshold 1000))
 #+end_src
 
-**** Flycheck :flycheck:
+**** COMMENT Flycheck :flycheck:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! flycheck-languagetool
