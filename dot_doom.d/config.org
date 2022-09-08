@@ -5140,22 +5140,17 @@ Add support for Yocto Project files.
 **** WIP Company for commit messages
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! company-gitcommit
-  :disable t
-  :recipe (:local-repo "lisp/company-gitcommit"))
+(package! company-conventional-commits
+  :recipe (:local-repo "lisp/company-conventional-commits"))
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! company-gitcommit
+(use-package! company-conventional-commits
+  :after (magit company)
   :init
-  (add-hook
-   'git-commit-setup-hook
-   (lambda ()
-     (let ((backends (car company-backends)))
-       (setq company-backend
-             (if (listp backends)
-                 (cons (append backends 'company-gitcommit) (car company-backends))
-               (append company-backends (list 'company-gitcommit))))))))
+  (add-hook 'git-commit-setup-hook
+            (lambda ()
+              (add-to-list 'company-backends 'company-conventional-commits))))
 #+end_src
 
 **** Pretty graph
