@@ -8383,7 +8383,7 @@ mogrify -modulate 100,0 -resize 400% "$IMG"
 tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib
 #+end_src
 
-** Packages
+** Arch Linux packages
 Here, we install Arch packages
 
 #+begin_src shell
@@ -8397,8 +8397,10 @@ check_and_install_pkg() {
 
 PKGS_LIST=(
     git ripgrep fd gnupg fzf the_silver_searcher
-    ttc-iosevka ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
-    ttf-iosevka-nerd ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono
+    ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
+    ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono
+    ttc-iosevka ttf-iosevka-nerd ttc-iosevka-slab ttc-iosevka-curly
+    ttc-iosevka-curly-slab ttc-iosevka-etoile ttc-iosevka-ss09
     ccls cppcheck clang gcc gdb lldb valgrind rr openocd
     sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken
     vls vlang rustup
