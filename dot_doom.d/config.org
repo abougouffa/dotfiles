@@ -439,9 +439,9 @@ Beautify Emacs builtin packages.
 
 #+name: doom-emacs
 #+begin_src emacs-lisp
-(ibuffer +icons)
-undo
 vc
+undo
+(ibuffer +icons)
 #+end_src
 
 *** Terminals (=:term=)
@@ -451,10 +451,10 @@ file editing (via Tramp).
 
 #+name: doom-term
 #+begin_src emacs-lisp
-eshell
+term
 vterm
 shell
-term
+eshell
 #+end_src
 
 *** Checkers (=:checkers=)
@@ -525,12 +525,12 @@ common-lisp
 (racket +lsp +xp)
 (lua +lsp +fennel)
 (web +tree-sitter)
+(latex +lsp +latexmk)
 (cc +lsp +tree-sitter)
 (sh +lsp +tree-sitter)
 (json +lsp +tree-sitter)
 (rust +lsp +tree-sitter)
 (julia +lsp +tree-sitter)
-(latex +lsp +latexmk)
 (python +lsp +pyenv +pyright +tree-sitter)
 (scheme +chez +mit +chicken +gauche +guile +chibi)
 (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
@@ -553,11 +553,11 @@ sometimes to play music without leaving Emacs, and I like to enable support for
 
 #+name: doom-app
 #+begin_src emacs-lisp
-calendar
 irc
-emms
-everywhere
 rss
+emms
+calendar
+everywhere
 #+end_src
 
 *** Private
@@ -725,7 +725,7 @@ Tweak =undo-fu= and other stuff from Doom's =:emacs undo=.
   (setq evil-want-fine-undo t)) ;; By default while in insert all changes are one big blob
 #+end_src
 
-**** Visual Undo (=vundo=)
+**** Visual undo (=vundo=)
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! vundo
@@ -772,7 +772,7 @@ Tweak =undo-fu= and other stuff from Doom's =:emacs undo=.
 
 #+begin_src emacs-lisp
 (setq source-directory
-      (expand-file-name "~/Softwares/src/emacs"))
+      (expand-file-name "~/Softwares/src/emacs/"))
 #+end_src
 
 *** Frame :frame:
@@ -1095,8 +1095,8 @@ list less verbose.
 
 (after! which-key
   (pushnew! which-key-replacement-alist
-            '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "🅔·\\1"))
-            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "Ⓔ·\\1"))))
+            '((""       . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "🅔·\\1"))
+            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)")       . (nil . "Ⓔ·\\1"))))
 #+end_src
 
 *** Window title :title:
@@ -5155,10 +5155,11 @@ Add support for Yocto Project files.
 #+begin_src emacs-lisp
 (use-package! company-conventional-commits
   :after (magit company)
-  :init
-  (add-hook 'git-commit-setup-hook
-            (lambda ()
-              (add-to-list 'company-backends 'company-conventional-commits))))
+  :config
+  (add-hook
+   'git-commit-setup-hook
+   (lambda ()
+     (add-to-list 'company-backends 'company-conventional-commits))))
 #+end_src
 
 **** Pretty graph
