@@ -2640,46 +2640,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 #+end_src
 
-*** LanguageTool :languagetool:
-**** COMMENT LanguageTool Server :server:
-This will launch the LanguageTool Server at startup, this server will be used
-then by =ltex-ls=.
-
-#+begin_src emacs-lisp
-(when LANGUAGETOOL-P
-  (defun +languagetool-server-running-p ()
-    (+systemd-running-p "languagetool"))
-
-  (defun +languagetool-server-start ()
-    "Start LanguageTool server with PORT."
-    (interactive)
-    (unless (+languagetool-server-running-p)
-      (+systemd-start "languagetool")))
-
-  (defun +languagetool-server-stop ()
-    "Stop the LanguageTool server."
-    (interactive)
-    (if (+languagetool-server-running-p)
-        (progn
-          (+systemd-stop "languagetool")
-          (message "Stopped LanguageTool server.")))
-    (message "No LanguageTool server running."))
-
-  (defun +languagetool-server-restart ()
-    (interactive)
-    (when (+languagetool-server-running-p)
-      (+systemd-command "languagetool" "restart"))))
-
-(map! :leader :prefix ("l" . "custom")
-      (:when LANGUAGETOOL-P
-       :prefix ("l" . "languagetool")
-       (:prefix ("s" . "server")
-        :desc "Start server"     "s" #'+languagetool-server-start
-        :desc "Stop server"      "q" #'+languagetool-server-stop
-        :desc "Restart server"   "r" #'+languagetool-server-restart)))
-#+end_src
-
-**** LTeX :lsp:
+*** LTeX/LanguageTool :lsp:languagetool:
 Originally, [[https://valentjn.github.io/ltex/index.html][LTeX LS]] stands for /LaTeX Language Server/, it acts as a Language
 Server for LaTeX, but not only. It can check the grammar and the spelling of
 several markup languages such as BibTeX, ConTeXt, LaTeX, Markdown, Org,
@@ -2688,40 +2649,16 @@ LanguageTool to implement natural language checking.
 
 #+begin_src emacs-lisp
 (after! lsp-ltex
-  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
         lsp-ltex-mother-tongue +my/lang-mother-tongue
-        flycheck-checker-error-threshold 1000))
-#+end_src
+        flycheck-checker-error-threshold 1000)
 
-**** COMMENT Flycheck :flycheck:
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! flycheck-languagetool
-  :recipe (:host github
-           :repo "emacs-languagetool/flycheck-languagetool"))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! flycheck-languagetool
-  :when LANGUAGETOOL-P
-  :commands (+flycheck-languagetool-setup-locally)
-  :hook (org-msg-edit-mode . +flycheck-languagetool-setup-locally)
-  :init
-  (setq ;; flycheck-languagetool-url nil
-        ;; flycheck-languagetool-server-command (executable-find "true") ;; Server is already launched
-        ;; flycheck-languagetool-server-port 8081
-        flycheck-languagetool-language "auto"
-        ;; See https://languagetool.org/http-api/swagger-ui/#!/default/post_check
-        flycheck-languagetool-check-params
-        `(("disabledRules" . "FRENCH_WHITESPACE,WHITESPACE,DEUX_POINTS_ESPACE")
-          ("motherTongue"  . ,+my/lang-mother-tongue)))
-
-  (defun +flycheck-languagetool-setup-locally ()
-    "Setup flycheck-languagetool locally."
-    (interactive)
-    (setq-local flycheck-checkers
-                (append '(languagetool) flycheck-checkers))))
+  (advice-add
+   '+lsp-ltex-setup :before
+   (lambda ()
+     (setq-local lsp-ui-sideline-show-diagnostics nil
+                 lsp-ui-sideline-show-code-actions nil
+                 lsp-ui-sideline-enable nil))))
 #+end_src
 
 *** Go Translate (Google, Bing and DeepL)
@@ -7695,29 +7632,6 @@ e -w "$@"
 #+begin_src shell :tangle ~/.zshrc
 export EDITOR="$HOME/.local/bin/et"
 # export VISUAL=$HOME/.local/bin/ev
-#+end_src
-
-** COMMENT LanguageTool server
-
-#+name: emacs daemon
-#+begin_src systemd :tangle ~/.config/systemd/user/languagetool.service :mkdirp yes
-[Unit]
-Description=LanguageTool server
-Documentation=https://laungaugetool.org
-
-[Service]
-Type=simple
-ExecStart=languagetool --http --languageModel /usr/share/ngrams
-Restart=on-failure
-
-[Install]
-WantedBy=default.target
-#+end_src
-
-Which is then enabled by:
-
-#+begin_src shell :tangle (if (string= "enabled\n" (shell-command-to-string "systemctl --user is-enabled languagetool.service")) "no" "setup.sh")
-systemctl --user enable languagetool.service
 #+end_src
 
 ** AppImage :appimage:
