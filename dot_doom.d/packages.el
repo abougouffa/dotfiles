@@ -7,11 +7,11 @@
   :disable t)
 ;; Auto-save:1 ends here
 
-;; [[file:config.org::*Visual Undo (=vundo=)][Visual Undo (=vundo=):1]]
+;; [[file:config.org::*Visual undo (=vundo=)][Visual undo (=vundo=):1]]
 (package! vundo
   :recipe (:host github
            :repo "casouri/vundo"))
-;; Visual Undo (=vundo=):1 ends here
+;; Visual undo (=vundo=):1 ends here
 
 ;; [[file:config.org::*Modus][Modus:1]]
 (package! modus-themes)
@@ -110,7 +110,7 @@
 
 ;; [[file:config.org::*Valgrind][Valgrind:1]]
 (package! valgrind
-  :recipe (:local-repo "lisp/valgrind"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/valgrind" doom-user-dir)))
 ;; Valgrind:1 ends here
 
 ;; [[file:config.org::*Grammarly][Grammarly:1]]
@@ -166,10 +166,8 @@
 ;; Lemon:1 ends here
 
 ;; [[file:config.org::*Weather][Weather:1]]
-;; lisp/wttrin/wttrin.el taken from:
-;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/wttrin" doom-user-dir)))
 ;; Weather:1 ends here
 
 ;; [[file:config.org::*OpenStreetMap][OpenStreetMap:1]]
@@ -315,7 +313,7 @@
 
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:1]]
 (package! company-conventional-commits
-  :recipe (:local-repo "lisp/company-conventional-commits"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/company-conventional-commits" doom-user-dir)))
 ;; WIP Company for commit messages:1 ends here
 
 ;; [[file:config.org::*Pretty graph][Pretty graph:1]]
@@ -386,7 +384,7 @@
 
 ;; [[file:config.org::*Modula-II][Modula-II:1]]
 (package! gm2-mode
-  :recipe (:local-repo "lisp/gm2-mode"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/gm2-mode" doom-user-dir)))
 ;; Modula-II:1 ends here
 
 ;; [[file:config.org::*Mermaid][Mermaid:1]]
@@ -449,7 +447,3 @@
   :recipe (:host github
            :repo "misohena/phscroll"))
 ;; Org additional packages:1 ends here
-
-;; [[file:config.org::*Quarto][Quarto:1]]
-(package! quarto-mode)
-;; Quarto:1 ends here

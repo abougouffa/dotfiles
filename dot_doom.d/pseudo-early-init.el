@@ -145,16 +145,16 @@ If \"file.ext\" exists, returns \"file-0.ext\"."
 ;; [[file:config.org::*Check for external tools][Check for external tools:1]]
 (defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-data-dir))
 (defconst IS-LUCID (string-search "LUCID" system-configuration-features))
+(defconst FRICAS-DIR "/usr/lib/fricas/emacs")
 
 (defconst AG-P (executable-find "ag"))
 (defconst EAF-P (and (not IS-LUCID) (file-directory-p EAF-DIR)))
 (defconst MPD-P (+all (mapcar #'executable-find '("mpc" "mpd"))))
 (defconst MPV-P (executable-find "mpv"))
 (defconst REPO-P (executable-find "repo"))
-(defconst FRICAS-P (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs")))
+(defconst FRICAS-P (and (executable-find "fricas") (file-directory-p FRICAS-DIR)))
 (defconst MAXIMA-P (executable-find "maxima"))
 (defconst TUNTOX-P (executable-find "tuntox"))
-(defconst QUARTO-P (executable-find "quarto"))
 (defconst ROSBAG-P (executable-find "rosbag"))
 (defconst ZOTERO-P (executable-find "zotero"))
 (defconst CHEZMOI-P (executable-find "chezmoi"))

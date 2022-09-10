@@ -112,7 +112,7 @@
   (setq evil-want-fine-undo t)) ;; By default while in insert all changes are one big blob
 ;; Undo:1 ends here
 
-;; [[file:config.org::*Visual Undo (=vundo=)][Visual Undo (=vundo=):2]]
+;; [[file:config.org::*Visual undo (=vundo=)][Visual undo (=vundo=):2]]
 (use-package! vundo
   :defer t
   :init
@@ -132,7 +132,7 @@
   (setq vundo-glyph-alist +vundo-unicode-symbols
         vundo-compact-display t
         vundo-window-max-height 6))
-;; Visual Undo (=vundo=):2 ends here
+;; Visual undo (=vundo=):2 ends here
 
 ;; [[file:config.org::*Editing][Editing:1]]
 ;; Stretch cursor to the glyph width
@@ -147,7 +147,7 @@
 
 ;; [[file:config.org::*Emacs sources][Emacs sources:1]]
 (setq source-directory
-      (expand-file-name "~/Softwares/src/emacs"))
+      (expand-file-name "~/Softwares/src/emacs/"))
 ;; Emacs sources:1 ends here
 
 ;; [[file:config.org::*Browsers][Browsers:1]]
@@ -257,8 +257,8 @@
 
 (after! which-key
   (pushnew! which-key-replacement-alist
-            '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "🅔·\\1"))
-            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "Ⓔ·\\1"))))
+            '((""       . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "🅔·\\1"))
+            '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)")       . (nil . "Ⓔ·\\1"))))
 ;; Which key:2 ends here
 
 ;; [[file:config.org::*Window title][Window title:1]]
@@ -1350,13 +1350,19 @@ if it is set to a launch.json file, it will be used instead."
   (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
 ;; Grammalecte:2 ends here
 
-;; [[file:config.org::*LTeX][LTeX:1]]
+;; [[file:config.org::*LTeX/LanguageTool][LTeX/LanguageTool:1]]
 (after! lsp-ltex
-  ;; (add-to-list 'lsp-disabled-clients 'ltex-ls)
   (setq lsp-ltex-language "auto"
         lsp-ltex-mother-tongue +my/lang-mother-tongue
-        flycheck-checker-error-threshold 1000))
-;; LTeX:1 ends here
+        flycheck-checker-error-threshold 1000)
+
+  (advice-add
+   '+lsp-ltex-setup :before
+   (lambda ()
+     (setq-local lsp-ui-sideline-show-diagnostics nil
+                 lsp-ui-sideline-show-code-actions nil
+                 lsp-ui-sideline-enable nil))))
+;; LTeX/LanguageTool:1 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
 (use-package! go-translate
@@ -1630,6 +1636,7 @@ if it is set to a launch.json file, it will be used instead."
 ;; Workspaces:1 ends here
 
 ;; [[file:config.org::*Weather][Weather:2]]
+;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (use-package! wttrin
   :commands wttrin)
 ;; Weather:2 ends here
@@ -2773,7 +2780,7 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*FriCAS][FriCAS:1]]
 (use-package! fricas
   :when FRICAS-P
-  :load-path "/usr/lib/fricas/emacs"
+  :load-path FRICAS-DIR
   :commands (fricas-mode fricas-eval fricas))
 ;; FriCAS:1 ends here
 
@@ -3032,10 +3039,11 @@ is binary, activate `hexl-mode'."
 ;; [[file:config.org::*WIP Company for commit messages][WIP Company for commit messages:2]]
 (use-package! company-conventional-commits
   :after (magit company)
-  :init
-  (add-hook 'git-commit-setup-hook
-            (lambda ()
-              (add-to-list 'company-backends 'company-conventional-commits))))
+  :config
+  (add-hook
+   'git-commit-setup-hook
+   (lambda ()
+     (add-to-list 'company-backends 'company-conventional-commits))))
 ;; WIP Company for commit messages:2 ends here
 
 ;; [[file:config.org::*Pretty graph][Pretty graph:2]]
@@ -3940,7 +3948,6 @@ is binary, activate `hexl-mode'."
             ("bind"                . #("" 0 1 (display (raise -0.1))))
             ("bibliography"        . "")
             ("print_bibliography"  . #("" 0 1 (display (raise -0.1))))
-            ("print_bibliography"  . #("" 0 1 (display (raise -0.1))))
             ("cite_export"         . "⮭")
             ("print_glossary"      . #("ᴬᶻ" 0 1 (display (raise -0.1))))
             ("glossary_sources"    . #("" 0 1 (display (raise -0.14))))
@@ -4462,11 +4469,6 @@ is binary, activate `hexl-mode'."
   :commands (academic-phrases
              academic-phrases-by-section))
 ;; Academic phrases:1 ends here
-
-;; [[file:config.org::*Quarto][Quarto:2]]
-(use-package! quarto-mode
-  :when QUARTO-P)
-;; Quarto:2 ends here
 
 ;; [[file:config.org::*French apostrophes][French apostrophes:1]]
 (defun +helper--in-buffer-replace (old new)

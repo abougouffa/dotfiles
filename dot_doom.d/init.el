@@ -44,21 +44,19 @@
   word-wrap
 
   :emacs
-  (dired +dirvish +icons)
-  (ibuffer +icons)
-  undo
   vc
+  undo
+  (ibuffer +icons)
 
   :term
-  eshell
+  term
   vterm
   shell
-  term
+  eshell
 
   :checkers
   (syntax +childframe)
   (spell +aspell)
-  (grammar +lsp)
 
   :tools
   ein
@@ -95,12 +93,12 @@
   (racket +lsp +xp)
   (lua +lsp +fennel)
   (web +tree-sitter)
+  (latex +lsp +latexmk)
   (cc +lsp +tree-sitter)
   (sh +lsp +tree-sitter)
   (json +lsp +tree-sitter)
   (rust +lsp +tree-sitter)
   (julia +lsp +tree-sitter)
-  (latex +lsp +latexmk)
   (python +lsp +pyenv +pyright +tree-sitter)
   (scheme +chez +mit +chicken +gauche +guile +chibi)
   (org +dragndrop +gnuplot +jupyter +pandoc +noter +journal +hugo +present +pomodoro +roam2)
@@ -109,13 +107,17 @@
   (:if (executable-find "mu") (mu4e +org +gmail))
 
   :app
-  calendar
   irc
-  emms
-  everywhere
   rss
+  emms
+  calendar
+  everywhere
 
   :config
   literate
   (default +bindings +smartparens)
+
+  :private
+  (grammar +lsp)
+  (dired-ng +icons +bindings)
 )
