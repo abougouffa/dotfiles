@@ -2370,7 +2370,7 @@ if it is set to a launch.json file, it will be used instead."
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! valgrind
-  :recipe (:local-repo "lisp/valgrind"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/valgrind" doom-user-dir)))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3031,13 +3031,12 @@ LanguageTool to implement natural language checking.
 *** Weather :wttrin:
 
 #+begin_src emacs-lisp :tangle packages.el
-;; lisp/wttrin/wttrin.el taken from:
-;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (package! wttrin
-  :recipe (:local-repo "lisp/wttrin"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/wttrin" doom-user-dir)))
 #+end_src
 
 #+begin_src emacs-lisp
+;; https://raw.githubusercontent.com/tecosaur/emacs-config/master/lisp/wttrin/wttrin.el
 (use-package! wttrin
   :commands wttrin)
 #+end_src
@@ -5141,7 +5140,7 @@ Add support for Yocto Project files.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! company-conventional-commits
-  :recipe (:local-repo "lisp/company-conventional-commits"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/company-conventional-commits" doom-user-dir)))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -5403,7 +5402,7 @@ repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-vers
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! gm2-mode
-  :recipe (:local-repo "lisp/gm2-mode"))
+  :recipe `(:local-repo ,(expand-file-name "lisp/gm2-mode" doom-user-dir)))
 #+end_src
 
 ** Mermaid :graph:mermaid:
