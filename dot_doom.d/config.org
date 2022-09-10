@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-08
+#+lastmod: 2022-09-10
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -279,7 +279,6 @@ store the result in global constants.
 (defconst FRICAS-P (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs")))
 (defconst MAXIMA-P (executable-find "maxima"))
 (defconst TUNTOX-P (executable-find "tuntox"))
-(defconst QUARTO-P (executable-find "quarto"))
 (defconst ROSBAG-P (executable-find "rosbag"))
 (defconst ZOTERO-P (executable-find "zotero"))
 (defconst CHEZMOI-P (executable-find "chezmoi"))
@@ -7117,18 +7116,6 @@ Phrases".
              academic-phrases-by-section))
 #+end_src
 
-*** Quarto
-Integration of [[https://quarto.org/][Quarto]] in Emacs.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! quarto-mode)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! quarto-mode
-  :when QUARTO-P)
-#+end_src
-
 *** French apostrophes
 
 #+begin_src emacs-lisp
@@ -8409,9 +8396,9 @@ PKGS_LIST=(
     maxima fricas octave scilab-bin graphviz
     djvulibre catdoc unrtf perl-image-exiftool
     chezmoi neovim repo ecryptfs-utils
-    pandoc quarto-cli-bin hugo inkscape imagemagick
     aspell aspell-en aspell-fr aspell-ar grammalecte
     libvterm brave zotero bitwarden-cli binutils)
+    pandoc hugo inkscape imagemagick
 
 for PKG in "${PKGS_LIST[@]}"; do
     check_and_install_pkg "$PKG"
