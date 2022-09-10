@@ -8317,12 +8317,14 @@ PKGS_LIST=(
     vls vlang rustup
     mu isync msmtp xsel xorg-xhost
     mpc mpv mpd vlc yt-dlp
-    maxima fricas octave scilab-bin graphviz
-    djvulibre catdoc unrtf perl-image-exiftool
+    maxima fricas octave scilab-bin graphviz jupyterlab jupyter-notebook r
+    djvulibre catdoc unrtf perl-image-exiftool wkhtmltopdf
     chezmoi neovim repo ecryptfs-utils
-    aspell aspell-en aspell-fr aspell-ar grammalecte
-    libvterm brave zotero bitwarden-cli binutils)
     pandoc hugo inkscape imagemagick
+    aspell aspell-en aspell-fr aspell-ar grammalecte language-tool ltex-ls-bin
+    libvterm brave zotero bitwarden-cli binutils
+    poppler ffmpegthumbnailer mediainfo imagemagick tar unzip
+)
 
 for PKG in "${PKGS_LIST[@]}"; do
     check_and_install_pkg "$PKG"
