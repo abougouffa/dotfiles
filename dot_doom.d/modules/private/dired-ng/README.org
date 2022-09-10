@@ -1,0 +1,127 @@
+#+title:    :emacs dired
+#+subtitle: Making dired pretty [functional]
+#+created:  February 20, 2017
+#+since:    2.0.0
+
+* Description :unfold:
+This module provides reasonable defaults and augmentations for dired.
+
+** Maintainers
+- [[doom-user:][@alexluigit]]
+
+[[doom-contrib-maintainer:][Become a maintainer?]]
+
+** Module flags
+- +icons ::
+  Enables the display of fancy icons depending on file types in dired buffers.
+- +bindings ::
+  Enables some sensible keybindings in dired buffers, see below.
+
+** Packages
+- [[doom-package:][dirvish]]
+- [[doom-package:][diredfl]]
+
+** TODO Hacks
+#+begin_quote
+ 🔨 This module's hacks haven't been documented yet. [[doom-contrib-module:][Document them?]]
+#+end_quote
+
+** TODO Changelog
+# This section will be machine generated. Don't edit it by hand.
+/This module does not have a changelog yet./
+
+* Installation
+[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+
+This module has no requirements *except on BSDs* like MacOS or FreeBSD, where
+=GNU ls= (aka ~gls~) is required.
+
+Optionally, you can install these dependencies to improve the preview
+experience:
+
++ =fd= as a faster alternative to =find=
++ =imagemagick= for image preview
++ =poppler= | =pdf-tools= for pdf preview
++ =ffmpegthumbnailer= for video preview
++ =mediainfo= for audio/video metadata generation
++ =tar= and =unzip= for archive files preview
+
+** macOS
+#+begin_src bash
+  brew install coreutils fd poppler ffmpegthumbnailer mediainfo imagemagick
+#+end_src
+
+** Debian-based
+#+begin_src bash
+  apt install fd-find poppler-utils ffmpegthumbnailer mediainfo imagemagick tar unzip
+#+end_src
+
+** Arch-based
+#+begin_src bash
+  pacman -S fd poppler ffmpegthumbnailer mediainfo imagemagick tar unzip
+#+end_src
+
+** FreeBSD
+#+begin_src bash
+  pkg install gnuls fd-find poppler ffmpegthumbnailer ImageMagick7 gtar
+#+end_src
+
+** Windows (not tested, may not work)
+#+begin_src bash
+  # install via Scoop: https://scoop.sh/
+  scoop install coreutils fd poppler imagemagick unzip
+#+end_src
+
+* TODO Usage
+#+begin_quote
+ 🔨 /This module's usage documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+#+end_quote
+
+** Global bindings
+| Keybind | Description               |
+|---------+---------------------------|
+| [[kbd:][SPC f d]] | Find directory with dired |
+| [[kbd:][SPC f n]] | Find file names in dired  |
+| [[kbd:][SPC o v]] | Open dired with preview   |
+
+** Dired/Dirvish bindings
+| Keybind | Description                 |
+|---------+-----------------------------|
+| [[kbd:][q]]       | Exit dired buffer           |
+| [[kbd:][?]]       | Ask for help                |
+| [[kbd:][M-t]]     | Toggle fullscreen (preview) |
+| [[kbd:][C-c C-e]] | Rename entries with [[doom-package:][wdired]]  |
+
+If [[doom-module:][+bindings]] is enabled, these bindings are available as well.
+
+| Keybind | Description                                   |
+|---------+-----------------------------------------------|
+| [[kbd:][a]]       | Quick access frequently used directories      |
+| [[kbd:][f]]       | Get file information under the cursor         |
+| [[kbd:][y]]       | Paste/link/move marked files here             |
+| [[kbd:][s]]       | Sort buffer with different criteria           |
+| [[kbd:][TAB]]     | Expand or contract directory under the cursor |
+| [[kbd:][M-f]]     | Jump to next dired history entry              |
+| [[kbd:][M-b]]     | Jump to previous dired history entry          |
+| [[kbd:][M-m]]     | Mark files in different ways                  |
+| [[kbd:][M-s]]     | Setup user interface for dirvish              |
+| [[kbd:][M-n]]     | Narrow the buffer with user input             |
+| [[kbd:][C-c C-e]] | Rename entries with [[doom-package:][wdired]]                    |
+
+Other keybindings can be found on the official [[https://www.gnu.org/software/emacs/refcards/pdf/dired-ref.pdf][Dired reference card]].
+
+* TODO Configuration
+#+begin_quote
+ 🔨 This module has no configuration documentation yet. [[doom-contrib-module:][Write some?]]
+#+end_quote
+
+* Troubleshooting
+/There are no known problems with this module./ [[doom-report:][Report one?]]
+
+* Frequently asked questions
+/This module has no FAQs yet./ [[doom-suggest-faq:][Ask one?]]
+
+* TODO Appendix
+#+begin_quote
+ 🔨 This module has no appendix yet. [[doom-contrib-module:][Write one?]]
+#+end_quote

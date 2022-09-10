@@ -19,6 +19,7 @@
                                 (when (eq lang (car l))
                                   (throw 'l-name (nth 2 l)))))
                buff-lang)
-      (setq-local lsp-ltex-language buff-lang)))
+      (setq-local lsp-ltex-language buff-lang
+                  flymake-languagetool-language buff-lang)))
 
   (add-hook 'guess-language-after-detection-functions #'+set-buffer-language))
