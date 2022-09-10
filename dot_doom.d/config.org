@@ -270,13 +270,14 @@ store the result in global constants.
 #+begin_src emacs-lisp :tangle pseudo-early-init.el
 (defconst EAF-DIR (expand-file-name "eaf/eaf-repo" doom-data-dir))
 (defconst IS-LUCID (string-search "LUCID" system-configuration-features))
+(defconst FRICAS-DIR "/usr/lib/fricas/emacs")
 
 (defconst AG-P (executable-find "ag"))
 (defconst EAF-P (and (not IS-LUCID) (file-directory-p EAF-DIR)))
 (defconst MPD-P (+all (mapcar #'executable-find '("mpc" "mpd"))))
 (defconst MPV-P (executable-find "mpv"))
 (defconst REPO-P (executable-find "repo"))
-(defconst FRICAS-P (and (executable-find "fricas") (file-directory-p "/usr/lib/fricas/emacs")))
+(defconst FRICAS-P (and (executable-find "fricas") (file-directory-p FRICAS-DIR)))
 (defconst MAXIMA-P (executable-find "maxima"))
 (defconst TUNTOX-P (executable-find "tuntox"))
 (defconst ROSBAG-P (executable-find "rosbag"))
@@ -4761,7 +4762,7 @@ The FriCAS cames bundled with an Emacs mode, let's load it.
 #+begin_src emacs-lisp
 (use-package! fricas
   :when FRICAS-P
-  :load-path "/usr/lib/fricas/emacs"
+  :load-path FRICAS-DIR
   :commands (fricas-mode fricas-eval fricas))
 #+end_src
 
