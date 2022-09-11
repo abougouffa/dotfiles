@@ -6,9 +6,9 @@
 ;; User information:1 ends here
 
 ;; [[file:config.org::*Common variables][Common variables:1]]
-(defvar +my/lang-mother-tongue "ar")
 (defvar +my/lang-main          "en")
 (defvar +my/lang-secondary     "fr")
+(defvar +my/lang-mother-tongue "ar")
 
 (defvar +my/biblio-libraries-list (list (expand-file-name "~/Zotero/library.bib")))
 (defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
@@ -610,8 +610,9 @@ current buffer's, reload dir-locals."
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-hover nil
         lsp-log-io nil
-        lsp-lens-enable t ; not working properly with ccls!
+        lsp-lens-enable t ;; not working properly with ccls!
         lsp-diagnostics-provider :auto
+        lsp-semantic-tokens-enable t ;; hide unreachable ifdefs
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
         lsp-headerline-breadcrumb-segments '(symbols)))
@@ -720,6 +721,16 @@ current buffer's, reload dir-locals."
 (use-package! cpp-auto-include
   :commands cpp-auto-include)
 ;; Auto-include C++ headers:2 ends here
+
+;; [[file:config.org::*C/C++ preprocessor conditions][C/C++ preprocessor conditions:1]]
+(unless (modulep! :lang cc +lsp) ;; Disable if LSP for C/C++ is enabled
+  (use-package! hideif
+    :hook (c-mode . hide-ifdef-mode)
+    :hook (c++-mode . hide-ifdef-mode)
+    :init
+    (setq hide-ifdef-shadow t
+          hide-ifdef-initially t)))
+;; C/C++ preprocessor conditions:1 ends here
 
 ;; [[file:config.org::*Erefactor][Erefactor:2]]
 (use-package! erefactor
