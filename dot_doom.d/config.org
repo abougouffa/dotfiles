@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-10
+#+lastmod: 2022-09-11
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -589,9 +589,9 @@ This file shouldn't be byte compiled.
 ** Common variables
 
 #+begin_src emacs-lisp
-(defvar +my/lang-mother-tongue "ar")
 (defvar +my/lang-main          "en")
 (defvar +my/lang-secondary     "fr")
+(defvar +my/lang-mother-tongue "ar")
 
 (defvar +my/biblio-libraries-list (list (expand-file-name "~/Zotero/library.bib")))
 (defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
