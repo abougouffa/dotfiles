@@ -1557,8 +1557,9 @@ useful UI stuff.
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-hover nil
         lsp-log-io nil
-        lsp-lens-enable t ; not working properly with ccls!
+        lsp-lens-enable t ;; not working properly with ccls!
         lsp-diagnostics-provider :auto
+        lsp-semantic-tokens-enable t ;; hide unreachable ifdefs
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
         lsp-headerline-breadcrumb-segments '(symbols)))
@@ -1753,6 +1754,23 @@ together =project=, =eglot=, =cmake= and =clangd=.
 #+begin_src emacs-lisp
 (use-package! cpp-auto-include
   :commands cpp-auto-include)
+#+end_src
+
+*** C/C++ preprocessor conditions
+In LSP mode, I configure ~lsp-semantic-tokens-enable~ to enable fading unreachable
+~#ifdef~ blocks, in case LSP is disabled, there is a similar built-in mode for
+Emacs to do so. However, for a fully satisfying experience, it needs more work
+to take into account macros defined at compile time (using ~compile_commands.json~
+for example).
+
+#+begin_src emacs-lisp
+(unless (modulep! :lang cc +lsp) ;; Disable if LSP for C/C++ is enabled
+  (use-package! hideif
+    :hook (c-mode . hide-ifdef-mode)
+    :hook (c++-mode . hide-ifdef-mode)
+    :init
+    (setq hide-ifdef-shadow t
+          hide-ifdef-initially t)))
 #+end_src
 
 *** Erefactor
