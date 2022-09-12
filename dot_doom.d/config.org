@@ -8313,6 +8313,22 @@ mogrify -modulate 100,0 -resize 400% "$IMG"
 tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib
 #+end_src
 
+** Slack
+This script is called at system startup.
+
+#+begin_src shell :tangle ~/.local/bin/slack-startup :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/bin/bash
+
+WEEK_DAY=$(date +%u)
+SLACK=$(which slack)
+
+if [ ! "$WEEK_DAY" == "6" ] && [ ! "$WEEK_DAY" == "7" ]; then
+  $SLACK -u %U
+else
+  echo "It is the week end bro!"
+fi
+#+end_src
+
 ** Arch Linux packages
 Here, we install Arch packages
 
