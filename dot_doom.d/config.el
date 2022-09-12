@@ -214,8 +214,8 @@
 
   ;; Add padding to the right
   (doom-modeline-def-modeline 'main
-    '(bar matches buffer-info remote-host buffer-position parrot selection-info)
-    '(misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "   "))) ; <-- added padding here
+   '(bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+   '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker "   ")))
 ;; Clock:1 ends here
 
 ;; [[file:config.org::*Battery][Battery:1]]
@@ -243,7 +243,7 @@
 ;; [[file:config.org::*Dashboard][Dashboard:1]]
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
-(add-hook! '+doom-dashboard-mode-hook (hl-line-mode -1) (hide-mode-line-mode 1))
+(add-hook! '+doom-dashboard-mode-hook (hl-line-mode -1))
 (setq-hook! '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
 ;; Dashboard:1 ends here
 
@@ -1729,10 +1729,11 @@ if it is set to a launch.json file, it will be used instead."
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
-  :commands (eaf-open
-             eaf-open-browser
-             eaf-open-jupyter
-             +eaf-open-mail-as-html)
+  :defer t
+  ;; :commands (eaf-open
+  ;;            eaf-open-browser
+  ;;            eaf-open-jupyter
+  ;;            +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
