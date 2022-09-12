@@ -63,6 +63,12 @@ window:
   #     - buttonless: Title bar, transparent background and no title bar buttons
   decorations: full
 
+  # Background opacity
+  #
+  # Window opacity as a floating point number from `0.0` to `1.0`.
+  # The value `0.0` is completely transparent and `1.0` is opaque.
+  opacity: 0.92
+
   # Startup Mode (changes require restart)
   #
   # Values for `startup_mode`:
@@ -72,7 +78,7 @@ window:
   #
   # Values for `startup_mode` (macOS only):
   #   - SimpleFullscreen
-  startup_mode: Maximized
+  startup_mode: Windowed
 
   # Window title
   #title: Alacritty
@@ -91,13 +97,7 @@ window:
   #
   # Override the variant of the GTK theme. Commonly supported values are `dark`
   # and `light`. Set this to `None` to use the default theme variant.
-  #gtk_theme_variant: None
-
-  # Background opacity
-  #
-  # Window opacity as a floating point number from `0.0` to `1.0`.
-  # The value `0.0` is completely transparent and `1.0` is opaque.
-  opacity: 0.92
+  gtk_theme_variant: light
 
 scrolling:
   # Maximum number of lines in the scrollback buffer.
@@ -105,7 +105,7 @@ scrolling:
   history: 10000
 
   # Scrolling distance multiplier.
-  #multiplier: 3
+  multiplier: 10
 
 # Font configuration
 font:
@@ -117,7 +117,7 @@ font:
     #   - (macOS) Menlo
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
-    family: Iosevka Fixed
+    family: CaskaydiaCove Nerd Font Mono
 
     # The `style` can be specified to pick a specific face.
     style: Regular
@@ -128,7 +128,7 @@ font:
     #
     # If the bold family is not specified, it will fall back to the
     # value specified for the normal font.
-    family: Iosevka Fixed
+    # family: CaskaydiaCove Nerd Font Mono
 
     # The `style` can be specified to pick a specific face.
     style: Bold
@@ -139,7 +139,7 @@ font:
     #
     # If the italic family is not specified, it will fall back to the
     # value specified for the normal font.
-    family: Iosevka Fixed
+    # family: CaskaydiaCove Nerd Font Mono
 
     # The `style` can be specified to pick a specific face.
     style: Italic
@@ -150,13 +150,13 @@ font:
     #
     # If the bold italic family is not specified, it will fall back to the
     # value specified for the normal font.
-    family: Iosevka Fixed
+    # family: CaskaydiaCove Nerd Font Mono
 
     # The `style` can be specified to pick a specific face.
     style: Bold Italic
 
   # Point size
-  size: 10.5
+  size: 14.0
 
   # Offset is the extra space around each character. `offset.y` can be thought
   # of as modifying the line spacing, and `offset.x` as modifying the letter
@@ -178,10 +178,47 @@ font:
   # it is recommended to set `use_thin_strokes` to `false`.
   #use_thin_strokes: true
 
+  # Use built-in font for box drawing characters.
+  #
+  # If `true`, Alacritty will use a custom built-in font for box drawing
+  # characters (Unicode points 2500 - 259f).
+  #
+  builtin_box_drawing: true
+
 # If `true`, bold text is drawn using the bright color variants.
 #draw_bold_text_with_bright_colors: false
 
-# Colors (Tomorrow Night)
+# Colors (night_owlish_light)
+# from https://github.com/eendroroy/alacritty-theme/blob/master/schemes.yaml
+colors:
+  primary:
+    background: '#ffffff'
+    foreground: '#403f53'
+  selection:
+    background: '#f2f2f2'
+    text:       '#403f53'
+  cursor:
+    cursor:  '#403f53'
+    text:    '#fbfbfb'
+  normal:
+    black:   '#011627'
+    blue:    '#4876d6'
+    cyan:    '#08916a'
+    green:   '#2aa298'
+    magenta: '#403f53'
+    red:     '#d3423e'
+    white:   '#7a8181'
+    yellow:  '#daaa01'
+  bright:
+    black:   '#7a8181'
+    blue:    '#5ca7e4'
+    cyan:    '#00c990'
+    green:   '#49d0c5'
+    magenta: '#697098'
+    red:     '#f76e6e'
+    white:   '#989fb1'
+    yellow:  '#dac26b'
+
 #colors:
   # Default colors
   #primary:
@@ -318,6 +355,13 @@ font:
   #
   #indexed_colors: []
 
+  # Transparent cell backgrounds
+  #
+  # Whether or not `window.opacity` applies to all cell backgrounds or only to
+  # the default background. When set to `true` all cells will be transparent
+  # regardless of their background color.
+  #transparent_background_colors: false
+
 # Bell
 #
 # The bell is rung every time the BEL control character is received.
@@ -362,10 +406,10 @@ bell:
 selection:
   # This string contains all characters that are used as separators for
   # "semantic words" in Alacritty.
-  semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
+  #semantic_escape_chars: ",│`|:\"' ()[]{}<>\t"
 
   # When set to `true`, selected text will be copied to the primary clipboard.
-  #save_to_clipboard: false
+  save_to_clipboard: true
 
 cursor:
   # Cursor style
@@ -400,14 +444,14 @@ cursor:
 
   # If this is `true`, the cursor will be rendered as a hollow box when the
   # window is not focused.
-  unfocused_hollow: true
+  #unfocused_hollow: true
 
   # Thickness of the cursor relative to the cell width as floating point number
   # from `0.0` to `1.0`.
   #thickness: 0.15
 
 # Live config reload (changes require restart)
-live_config_reload: true
+#live_config_reload: true
 
 # Shell
 #
@@ -432,6 +476,9 @@ shell:
 
 # Send ESC (\x1b) before characters when alt is pressed.
 #alt_send_esc: true
+
+# Offer IPC using `alacritty msg` (unix only)
+#ipc_socket: true
 
 #mouse:
   # Click settings
@@ -518,8 +565,9 @@ shell:
 #
 # - `mods` (see key bindings)
 #mouse_bindings:
-#  - { mouse: Right,             action: ExpandSelection }
-#  - { mouse: Middle, mode: ~Vi, action: PasteSelection  }
+#  - { mouse: Right,                 action: ExpandSelection }
+#  - { mouse: Right,  mods: Control, action: ExpandSelection }
+#  - { mouse: Middle, mode: ~Vi,     action: PasteSelection  }
 
 # Key bindings
 #
@@ -588,6 +636,8 @@ shell:
 #   - ToggleFullscreen
 #   - SpawnNewInstance
 #       Spawn a new instance of Alacritty.
+#   - CreateNewWindow
+#       Create a new Alacritty window from the current process.
 #   - ClearLogNotice
 #       Clear Alacritty's UI warning and error notice.
 #   - ClearSelection
