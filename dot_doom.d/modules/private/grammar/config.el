@@ -34,7 +34,7 @@
              +lsp-ltex-enable
              +lsp-ltex-disable
              +lsp-ltex-setup)
-  :hook ((latex-mode LaTeX-mode org-mode markdown-mode) . #'+lsp-ltex-setup)
+  :hook ((latex-mode LaTeX-mode org-mode markdown-mode html-mode bibtex-mode) . #'+lsp-ltex-setup)
   :init
   ;; There is some problematic modes when it comes to enabling LSP
   (defvar +lsp-ltex-disabled-modes '(org-msg-edit-mode))
@@ -42,9 +42,12 @@
   ;; Add doom-docs-mode to LSP language IDs
   (add-to-list 'lsp-language-id-configuration '(doom-docs-org-mode . "org"))
   :init
-  (setq lsp-ltex-check-frequency "edit"
+  (setq lsp-ltex-check-frequency "save"
         lsp-ltex-log-level "warning" ;; No need to log everything
         lsp-ltex-diagnostic-severity "warning"
+        lsp-ltex-enabled ["bibtex" "context" "context.tex"
+                          "html" "latex" "markdown" "org"
+                          "restructuredtext" "rsweave"]
         ;; Path in which, interactively added words and rules will be stored.
         lsp-ltex-user-rules-path (expand-file-name "lsp-ltex" doom-data-dir))
 

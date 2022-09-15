@@ -3,7 +3,7 @@
 
 (when (and (modulep! +lsp)
            (not (modulep! :tools lsp +eglot)))
-  (package! lsp-ltex :pin "18b0e8608408f9e913d89075e78c2b4e3f69cf1c")
+  (package! lsp-ltex)
   ;; Optional dependency of lsp-ltex, needed for installing/updating ltex-ls LSP server
   (package! github-tags
     :recipe (:host github
