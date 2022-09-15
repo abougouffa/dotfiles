@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-12
+#+lastmod: 2022-09-15
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -901,6 +901,7 @@ Set Doom's theme, some good choices:
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-one-light)
+;; (setq doom-theme 'doom-tomorrow-day)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 #+end_src
@@ -996,7 +997,55 @@ Set Doom's theme, some good choices:
         :desc "Toggle Modus theme" "m" #'modus-themes-toggle))
 #+end_src
 
-*** Modeline :modeline:
+**** Lambda themes
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lambda-themes
+  :disable t
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-themes"))
+
+(package! lambda-line
+  :disable t
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-line"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lambda-themes
+  :init
+  (setq lambda-themes-set-italic-comments t
+        lambda-themes-set-italic-keywords t
+        lambda-themes-set-variable-pitch t
+        lambda-themes-set-evil-cursors t)
+  :config
+  ;; load preferred theme
+  (load-theme 'lambda-light-faded t))
+
+(use-package! lambda-line
+  :custom
+  (lambda-line-position 'top) ;; Set position of status-line
+  (lambda-line-abbrev t) ;; abbreviate major modes
+  (lambda-line-hspace "  ")  ;; add some cushion
+  (lambda-line-prefix t) ;; use a prefix symbol
+  (lambda-line-prefix-padding nil) ;; no extra space for prefix
+  (lambda-line-status-invert nil)  ;; no invert colors
+  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
+  (lambda-line-gui-mod-symbol " ⬤")
+  (lambda-line-gui-rw-symbol  " ◯")
+  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom -.50)
+  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
+  :config
+  ;; activate lambda-line
+  (lambda-line-mode)
+  ;; set divider line in footer
+  (when (eq lambda-line-position 'top)
+    (setq-default mode-line-format (list "%_"))
+    (setq mode-line-format (list "%_"))))
+#+end_src
+
+*** Mode line :modeline:
 **** Clock
 Display time and set the format to 24h.
 
