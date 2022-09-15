@@ -564,6 +564,7 @@ everywhere
 
 #+name: doom-private
 #+begin_src emacs-lisp
+guess-language
 (grammar +lsp)
 (dired-ng +icons +bindings)
 #+end_src
@@ -2744,6 +2745,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
 #+begin_src emacs-lisp
 (use-package! flycheck-grammalecte
+  :when nil ;; BUG: Disabled, there is a Python error
   :commands (flycheck-grammalecte-correct-error-at-point
              grammalecte-conjugate-verb
              grammalecte-define
@@ -2776,8 +2778,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
 
   :config
   (grammalecte-download-grammalecte)
-  (flycheck-grammalecte-setup)
-  (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
+  (flycheck-grammalecte-setup))
 #+end_src
 
 *** LTeX/LanguageTool :lsp:languagetool:
