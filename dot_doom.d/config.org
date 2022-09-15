@@ -3282,11 +3282,10 @@ dependencies.
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
-  :defer t
-  ;; :commands (eaf-open
-  ;;            eaf-open-browser
-  ;;            eaf-open-jupyter
-  ;;            +eaf-open-mail-as-html)
+  :commands (eaf-open
+             eaf-open-browser
+             eaf-open-jupyter
+             +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
