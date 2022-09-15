@@ -3934,7 +3934,7 @@ You will need to:
 I use a =mbsyncrc= file for multi-accounts, with some hacks for Gmail accounts (to
 rename the =[Gmail]/...= folders). Here is an explained configuration example.
 
-In the configuration file, there is an parameter named =Pass= which should be set
+In the configuration file, there is a parameter named =Pass= which should be set
 to the password in plain text. Most of the examples you can find online uses
 this parameter, but in real life, nobody uses it, it is extremely unsafe to put
 the password in plain text configuration file. Instead, =mbsync= configuration
@@ -5025,7 +5025,6 @@ View data frames better with
                         (set (make-local-variable 'company-backends)
                              '((elpy-company-backend :with company-yasnippet))))))
   :config
-  ;;:init
   (elpy-enable))
 #+end_src
 
@@ -8444,12 +8443,13 @@ This script is called at system startup.
 #!/bin/bash
 
 WEEK_DAY=$(date +%u)
+HOUR=$(date +%H)
 SLACK=$(which slack)
 
-if [ ! "$WEEK_DAY" == "6" ] && [ ! "$WEEK_DAY" == "7" ]; then
+if [ ! "$WEEK_DAY" == "6" ] && [ ! "$WEEK_DAY" == "7" ] && [ "$HOUR" -gt 7 ] && [ "$HOUR" -lt 20 ] ; then
   $SLACK -u %U
 else
-  echo "It is the week end bro!"
+  echo "It is not work time!"
 fi
 #+end_src
 
