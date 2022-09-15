@@ -2795,11 +2795,27 @@ LanguageTool to implement natural language checking.
         flycheck-checker-error-threshold 1000)
 
   (advice-add
-   '+lsp-ltex-setup :before
+   '+lsp-ltex-setup :after
    (lambda ()
-     (setq-local lsp-ui-sideline-show-diagnostics nil
+     (setq-local lsp-idle-delay 5.0
+                 lsp-progress-function #'lsp-on-progress-legacy
+                 lsp-progress-spinner-type 'half-circle
                  lsp-ui-sideline-show-code-actions nil
-                 lsp-ui-sideline-enable nil))))
+                 lsp-ui-sideline-show-diagnostics nil
+                 lsp-ui-sideline-enable nil)))
+
+  ;; FIXME
+  (defun +lsp-ltex-check-document ()
+    (interactive)
+    (when-let ((file (buffer-file-name)))
+      (let* ((uri (lsp--path-to-uri file))
+             (beg (region-beginning))
+             (end (region-end))
+             (req (if (region-active-p)
+                      `(:uri ,uri
+                        :range ,(lsp--region-to-range beg end))
+                    `(:uri ,uri))))
+        (lsp-send-execute-command "_ltex.checkDocument" req)))))
 #+end_src
 
 *** Go Translate (Google, Bing and DeepL)
