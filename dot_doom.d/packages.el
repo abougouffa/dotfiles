@@ -17,6 +17,18 @@
 (package! modus-themes)
 ;; Modus:1 ends here
 
+;; [[file:config.org::*Lambda themes][Lambda themes:1]]
+(package! lambda-themes
+  :disable t
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-themes"))
+
+(package! lambda-line
+  :disable t
+  :recipe (:host github
+           :repo "Lambda-Emacs/lambda-line"))
+;; Lambda themes:1 ends here
+
 ;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:1]]
 (package! svg-tag-mode)
 ;; SVG tag and =svg-lib=:1 ends here

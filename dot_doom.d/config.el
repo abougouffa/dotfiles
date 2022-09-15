@@ -202,9 +202,44 @@
 
 ;; [[file:config.org::*Doom][Doom:1]]
 (setq doom-theme 'doom-one-light)
+;; (setq doom-theme 'doom-tomorrow-day)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 ;; Doom:1 ends here
+
+;; [[file:config.org::*Lambda themes][Lambda themes:2]]
+(use-package! lambda-themes
+  :init
+  (setq lambda-themes-set-italic-comments t
+        lambda-themes-set-italic-keywords t
+        lambda-themes-set-variable-pitch t
+        lambda-themes-set-evil-cursors t)
+  :config
+  ;; load preferred theme
+  (load-theme 'lambda-light-faded t))
+
+(use-package! lambda-line
+  :custom
+  (lambda-line-position 'top) ;; Set position of status-line
+  (lambda-line-abbrev t) ;; abbreviate major modes
+  (lambda-line-hspace "  ")  ;; add some cushion
+  (lambda-line-prefix t) ;; use a prefix symbol
+  (lambda-line-prefix-padding nil) ;; no extra space for prefix
+  (lambda-line-status-invert nil)  ;; no invert colors
+  (lambda-line-gui-ro-symbol  " ⨂") ;; symbols
+  (lambda-line-gui-mod-symbol " ⬤")
+  (lambda-line-gui-rw-symbol  " ◯")
+  (lambda-line-space-top +.50)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom -.50)
+  (lambda-line-symbol-position 0.1) ;; adjust the vertical placement of symbol
+  :config
+  ;; activate lambda-line
+  (lambda-line-mode)
+  ;; set divider line in footer
+  (when (eq lambda-line-position 'top)
+    (setq-default mode-line-format (list "%_"))
+    (setq mode-line-format (list "%_"))))
+;; Lambda themes:2 ends here
 
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
@@ -354,6 +389,37 @@
         centaur-tabs-close-button "⨂"
         centaur-tabs-modified-marker "⨀"))
 ;; Tabs:1 ends here
+
+;; [[file:config.org::*Zen (writeroom) mode][Zen (writeroom) mode:1]]
+(after! writeroom-mode
+  ;; Show mode line
+  (setq writeroom-mode-line t)
+
+  ;; Disable line numbers
+  (add-hook! 'writeroom-mode-enable-hook
+    (when (bound-and-true-p display-line-numbers-mode)
+      (setq-local +line-num--was-activate-p display-line-numbers-type)
+      (display-line-numbers-mode -1)))
+
+  (add-hook! 'writeroom-mode-disable-hook
+    (when (bound-and-true-p +line-num--was-activate-p)
+      (display-line-numbers-mode +line-num--was-activate-p)))
+
+  (after! org
+    ;; Increase latex previews scale in Zen mode
+    (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
+    (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
+
+  (after! blamer
+    ;; Disable blamer in zen (writeroom) mode
+    (add-hook! 'writeroom-mode-enable-hook
+      (when (bound-and-true-p blamer-mode)
+        (setq +blamer-mode--was-active-p t)
+        (blamer-mode -1)))
+    (add-hook! 'writeroom-mode-disable-hook
+      (when (bound-and-true-p +blamer-mode--was-active-p)
+        (blamer-mode 1)))))
+;; Zen (writeroom) mode:1 ends here
 
 ;; [[file:config.org::*Highlight indent guides][Highlight indent guides:1]]
 (after! highlight-indent-guides
@@ -603,20 +669,26 @@ current buffer's, reload dir-locals."
   (set-eglot-client! 'c++-mode '("clangd" "-j=3" "--clang-tidy")))
 ;; Eglot:1 ends here
 
-;; [[file:config.org::*Tweak UI][Tweak UI:1]]
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover nil
+;; [[file:config.org::*Performance][Performance:2]]
+(after! lsp-mode
+  (setq lsp-idle-delay 1.0
         lsp-log-io nil
-        lsp-lens-enable t ;; not working properly with ccls!
-        lsp-diagnostics-provider :auto
+        gc-cons-threshold (* 1024 1024 100))) ;; 100MiB
+;; Performance:2 ends here
+
+;; [[file:config.org::*Features & UI][Features & UI:1]]
+(after! lsp-mode
+  (setq lsp-lens-enable t
         lsp-semantic-tokens-enable t ;; hide unreachable ifdefs
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
-        lsp-headerline-breadcrumb-segments '(symbols)))
-;; Tweak UI:1 ends here
+        ;; LSP UI related tweaks
+        lsp-ui-sideline-enable nil
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-symbol nil
+        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-show-code-actions nil))
+;; Features & UI:1 ends here
 
 ;; [[file:config.org::*LSP mode with =clangd=][LSP mode with =clangd=:1]]
 (after! lsp-clangd
@@ -1260,6 +1332,28 @@ if it is set to a launch.json file, it will be used instead."
               (+spell-fu-register-dictionary +my/lang-secondary))))
 ;; Spell-Fu:1 ends here
 
+;; [[file:config.org::*Proselint][Proselint:1]]
+(after! flycheck
+  (flycheck-define-checker proselint
+    "A linter for prose."
+    :command ("proselint" source-inplace)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ":" column ": "
+              (id (one-or-more (not (any " "))))
+              (message) line-end))
+    :modes (text-mode markdown-mode gfm-mode org-mode))
+
+  ;; TODO: Can be enabled automatically for English documents using `guess-language'
+  (defun +flycheck-proselint-toggle ()
+    "Toggle Proselint checker for the current buffer."
+    (interactive)
+    (if (and (fboundp 'guess-language-buffer) (string= "en" (guess-language-buffer)))
+        (if (memq 'proselint flycheck-checkers)
+            (setq-local flycheck-checkers (delete 'proselint flycheck-checkers))
+          (setq-local flycheck-checkers (append flycheck-checkers '(proselint))))
+      (message "Proselint understands only English!"))))
+;; Proselint:1 ends here
+
 ;; [[file:config.org::*Grammarly][Grammarly:2]]
 (use-package! grammarly
   :config
@@ -1325,6 +1419,7 @@ if it is set to a launch.json file, it will be used instead."
 
 ;; [[file:config.org::*Grammalecte][Grammalecte:2]]
 (use-package! flycheck-grammalecte
+  :when nil ;; BUG: Disabled, there is a Python error
   :commands (flycheck-grammalecte-correct-error-at-point
              grammalecte-conjugate-verb
              grammalecte-define
@@ -1357,8 +1452,7 @@ if it is set to a launch.json file, it will be used instead."
 
   :config
   (grammalecte-download-grammalecte)
-  (flycheck-grammalecte-setup)
-  (add-to-list 'flycheck-grammalecte-enabled-modes 'fountain-mode))
+  (flycheck-grammalecte-setup))
 ;; Grammalecte:2 ends here
 
 ;; [[file:config.org::*LTeX/LanguageTool][LTeX/LanguageTool:1]]
@@ -1368,11 +1462,27 @@ if it is set to a launch.json file, it will be used instead."
         flycheck-checker-error-threshold 1000)
 
   (advice-add
-   '+lsp-ltex-setup :before
+   '+lsp-ltex-setup :after
    (lambda ()
-     (setq-local lsp-ui-sideline-show-diagnostics nil
+     (setq-local lsp-idle-delay 5.0
+                 lsp-progress-function #'lsp-on-progress-legacy
+                 lsp-progress-spinner-type 'half-circle
                  lsp-ui-sideline-show-code-actions nil
-                 lsp-ui-sideline-enable nil))))
+                 lsp-ui-sideline-show-diagnostics nil
+                 lsp-ui-sideline-enable nil)))
+
+  ;; FIXME
+  (defun +lsp-ltex-check-document ()
+    (interactive)
+    (when-let ((file (buffer-file-name)))
+      (let* ((uri (lsp--path-to-uri file))
+             (beg (region-beginning))
+             (end (region-end))
+             (req (if (region-active-p)
+                      `(:uri ,uri
+                        :range ,(lsp--region-to-range beg end))
+                    `(:uri ,uri))))
+        (lsp-send-execute-command "_ltex.checkDocument" req)))))
 ;; LTeX/LanguageTool:1 ends here
 
 ;; [[file:config.org::*Go Translate (Google, Bing and DeepL)][Go Translate (Google, Bing and DeepL):2]]
@@ -1729,11 +1839,10 @@ if it is set to a launch.json file, it will be used instead."
 (use-package! eaf
   :when EAF-P
   :load-path EAF-DIR
-  :defer t
-  ;; :commands (eaf-open
-  ;;            eaf-open-browser
-  ;;            eaf-open-jupyter
-  ;;            +eaf-open-mail-as-html)
+  :commands (eaf-open
+             eaf-open-browser
+             eaf-open-jupyter
+             +eaf-open-mail-as-html)
   :init
   (defvar +eaf-enabled-apps
     '(org browser mindmap jupyter org-previewer markdown-previewer file-sender video-player))
@@ -2907,7 +3016,6 @@ is binary, activate `hexl-mode'."
                         (set (make-local-variable 'company-backends)
                              '((elpy-company-backend :with company-yasnippet))))))
   :config
-  ;;:init
   (elpy-enable))
 ;; Python IDE:2 ends here
 
@@ -3095,16 +3203,7 @@ is binary, activate `hexl-mode'."
   (blamer-face ((t :foreground "#7a88cf"
                    :background nil
                    :height 125
-                   :italic t)))
-  :config
-  (when (modulep! :ui zen) ;; Disable in zen (writeroom) mode
-    (add-hook 'writeroom-mode-enable-hook
-              (when (bound-and-true-p blamer-mode)
-                (setq +blamer-mode--was-active-p t)
-                (blamer-mode -1)))
-    (add-hook 'writeroom-mode-disable-hook
-              (when (bound-and-true-p +blamer-mode--was-active-p)
-                (blamer-mode 1)))))
+                   :italic t))))
 ;; Blamer:2 ends here
 
 ;; [[file:config.org::*Assembly][Assembly:2]]
@@ -4064,11 +4163,6 @@ is binary, activate `hexl-mode'."
   
   ;; Set the default scale
   (+org-format-latex-set-scale 1.4)
-  
-  ;; Increase scale in Zen mode
-  (when (modulep! :ui zen)
-    (add-hook! 'writeroom-mode-enable-hook (+org-format-latex-set-scale 2.0))
-    (add-hook! 'writeroom-mode-disable-hook (+org-format-latex-set-scale 1.4)))
   (defun +parse-the-fun (str)
     "Parse the LaTeX environment STR.
   Return an AST with newlines counts in each level."
