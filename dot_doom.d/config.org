@@ -1627,24 +1627,39 @@ it work with =projectile=:
 (unpin! lsp-mode)
 #+end_src
 
-***** Tweak UI :diagnostics:ui:
+***** Tweaks
+****** Performance
+Use ~plist~ instead of hash table, LSP mode needs to be reinstalled after setting
+this environment variable ([[https://emacs-lsp.github.io/lsp-mode/page/performance/#use-plists-for-deserialization][see]]).
+
+#+begin_src shell :tangle ~/.zshrc
+export LSP_USE_PLISTS=true
+#+end_src
+
+#+begin_src emacs-lisp
+(after! lsp-mode
+  (setq lsp-idle-delay 1.0
+        lsp-log-io nil
+        gc-cons-threshold (* 1024 1024 100))) ;; 100MiB
+#+end_src
+
+****** Features & UI :diagnostics:ui:
 LSP mode provides a [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][set of configurable UI stuff]]. By default, Doom Emacs
 disables some UI components; however, I like to enable some less intrusive, more
 useful UI stuff.
 
 #+begin_src emacs-lisp
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover nil
-        lsp-log-io nil
-        lsp-lens-enable t ;; not working properly with ccls!
-        lsp-diagnostics-provider :auto
+(after! lsp-mode
+  (setq lsp-lens-enable t
         lsp-semantic-tokens-enable t ;; hide unreachable ifdefs
         lsp-enable-symbol-highlighting t
         lsp-headerline-breadcrumb-enable nil
-        lsp-headerline-breadcrumb-segments '(symbols)))
+        ;; LSP UI related tweaks
+        lsp-ui-sideline-enable nil
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-symbol nil
+        lsp-ui-sideline-show-diagnostics nil
+        lsp-ui-sideline-show-code-actions nil))
 #+end_src
 
 ***** LSP mode with =clangd= :clangd:c:cpp:
