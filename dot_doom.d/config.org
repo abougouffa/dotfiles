@@ -1167,21 +1167,20 @@ I'd like to have just the buffer name, then if applicable the project folder.
         (:eval
          (if (s-contains-p org-roam-directory (or buffer-file-name ""))
              (replace-regexp-in-string ".*/[0-9]*-?" "☰ "
-                                       (subst-char-in-string ?_ ?  buffer-file-name))
+                                       (subst-char-in-string ?_ ?\s buffer-file-name))
            "%b"))
         (:eval
-         (let* ((project-name (projectile-project-name))
-                (project-name (if (string= "-" project-name)
-                                  (ignore-errors (file-name-base (string-trim-right (vc-root-dir))))
-                                project-name)))
-           (when project-name
-             (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
+         (when-let* ((project-name (projectile-project-name))
+                     (project-name (if (string= "-" project-name)
+                                       (ignore-errors (file-name-base (string-trim-right (vc-root-dir))))
+                                     project-name)))
+           (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name)))))
 #+end_src
 
 *** SVG tag and =svg-lib= :svg:
 
 #+begin_src emacs-lisp :tangle "packages.el"
-(package! svg-tag-mode)
+(package! svg-tag-mode :pin "efd22edf650fb25e665269ba9fed7ccad0771a2f")
 #+end_src
 
 #+begin_src emacs-lisp
