@@ -5064,6 +5064,18 @@ View data frames better with
   (elpy-enable))
 #+end_src
 
+** Semgrep
+Lightweight static analysis for many languages. Find bug variants with patterns
+that look like source code.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! semgrep
+  :disable t
+  :recipe (:host github
+           :repo "Ruin0x11/semgrep.el")
+  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+#+end_src
+
 ** GNU Octave :octave:
 Files with the =.m= extension gets recognized automatically as Objective-C files.
 I've never used Objective-C before, so let's change it to be recognized as
@@ -8530,7 +8542,7 @@ PKGS_LIST=(
     ttc-iosevka-curly-slab ttc-iosevka-etoile ttc-iosevka-ss09
     ccls cppcheck clang gcc gdb lldb valgrind rr openocd
     sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken
-    vls vlang rustup
+    vls vlang rustup semgrep-bin
     mu isync msmtp xsel xorg-xhost
     mpc mpv mpd vlc yt-dlp
     maxima fricas octave scilab-bin graphviz jupyterlab jupyter-notebook r
