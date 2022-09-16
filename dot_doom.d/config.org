@@ -1704,21 +1704,21 @@ useful UI stuff.
 
 #+begin_src emacs-lisp
 (after! tramp
-  (require 'lsp-mode)
-  ;; (require 'lsp-pyright)
+  (when (require 'lsp-mode nil t)
+    ;; (require 'lsp-pyright)
 
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
+    (setq lsp-enable-snippet nil
+          lsp-log-io nil
+          ;; To bypass the "lsp--document-highlight fails if
+          ;; textDocument/documentHighlight is not supported" error
+          lsp-enable-symbol-highlighting nil)
 
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection (lsp-tramp-connection "pyls")
+      :major-modes '(python-mode)
+      :remote? t
+      :server-id 'pyls-remote))))
 #+end_src
 
 ****** C/C++ with =ccls= :ccls:
@@ -1726,23 +1726,23 @@ useful UI stuff.
 #+begin_src emacs-lisp :tangle no
 ;; NOTE: WIP: Not tangled
 (after! tramp
-  (require 'lsp-mode)
-  (require 'ccls)
+  (when (require 'lsp-mode nil t)
+    (require 'ccls)
 
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        lsp-enable-symbol-highlighting t)
+    (setq lsp-enable-snippet nil
+          lsp-log-io nil
+          lsp-enable-symbol-highlighting t)
 
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection
-    (lsp-tramp-connection
-     (lambda ()
-       (cons ccls-executable ; executable name on remote machine 'ccls'
-             ccls-args)))
-    :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-    :remote? t
-    :server-id 'ccls-remote))
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection
+      (lsp-tramp-connection
+       (lambda ()
+         (cons ccls-executable ; executable name on remote machine 'ccls'
+               ccls-args)))
+      :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+      :remote? t
+      :server-id 'ccls-remote)))
 
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 #+end_src
@@ -1751,24 +1751,24 @@ useful UI stuff.
 
 #+begin_src emacs-lisp
 (after! tramp
-  (require 'lsp-mode)
+  (when (require 'lsp-mode nil t)
 
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
+    (setq lsp-enable-snippet nil
+          lsp-log-io nil
+          ;; To bypass the "lsp--document-highlight fails if
+          ;; textDocument/documentHighlight is not supported" error
+          lsp-enable-symbol-highlighting nil)
 
-  (lsp-register-client
-    (make-lsp-client
-     :new-connection
-     (lsp-tramp-connection
-      (lambda ()
-        (cons "clangd-12" ; executable name on remote machine 'ccls'
-              lsp-clients-clangd-args)))
-     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-     :remote? t
-     :server-id 'clangd-remote)))
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection
+      (lsp-tramp-connection
+       (lambda ()
+         (cons "clangd-12" ; executable name on remote machine 'ccls'
+               lsp-clients-clangd-args)))
+      :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+      :remote? t
+      :server-id 'clangd-remote))))
 #+end_src
 
 ***** VHDL
@@ -1779,6 +1779,7 @@ use =rust_hdl= instead.
 
 #+begin_src emacs-lisp
 (use-package! vhdl-mode
+  :when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
   :hook (vhdl-mode . #'+lsp-vhdl-ls-load)
   :init
   (defun +lsp-vhdl-ls-load ()
@@ -6357,36 +6358,37 @@ Add support for [[https://github.com/akhramov/org-wild-notifier.el][~org-wild-no
 **** LSP in =src= blocks
 
 #+begin_src emacs-lisp
-(cl-defmacro +lsp-org-babel-enable (lang)
-  "Support LANG in org source code block."
-  ;; (setq centaur-lsp 'lsp-mode)
-  (cl-check-type lang stringp)
-  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
-         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
-    `(progn
-       (defun ,intern-pre (info)
-         (let ((file-name (->> info caddr (alist-get :file))))
-           (unless file-name
-             (setq file-name (make-temp-file "babel-lsp-")))
-           (setq buffer-file-name file-name)
-           (lsp-deferred)))
-       (put ',intern-pre 'function-documentation
-            (format "Enable lsp-mode in the buffer of org source block (%s)."
-                    (upcase ,lang)))
-       (if (fboundp ',edit-pre)
-           (advice-add ',edit-pre :after ',intern-pre)
-         (progn
-           (defun ,edit-pre (info)
-             (,intern-pre info))
-           (put ',edit-pre 'function-documentation
-                (format "Prepare local buffer environment for org source block (%s)."
-                        (upcase ,lang))))))))
+(when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+  (cl-defmacro +lsp-org-babel-enable (lang)
+    "Support LANG in org source code block."
+    ;; (setq centaur-lsp 'lsp-mode)
+    (cl-check-type lang stringp)
+    (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
+           (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
+      `(progn
+         (defun ,intern-pre (info)
+           (let ((file-name (->> info caddr (alist-get :file))))
+             (unless file-name
+               (setq file-name (make-temp-file "babel-lsp-")))
+             (setq buffer-file-name file-name)
+             (lsp-deferred)))
+         (put ',intern-pre 'function-documentation
+              (format "Enable lsp-mode in the buffer of org source block (%s)."
+                      (upcase ,lang)))
+         (if (fboundp ',edit-pre)
+             (advice-add ',edit-pre :after ',intern-pre)
+           (progn
+             (defun ,edit-pre (info)
+               (,intern-pre info))
+             (put ',edit-pre 'function-documentation
+                  (format "Prepare local buffer environment for org source block (%s)."
+                          (upcase ,lang))))))))
 
-(defvar +org-babel-lang-list
-  '("go" "python" "ipython" "bash" "sh"))
+  (defvar +org-babel-lang-list
+    '("go" "python" "ipython" "bash" "sh"))
 
-(dolist (lang +org-babel-lang-list)
-  (eval `(+lsp-org-babel-enable ,lang)))
+  (dolist (lang +org-babel-lang-list)
+    (eval `(+lsp-org-babel-enable ,lang))))
 #+end_src
 
 *** Custom links
