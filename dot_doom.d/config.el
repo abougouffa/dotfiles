@@ -302,15 +302,14 @@
         (:eval
          (if (s-contains-p org-roam-directory (or buffer-file-name ""))
              (replace-regexp-in-string ".*/[0-9]*-?" "☰ "
-                                       (subst-char-in-string ?_ ?  buffer-file-name))
+                                       (subst-char-in-string ?_ ?\s buffer-file-name))
            "%b"))
         (:eval
-         (let* ((project-name (projectile-project-name))
-                (project-name (if (string= "-" project-name)
-                                  (ignore-errors (file-name-base (string-trim-right (vc-root-dir))))
-                                project-name)))
-           (when project-name
-             (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name))))))
+         (when-let* ((project-name (projectile-project-name))
+                     (project-name (if (string= "-" project-name)
+                                       (ignore-errors (file-name-base (string-trim-right (vc-root-dir))))
+                                     project-name)))
+           (format (if (buffer-modified-p) " ○ %s" " ● %s") project-name)))))
 ;; Window title:1 ends here
 
 ;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:2]]
@@ -704,47 +703,48 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*Python][Python:1]]
 (after! tramp
-  (require 'lsp-mode)
-  ;; (require 'lsp-pyright)
+  (when (require 'lsp-mode nil t)
+    ;; (require 'lsp-pyright)
 
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
+    (setq lsp-enable-snippet nil
+          lsp-log-io nil
+          ;; To bypass the "lsp--document-highlight fails if
+          ;; textDocument/documentHighlight is not supported" error
+          lsp-enable-symbol-highlighting nil)
 
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection (lsp-tramp-connection "pyls")
+      :major-modes '(python-mode)
+      :remote? t
+      :server-id 'pyls-remote))))
 ;; Python:1 ends here
 
 ;; [[file:config.org::*C/C++ with =clangd=][C/C++ with =clangd=:1]]
 (after! tramp
-  (require 'lsp-mode)
+  (when (require 'lsp-mode nil t)
 
-  (setq lsp-enable-snippet nil
-        lsp-log-io nil
-        ;; To bypass the "lsp--document-highlight fails if
-        ;; textDocument/documentHighlight is not supported" error
-        lsp-enable-symbol-highlighting nil)
+    (setq lsp-enable-snippet nil
+          lsp-log-io nil
+          ;; To bypass the "lsp--document-highlight fails if
+          ;; textDocument/documentHighlight is not supported" error
+          lsp-enable-symbol-highlighting nil)
 
-  (lsp-register-client
-    (make-lsp-client
-     :new-connection
-     (lsp-tramp-connection
-      (lambda ()
-        (cons "clangd-12" ; executable name on remote machine 'ccls'
-              lsp-clients-clangd-args)))
-     :major-modes '(c-mode c++-mode objc-mode cuda-mode)
-     :remote? t
-     :server-id 'clangd-remote)))
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection
+      (lsp-tramp-connection
+       (lambda ()
+         (cons "clangd-12" ; executable name on remote machine 'ccls'
+               lsp-clients-clangd-args)))
+      :major-modes '(c-mode c++-mode objc-mode cuda-mode)
+      :remote? t
+      :server-id 'clangd-remote))))
 ;; C/C++ with =clangd=:1 ends here
 
 ;; [[file:config.org::*VHDL][VHDL:1]]
 (use-package! vhdl-mode
+  :when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
   :hook (vhdl-mode . #'+lsp-vhdl-ls-load)
   :init
   (defun +lsp-vhdl-ls-load ()
@@ -1362,7 +1362,6 @@ if it is set to a launch.json file, it will be used instead."
 
 ;; [[file:config.org::*Eglot][Eglot:2]]
 (use-package! eglot-grammarly
-  :when (modulep! :tools lsp +eglot)
   :commands (+lsp-grammarly-load)
   :init
   (defun +lsp-grammarly-load ()
@@ -1374,7 +1373,6 @@ if it is set to a launch.json file, it will be used instead."
 
 ;; [[file:config.org::*LSP Mode][LSP Mode:2]]
 (use-package! lsp-grammarly
-  :when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
   :commands (+lsp-grammarly-load +lsp-grammarly-toggle)
   :init
   (defun +lsp-grammarly-load ()
@@ -3952,36 +3950,37 @@ is binary, activate `hexl-mode'."
     (map! :localleader
           :map org-mode-map
           :desc "Org menu" "M" #'org-menu))
-  (cl-defmacro +lsp-org-babel-enable (lang)
-    "Support LANG in org source code block."
-    ;; (setq centaur-lsp 'lsp-mode)
-    (cl-check-type lang stringp)
-    (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
-           (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
-      `(progn
-         (defun ,intern-pre (info)
-           (let ((file-name (->> info caddr (alist-get :file))))
-             (unless file-name
-               (setq file-name (make-temp-file "babel-lsp-")))
-             (setq buffer-file-name file-name)
-             (lsp-deferred)))
-         (put ',intern-pre 'function-documentation
-              (format "Enable lsp-mode in the buffer of org source block (%s)."
-                      (upcase ,lang)))
-         (if (fboundp ',edit-pre)
-             (advice-add ',edit-pre :after ',intern-pre)
-           (progn
-             (defun ,edit-pre (info)
-               (,intern-pre info))
-             (put ',edit-pre 'function-documentation
-                  (format "Prepare local buffer environment for org source block (%s)."
-                          (upcase ,lang))))))))
+  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+    (cl-defmacro +lsp-org-babel-enable (lang)
+      "Support LANG in org source code block."
+      ;; (setq centaur-lsp 'lsp-mode)
+      (cl-check-type lang stringp)
+      (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
+             (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
+        `(progn
+           (defun ,intern-pre (info)
+             (let ((file-name (->> info caddr (alist-get :file))))
+               (unless file-name
+                 (setq file-name (make-temp-file "babel-lsp-")))
+               (setq buffer-file-name file-name)
+               (lsp-deferred)))
+           (put ',intern-pre 'function-documentation
+                (format "Enable lsp-mode in the buffer of org source block (%s)."
+                        (upcase ,lang)))
+           (if (fboundp ',edit-pre)
+               (advice-add ',edit-pre :after ',intern-pre)
+             (progn
+               (defun ,edit-pre (info)
+                 (,intern-pre info))
+               (put ',edit-pre 'function-documentation
+                    (format "Prepare local buffer environment for org source block (%s)."
+                            (upcase ,lang))))))))
   
-  (defvar +org-babel-lang-list
-    '("go" "python" "ipython" "bash" "sh"))
+    (defvar +org-babel-lang-list
+      '("go" "python" "ipython" "bash" "sh"))
   
-  (dolist (lang +org-babel-lang-list)
-    (eval `(+lsp-org-babel-enable ,lang)))
+    (dolist (lang +org-babel-lang-list)
+      (eval `(+lsp-org-babel-enable ,lang))))
   (org-link-set-parameters
    "subfig"
    :follow (lambda (file) (find-file file))
