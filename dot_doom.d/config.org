@@ -1049,6 +1049,12 @@ Set Doom's theme, some good choices:
     (setq mode-line-format (list "%_"))))
 #+end_src
 
+**** Spacemacs theme
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! spacemacs-theme :pin "e04d1f21107a1565861625209bb9c46a7aa43cc5")
+#+end_src
+
 *** Mode line :modeline:
 **** Clock
 Display time and set the format to 24h.
