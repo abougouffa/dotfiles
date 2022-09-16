@@ -3550,13 +3550,17 @@ dependencies.
 #+end_src
 
 *** PDF tools
-**** Dark mode
 The =pdf-tools= package supports dark mode (midnight), I use Emacs often to write
 and read PDF documents, so let's make it dark by default, this can be toggled
 using the =m z=.
 
 #+begin_src emacs-lisp
 (after! pdf-tools
+  ;; Auto install
+  (pdf-tools-install t t t)
+  (setq-default pdf-view-image-relief 2
+                pdf-view-display-size 'fit-width)
+
   (add-hook! 'pdf-view-mode-hook
     (when (memq doom-theme '(modus-vivendi doom-one doom-dark+ doom-vibrant))
       ;; TODO: find a more generic way to detect if we are in a dark theme
