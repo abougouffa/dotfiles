@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-15
+#+lastmod: 2022-09-16
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -564,7 +564,7 @@ everywhere
 
 #+name: doom-private
 #+begin_src emacs-lisp
-guess-language
+;; guess-language
 (grammar +lsp)
 (dired-ng +icons +bindings)
 #+end_src
