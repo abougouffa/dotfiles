@@ -7288,7 +7288,7 @@ application, which seems reasonable.
 #+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
 [Desktop Entry]
 Name=Emacs Org-Protocol
-Exec=emacsclient %u
+Exec=emacsclient -s "/tmp/emacs$UID/server" %u
 Icon=/home/hacko/.doom.d/assets/org-mode.svg
 Type=Application
 Terminal=false
@@ -7598,8 +7598,8 @@ Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
 
 [Service]
 Type=forking
-ExecStart=sh -c 'emacs --daemon && emacsclient -c --eval "(delete-frame)"'
-ExecStop=emacsclient --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
+ExecStart=sh -c 'emacs --daemon'
+ExecStop=emacsclient -s "/tmp/emacs$UID/server" --no-wait --eval "(progn (setq kill-emacs-hook nil) (kill-emacs))"
 Restart=on-failure
 
 [Install]
@@ -7627,7 +7627,7 @@ Name=Emacs (Client)
 GenericName=Text Editor
 Comment=A flexible platform for end-user applications
 MimeType=text/english;text/plain;text/org;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
-Exec=emacsclient -create-frame --frame-parameters="'(fullscreen . maximized)" --alternate-editor="/usr/bin/emacs" --no-wait %F
+Exec=emacsclient -create-frame -s "/tmp/emacs$UID/server" --frame-parameters="'(fullscreen . maximized)" --alternate-editor="/usr/bin/emacs" --no-wait %F
 Icon=emacs
 Type=Application
 Terminal=false
@@ -7733,14 +7733,14 @@ then
     fi # should be fairly safe
   fi
 
-  emacsclient --tty -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
+  emacsclient -s "/tmp/emacs$UID/server" --tty -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
 else
   if ! $force_wait
   then
     args+=(--no-wait)
   fi
 
-  emacsclient -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
+  emacsclient -s "/tmp/emacs$UID/server" -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
 fi
 #+end_src
 
