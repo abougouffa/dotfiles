@@ -73,6 +73,10 @@ Now I decided to rewrite a cleaner version of my configuration which will be
 more Doom friendly, and for that, I found an excellent example in /[[https://github.com/tecosaur][tecosaur]]/'s
 [[https://github.com/tecosaur/emacs-config.git][emacs-config]], so my current configuration is heavily inspired by /tecosaur/'s one.
 
+** My private Doom modules
+I'm moving the big reusable configuration parts to separate modules. See the
+=.doom.d/modules/private= for the currently implemented modules.
+
 ** This file :header:
 This is my literate configuration file, I use it to generate Doom's config files
 (=$DOOMDIR/init.el=, =$DOOMDIR/packages.el= and =$DOOMDIR/config.el=), as well as some
@@ -283,7 +287,6 @@ store the result in global constants.
 (defconst ROSBAG-P (executable-find "rosbag"))
 (defconst ZOTERO-P (executable-find "zotero"))
 (defconst CHEZMOI-P (executable-find "chezmoi"))
-(defconst OBJDUMP-P (executable-find "objdump"))
 (defconst STUNNEL-P (executable-find "stunnel"))
 (defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
 (defconst BITWARDEN-P (executable-find "bw"))
@@ -564,8 +567,8 @@ everywhere
 
 #+name: doom-private
 #+begin_src emacs-lisp
-;; guess-language
 (grammar +lsp)
+(binary +disasm)
 (dired-ng +icons +bindings)
 #+end_src
 
@@ -3652,81 +3655,6 @@ Add the =tldr.el= client for [[https://github.com/tldr-pages/tldr][TLDR pages]].
 
 (use-package! fzf
   :commands (fzf fzf-projectile fzf-hg fzf-git fzf-git-files fzf-directory fzf-git-grep))
-#+end_src
-
-*** Binary files :binary:hexl:
-Inspired by [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this discussion]].
-
-Add the new ~nhexl-mode~ which allows editing files in Hex mode.
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! nhexl-mode :pin "014a5d1038c19e45ec9943761bd50a5a0f51d926")
-#+end_src
-
-#+begin_src emacs-lisp
-(defun +buffer-binary-p (&optional buffer)
-  "Return whether BUFFER or the current buffer is binary.
-
-A binary buffer is defined as containing at least one null byte.
-
-Returns either nil, or the position of the first null byte."
-  (with-current-buffer (or buffer (current-buffer))
-    (save-excursion (goto-char (point-min))
-                    (search-forward (string ?\x00) nil t 1))))
-
-(defun +hexl--buffer-p ()
-  (and (+buffer-binary-p)
-       ;; Executables are viewed with objdump mode
-       (not (+buffer-objdump-p))))
-
-(defun +hexl-if-binary ()
-  "If `hexl-mode' is not already active, and the current buffer
-is binary, activate `hexl-mode'."
-  (interactive)
-  (unless (eq major-mode 'hexl-mode)
-    (when (+hexl--buffer-p)
-      (hexl-mode))))
-
-(add-to-list 'magic-fallback-mode-alist '(+hexl--buffer-p . +hexl-if-binary) t)
-#+end_src
-
-*** Objdump mode :objdump:
-Define a major mode (=objdump-disassemble-mode=) to display executable files as
-assembly code using =objdump=. The file types are detected using the =file= utility.
-
-#+begin_src emacs-lisp
-(defun +buffer-objdump-p (&optional buffer file)
-  "Can the BUFFER be viewed as a disassembled code with objdump."
-  (when-let ((file (or file (buffer-file-name (or buffer (current-buffer))))))
-    (and
-     (file-exists-p file)
-     (not (file-directory-p file))
-     (not (zerop (file-attribute-size (file-attributes file))))
-     (not (string-match-p
-           "file format not recognized"
-           (with-temp-buffer
-             (shell-command (format "objdump --file-headers %s"
-                                    (shell-quote-argument "/home/hacko/Softwares/Kasparov/Kasparov Chessmate/KasparovChess.Stats"))
-                            (current-buffer))
-             (buffer-string)))))))
-
-(when OBJDUMP-P
-  (define-derived-mode objdump-disassemble-mode
-    asm-mode "Objdump Mode"
-    "Major mode for viewing executable files disassembled using objdump."
-    (if (not (+buffer-objdump-p))
-        (message "Objdump can not be used with this buffer.")
-      (let ((file (buffer-file-name))
-            (buffer-read-only nil))
-        (erase-buffer)
-        (message "Disassembling file \"%s\" using objdump." (file-name-nondirectory file))
-        (call-process "objdump" nil (current-buffer) nil "-d" file)
-        (set-buffer-modified-p nil)
-        (goto-char (point-min))
-        (view-mode)
-        (set-visited-file-name nil t))))
-
-  (add-to-list 'magic-fallback-mode-alist '(+buffer-objdump-p . objdump-disassemble-mode) t))
 #+end_src
 
 ** Fun :fun:

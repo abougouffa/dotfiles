@@ -1,0 +1,10 @@
+#+title: Readme
+#+author: Abdelhak Bougouffa
+#+date: 2022-09-16
+
+* Binary files :binary:hexl:
+The binary file check is inspired by [[https://emacs.stackexchange.com/questions/10277/make-emacs-automatically-open-binary-files-in-hexl-mode][this discussion]]. I want to configure Emacs
+to open binary files in =hexl-mode=. Some binary files are special, notably
+executable files, lets define a major mode (=objdump-disassemble-mode=) to display
+them as assembly code using =objdump=. The file types are detected using the =file=
+utility.
