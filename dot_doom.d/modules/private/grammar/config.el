@@ -95,6 +95,15 @@
         :desc "Toggle grammar check" "G" #'+lsp-ltex-toggle))
 
 
+(use-package! eglot-ltex
+  :when (and (modulep! +lsp) (modulep! :tools lsp +eglot))
+  :ensure t
+  :hook (text-mode . (lambda () (require 'eglot-ltex)
+                       (call-interactively #'eglot)))
+  :init
+  (setq eglot-languagetool-server-path (expand-file-name "lsp/ltex-ls/latest" doom-etc-dir)))
+
+
 ;; Detects weasel words, passive voice and duplicates. Proselint would be a
 ;; better choice.
 (use-package! writegood-mode
