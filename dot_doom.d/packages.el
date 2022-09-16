@@ -257,10 +257,6 @@
 (package! fzf :pin "21912ebc7e1084aa88c9d8b7715e782a3978ed23")
 ;; FZF:1 ends here
 
-;; [[file:config.org::*Binary files][Binary files:1]]
-(package! nhexl-mode :pin "014a5d1038c19e45ec9943761bd50a5a0f51d926")
-;; Binary files:1 ends here
-
 ;; [[file:config.org::*Speed Type][Speed Type:1]]
 (package! speed-type :pin "304cb8cd6c30d07577d7d864fd32858a29a73dba")
 ;; Speed Type:1 ends here

@@ -118,7 +118,7 @@
   (default +bindings +smartparens)
 
   :private
-  ;; guess-language
   (grammar +lsp)
+  (binary +disasm)
   (dired-ng +icons +bindings)
 )

@@ -158,7 +158,6 @@ If \"file.ext\" exists, returns \"file-0.ext\"."
 (defconst ROSBAG-P (executable-find "rosbag"))
 (defconst ZOTERO-P (executable-find "zotero"))
 (defconst CHEZMOI-P (executable-find "chezmoi"))
-(defconst OBJDUMP-P (executable-find "objdump"))
 (defconst STUNNEL-P (executable-find "stunnel"))
 (defconst ECRYPTFS-P (+all (mapcar #'executable-find '("ecryptfs-add-passphrase" "/sbin/mount.ecryptfs_private"))))
 (defconst BITWARDEN-P (executable-find "bw"))
