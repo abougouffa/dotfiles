@@ -698,7 +698,7 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
 #+begin_src emacs-lisp :tangle packages.el
 (package! super-save
   :disable t
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1009,7 +1009,7 @@ Set Doom's theme, some good choices:
   :disable t
   :recipe (:host github
            :repo "Lambda-Emacs/lambda-themes")
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 
 (package! lambda-line
   :disable t
@@ -1049,12 +1049,6 @@ Set Doom's theme, some good choices:
   (when (eq lambda-line-position 'top)
     (setq-default mode-line-format (list "%_"))
     (setq mode-line-format (list "%_"))))
-#+end_src
-
-**** Spacemacs theme
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! spacemacs-theme :pin "e04d1f21107a1565861625209bb9c46a7aa43cc5")
 #+end_src
 
 *** Mode line :modeline:
@@ -1419,54 +1413,52 @@ I do not find =company= useful in Org files.
 
 #+begin_src emacs-lisp
 (after! company-box
-  (when (daemonp)
-    (defun +company-box--reload-icons-h ()
-      (setq company-box-icons-all-the-icons
-            (let ((all-the-icons-scale-factor 0.8))
-              `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
-                (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
-                (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
-                (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-                (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-                (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
-                (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
-                (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
-                (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
-                (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
-                (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
-                (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
-                (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
-                (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
-                (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
-                (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
-                (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
-                (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
-                (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
-                (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
-                (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
-                (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
-                (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
-                (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
-                (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
-                (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
-                (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
-                (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
+  (defun +company-box--reload-icons-h ()
+    (setq company-box-icons-all-the-icons
+          (let ((all-the-icons-scale-factor 0.8))
+            `((Unknown       . ,(all-the-icons-faicon   "code"                 :face 'all-the-icons-purple))
+              (Text          . ,(all-the-icons-material "text_fields"          :face 'all-the-icons-green))
+              (Method        . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-red))
+              (Function      . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-blue))
+              (Constructor   . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-blue-alt))
+              (Field         . ,(all-the-icons-faicon   "tag"                  :face 'all-the-icons-red))
+              (Variable      . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+              (Class         . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+              (Interface     . ,(all-the-icons-material "tune"                 :face 'all-the-icons-red))
+              (Module        . ,(all-the-icons-faicon   "cubes"                :face 'all-the-icons-red))
+              (Property      . ,(all-the-icons-faicon   "wrench"               :face 'all-the-icons-red))
+              (Unit          . ,(all-the-icons-material "straighten"           :face 'all-the-icons-red))
+              (Value         . ,(all-the-icons-material "filter_1"             :face 'all-the-icons-red))
+              (Enum          . ,(all-the-icons-material "plus_one"             :face 'all-the-icons-red))
+              (Keyword       . ,(all-the-icons-material "filter_center_focus"  :face 'all-the-icons-red-alt))
+              (Snippet       . ,(all-the-icons-faicon   "expand"               :face 'all-the-icons-red))
+              (Color         . ,(all-the-icons-material "colorize"             :face 'all-the-icons-red))
+              (File          . ,(all-the-icons-material "insert_drive_file"    :face 'all-the-icons-red))
+              (Reference     . ,(all-the-icons-material "collections_bookmark" :face 'all-the-icons-red))
+              (Folder        . ,(all-the-icons-material "folder"               :face 'all-the-icons-red-alt))
+              (EnumMember    . ,(all-the-icons-material "people"               :face 'all-the-icons-red))
+              (Constant      . ,(all-the-icons-material "pause_circle_filled"  :face 'all-the-icons-red))
+              (Struct        . ,(all-the-icons-material "list"                 :face 'all-the-icons-red))
+              (Event         . ,(all-the-icons-material "event"                :face 'all-the-icons-red))
+              (Operator      . ,(all-the-icons-material "control_point"        :face 'all-the-icons-red))
+              (TypeParameter . ,(all-the-icons-material "class"                :face 'all-the-icons-red))
+              (Template      . ,(all-the-icons-material "settings_ethernet"    :face 'all-the-icons-green))
+              (ElispFunction . ,(all-the-icons-faicon   "cube"                 :face 'all-the-icons-blue))
+              (ElispVariable . ,(all-the-icons-material "adjust"               :face 'all-the-icons-blue))
+              (ElispFeature  . ,(all-the-icons-material "stars"                :face 'all-the-icons-orange))
+              (ElispFace     . ,(all-the-icons-material "format_paint"         :face 'all-the-icons-pink))))))
 
+  (when (daemonp)
     ;; Replace Doom defined icons with mine
     (when (memq #'+company-box--load-all-the-icons server-after-make-frame-hook)
       (remove-hook 'server-after-make-frame-hook #'+company-box--load-all-the-icons))
-    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h)))
+    (add-hook 'server-after-make-frame-hook #'+company-box--reload-icons-h))
+
+  ;; Reload icons even if not in Daemon mode
+  (+company-box--reload-icons-h))
 #+end_src
 
 *** Treemacs
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (unpin! treemacs)
-;; (unpin! lsp-treemacs)
-#+end_src
 
 #+begin_src emacs-lisp
 (after! treemacs
@@ -1636,7 +1628,7 @@ it work with =projectile=:
 ***** Unpin package
 
 #+begin_src emacs-lisp :tangle packages.el
-;; (unpin! lsp-mode)
+(unpin! lsp-mode)
 #+end_src
 
 ***** Tweaks
@@ -1801,7 +1793,7 @@ use =rust_hdl= instead.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! lsp-sonarlint
-  :disable t :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :disable t :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1829,7 +1821,7 @@ together =project=, =eglot=, =cmake= and =clangd=.
 #+begin_src emacs-lisp :tangle packages.el
 (package! project-cmake
   :disable t ; (not (modulep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :pin "d95d25615e69e7cc847641800c1886366336c97e"
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144"
   :recipe (:host github
            :repo "juanjosegarciaripoll/project-cmake"))
 #+end_src
@@ -1929,7 +1921,7 @@ when the program hits a break point, and automatically delete the session and
 close Hydra when DAP is terminated.
 
 #+begin_src emacs-lisp :tangle packages.el
-;; (unpin! dap-mode)
+(unpin! dap-mode)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2132,7 +2124,7 @@ keybindings.
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile"))
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2693,7 +2685,7 @@ Use either [[https://github.com/emacs-grammarly/eglot-grammarly][eglot-grammarly
   :disable (not (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/eglot-grammarly")
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -5004,7 +4996,7 @@ that look like source code.
   :disable t
   :recipe (:host github
            :repo "Ruin0x11/semgrep.el")
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 #+end_src
 
 ** GNU Octave :octave:
@@ -5533,7 +5525,7 @@ repository, from here [[https://git.savannah.gnu.org/cgit/gm2.git/plain/gcc-vers
 (package! inspector
   :recipe (:host github
            :repo "mmontone/emacs-inspector")
-  :pin "7e0a7afc425b8fd0f8a769849eecf11e44cb3c86")
+  :pin "f30b735fca1c3979e693c4c76cac85885c07d8ab")
 #+end_src
 
 #+begin_src emacs-lisp
