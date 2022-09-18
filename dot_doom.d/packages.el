@@ -5,7 +5,7 @@
 ;; [[file:config.org::*Auto-save][Auto-save:1]]
 (package! super-save
   :disable t
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 ;; Auto-save:1 ends here
 
 ;; [[file:config.org::*Visual undo (=vundo=)][Visual undo (=vundo=):1]]
@@ -15,26 +15,26 @@
   :pin "16a09774ddfbd120d625cdd35fcf480e76e278bb")
 ;; Visual undo (=vundo=):1 ends here
 
-;; [[file:config.org::*Modus][Modus:1]]
+;; [[file:config.org::*Modus themes][Modus themes:1]]
 (package! modus-themes :pin "e4ee971f53d5c687de7bfbcf9fd1522bb42be902")
-;; Modus:1 ends here
+;; Modus themes:1 ends here
+
+;; [[file:config.org::*Ef (εὖ) themes][Ef (εὖ) themes:1]]
+(package! ef-themes :pin "ae2bc74164d4355b8423f5ad3e5869d94556d963")
+;; Ef (εὖ) themes:1 ends here
 
 ;; [[file:config.org::*Lambda themes][Lambda themes:1]]
 (package! lambda-themes
   :disable t
   :recipe (:host github
            :repo "Lambda-Emacs/lambda-themes")
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 
 (package! lambda-line
   :disable t
   :recipe (:host github
            :repo "Lambda-Emacs/lambda-line"))
 ;; Lambda themes:1 ends here
-
-;; [[file:config.org::*Spacemacs theme][Spacemacs theme:1]]
-(package! spacemacs-theme :pin "e04d1f21107a1565861625209bb9c46a7aa43cc5")
-;; Spacemacs theme:1 ends here
 
 ;; [[file:config.org::*SVG tag and =svg-lib=][SVG tag and =svg-lib=:1]]
 (package! svg-tag-mode :pin "efd22edf650fb25e665269ba9fed7ccad0771a2f")
@@ -62,24 +62,19 @@
 (package! aggressive-indent :pin "70b3f0add29faff41e480e82930a231d88ee9ca7")
 ;; Aggressive indent:1 ends here
 
-;; [[file:config.org::*Treemacs][Treemacs:1]]
-;; (unpin! treemacs)
-;; (unpin! lsp-treemacs)
-;; Treemacs:1 ends here
-
 ;; [[file:config.org::*Unpin package][Unpin package:1]]
-;; (unpin! lsp-mode)
+(unpin! lsp-mode)
 ;; Unpin package:1 ends here
 
 ;; [[file:config.org::*SonarLint][SonarLint:1]]
 (package! lsp-sonarlint
-  :disable t :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :disable t :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 ;; SonarLint:1 ends here
 
 ;; [[file:config.org::*Project CMake][Project CMake:1]]
 (package! project-cmake
   :disable t ; (not (modulep! :tools lsp +eglot)) ; Enable only if (lsp +eglot) is used
-  :pin "d95d25615e69e7cc847641800c1886366336c97e"
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144"
   :recipe (:host github
            :repo "juanjosegarciaripoll/project-cmake"))
 ;; Project CMake:1 ends here
@@ -114,7 +109,7 @@
 ;; Coverage test:1 ends here
 
 ;; [[file:config.org::*DAP][DAP:1]]
-;; (unpin! dap-mode)
+(unpin! dap-mode)
 ;; DAP:1 ends here
 
 ;; [[file:config.org::*Additional debuggers for RealGUD][Additional debuggers for RealGUD:1]]
@@ -138,7 +133,7 @@
   :recipe (:host github
            :repo "weirdNox/emacs-gdb"
            :files ("*.el" "*.c" "*.h" "Makefile"))
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 ;; Emacs GDB /a.k.a./ =gdb-mi=:1 ends here
 
 ;; [[file:config.org::*Valgrind][Valgrind:1]]
@@ -158,7 +153,7 @@
   :disable (not (modulep! :tools lsp +eglot))
   :recipe (:host github
            :repo "emacs-grammarly/eglot-grammarly")
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 ;; Eglot:1 ends here
 
 ;; [[file:config.org::*LSP Mode][LSP Mode:1]]
@@ -182,6 +177,13 @@
            :repo "lorniu/go-translate")
   :pin "8bbcbce42a7139f079df3e9b9bda0def2cbb690f")
 ;; Go Translate (Google, Bing and DeepL):1 ends here
+
+;; [[file:config.org::*Offline dictionaries][Offline dictionaries:1]]
+(package! lexic
+  :recipe (:host github
+           :repo "tecosaur/lexic")
+  :pin "f9b3de4d9c2dd1ce5022383e1a504b87bf7d1b09")
+;; Offline dictionaries:1 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:1]]
 (package! disk-usage :pin "311542e1b5cf74aecf3df871160c5ad5d30a2579")
@@ -334,7 +336,7 @@
   :disable t
   :recipe (:host github
            :repo "Ruin0x11/semgrep.el")
-  :pin "d95d25615e69e7cc847641800c1886366336c97e")
+  :pin "3313f38ed7d23947992e19f1e464c6d544124144")
 ;; Semgrep:1 ends here
 
 ;; [[file:config.org::*=ros.el=][=ros.el=:1]]
@@ -467,7 +469,7 @@
 (package! inspector
   :recipe (:host github
            :repo "mmontone/emacs-inspector")
-  :pin "7e0a7afc425b8fd0f8a769849eecf11e44cb3c86")
+  :pin "f30b735fca1c3979e693c4c76cac85885c07d8ab")
 ;; Inspector:1 ends here
 
 ;; [[file:config.org::*Org additional packages][Org additional packages:1]]
