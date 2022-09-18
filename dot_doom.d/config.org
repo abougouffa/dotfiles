@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-16
+#+lastmod: 2022-09-18
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -62,7 +62,7 @@ my machine, but I didn't discover the *real* Emacs until 2020, in the beginning,
 started my Vanilla Emacs configuration from scratch, but after a while, it
 becomes a mess. As a new Emacs user, I didn't understand the in the beginning how
 to optimize my configuration and how to do things correctly. I discovered then
-[[github:syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and just
+[[https://github.com/syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and just
 after, I found the awesome [[https://github.com/doomemacs/doomemacs][Doom Emacs]], and since, I didn't quit my Emacs screen!
 
 In the beginning, I was basically copying chunks of Emacs Lisp code from the
@@ -907,12 +907,11 @@ Set Doom's theme, some good choices:
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-one-light)
-;; (setq doom-theme 'doom-tomorrow-day)
 (remove-hook 'window-setup-hook #'doom-init-theme-h)
 (add-hook 'after-init-hook #'doom-init-theme-h 'append)
 #+end_src
 
-**** Modus :modus:
+**** Modus themes :modus:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! modus-themes :pin "e4ee971f53d5c687de7bfbcf9fd1522bb42be902")
@@ -2621,7 +2620,7 @@ sometimes messes up with the parenthesis, so let's disable ligatures on Lisps.
          '(not emacs-lisp-mode scheme-mode racket-mode))))
 #+end_src
 
-** Checkers (spell & grammar) :spell:grammar:
+** Natural languages :spell:grammar:dict:
 *** Spell-Fu :spell:
 Install the =aspell= back-end and the dictionaries to use with =spell-fu=
 
@@ -5046,7 +5045,7 @@ Octave/Matlab files.
 #+end_src
 
 ** ROS :ros:
-*** Extensions :files:
+*** File extensions :files:
 Add ROS specific file formats:
 
 #+begin_src emacs-lisp
@@ -7613,8 +7612,8 @@ systemctl --user enable emacs.service
 #+end_src
 
 For some reason if a frame isn't opened early in the initialization process, the
-daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient~
-part of the =ExecStart= value.
+daemon doesn't seem to like opening frames later --- hence the ~&& emacsclient -c
+--eval "(delete-frame)"~ part of the =ExecStart= value.
 
 ** Emacs client :emacsclient:
 *** Desktop integration :desktop:
