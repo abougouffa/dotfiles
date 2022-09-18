@@ -3642,9 +3642,10 @@ using the =m z=.
 #+begin_src emacs-lisp
 (after! pdf-tools
   ;; Auto install
-  (pdf-tools-install t t t)
+  (pdf-tools-install-noverify)
+
   (setq-default pdf-view-image-relief 2
-                pdf-view-display-size 'fit-width)
+                pdf-view-display-size 'fit-page)
 
   (add-hook! 'pdf-view-mode-hook
     (when (memq doom-theme '(modus-vivendi doom-one doom-dark+ doom-vibrant))
