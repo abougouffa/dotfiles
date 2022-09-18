@@ -5122,7 +5122,7 @@ Octave/Matlab files.
   "Wrapper for `+octave-eval-last-sexp' that overlays results."
   (interactive)
   (eros--eval-overlay
-   (octave-eval-last-sexp)
+   (+octave-eval-last-sexp)
    (point)))
 
 (map! :localleader
