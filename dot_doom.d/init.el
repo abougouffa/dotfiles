@@ -27,7 +27,7 @@
   indent-guides
   doom-dashboard
   (treemacs +lsp)
-  (ligatures +extra)
+  ;; (ligatures +extra)
   (popup +all +defaults)
   (emoji +ascii +github)
   (window-select +numbers)
@@ -119,6 +119,7 @@
 
   :private
   (grammar +lsp)
+  ;; (corfu +icons)
   (binary +disasm)
   (dired-ng +icons +bindings)
 )

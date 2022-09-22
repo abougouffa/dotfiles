@@ -16,11 +16,11 @@
 ;; Visual undo (=vundo=):1 ends here
 
 ;; [[file:config.org::*Modus themes][Modus themes:1]]
-(package! modus-themes :pin "e4ee971f53d5c687de7bfbcf9fd1522bb42be902")
+(package! modus-themes :pin "ee35a9af344d2b2920589ec4d66e9cb513bdfb80")
 ;; Modus themes:1 ends here
 
 ;; [[file:config.org::*Ef (εὖ) themes][Ef (εὖ) themes:1]]
-(package! ef-themes :pin "ae2bc74164d4355b8423f5ad3e5869d94556d963")
+(package! ef-themes :pin "7aac909f636dbbff1121de6bb91a579e3c008c32")
 ;; Ef (εὖ) themes:1 ends here
 
 ;; [[file:config.org::*Lambda themes][Lambda themes:1]]
@@ -186,7 +186,7 @@
 ;; Offline dictionaries:1 ends here
 
 ;; [[file:config.org::*Disk usage][Disk usage:1]]
-(package! disk-usage :pin "311542e1b5cf74aecf3df871160c5ad5d30a2579")
+(package! disk-usage :pin "8792032bb8e7a6ab8a8a9bef89a3964e67bb3cef")
 ;; Disk usage:1 ends here
 
 ;; [[file:config.org::*Chezmoi][Chezmoi:1]]
@@ -286,7 +286,7 @@
 (package! empv
   :recipe (:host github
            :repo "isamert/empv.el")
-  :pin "228fd324a11da661cb471a501d04340254cc682f")
+  :pin "49b25a3633bc362ee5fe84c8028b0412ade362c5")
 ;; EMPV:1 ends here
 
 ;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:1]]
@@ -313,7 +313,7 @@
   :recipe (:host nil ;; Unsupported host, we will specify the complete repo link
            :repo "https://git.code.sf.net/p/maxima/code"
            :files ("interfaces/emacs/imaxima/*"))
-  :pin "519ea34095e749634d3a188733a3ad284b593e12")
+  :pin "f1e60b2ec1ae447845b113e8f3aa77fb4b7e4289")
 ;; IMaxima:1 ends here
 
 ;; [[file:config.org::*Vimrc][Vimrc:1]]
