@@ -568,6 +568,7 @@ everywhere
 #+name: doom-private
 #+begin_src emacs-lisp
 (grammar +lsp)
+;; (corfu +icons)
 (binary +disasm)
 (dired-ng +icons +bindings)
 #+end_src
