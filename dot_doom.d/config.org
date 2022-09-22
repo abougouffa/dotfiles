@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-18
+#+lastmod: 2022-09-23
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -413,7 +413,7 @@ workspaces
 indent-guides
 doom-dashboard
 (treemacs +lsp)
-(ligatures +extra)
+;; (ligatures +extra)
 (popup +all +defaults)
 (emoji +ascii +github)
 (window-select +numbers)
