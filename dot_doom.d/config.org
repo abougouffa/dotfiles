@@ -3895,7 +3895,8 @@ Set RSS news feeds
 
 #+begin_src emacs-lisp
 (setq elfeed-feeds
-      '("https://this-week-in-rust.org/rss.xml"
+      '("https://arxiv.org/rss/cs.RO"
+        "https://this-week-in-rust.org/rss.xml"
         "https://planet.emacslife.com/atom.xml"
         "https://www.omgubuntu.co.uk/feed"
         "https://itsfoss.com/feed"
