@@ -890,7 +890,7 @@ Some good fonts:
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Iosevka Fixed Curly Slab" :size 20)
       doom-big-font (font-spec :family "Iosevka Fixed Curly Slab" :size 30 :weight 'light)
-      doom-variable-pitch-font (font-spec :family "Iosevka Fixed Curly Slab")
+      doom-variable-pitch-font (font-spec :family "Lato")
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Iosevka Fixed Curly Slab" :weight 'light))
 #+end_src
