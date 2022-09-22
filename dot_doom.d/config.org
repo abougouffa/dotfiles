@@ -704,7 +704,6 @@ Stick to buffer tail, useful with =*Messages*= buffer. Derived from [[https://st
 
 #+begin_src emacs-lisp
 (use-package! super-save
-  :ensure t
   :config
   (setq auto-save-default t ;; nil to switch off the built-in `auto-save-mode', maybe leave it t to have a backup!
         super-save-exclude '(".gpg")
@@ -4985,7 +4984,6 @@ the window title
 ;; From https://org-roam.discourse.group/t/configure-deft-title-stripping-to-hide-org-roam-template-headers/478/10
 (use-package! deft
   :after org
-  :ensure t
   :bind
   ("C-c n d" . deft)
   :init
