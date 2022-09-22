@@ -18,4 +18,5 @@
     :pin "dbf45608aaa9bb61d540ce64f8b081cfa9876dd4"))
 (unless (modulep! +lsp)
   (package! langtool :pin "8276eccc5587bc12fd205ee58a7a982f0a136e41"))
-(package! writegood-mode :pin "d54eadeedb8bf3aa0e0a584c0a7373c69644f4b8")
+
+;; (package! writegood-mode :pin "d54eadeedb8bf3aa0e0a584c0a7373c69644f4b8")
