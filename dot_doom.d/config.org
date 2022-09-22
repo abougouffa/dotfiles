@@ -722,10 +722,16 @@ Tweak =undo-fu= and other stuff from Doom's =:emacs undo=.
 #+begin_src emacs-lisp
 ;; Increase undo history limits even more
 (after! undo-fu
-  (setq undo-limit        10000000     ;; 1MB   (default is 160kB, Doom's default is 400kB)
-        undo-strong-limit 100000000    ;; 100MB (default is 240kB, Doom's default is 3MB)
-        undo-outer-limit  1000000000)) ;; 1GB   (default is 24MB,  Doom's default is 48MB)
+  ;; Emacs undo defaults
+  (setq undo-limit        10000000    ;; 1MB   (default is 160kB, Doom's default is 400kB)
+        undo-strong-limit 100000000   ;; 100MB (default is 240kB, Doom's default is 3MB)
+        undo-outer-limit  1000000000) ;; 1GB   (default is 24MB,  Doom's default is 48MB)
 
+  ;; Undo-fu customization options
+  (setq undo-fu-allow-undo-in-region t ;; Undoing with a selection will use undo within that region.
+        undo-fu-ignore-keyboard-quit t)) ;; Use the `undo-fu-disable-checkpoint' command instead of Ctrl-G `keyboard-quit' for non-linear behavior.
+
+;; Evil undo
 (after! evil
   (setq evil-want-fine-undo t)) ;; By default while in insert all changes are one big blob
 #+end_src
