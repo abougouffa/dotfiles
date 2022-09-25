@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-23
+#+lastmod: 2022-09-24
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -1011,7 +1011,7 @@ Set Doom's theme, some good choices:
 **** Ef (εὖ) themes
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! ef-themes :pin "7aac909f636dbbff1121de6bb91a579e3c008c32")
+(package! ef-themes :pin "3f9628750f8ff544169d4924e8c51f49b31f39e1")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -5075,7 +5075,7 @@ View data frames better with
 ** Python IDE :python:
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! elpy :pin "de31d30003c515c25ff7bfd3a361c70c298f78bb")
+(package! elpy :pin "ae7919d94659eb26d4146d4c3422c5f4c3610837")
 #+end_src
 
 #+begin_src emacs-lisp
