@@ -20,7 +20,7 @@
 ;; Modus themes:1 ends here
 
 ;; [[file:config.org::*Ef (εὖ) themes][Ef (εὖ) themes:1]]
-(package! ef-themes :pin "7aac909f636dbbff1121de6bb91a579e3c008c32")
+(package! ef-themes :pin "3f9628750f8ff544169d4924e8c51f49b31f39e1")
 ;; Ef (εὖ) themes:1 ends here
 
 ;; [[file:config.org::*Lambda themes][Lambda themes:1]]
@@ -328,7 +328,7 @@
 ;; ESS:1 ends here
 
 ;; [[file:config.org::*Python IDE][Python IDE:1]]
-(package! elpy :pin "de31d30003c515c25ff7bfd3a361c70c298f78bb")
+(package! elpy :pin "ae7919d94659eb26d4146d4c3422c5f4c3610837")
 ;; Python IDE:1 ends here
 
 ;; [[file:config.org::*Semgrep][Semgrep:1]]
