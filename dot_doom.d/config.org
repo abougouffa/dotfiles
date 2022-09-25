@@ -6713,7 +6713,8 @@ let's make it transparent.
 
 ;; Define a function to set the format latex scale (to be reused in hooks)
 (defun +org-format-latex-set-scale (scale)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale scale)))
+  (setq-local org-format-latex-options
+              (plist-put org-format-latex-options :scale scale)))
 
 ;; Set the default scale
 (+org-format-latex-set-scale 1.4)
