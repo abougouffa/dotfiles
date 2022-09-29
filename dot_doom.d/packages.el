@@ -16,11 +16,11 @@
 ;; Visual undo (=vundo=):1 ends here
 
 ;; [[file:config.org::*Modus themes][Modus themes:1]]
-(package! modus-themes :pin "ee35a9af344d2b2920589ec4d66e9cb513bdfb80")
+(package! modus-themes :pin "aed22dd122e59810d75448fb500589045d10b364")
 ;; Modus themes:1 ends here
 
 ;; [[file:config.org::*Ef (εὖ) themes][Ef (εὖ) themes:1]]
-(package! ef-themes :pin "3f9628750f8ff544169d4924e8c51f49b31f39e1")
+(package! ef-themes :pin "66279730aa39598ebd814b010f32308490e01ac3")
 ;; Ef (εὖ) themes:1 ends here
 
 ;; [[file:config.org::*Lambda themes][Lambda themes:1]]
@@ -225,7 +225,7 @@
 ;; Islamic prayer times:1 ends here
 
 ;; [[file:config.org::*Info colors][Info colors:1]]
-(package! info-colors :pin "47ee73cc19b1049eef32c9f3e264ea7ef2aaf8a5")
+(package! info-colors :pin "2e237c301ba62f0e0286a27c1abe48c4c8441143")
 ;; Info colors:1 ends here
 
 ;; [[file:config.org::*Zotero Zotxt][Zotero Zotxt:1]]
@@ -286,7 +286,7 @@
 (package! empv
   :recipe (:host github
            :repo "isamert/empv.el")
-  :pin "49b25a3633bc362ee5fe84c8028b0412ade362c5")
+  :pin "c53240482510db03c5b0667e19290c238feb9575")
 ;; EMPV:1 ends here
 
 ;; [[file:config.org::*Cycle song information in mode line][Cycle song information in mode line:1]]
@@ -304,7 +304,7 @@
                    "keywords"
                    "company-maxima.el"
                    "poly-maxima.el"))
-  :pin "1334f44725bd80a265de858d652f3fde4ae401fa")
+  :pin "1913ee496bb09430e85f76dfadf8ba4d4f95420f")
 ;; Maxima:1 ends here
 
 ;; [[file:config.org::*IMaxima][IMaxima:1]]
@@ -313,7 +313,7 @@
   :recipe (:host nil ;; Unsupported host, we will specify the complete repo link
            :repo "https://git.code.sf.net/p/maxima/code"
            :files ("interfaces/emacs/imaxima/*"))
-  :pin "f1e60b2ec1ae447845b113e8f3aa77fb4b7e4289")
+  :pin "a204668a1983ace299cffe432f8f18c45eec5cea")
 ;; IMaxima:1 ends here
 
 ;; [[file:config.org::*Vimrc][Vimrc:1]]
@@ -475,7 +475,7 @@
 ;; [[file:config.org::*Org additional packages][Org additional packages:1]]
 (unpin! org-roam) ;; To avoid problems with org-roam-ui
 (package! websocket :pin "82b370602fa0158670b1c6c769f223159affce9b")
-(package! org-roam-ui :pin "16a8da9e5107833032893bc4c0680b368ac423ac")
+(package! org-roam-ui :pin "6bf6a5eecc1fa7ddbb1fcda85e08fe9c393f9298")
 (package! org-wild-notifier :pin "9392b06d20b2f88e45a41bea17bb2f10f24fd19c")
 (package! org-fragtog :pin "c675563af3f9ab5558cfd5ea460e2a07477b0cfd")
 (package! org-appear :pin "60ba267c5da336e75e603f8c7ab3f44e6f4e4dac")
@@ -485,7 +485,7 @@
 (package! citar-org-roam
   :recipe (:host github
            :repo "emacs-citar/citar-org-roam")
-  :pin "29688b89ac3bf78405fa0dce7e17965aa8fe0dff")
+  :pin "27105d0a9578279560cd79cfad5871e7e603bc58")
 
 (package! org-menu
   :recipe (:host github

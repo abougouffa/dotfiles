@@ -302,13 +302,32 @@
 ;; [[file:config.org::*Clock][Clock:1]]
 (after! doom-modeline
   (setq display-time-string-forms
-        '((propertize (concat " 🕘 " 24-hours ":" minutes))))
+        '((propertize (concat 24-hours ":" minutes))))
   (display-time-mode 1) ; Enable time in the mode-line
 
-  ;; Add padding to the right
+  ;; Restore my 🕘 symbol instead of calendar!
+  (doom-modeline-def-segment time
+    (when (and doom-modeline-time
+               (bound-and-true-p display-time-mode)
+               (not doom-modeline--limited-width-p))
+      (concat
+       doom-modeline-spc
+       (when doom-modeline-time-icon
+         (concat
+          (doom-modeline-icon 'faicon "clock-o" "🕘" ""
+                              :face 'mode-line
+                              :v-adjust -0.05)
+          (and (or doom-modeline-icon doom-modeline-unicode-fallback)
+               doom-modeline-spc)))
+       (propertize display-time-string
+                   'face (doom-modeline-face 'doom-modeline-time)))))
+
   (doom-modeline-def-modeline 'main
-   '(bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-   '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker "   ")))
+    '(bar workspace-name window-number modals matches follow buffer-info
+      remote-host buffer-position word-count parrot selection-info)
+    '(objed-state misc-info persp-name battery grip irc mu4e gnus github debug
+      repl lsp minor-modes input-method indent-info buffer-encoding major-mode
+      process vcs checker time "     ")))
 ;; Clock:1 ends here
 
 ;; [[file:config.org::*Battery][Battery:1]]
