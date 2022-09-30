@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-24
+#+lastmod: 2022-09-29
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -920,7 +920,7 @@ Set Doom's theme, some good choices:
 **** Modus themes :modus:
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! modus-themes :pin "ee35a9af344d2b2920589ec4d66e9cb513bdfb80")
+(package! modus-themes :pin "aed22dd122e59810d75448fb500589045d10b364")
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -1011,7 +1011,7 @@ Set Doom's theme, some good choices:
 **** Ef (εὖ) themes
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! ef-themes :pin "3f9628750f8ff544169d4924e8c51f49b31f39e1")
+(package! ef-themes :pin "66279730aa39598ebd814b010f32308490e01ac3")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3318,7 +3318,7 @@ some from [[https://sites.google.com/site/gtonguedict/home/stardict-dictionaries
 Better colors for manual pages.
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! info-colors :pin "47ee73cc19b1049eef32c9f3e264ea7ef2aaf8a5")
+(package! info-colors :pin "2e237c301ba62f0e0286a27c1abe48c4c8441143")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -4693,7 +4693,7 @@ default backend EMMS is using.
 (package! empv
   :recipe (:host github
            :repo "isamert/empv.el")
-  :pin "49b25a3633bc362ee5fe84c8028b0412ade362c5")
+  :pin "c53240482510db03c5b0667e19290c238feb9575")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -4874,7 +4874,7 @@ specify a recipe; however, installing it directly seems to not install
                    "keywords"
                    "company-maxima.el"
                    "poly-maxima.el"))
-  :pin "1334f44725bd80a265de858d652f3fde4ae401fa")
+  :pin "1913ee496bb09430e85f76dfadf8ba4d4f95420f")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -4905,7 +4905,7 @@ subdirectory ~interfaces/emacs/imaxima~.
   :recipe (:host nil ;; Unsupported host, we will specify the complete repo link
            :repo "https://git.code.sf.net/p/maxima/code"
            :files ("interfaces/emacs/imaxima/*"))
-  :pin "f1e60b2ec1ae447845b113e8f3aa77fb4b7e4289")
+  :pin "a204668a1983ace299cffe432f8f18c45eec5cea")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -5642,7 +5642,7 @@ To avoid problems in the src_elisp{(after! org)} section.
 #+begin_src emacs-lisp :tangle packages.el
 (unpin! org-roam) ;; To avoid problems with org-roam-ui
 (package! websocket :pin "82b370602fa0158670b1c6c769f223159affce9b")
-(package! org-roam-ui :pin "16a8da9e5107833032893bc4c0680b368ac423ac")
+(package! org-roam-ui :pin "6bf6a5eecc1fa7ddbb1fcda85e08fe9c393f9298")
 (package! org-wild-notifier :pin "9392b06d20b2f88e45a41bea17bb2f10f24fd19c")
 (package! org-fragtog :pin "c675563af3f9ab5558cfd5ea460e2a07477b0cfd")
 (package! org-appear :pin "60ba267c5da336e75e603f8c7ab3f44e6f4e4dac")
@@ -5652,7 +5652,7 @@ To avoid problems in the src_elisp{(after! org)} section.
 (package! citar-org-roam
   :recipe (:host github
            :repo "emacs-citar/citar-org-roam")
-  :pin "29688b89ac3bf78405fa0dce7e17965aa8fe0dff")
+  :pin "27105d0a9578279560cd79cfad5871e7e603bc58")
 
 (package! org-menu
   :recipe (:host github
