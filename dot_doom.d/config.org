@@ -3,7 +3,7 @@
 #+subtitle: Emacs configuration for work and life!
 #+author: Abdelhak Bougouffa
 #+email: abougouffa@fedoraproject.org
-#+lastmod: 2022-09-29
+#+lastmod: 2022-10-19
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle yes :comments link
 #+property: header-args:elisp :exports code
@@ -17,6 +17,13 @@
 
 
 * This repository :preamble:
+
+#+begin_verse
+*This Doom Emacs configuration is deprecated.* I moved to a vanilla Emacs, you can
+find my current personal configuration in the =dot_minemacs.d= directory, and my
+personal core (reusable) Emacs in [[https://github.com/abougouffa/minemacs][MinEmacs]].
+#+end_verse
+
 This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Zsh*,
 *Emacs*, *Vim*, *Alacritty* and other Linux related stuff.
 
