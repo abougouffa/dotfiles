@@ -2,3 +2,5 @@
 *.tex
 .auctex-auto
 _minted*
+dot_minemacs.d/private/*
+dot_minemacs.d/custom.el
