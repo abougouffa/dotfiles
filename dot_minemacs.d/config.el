@@ -30,16 +30,15 @@
       source-directory (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git/")
       browse-url-chrome-program "brave")
 
-(with-eval-after-load 'writeroom-mode
-  (with-eval-after-load 'org
-    ;; Increase latex previews scale in Zen mode
-    (add-hook 'writeroom-mode-enable-hook (lambda () (+org-format-latex-set-scale 2.0)))
-    (add-hook 'writeroom-mode-disable-hook (lambda () (+org-format-latex-set-scale 1.4)))))
-
 ;; Enable horizontal scrolling with the second mouse wheel or the touchpad
 (setq mouse-wheel-tilt-scroll t
       mouse-wheel-progressive-speed nil)
 
+(with-eval-after-load 'writeroom-mode
+  (with-eval-after-load 'org
+    ;; Increase latex previews scale in Zen mode
+    (add-hook 'writeroom-mode-enable-hook (lambda () (+org-extras-format-latex-set-scale 2.0)))
+    (add-hook 'writeroom-mode-disable-hook (lambda () (+org-extras-format-latex-set-scale 1.4)))))
 
 (with-eval-after-load 'spell-fu
   (add-hook
@@ -64,7 +63,6 @@
           "https://developers.redhat.com/blog/feed"
           "https://lwn.net/headlines/rss")))
 
-
 (with-eval-after-load 'mu4e
   (setq mail-personal-alias-file (expand-file-name "private/mail-aliases.mailrc" minemacs-config-dir))
 
@@ -81,9 +79,6 @@
   ;; Load my accounts
   (load (expand-file-name "private/mu4e-accounts.el" minemacs-config-dir) :no-error :no-msg))
 
-
-;;; Org mode related stuff
-;; Basic settings
 (with-eval-after-load 'org
   (setq org-directory "~/Dropbox/Org/" ; let's put files here
         org-todo-keywords
@@ -104,26 +99,6 @@
     (not (string= lang "scheme"))) ;; Don't ask for scheme
 
   (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
-
-  ;; Latex stuff
-  (setq org-highlight-latex-and-related '(native script entities))
-  (require 'org-src)
-
-  (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
-
-  (setq org-format-latex-options
-        (plist-put org-format-latex-options :background "Transparent"))
-
-  ;; Can be dvipng, dvisvgm, imagemagick
-  (setq org-preview-latex-default-process 'dvisvgm)
-
-  ;; Define a function to set the format latex scale (to be reused in hooks)
-  (defun +org-format-latex-set-scale (scale)
-    (setq-local org-format-latex-options
-                (plist-put org-format-latex-options :scale scale)))
-
-  ;; Set the default scale
-  (+org-format-latex-set-scale 1.4)
 
   (setq org-agenda-deadline-faces
         '((1.001 . error)
@@ -181,7 +156,6 @@
            :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
            :unnarrowed t))))
 
-
 (with-eval-after-load 'oc
   (setq org-cite-csl-styles-dir +my/biblio-styles-path
         org-cite-global-bibliography +my/biblio-libraries-list))
@@ -191,7 +165,6 @@
         citar-notes-paths (list +my/biblio-notes-path)
         citar-bibliography +my/biblio-libraries-list))
 
-;; ROS
 (with-eval-after-load 'ros
   (setq ros-workspaces
         (list (ros-dump-workspace
