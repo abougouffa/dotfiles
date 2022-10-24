@@ -12,7 +12,7 @@
 (setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
 
 (setq minemacs-fonts ;; or Cascadia Code, Fira Code, FiraCode Nerd Font, Iosevka Fixed Curly Slab
-      '(:font-family "IBM Plex Mono" ;; "Iosevka Fixed Curly Slab"
+      '(:font-family "FiraCode Nerd Font" ;; "Iosevka Fixed Curly Slab"
         :font-size 15
         :variable-pitch-font-family "IBM Plex Serif"
         :variable-pitch-font-size 16))
@@ -30,15 +30,17 @@
       source-directory (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git/")
       browse-url-chrome-program "brave")
 
-;; Enable horizontal scrolling with the second mouse wheel or the touchpad
-(setq mouse-wheel-tilt-scroll t
-      mouse-wheel-progressive-speed nil)
-
 (with-eval-after-load 'writeroom-mode
   (with-eval-after-load 'org
     ;; Increase latex previews scale in Zen mode
-    (add-hook 'writeroom-mode-enable-hook (lambda () (+org-extras-format-latex-set-scale 2.0)))
-    (add-hook 'writeroom-mode-disable-hook (lambda () (+org-extras-format-latex-set-scale 1.4)))))
+    (add-hook 'writeroom-mode-enable-hook
+              (lambda ()
+                (setq org-format-latex-options
+                      (plist-put org-format-latex-options :scale 2.1))))
+    (add-hook 'writeroom-mode-disable-hook
+              (lambda ()
+                (setq org-format-latex-options
+                      (plist-put org-format-latex-options :scale 1.5))))))
 
 (with-eval-after-load 'spell-fu
   (add-hook
@@ -167,19 +169,42 @@
 
 (with-eval-after-load 'ros
   (setq ros-workspaces
-        (list (ros-dump-workspace
-               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
-               :workspace "~/ros2_ws"
-               :extends '("/opt/ros/foxy/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros_ws"
-               :extends '("/opt/ros/noetic/"))
-              (ros-dump-workspace
-               :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
-               :workspace "~/ros2_ws"
-               :extends '("/opt/ros/foxy/")))))
+        (list
+         (ros-dump-workspace
+          :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+          :workspace "~/ros_ws"
+          :extends '("/opt/ros/noetic/"))
+         (ros-dump-workspace
+          :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+          :workspace "~/ros2_ws"
+          :extends '("/opt/ros/foxy/"))
+         (ros-dump-workspace
+          :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+          :workspace "~/ros_ws"
+          :extends '("/opt/ros/noetic/"))
+         (ros-dump-workspace
+          :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+          :workspace "~/ros2_ws"
+          :extends '("/opt/ros/foxy/")))))
+
+(defun +helper--in-buffer-replace (old new)
+  "Replace OLD with NEW in the current buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((case-fold-search nil)
+          (matches 0))
+      (while (re-search-forward old nil t)
+        (replace-match new)
+        (setq matches (1+ matches)))
+      matches)))
+
+(defun +helper-clear-frenchy-ponctuations ()
+  "Replace french ponctuations (like unsectable space) by regular ones."
+  (interactive)
+  (let ((chars (list (cons (char-to-string #xa0) "")
+                     (cons (char-to-string #x2009) " ")
+                     (cons "’" "'")))
+        (matches 0))
+    (dolist (pair chars)
+      (setq matches (+ matches (+helper--in-buffer-replace (car pair) (cdr pair)))))
+    (message "Replaced %d match%s." matches (if (> matches 1) "es" ""))))
