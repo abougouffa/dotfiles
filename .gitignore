@@ -4,3 +4,5 @@
 _minted*
 dot_minemacs.d/private/*
 dot_minemacs.d/custom.el
+dot_minemacs.d/custom-vars.el
+dot_doom.d/custom.el
