@@ -21,8 +21,8 @@
 (defvar +my/lang-secondary     "fr")
 (defvar +my/lang-mother-tongue "ar")
 
-(defvar +my/biblio-libraries-list (list (expand-file-name "~/Zotero/library.bib")))
-(defvar +my/biblio-storage-list   (list (expand-file-name "~/Zotero/storage/")))
+(defvar +my/biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
+(defvar +my/biblio-storage-path   (expand-file-name "~/Zotero/storage/"))
 (defvar +my/biblio-notes-path     (expand-file-name "~/PhD/bibliography/notes/"))
 (defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
 
@@ -153,6 +153,9 @@
                      (subst-char-in-string ?_ ?  buffer-file-name))
                   (funcall orig-fun))))
 
+  ;; Register capture template (via Org-Protocol)
+  ;; Add this as bookmarklet in your browser
+  ;; javascript:location.href='org-protocol://roam-ref?template=r&ref=%27+encodeURIComponent(location.href)+%27&title=%27+encodeURIComponent(document.title)+%27&body=%27+encodeURIComponent(window.getSelection())
   (setq org-roam-capture-ref-templates
         '(("r" "ref" plain "%?"
            :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
@@ -160,12 +163,12 @@
 
 (with-eval-after-load 'oc
   (setq org-cite-csl-styles-dir +my/biblio-styles-path
-        org-cite-global-bibliography +my/biblio-libraries-list))
+        org-cite-global-bibliography (ensure-list +my/biblio-libraries-path)))
 
 (with-eval-after-load 'citar
-  (setq citar-library-paths +my/biblio-storage-list
-        citar-notes-paths (list +my/biblio-notes-path)
-        citar-bibliography +my/biblio-libraries-list))
+  (setq citar-library-paths (ensure-list +my/biblio-storage-path)
+        citar-notes-paths (ensure-list +my/biblio-notes-path)
+        citar-bibliography (ensure-list +my/biblio-libraries-path)))
 
 (with-eval-after-load 'ros
   (setq ros-workspaces
