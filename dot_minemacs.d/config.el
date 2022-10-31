@@ -17,8 +17,8 @@
         :variable-pitch-font-family "IBM Plex Serif"
         :variable-pitch-font-size 16))
 
-(defvar +my/lang-main          "en")
-(defvar +my/lang-secondary     "fr")
+(defvar +my/lang-main "en")
+(defvar +my/lang-secondary "fr")
 (defvar +my/lang-mother-tongue "ar")
 
 (defvar +my/biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
@@ -27,7 +27,7 @@
 (defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
 
 (setq org-directory "~/Dropbox/Org"
-      source-directory (expand-file-name "~/Softwares/aur/emacs-git/src/emacs-git/")
+      source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
       browse-url-chrome-program "brave")
 
 (with-eval-after-load 'writeroom-mode
@@ -116,7 +116,7 @@
   (setq org-export-headline-levels 5)
 
   ;; Needs to make a src_latex{\textsc{text}}?, with this hack you can write [[latex:textsc][Some text]].
-  (+with-shutup!
+  (+shutup!
    (org-add-link-type
     "latex" nil
     (lambda (path desc format)
@@ -135,6 +135,7 @@
                  time-stamp-format "%04Y-%02m-%02d")))
 
   (add-hook 'before-save-hook 'time-stamp nil))
+
 
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
@@ -174,19 +175,19 @@
   (setq ros-workspaces
         (list
          (ros-dump-workspace
-          :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+          :tramp-prefix "/docker:ros@ros-machine:"
           :workspace "~/ros_ws"
           :extends '("/opt/ros/noetic/"))
          (ros-dump-workspace
-          :tramp-prefix (format "/docker:%s@%s:" "ros" "ros-machine")
+          :tramp-prefix "/docker:ros@ros-machine:"
           :workspace "~/ros2_ws"
           :extends '("/opt/ros/foxy/"))
          (ros-dump-workspace
-          :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
           :workspace "~/ros_ws"
           :extends '("/opt/ros/noetic/"))
          (ros-dump-workspace
-          :tramp-prefix (format "/ssh:%s@%s:" "swd_sk" "172.16.96.42")
+          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
           :workspace "~/ros2_ws"
           :extends '("/opt/ros/foxy/")))))
 
@@ -204,9 +205,10 @@
 (defun +helper-clear-frenchy-ponctuations ()
   "Replace french ponctuations (like unsectable space) by regular ones."
   (interactive)
-  (let ((chars (list (cons (char-to-string #xa0) "")
-                     (cons (char-to-string #x2009) " ")
-                     (cons "’" "'")))
+  (let ((chars '(("\u200b" . "")
+                 ("[\u00a0\u2009]" . " ")
+                 ("[‘’’‚]" . "'")
+                 ("[“”„”]" . "\"")))
         (matches 0))
     (dolist (pair chars)
       (setq matches (+ matches (+helper--in-buffer-replace (car pair) (cdr pair)))))
