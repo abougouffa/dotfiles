@@ -51,7 +51,8 @@
 
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
-        '("https://arxiv.org/rss/cs.RO"
+        '("https://www.technologyreview.com/feed"
+          "https://arxiv.org/rss/cs.RO"
           "https://interstices.info/feed"
           "https://this-week-in-rust.org/rss.xml"
           "https://planet.emacslife.com/atom.xml"
@@ -135,7 +136,6 @@
                  time-stamp-format "%04Y-%02m-%02d")))
 
   (add-hook 'before-save-hook 'time-stamp nil))
-
 
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
