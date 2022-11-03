@@ -205,10 +205,13 @@
 (defun +helper-clear-frenchy-ponctuations ()
   "Replace french ponctuations (like unsectable space) by regular ones."
   (interactive)
-  (let ((chars '(("\u200b" . "")
-                 ("[\u00a0\u2009]" . " ")
-                 ("[‘’’‚]" . "'")
-                 ("[“”„”]" . "\"")))
+  (let ((chars
+         '(;; Non-breaking and zero-width spaces
+           ("[\u00a0\u200b]" . "")
+           ;; Special spaces and quads
+           ("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
+           ("[‘’‚’]" . "'")
+           ("[“”„”]" . "\"")))
         (matches 0))
     (dolist (pair chars)
       (setq matches (+ matches (+helper--in-buffer-replace (car pair) (cdr pair)))))
