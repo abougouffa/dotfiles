@@ -30,18 +30,6 @@
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
       browse-url-chrome-program "brave")
 
-(with-eval-after-load 'writeroom-mode
-  (with-eval-after-load 'org
-    ;; Increase latex previews scale in Zen mode
-    (add-hook 'writeroom-mode-enable-hook
-              (lambda ()
-                (setq org-format-latex-options
-                      (plist-put org-format-latex-options :scale 2.1))))
-    (add-hook 'writeroom-mode-disable-hook
-              (lambda ()
-                (setq org-format-latex-options
-                      (plist-put org-format-latex-options :scale 1.5))))))
-
 (with-eval-after-load 'spell-fu
   (add-hook
    'spell-fu-mode-hook
