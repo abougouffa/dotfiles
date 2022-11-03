@@ -26,7 +26,7 @@
 (defvar +my/biblio-notes-path "~/PhD/bibliography/notes/")
 (defvar +my/biblio-styles-path "~/Zotero/styles/")
 
-(setq org-directory "~/Dropbox/Org"
+(setq org-directory "~/Dropbox/Org/"
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
       browse-url-chrome-program "brave")
 
@@ -46,8 +46,8 @@
   (add-hook
    'spell-fu-mode-hook
    (lambda ()
-     (+spell-fu-register-dictionary "en")
-     (+spell-fu-register-dictionary "fr"))))
+     (+spell-fu-register-dictionary +my/lang-main)
+     (+spell-fu-register-dictionary +my/lang-secondary))))
 
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
@@ -206,12 +206,13 @@
   "Replace french ponctuations (like unsectable space) by regular ones."
   (interactive)
   (let ((chars
-         '(;; Non-breaking and zero-width spaces
-           ("[\u00a0\u200b]" . "")
-           ;; Special spaces and quads
-           ("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
-           ("[‘’‚’]" . "'")
-           ("[“”„”]" . "\"")))
+         (list
+          ;; Non-breaking and zero-width spaces
+          '("[\u00a0\u200b]" . "")
+          ;; Special spaces and quads
+          '("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
+          '("[‘’‚’]" . "'")
+          '("[“”„”]" . "\"")))
         (matches 0))
     (dolist (pair chars)
       (setq matches (+ matches (+helper--in-buffer-replace (car pair) (cdr pair)))))
