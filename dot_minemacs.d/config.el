@@ -21,10 +21,10 @@
 (defvar +my/lang-secondary "fr")
 (defvar +my/lang-mother-tongue "ar")
 
-(defvar +my/biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
-(defvar +my/biblio-storage-path   (expand-file-name "~/Zotero/storage/"))
-(defvar +my/biblio-notes-path     (expand-file-name "~/PhD/bibliography/notes/"))
-(defvar +my/biblio-styles-path    (expand-file-name "~/Zotero/styles/"))
+(defvar +my/biblio-libraries-path "~/Zotero/library.bib")
+(defvar +my/biblio-storage-path "~/Zotero/storage/")
+(defvar +my/biblio-notes-path "~/PhD/bibliography/notes/")
+(defvar +my/biblio-styles-path "~/Zotero/styles/")
 
 (setq org-directory "~/Dropbox/Org"
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
