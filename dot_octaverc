@@ -1,3 +1,5 @@
+## -*- mode: octave; -*-
+
 ## System-wide startup file for Octave.
 ##
 ## If the environment variable OCTAVE_VERSION_INITFILE is set when Octave

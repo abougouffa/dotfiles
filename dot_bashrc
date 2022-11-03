@@ -1,3 +1,5 @@
+## -*- mode: sh; -*-
+
 # Path to your oh-my-bash installation.
 export OSH=/home/abdelhak/.oh-my-bash
 
