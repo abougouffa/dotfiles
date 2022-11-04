@@ -39,20 +39,20 @@
 
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
-        '("https://www.technologyreview.com/feed"
+        '("https://itsfoss.com/feed"
           "https://arxiv.org/rss/cs.RO"
           "https://interstices.info/feed"
+          "https://lwn.net/headlines/rss"
+          "https://linuxhandbook.com/feed"
+          "https://www.omgubuntu.co.uk/feed"
           "https://this-week-in-rust.org/rss.xml"
           "https://planet.emacslife.com/atom.xml"
-          "https://www.omgubuntu.co.uk/feed"
-          "https://itsfoss.com/feed"
-          "https://linuxhandbook.com/feed"
+          "https://www.technologyreview.com/feed"
+          "https://developers.redhat.com/blog/feed"
           "https://spectrum.ieee.org/rss/robotics/fulltext"
           "https://spectrum.ieee.org/rss/aerospace/fulltext"
           "https://spectrum.ieee.org/rss/computing/fulltext"
-          "https://spectrum.ieee.org/rss/blog/automaton/fulltext"
-          "https://developers.redhat.com/blog/feed"
-          "https://lwn.net/headlines/rss")))
+          "https://spectrum.ieee.org/rss/blog/automaton/fulltext")))
 
 (with-eval-after-load 'mu4e
   (setq mail-personal-alias-file (expand-file-name "private/mail-aliases.mailrc" minemacs-config-dir))
