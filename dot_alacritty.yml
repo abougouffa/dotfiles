@@ -78,7 +78,7 @@ window:
   #
   # Values for `startup_mode` (macOS only):
   #   - SimpleFullscreen
-  startup_mode: Windowed
+  startup_mode: Maximized
 
   # Window title
   #title: Alacritty
@@ -92,12 +92,6 @@ window:
     #instance: Alacritty
     # General application class
     general: Alacritty
-
-  # GTK theme variant (Linux/BSD only)
-  #
-  # Override the variant of the GTK theme. Commonly supported values are `dark`
-  # and `light`. Set this to `None` to use the default theme variant.
-  gtk_theme_variant: light
 
 scrolling:
   # Maximum number of lines in the scrollback buffer.
