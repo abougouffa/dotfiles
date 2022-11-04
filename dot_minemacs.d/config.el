@@ -55,7 +55,7 @@
           "https://spectrum.ieee.org/rss/blog/automaton/fulltext")))
 
 (with-eval-after-load 'mu4e
-  (setq mail-personal-alias-file (expand-file-name "private/mail-aliases.mailrc" minemacs-config-dir))
+  (setq mail-personal-alias-file (concat minemacs-config-dir "private/mail-aliases.mailrc"))
 
   ;; Add a unified inbox shortcut
   (add-to-list
@@ -68,7 +68,7 @@
    '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
 
   ;; Load my accounts
-  (load (expand-file-name "private/mu4e-accounts.el" minemacs-config-dir) :no-error :no-msg))
+  (load (concat minemacs-config-dir "private/mu4e-accounts.el") :no-error :no-msg))
 
 (with-eval-after-load 'org
   (setq org-directory "~/Dropbox/Org/" ; let's put files here
@@ -129,18 +129,19 @@
   (setq org-hugo-auto-set-lastmod t))
 
 (with-eval-after-load 'org-roam
-  (setq org-roam-directory "~/Dropbox/Org/slip-box"
-        org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
+  (setq org-roam-directory "~/Dropbox/Org/slip-box/"
+        org-roam-db-location (concat org-roam-directory "org-roam.db"))
 
-  (advice-add #'doom-modeline-buffer-file-name
-              :around
-              (lambda (orig-fun)
-                (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-                    (replace-regexp-in-string
-                     "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-                     "🦄 (\\1-\\2-\\3) "
-                     (subst-char-in-string ?_ ?  buffer-file-name))
-                  (funcall orig-fun))))
+  (advice-add
+   #'doom-modeline-buffer-file-name
+   :around
+   (defun +doom-modeline--org-roam-buffer-file-name-a (orig-fun)
+     (if (string-search org-roam-directory (or buffer-file-name ""))
+         (replace-regexp-in-string
+          "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
+          "🦄 (\\1-\\2-\\3) "
+          (subst-char-in-string ?_ ?  buffer-file-name))
+       (funcall orig-fun))))
 
   ;; Register capture template (via Org-Protocol)
   ;; Add this as bookmarklet in your browser
