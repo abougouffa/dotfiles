@@ -31,11 +31,7 @@
       browse-url-chrome-program "brave")
 
 (with-eval-after-load 'spell-fu
-  (add-hook
-   'spell-fu-mode-hook
-   (lambda ()
-     (+spell-fu-register-dictionary +my/lang-main)
-     (+spell-fu-register-dictionary +my/lang-secondary))))
+  (+spell-fu-register-dictionaries "en" "fr"))
 
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
