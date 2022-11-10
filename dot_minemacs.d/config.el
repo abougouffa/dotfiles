@@ -191,13 +191,11 @@
   "Replace french ponctuations (like unsectable space) by regular ones."
   (interactive)
   (let ((chars
-         (list
-          ;; Non-breaking and zero-width spaces
-          '("[\u00a0\u200b]" . "")
-          ;; Special spaces and quads
-          '("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
-          '("[‘’‚’]" . "'")
-          '("[“”„”]" . "\"")))
+         '(("[\u00a0\u200b]" . "") ;; Non-breaking and zero-width spaces
+           ;; Special spaces and quads
+           ("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
+           ("[‘’‚’]" . "'")
+           ("[“”„”]" . "\"")))
         (matches 0))
     (dolist (pair chars)
       (setq matches (+ matches (+helper--in-buffer-replace (car pair) (cdr pair)))))
