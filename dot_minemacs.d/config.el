@@ -30,6 +30,15 @@
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
       browse-url-chrome-program "brave")
 
+(+eval-when-idle!
+ (setq +project-scan-dir-paths '("~/PhD/workspace/"
+                                 "~/PhD/workspace-no/"
+                                 "~/Projects/foss/packages/"
+                                 "~/Projects/foss/repos/"))
+ (+shutup!
+  ;; Load projects
+  (+project-scan-for-projects)))
+
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
 
