@@ -28,7 +28,10 @@
 
 (setq org-directory "~/Dropbox/Org/"
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
-      browse-url-chrome-program "brave")
+      browse-url-chromium-program (or (executable-find "brave")
+                                      (executable-find "chromium")
+                                      (executable-find "chromium-browser"))
+      browse-url-chrome-program browse-url-chromium-program)
 
 (+eval-when-idle!
  (setq +project-scan-dir-paths '("~/PhD/workspace/"
