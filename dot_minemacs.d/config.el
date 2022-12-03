@@ -160,7 +160,7 @@
                  time-stamp-end    "$"
                  time-stamp-format "%04Y-%02m-%02d")))
 
-  (add-hook 'before-save-hook 'time-stamp nil))
+  (add-hook 'before-save-hook 'time-stamp))
 
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
