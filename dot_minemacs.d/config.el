@@ -65,7 +65,12 @@
           "~/"
           "~/.cache"
           "~/.emacs.d/local/")
-        projectile-ignored-project-function #'+projectile-ignored-project-function))
+        projectile-ignored-project-function #'+projectile-ignored-project-function)
+
+  (+eval-when-idle!
+   (+shutup!
+    ;; Load projects
+    (projectile-discover-projects-in-search-path))))
 
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
