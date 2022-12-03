@@ -17,14 +17,10 @@
         :variable-pitch-font-family "IBM Plex Serif"
         :variable-pitch-font-size 16))
 
-(defvar +my/lang-main "en")
-(defvar +my/lang-secondary "fr")
-(defvar +my/lang-mother-tongue "ar")
-
-(defvar +my/biblio-libraries-path "~/Zotero/library.bib")
-(defvar +my/biblio-storage-path "~/Zotero/storage/")
-(defvar +my/biblio-notes-path "~/PhD/bibliography/notes/")
-(defvar +my/biblio-styles-path "~/Zotero/styles/")
+(defvar +biblio-libraries-path "~/Zotero/library.bib")
+(defvar +biblio-storage-path "~/Zotero/storage/")
+(defvar +biblio-notes-path "~/PhD/bibliography/notes/")
+(defvar +biblio-styles-path "~/Zotero/styles/")
 
 (setq org-directory "~/Dropbox/Org/"
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
@@ -189,13 +185,13 @@
            :unnarrowed t))))
 
 (with-eval-after-load 'oc
-  (setq org-cite-csl-styles-dir +my/biblio-styles-path
-        org-cite-global-bibliography (ensure-list +my/biblio-libraries-path)))
+  (setq org-cite-csl-styles-dir +biblio-styles-path
+        org-cite-global-bibliography (ensure-list +biblio-libraries-path)))
 
 (with-eval-after-load 'citar
-  (setq citar-library-paths (ensure-list +my/biblio-storage-path)
-        citar-notes-paths (ensure-list +my/biblio-notes-path)
-        citar-bibliography (ensure-list +my/biblio-libraries-path)))
+  (setq citar-library-paths (ensure-list +biblio-storage-path)
+        citar-notes-paths (ensure-list +biblio-notes-path)
+        citar-bibliography (ensure-list +biblio-libraries-path)))
 
 (with-eval-after-load 'empv
   (setq
