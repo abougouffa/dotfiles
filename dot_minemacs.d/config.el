@@ -199,7 +199,7 @@
 
 (with-eval-after-load 'empv
   (setq
-   ;; Links from https://www.radio-browser.info
+   ;; Set the radio channels, you can get streams from https://www.radio-browser.info
    empv-radio-channels
    '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
      ("El-Chaabia" . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
@@ -208,7 +208,7 @@
      ("JOW Radio" . "https://str0.creacast.com/jowradio")
      ("Europe1" . "http://ais-live.cloud-services.paris:8000/europe1.mp3")
      ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
-     ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3")
+     ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
      ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
      ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
      ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
