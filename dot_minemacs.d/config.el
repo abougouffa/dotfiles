@@ -42,6 +42,35 @@
   ;; Load projects
   (+project-scan-for-projects)))
 
+(with-eval-after-load 'projectile
+  (require 'cl-lib)
+
+  (defun +projectile-ignored-project-function (filepath)
+    "Return t if FILEPATH is within any of `+projectile-ignored-roots'"
+    (cl-some
+     (lambda (root)
+       (file-in-directory-p
+        (expand-file-name filepath)
+        (expand-file-name root)))
+     +projectile-ignored-roots))
+
+  (defvar +projectile-ignored-roots
+    '("~/.cache"
+      "~/.emacs.d/local/"))
+
+  (setq projectile-project-search-path
+        '("~/PhD/papers"
+          "~/PhD/workspace"
+          "~/PhD/workspace-no"
+          "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
+          ("~/Projects/foss" . 2)) ;; ("dir" . depth)
+        projectile-ignored-projects
+        '("/tmp"
+          "~/"
+          "~/.cache"
+          "~/.emacs.d/local/")
+        projectile-ignored-project-function #'+projectile-ignored-project-function))
+
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
 
