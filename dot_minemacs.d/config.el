@@ -30,8 +30,10 @@
       browse-url-chrome-program browse-url-chromium-program)
 
 (+eval-when-idle!
- (setq +project-scan-dir-paths '("~/PhD/workspace/"
+ (setq +project-scan-dir-paths '("~/PhD/papers"
+                                 "~/PhD/workspace/"
                                  "~/PhD/workspace-no/"
+                                 "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
                                  "~/Projects/foss/packages/"
                                  "~/Projects/foss/repos/"))
  (+shutup!
