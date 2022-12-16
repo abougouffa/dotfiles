@@ -109,23 +109,37 @@
   (load (concat minemacs-config-dir "private/mu4e-accounts.el") :no-error :no-msg))
 
 (with-eval-after-load 'org
-  (setq org-directory "~/Dropbox/Org/" ; let's put files here
-        org-default-notes-file (concat org-directory "inbox.org")
-        org-todo-keywords
-        '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
-          (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
-          (sequence "|" "OKAY(o)" "YES(y)" "NO(n)"))
-        org-todo-keyword-faces
-        '(("IDEA" . (:foreground "goldenrod" :weight bold))
-          ("NEXT" . (:foreground "IndianRed1" :weight bold))
-          ("STRT" . (:foreground "OrangeRed" :weight bold))
-          ("WAIT" . (:foreground "coral" :weight bold))
-          ("KILL" . (:foreground "DarkGreen" :weight bold))
-          ("PROJ" . (:foreground "LimeGreen" :weight bold))
-          ("HOLD" . (:foreground "orange" :weight bold))))
-
-  (defvar +org-inbox-file (concat org-directory "inbox.org"))
-  (defvar +org-projects-file (concat org-directory "projects.org"))
+  (setq
+   ;; Let's put our Org files here
+   org-directory "~/Dropbox/Org/"
+   ;; Default file for notes (for org-capture)
+   org-default-notes-file (concat org-directory "inbox.org")
+   +org-inbox-file (concat org-directory "inbox.org")
+   +org-projects-file (concat org-directory "projects.org")
+   ;; Custom todo keywords
+   org-todo-keywords
+   '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
+     (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
+     (sequence "|" "OKAY(o)" "YES(y)" "NO(n)"))
+   ;; Custom todo keyword faces
+   org-todo-keyword-faces
+   '(("IDEA" . (:foreground "goldenrod" :weight bold))
+     ("NEXT" . (:foreground "IndianRed1" :weight bold))
+     ("STRT" . (:foreground "OrangeRed" :weight bold))
+     ("WAIT" . (:foreground "coral" :weight bold))
+     ("KILL" . (:foreground "DarkGreen" :weight bold))
+     ("PROJ" . (:foreground "LimeGreen" :weight bold))
+     ("HOLD" . (:foreground "orange" :weight bold)))
+   ;; Custom org-capture templates, see: https://orgmode.org/manual/Capture.html
+   org-capture-templates
+   `(("t" "Todo" entry (file+headline ,+org-inbox-file "Inbox")
+      "* TODO %?\n%i\n%a")
+     ("i" "Idea" entry (file+headline ,+org-inbox-file "Ideas")
+      "* IDEA %?\n%T\n%i\n%a")
+     ("p" "Project note" entry (file ,+org-projects-file)
+      "* %?\n%T\n%i\n%a")
+     ("n" "Note" entry (file+headline ,+org-inbox-file "Notes")
+      "* NOTE %?\n%T\n%i\n%a")))
 
   ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
   (defun +org-confirm-babel-evaluate (lang body)
