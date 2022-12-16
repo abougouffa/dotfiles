@@ -12,7 +12,7 @@
 (setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
 
 (setq minemacs-fonts ;; or Cascadia Code, Fira Code, FiraCode Nerd Font, Iosevka Fixed Curly Slab
-      '(:font-family "Iosevka Comfy Motion"
+      '(:font-family "Iosevka Comfy Motion Fixed"
         :font-size 16
         :variable-pitch-font-family "IBM Plex Serif"
         :variable-pitch-font-size 16))
@@ -71,10 +71,6 @@
    (+shutup!
     ;; Load projects
     (projectile-discover-projects-in-search-path))))
-
-(with-eval-after-load 'which-key
-  ;; The current font is not fixed on some unicode symbols
-  (+reset-var! which-key-prefix-prefix))
 
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
