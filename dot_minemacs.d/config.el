@@ -110,6 +110,7 @@
 
 (with-eval-after-load 'org
   (setq org-directory "~/Dropbox/Org/" ; let's put files here
+        org-default-notes-file (concat org-directory "inbox.org")
         org-todo-keywords
         '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
           (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
@@ -123,13 +124,19 @@
           ("PROJ" . (:foreground "LimeGreen" :weight bold))
           ("HOLD" . (:foreground "orange" :weight bold))))
 
+  (defvar +org-inbox-file (concat org-directory "inbox.org"))
+  (defvar +org-projects-file (concat org-directory "projects.org"))
+
   ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
   (defun +org-confirm-babel-evaluate (lang body)
     (not (string= lang "scheme"))) ;; Don't ask for scheme
 
   (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 
-  (setq org-agenda-deadline-faces
+  (setq org-agenda-files (list +org-inbox-file
+                               +org-projects-file
+                               (concat org-directory "gcal-agenda.org"))
+        org-agenda-deadline-faces
         '((1.001 . error)
           (1.000 . org-warning)
           (0.500 . org-upcoming-deadline)
