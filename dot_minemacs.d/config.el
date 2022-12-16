@@ -12,7 +12,7 @@
 (setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
 
 (setq minemacs-fonts ;; or Cascadia Code, Fira Code, FiraCode Nerd Font, Iosevka Fixed Curly Slab
-      '(:font-family "Iosevka Fixed Curly Slab" ;; "Iosevka Fixed Curly Slab"
+      '(:font-family "Iosevka Comfy Motion"
         :font-size 16
         :variable-pitch-font-family "IBM Plex Serif"
         :variable-pitch-font-size 16))
