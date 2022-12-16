@@ -72,6 +72,10 @@
     ;; Load projects
     (projectile-discover-projects-in-search-path))))
 
+(with-eval-after-load 'which-key
+  ;; The current font is not fixed on some unicode symbols
+  (+reset-var! which-key-prefix-prefix))
+
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
 
