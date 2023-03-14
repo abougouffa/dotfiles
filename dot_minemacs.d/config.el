@@ -4,23 +4,25 @@
 
 ;; Author: Abdelhak Bougouffa <abougouffa@fedoraproject.org>
 
-
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address "abougouffa@fedoraproject.org")
 
 (setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
 
-(setq minemacs-fonts ;; or Cascadia Code, Fira Code, FiraCode Nerd Font, Iosevka Fixed Curly Slab
-      '(:font-family "Iosevka Comfy Motion Fixed"
-        :font-size 16
-        :variable-pitch-font-family "IBM Plex Serif"
-        :variable-pitch-font-size 16))
+(setq
+ minemacs-theme 'doom-one-light ; 'apropospriate-light
+ minemacs-fonts
+ '(:font-family "Iosevka Fixed Curly Slab"
+   :font-size 14
+   :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
+   :variable-pitch-font-size 14
+   :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
 
-(defvar +biblio-libraries-path "~/Zotero/library.bib")
-(defvar +biblio-storage-path "~/Zotero/storage/")
 (defvar +biblio-notes-path "~/PhD/bibliography/notes/")
 (defvar +biblio-styles-path "~/Zotero/styles/")
+(defvar +biblio-storage-path "~/Zotero/storage/")
+(defvar +biblio-libraries-path "~/Zotero/library.bib")
 
 (setq org-directory "~/Dropbox/Org/"
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
@@ -29,50 +31,51 @@
                                       (executable-find "chromium-browser"))
       browse-url-chrome-program browse-url-chromium-program)
 
-(+eval-when-idle!
- (setq +project-scan-dir-paths '("~/PhD/papers"
-                                 "~/PhD/workspace/"
-                                 "~/PhD/workspace-no/"
-                                 "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-                                 "~/Projects/foss/packages/"
-                                 "~/Projects/foss/repos/"))
- (+shutup!
-  ;; Load projects
-  (+project-scan-for-projects)))
+(+lazy!
+ ;; Calendar settings (from `solar')
+ (setq calendar-latitude 48.86
+       calendar-longitude 2.35
+       calendar-location-name "Paris, FR"
+       calendar-time-display-form
+       '(24-hours ":" minutes (if time-zone " (") time-zone (if time-zone ")")))
+
+ (when (featurep 'me-lifestyle)
+   (awqat-display-prayer-time-mode 1)
+   (awqat-set-preset-french-muslims)))
 
 (with-eval-after-load 'projectile
-  (require 'cl-lib)
+  (defvar +projectile-ignored-roots
+    '("~/.cache/"
+      "~/.emacs.d/local/"))
 
   (defun +projectile-ignored-project-function (filepath)
     "Return t if FILEPATH is within any of `+projectile-ignored-roots'"
-    (cl-some
-     (lambda (root)
-       (file-in-directory-p
-        (expand-file-name filepath)
-        (expand-file-name root)))
-     +projectile-ignored-roots))
-
-  (defvar +projectile-ignored-roots
-    '("~/.cache"
-      "~/.emacs.d/local/"))
+    (or
+     (cl-some
+      (lambda (root)
+        (file-in-directory-p filepath (file-truename root)))
+      +projectile-ignored-roots)
+     (cl-some
+      (lambda (path)
+        (equal (file-truename filepath) (file-truename path)))
+      projectile-ignored-projects)))
 
   (setq projectile-project-search-path
-        '("~/PhD/papers"
-          "~/PhD/workspace"
-          "~/PhD/workspace-no"
-          "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo"
-          ("~/Projects/foss" . 2)) ;; ("dir" . depth)
+        '("~/PhD/papers/"
+          "~/PhD/workspace/"
+          "~/PhD/workspace-no/"
+          "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo/"
+          ("~/Projects/foss/" . 2)) ; ("dir" . depth)
         projectile-ignored-projects
-        '("/tmp"
-          "~/"
-          "~/.cache"
-          "~/.emacs.d/local/")
+        '("~/"
+          "~/.cache/"
+          "/tmp/")
         projectile-ignored-project-function #'+projectile-ignored-project-function)
 
   (+eval-when-idle!
-   (+shutup!
-    ;; Load projects
-    (projectile-discover-projects-in-search-path))))
+    (+shutup!
+     ;; Load projects
+     (projectile-discover-projects-in-search-path))))
 
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
@@ -95,25 +98,38 @@
           "https://spectrum.ieee.org/rss/blog/automaton/fulltext")))
 
 (with-eval-after-load 'mu4e
-  (setq mail-personal-alias-file (concat minemacs-config-dir "private/mail-aliases.mailrc"))
+  ;; Custom files
+  (setq mail-personal-alias-file (concat minemacs-config-dir "private/mail-aliases.mailrc")
+        mu4e-icalendar-diary-file (concat org-directory "icalendar-diary.org"))
 
   ;; Add a unified inbox shortcut
   (add-to-list
    'mu4e-bookmarks
    '(:name "Unified inbox" :query "maildir:/.*inbox/" :key ?i) t)
 
-  ;; Add shortcut to view yesterday's messages
+  ;; Add shortcut to view spam messages
   (add-to-list
    'mu4e-bookmarks
-   '(:name "Yesterday's messages" :query "date:1d..today" :key ?y) t)
+   '(:name "Spams" :query "maildir:/.*\\(spam\\|junk\\).*/" :key ?s) t)
+
+  ;; The `+mu4e-extras-ignore-spams-query' function is defined in
+  ;; `me-mu4e-extras'.
+  (with-eval-after-load 'me-mu4e-extras
+    ;; Add shortcut to view yesterday's messages
+    (add-to-list
+     'mu4e-bookmarks
+     `(:name "Yesterday's messages" :query ,(+mu4e-extras-ignore-spams-query "date:1d..today") :key ?y) t))
 
   ;; Load my accounts
-  (load (concat minemacs-config-dir "private/mu4e-accounts.el") :no-error :no-msg))
+  (+load minemacs-config-dir "private/mu4e-accounts.el")
+  (+load minemacs-config-dir "private/mu4e-extra-commands.el"))
 
 (with-eval-after-load 'org
   (setq
    ;; Let's put our Org files here
    org-directory "~/Dropbox/Org/"
+   ;; Do not ask before tangling
+   org-confirm-babel-evaluate nil
    ;; Default file for notes (for org-capture)
    org-default-notes-file (concat org-directory "inbox.org")
    +org-inbox-file (concat org-directory "inbox.org")
@@ -121,7 +137,6 @@
    ;; Custom todo keywords
    org-todo-keywords
    '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
-     (sequence "[ ](T)" "[-](S)" "|" "[X](D)")
      (sequence "|" "OKAY(o)" "YES(y)" "NO(n)"))
    ;; Custom todo keyword faces
    org-todo-keyword-faces
@@ -143,11 +158,49 @@
      ("n" "Note" entry (file+headline ,+org-inbox-file "Notes")
       "* NOTE %?\n%T\n%i\n%a")))
 
-  ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
-  (defun +org-confirm-babel-evaluate (lang body)
-    (not (string= lang "scheme"))) ;; Don't ask for scheme
+  (setq org-tag-persistent-alist
+        '((:startgroup . nil)
+          ("home"      . ?h)
+          ("research"  . ?r)
+          ("work"      . ?w)
+          (:endgroup   . nil)
+          (:startgroup . nil)
+          ("tool"      . ?o)
+          ("dev"       . ?d)
+          ("report"    . ?p)
+          (:endgroup   . nil)
+          (:startgroup . nil)
+          ("easy"      . ?e)
+          ("medium"    . ?m)
+          ("hard"      . ?a)
+          (:endgroup   . nil)
+          ("urgent"    . ?u)
+          ("key"       . ?k)
+          ("bonus"     . ?b)
+          ("ignore"    . ?i)
+          ("noexport"  . ?x)))
 
-  (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
+  (setq org-tag-faces
+        '(("home"     . (:foreground "goldenrod"  :weight bold))
+          ("research" . (:foreground "goldenrod"  :weight bold))
+          ("work"     . (:foreground "goldenrod"  :weight bold))
+          ("tool"     . (:foreground "IndianRed1" :weight bold))
+          ("dev"      . (:foreground "IndianRed1" :weight bold))
+          ("report"   . (:foreground "IndianRed1" :weight bold))
+          ("urgent"   . (:foreground "red"        :weight bold))
+          ("key"      . (:foreground "red"        :weight bold))
+          ("easy"     . (:foreground "green4"     :weight bold))
+          ("medium"   . (:foreground "orange"     :weight bold))
+          ("hard"     . (:foreground "red"        :weight bold))
+          ("bonus"    . (:foreground "goldenrod"  :weight bold))
+          ("ignore"   . (:foreground "Gray"       :weight bold))
+          ("noexport" . (:foreground "LimeGreen"  :weight bold))))
+
+  ;; ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
+  ;; (defun +org-confirm-babel-evaluate (lang body)
+  ;;   (not (string= lang "scheme"))) ;; Don't ask for scheme
+
+  ;; (setq org-confirm-babel-evaluate #'+org-confirm-babel-evaluate)
 
   (setq org-agenda-files (list +org-inbox-file
                                +org-projects-file
@@ -174,7 +227,7 @@
        ((eq format 'html)
         (format "<span class=\"%s\">%s</span>" path desc))
        ((eq format 'latex)
-        (format "\\%s{%s}" path desc))))))
+        (format "{\\%s{%s}}" path desc))))))
 
   (add-hook
    'org-mode-hook
@@ -186,12 +239,20 @@
 
   (add-hook 'before-save-hook 'time-stamp))
 
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
+  (setq org-latex-src-block-backend 'minted
+        org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
+
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
 
 (with-eval-after-load 'org-roam
   (setq org-roam-directory "~/Dropbox/Org/slip-box/"
         org-roam-db-location (concat org-roam-directory "org-roam.db"))
+
+  (add-to-list 'recentf-exclude org-roam-directory)
 
   (advice-add
    #'doom-modeline-buffer-file-name
@@ -221,6 +282,10 @@
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
 
+(with-eval-after-load 'writeroom-mode
+  (setq +writeroom-enable-mixed-pitch nil
+        +writeroom-text-scale 2.0))
+
 (with-eval-after-load 'empv
   (setq
    ;; Set the radio channels, you can get streams from https://www.radio-browser.info
@@ -240,6 +305,15 @@
      ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))
    ;; See https://docs.invidious.io/instances/
    empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
+
+(with-eval-after-load 'tramp
+  (setq
+   ;; Do not use a separate history file for tramp sessions (buggy!)
+   tramp-histfile-override nil
+   ;; Use Bash as a default remote shell
+   tramp-default-remote-shell "/bin/bash"
+   ;; Use bash for encoding and decoding commands on the local host
+   tramp-encoding-shell "/bin/bash"))
 
 (with-eval-after-load 'ros
   (setq ros-workspaces
@@ -261,6 +335,15 @@
           :workspace "~/ros2_ws"
           :extends '("/opt/ros/foxy/")))))
 
+(with-eval-after-load 'lsp-mode
+  ;; Register LSP over Tramp for Python
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection "pyls")
+    :major-modes '(python-mode python-ts-mode)
+    :remote? t
+    :server-id 'pyls-remote)))
+
 (defun +helper--in-buffer-replace (old new)
   "Replace OLD with NEW in the current buffer."
   (save-excursion
@@ -269,7 +352,7 @@
           (matches 0))
       (while (re-search-forward old nil t)
         (replace-match new)
-        (setq matches (1+ matches)))
+        (cl-incf matches))
       matches)))
 
 (defun +helper-clear-frenchy-ponctuations ()
@@ -280,8 +363,23 @@
            ;; Special spaces and quads
            ("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
            ("[‘’‚’]" . "'")
-           ("[“”„”]" . "\"")))
+           ("[“”„”«»]" . "\"")))
         (matches 0))
     (dolist (pair chars)
-      (setq matches (+ matches (+helper--in-buffer-replace (car pair) (cdr pair)))))
+      (cl-incf matches (+helper--in-buffer-replace (car pair) (cdr pair))))
     (message "Replaced %d match%s." matches (if (> matches 1) "es" ""))))
+
+(defun +yank-region-as-paragraph ()
+  "Yank region as one paragraph. This removes new line characters between lines."
+  (interactive)
+  (when (use-region-p)
+    (let ((text (buffer-substring-no-properties (region-beginning) (region-end))))
+      (with-temp-buffer
+        (insert text)
+        (goto-char (point-min))
+        (let ((case-fold-search nil))
+          (while (re-search-forward "\n[^\n]" nil t)
+            (replace-region-contents
+             (- (point) 2) (- (point) 1)
+             (lambda (&optional a b) " ")))
+          (kill-new (buffer-string)))))))
