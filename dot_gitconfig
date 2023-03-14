@@ -1,6 +1,8 @@
 [user]
 	name = Abdelhak Bougouffa
 	email = abougouffa@fedoraproject.org
+	signingkey = A3E1AC37
+
 [diff]
 	tool = meld
 
@@ -12,6 +14,9 @@
 
 [alias]
 	ignore = "!gi() { curl -sL https://www.gitignore.io/api/$@ ;}; gi"
+
+[alias]
+	prune-files = "git-prune-files"
 
 [color]
 	ui = auto
@@ -61,3 +66,12 @@
     hunk-header-file-style = red
     hunk-header-line-number-style = "#067a00"
     hunk-header-style = file line-number syntax
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[commit]
+	gpgsign = true
