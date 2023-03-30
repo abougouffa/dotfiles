@@ -13,10 +13,10 @@
 (setq
  minemacs-theme 'doom-one-light ; 'apropospriate-light
  minemacs-fonts
- '(:font-family "Iosevka Fixed Curly Slab"
-   :font-size 14
+ '(:font-family "Iosevka Fixed Curly"
+   :font-size 13
    :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
-   :variable-pitch-font-size 14
+   :variable-pitch-font-size 13
    :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
 
 (defvar +biblio-notes-path "~/PhD/bibliography/notes/")
@@ -31,17 +31,16 @@
                                       (executable-find "chromium-browser"))
       browse-url-chrome-program browse-url-chromium-program)
 
-(+lazy!
- ;; Calendar settings (from `solar')
- (setq calendar-latitude 48.86
-       calendar-longitude 2.35
-       calendar-location-name "Paris, FR"
-       calendar-time-display-form
-       '(24-hours ":" minutes (if time-zone " (") time-zone (if time-zone ")")))
+(+lazy-when! (featurep 'me-lifestyle)
+  ;; Calendar settings (from `solar')
+  (setq calendar-latitude 48.86
+        calendar-longitude 2.35
+        calendar-location-name "Paris, FR"
+        calendar-time-display-form
+        '(24-hours ":" minutes (if time-zone " (") time-zone (if time-zone ")")))
 
- (when (featurep 'me-lifestyle)
-   (awqat-display-prayer-time-mode 1)
-   (awqat-set-preset-french-muslims)))
+  (awqat-display-prayer-time-mode 1)
+  (awqat-set-preset-french-muslims))
 
 (with-eval-after-load 'projectile
   (defvar +projectile-ignored-roots
@@ -76,6 +75,18 @@
     (+shutup!
      ;; Load projects
      (projectile-discover-projects-in-search-path))))
+
+(+lazy!
+ (setq +project-scan-dir-paths
+       '("~/PhD/papers/"
+         "~/PhD/workspace/"
+         "~/PhD/workspace-no/"
+         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo/"
+         "~/Projects/foss/packages/"
+         "~/Projects/foss/repos/"))
+
+ (+shutup!
+  (+project-scan-for-projects)))
 
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries "en" "fr"))
@@ -282,9 +293,16 @@
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
 
-(with-eval-after-load 'writeroom-mode
-  (setq +writeroom-enable-mixed-pitch nil
-        +writeroom-text-scale 2.0))
+(with-eval-after-load 'me-writing-mode
+  (setq +writing-mixed-pitch-enable nil
+        +writing-text-scale 2.0))
+
+;; Remove `consult' advices
+;; (with-eval-after-load 'consult
+;;   (dolist (cmd '(consult-line consult-man))
+;;     (advice-remove cmd #'+consult--dwim-first-arg-a))
+;;   (dolist (cmd '(consult-ripgrep consult-line-multi consult-grep consult-find))
+;;     (advice-remove cmd #'+consult--dwim-second-arg-a)))
 
 (with-eval-after-load 'empv
   (setq
