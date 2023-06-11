@@ -8,21 +8,30 @@
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address "abougouffa@fedoraproject.org")
 
-(setq-default epa-file-encrypt-to '("F808A020A3E1AC37"))
+;; Disable `unicode-fonts'
+;; (remove-hook 'minemacs-after-startup-hook '+unicode-fonts-setup)
+
+(setq-default
+ ;; Encrypt files to my self by default
+ epa-file-encrypt-to '("F808A020A3E1AC37")
+ ;; Better support for files with long lines
+ bidi-paragraph-direction 'left-to-right
+ ;; Speeds redisplay, may break paranthesis rendering for bidirectional files
+ bidi-inhibit-bpa t)
 
 (setq
  minemacs-theme 'doom-one-light ; 'apropospriate-light
  minemacs-fonts
- '(:font-family "Iosevka Fixed Curly"
+ '(:font-family "Iosevka Fixed Curly Slab"
    :font-size 13
    :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
    :variable-pitch-font-size 13
    :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
 
-(defvar +biblio-notes-path "~/PhD/bibliography/notes/")
-(defvar +biblio-styles-path "~/Zotero/styles/")
-(defvar +biblio-storage-path "~/Zotero/storage/")
-(defvar +biblio-libraries-path "~/Zotero/library.bib")
+(defvar +biblio-notes-path (expand-file-name "~/PhD/bibliography/notes/"))
+(defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
+(defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
+(defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
 
 (setq org-directory "~/Dropbox/Org/"
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
@@ -31,50 +40,18 @@
                                       (executable-find "chromium-browser"))
       browse-url-chrome-program browse-url-chromium-program)
 
+(setq +binary-hexl-enable t
+      +binary-objdump-enable t)
+
 (+lazy-when! (featurep 'me-lifestyle)
   ;; Calendar settings (from `solar')
   (setq calendar-latitude 48.86
         calendar-longitude 2.35
         calendar-location-name "Paris, FR"
-        calendar-time-display-form
-        '(24-hours ":" minutes (if time-zone " (") time-zone (if time-zone ")")))
+        calendar-time-display-form '(24-hours ":" minutes))
 
   (awqat-display-prayer-time-mode 1)
   (awqat-set-preset-french-muslims))
-
-(with-eval-after-load 'projectile
-  (defvar +projectile-ignored-roots
-    '("~/.cache/"
-      "~/.emacs.d/local/"))
-
-  (defun +projectile-ignored-project-function (filepath)
-    "Return t if FILEPATH is within any of `+projectile-ignored-roots'"
-    (or
-     (cl-some
-      (lambda (root)
-        (file-in-directory-p filepath (file-truename root)))
-      +projectile-ignored-roots)
-     (cl-some
-      (lambda (path)
-        (equal (file-truename filepath) (file-truename path)))
-      projectile-ignored-projects)))
-
-  (setq projectile-project-search-path
-        '("~/PhD/papers/"
-          "~/PhD/workspace/"
-          "~/PhD/workspace-no/"
-          "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo/"
-          ("~/Projects/foss/" . 2)) ; ("dir" . depth)
-        projectile-ignored-projects
-        '("~/"
-          "~/.cache/"
-          "/tmp/")
-        projectile-ignored-project-function #'+projectile-ignored-project-function)
-
-  (+eval-when-idle!
-    (+shutup!
-     ;; Load projects
-     (projectile-discover-projects-in-search-path))))
 
 (+lazy!
  (setq +project-scan-dir-paths
@@ -89,24 +66,24 @@
   (+project-scan-for-projects)))
 
 (with-eval-after-load 'spell-fu
-  (+spell-fu-register-dictionaries "en" "fr"))
+  (+spell-fu-register-dictionaries! "en" "fr"))
 
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
-        '("https://itsfoss.com/feed"
-          "https://arxiv.org/rss/cs.RO"
-          "https://interstices.info/feed"
-          "https://lwn.net/headlines/rss"
-          "https://linuxhandbook.com/feed"
-          "https://www.omgubuntu.co.uk/feed"
-          "https://this-week-in-rust.org/rss.xml"
-          "https://planet.emacslife.com/atom.xml"
-          "https://www.technologyreview.com/feed"
-          "https://developers.redhat.com/blog/feed"
-          "https://spectrum.ieee.org/rss/robotics/fulltext"
-          "https://spectrum.ieee.org/rss/aerospace/fulltext"
-          "https://spectrum.ieee.org/rss/computing/fulltext"
-          "https://spectrum.ieee.org/rss/blog/automaton/fulltext")))
+        '(("https://arxiv.org/rss/cs.RO" robotics academic)
+          ("https://interstices.info/feed" science academic)
+          ("https://spectrum.ieee.org/rss/robotics/fulltext" robotics academic)
+          ("https://spectrum.ieee.org/rss/aerospace/fulltext" academic aerospace)
+          ("https://spectrum.ieee.org/rss/computing/fulltext" academic computing)
+          ("https://spectrum.ieee.org/rss/blog/automaton/fulltext" academic automation robotics)
+          ("https://www.technologyreview.com/feed" tech science)
+          ("https://itsfoss.com/feed" linux foss)
+          ("https://lwn.net/headlines/rss" linux foss)
+          ("https://linuxhandbook.com/feed" linux foss)
+          ("https://www.omgubuntu.co.uk/feed" linux foss)
+          ("https://this-week-in-rust.org/rss.xml" rust prog)
+          ("https://planet.emacslife.com/atom.xml" emacs prog foss)
+          ("https://developers.redhat.com/blog/feed" linux foss))))
 
 (with-eval-after-load 'mu4e
   ;; Custom files
@@ -141,6 +118,8 @@
    org-directory "~/Dropbox/Org/"
    ;; Do not ask before tangling
    org-confirm-babel-evaluate nil
+   ;; The last level which is still exported as a headline
+   org-export-headline-levels 5
    ;; Default file for notes (for org-capture)
    org-default-notes-file (concat org-directory "inbox.org")
    +org-inbox-file (concat org-directory "inbox.org")
@@ -207,7 +186,7 @@
           ("ignore"   . (:foreground "Gray"       :weight bold))
           ("noexport" . (:foreground "LimeGreen"  :weight bold))))
 
-  ;; ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
+  ;; stolen from https://github.com/yohan-pereira/.emacs#babel-config
   ;; (defun +org-confirm-babel-evaluate (lang body)
   ;;   (not (string= lang "scheme"))) ;; Don't ask for scheme
 
@@ -227,8 +206,6 @@
           ("*"  . "+")
           ("1." . "a.")))
 
-  (setq org-export-headline-levels 5)
-
   ;; Needs to make a src_latex{\textsc{text}}?, with this hack you can write [[latex:textsc][Some text]].
   (+shutup!
    (org-add-link-type
@@ -242,47 +219,43 @@
 
   (add-hook
    'org-mode-hook
-   (lambda ()
-     (setq-local time-stamp-active t
-                 time-stamp-start  "#\\+lastmod:[ \t]*"
-                 time-stamp-end    "$"
-                 time-stamp-format "%04Y-%02m-%02d")))
+   (defun +org--time-stamp-setup-h ()
+     (setq-local
+      time-stamp-active t
+      time-stamp-format "%04Y-%02m-%02d"
+      time-stamp-start "#\\+lastmod:[ \t]*"
+      time-stamp-end "$")))
 
-  (add-hook 'before-save-hook 'time-stamp))
+  (add-hook 'before-save-hook #'time-stamp))
 
 (with-eval-after-load 'ox-latex
   (add-to-list 'org-latex-packages-alist '("" "minted"))
   (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
-  (setq org-latex-src-block-backend 'minted
-        org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
+  (setq
+   org-latex-src-block-backend 'minted
+   org-latex-pdf-process
+   '("latexmk -c -bibtex-cond1 %f" ; ensure cleaning ".bbl" files
+     "latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
 
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
 
-(with-eval-after-load 'org-roam
-  (setq org-roam-directory "~/Dropbox/Org/slip-box/"
-        org-roam-db-location (concat org-roam-directory "org-roam.db"))
+(setq org-roam-directory "~/Dropbox/Org/slip-box/"
+      org-roam-db-location (concat org-roam-directory "org-roam.db"))
 
+(with-eval-after-load 'org-roam
   (add-to-list 'recentf-exclude org-roam-directory)
 
   (advice-add
    #'doom-modeline-buffer-file-name
    :around
    (defun +doom-modeline--org-roam-buffer-file-name-a (orig-fun)
-     (if (string-search org-roam-directory (or buffer-file-name ""))
+     (if (string-search (expand-file-name org-roam-directory) (or buffer-file-name ""))
          (replace-regexp-in-string
           "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-          "🦄 (\\1-\\2-\\3) "
+          (concat (nerd-icons-codicon "nf-cod-note") " (\\1-\\2-\\3) ")
           (subst-char-in-string ?_ ?  buffer-file-name))
-       (funcall orig-fun))))
-
-  ;; Register capture template (via Org-Protocol)
-  ;; Add this as bookmarklet in your browser
-  ;; javascript:location.href='org-protocol://roam-ref?template=r&ref=%27+encodeURIComponent(location.href)+%27&title=%27+encodeURIComponent(document.title)+%27&body=%27+encodeURIComponent(window.getSelection())
-  (setq org-roam-capture-ref-templates
-        '(("r" "ref" plain "%?"
-           :if-new (file+head "web/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+created: %U\n\n${body}\n")
-           :unnarrowed t))))
+       (funcall orig-fun)))))
 
 (with-eval-after-load 'oc
   (setq org-cite-csl-styles-dir +biblio-styles-path
@@ -296,13 +269,6 @@
 (with-eval-after-load 'me-writing-mode
   (setq +writing-mixed-pitch-enable nil
         +writing-text-scale 2.0))
-
-;; Remove `consult' advices
-;; (with-eval-after-load 'consult
-;;   (dolist (cmd '(consult-line consult-man))
-;;     (advice-remove cmd #'+consult--dwim-first-arg-a))
-;;   (dolist (cmd '(consult-ripgrep consult-line-multi consult-grep consult-find))
-;;     (advice-remove cmd #'+consult--dwim-second-arg-a)))
 
 (with-eval-after-load 'empv
   (setq
@@ -361,6 +327,11 @@
     :major-modes '(python-mode python-ts-mode)
     :remote? t
     :server-id 'pyls-remote)))
+
+;; (with-eval-after-load 'calfw-ical
+;;   (+load minemacs-config-dir "private/calfw-sources.el"))
+
+;; ====== Helpers ======
 
 (defun +helper--in-buffer-replace (old new)
   "Replace OLD with NEW in the current buffer."
