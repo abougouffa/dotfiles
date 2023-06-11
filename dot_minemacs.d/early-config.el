@@ -4,6 +4,9 @@
 (unless minemacs-verbose
   (setq minemacs-msg-level 2)) ; print info messages
 
+;; Disable `dashboard'
+(setq +dashboard-disable t)
+
 ;; Force loading lazy packages immediately, not in idle time
 ;; (setq minemacs-not-lazy t)
 
