@@ -52,4 +52,5 @@
    me-binary)      ; hexl, decompile (using objdump)...
  ;; MinEmacs disabled packages
  minemacs-disabled-packages
- '(dashboard))
+ (append
+  '(dashboard)))

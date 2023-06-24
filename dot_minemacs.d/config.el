@@ -1,48 +1,45 @@
-;;; config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
+;;; config-generated.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
-;; Copyright (C) 2022  Abdelhak Bougouffa
-
-;; Author: Abdelhak Bougouffa <abougouffa@fedoraproject.org>
-
+;; [[file:literate-config.org::*User information][User information:1]]
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
-      user-mail-address "abougouffa@fedoraproject.org")
+      user-mail-address (concat "abougouffa" "@" "fedora" "project" "." "org"))
+;; User information:1 ends here
 
-;; Disable `unicode-fonts'
-;; (remove-hook 'minemacs-after-startup-hook '+unicode-fonts-setup)
-
+;; [[file:literate-config.org::*Crypto stuff][Crypto stuff:1]]
 (setq-default
  ;; Encrypt files to my self by default
- epa-file-encrypt-to '("F808A020A3E1AC37")
+ epa-file-encrypt-to '("F808A020A3E1AC37"))
+;; Crypto stuff:1 ends here
+
+;; [[file:literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
+(setq-default
  ;; Better support for files with long lines
  bidi-paragraph-direction 'left-to-right
  ;; Speeds redisplay, may break paranthesis rendering for bidirectional files
  bidi-inhibit-bpa t)
+;; Bidirectional settings:1 ends here
 
-(setq
- minemacs-theme 'doom-one-light ; 'apropospriate-light
- minemacs-fonts
- '(:font-family "Iosevka Fixed Curly Slab"
-   :font-size 13
-   :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
-   :variable-pitch-font-size 13
-   :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
-
+;; [[file:literate-config.org::*Directories][Directories:1]]
 (defvar +biblio-notes-path (expand-file-name "~/PhD/bibliography/notes/"))
 (defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
 
 (setq org-directory "~/Dropbox/Org/"
-      source-directory "~/Softwares/aur/emacs-git/src/emacs-git/"
+      source-directory "~/Softwares/aur/emacs-git/src/emacs-git/")
+;; Directories:1 ends here
+
+;; [[file:literate-config.org::*Misc][Misc:1]]
+(setq +binary-hexl-enable t
+      +binary-objdump-enable t
       browse-url-chromium-program (or (executable-find "brave")
                                       (executable-find "chromium")
                                       (executable-find "chromium-browser"))
       browse-url-chrome-program browse-url-chromium-program)
+;; Misc:1 ends here
 
-(setq +binary-hexl-enable t
-      +binary-objdump-enable t)
-
+;; [[file:literate-config.org::*Awqat][Awqat:1]]
 (+lazy-when! (featurep 'me-lifestyle)
   ;; Calendar settings (from `solar')
   (setq calendar-latitude 48.86
@@ -52,7 +49,9 @@
 
   (awqat-display-prayer-time-mode 1)
   (awqat-set-preset-french-muslims))
+;; Awqat:1 ends here
 
+;; [[file:literate-config.org::*Projects][Projects:1]]
 (+lazy!
  (setq +project-scan-dir-paths
        '("~/PhD/papers/"
@@ -64,10 +63,47 @@
 
  (+shutup!
   (+project-scan-for-projects)))
+;; Projects:1 ends here
 
+;; [[file:literate-config.org::*Theme & font][Theme & font:1]]
+(setq
+ minemacs-theme 'doom-one-light ; 'apropospriate-light
+ minemacs-fonts
+ '(:font-family "Iosevka Fixed Curly Slab"
+   :font-size 13
+   :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
+   :variable-pitch-font-size 13
+   :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
+;; Theme & font:1 ends here
+
+;; [[file:literate-config.org::*Writing mode][Writing mode:1]]
+(with-eval-after-load 'me-writing-mode
+  (setq +writing-mixed-pitch-enable nil
+        +writing-text-scale 2.0))
+;; Writing mode:1 ends here
+
+;; [[file:literate-config.org::*Erefactor][Erefactor:1]]
+(use-package erefactor
+  :straight (:host github :repo "mhayashi1120/Emacs-erefactor"))
+;; Erefactor:1 ends here
+
+;; [[file:literate-config.org::*LSP][LSP:1]]
+(with-eval-after-load 'lsp-mode
+  ;; Register LSP over Tramp for Python
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection "pyls")
+    :major-modes '(python-mode python-ts-mode)
+    :remote? t
+    :server-id 'pyls-remote)))
+;; LSP:1 ends here
+
+;; [[file:literate-config.org::*Spell-fu][Spell-fu:1]]
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries! "en" "fr"))
+;; Spell-fu:1 ends here
 
+;; [[file:literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
         '(("https://arxiv.org/rss/cs.RO" robotics academic)
@@ -84,7 +120,9 @@
           ("https://this-week-in-rust.org/rss.xml" rust prog)
           ("https://planet.emacslife.com/atom.xml" emacs prog foss)
           ("https://developers.redhat.com/blog/feed" linux foss))))
+;; News feed (=elfeed=):1 ends here
 
+;; [[file:literate-config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):1]]
 (with-eval-after-load 'mu4e
   ;; Custom files
   (setq mail-personal-alias-file (concat minemacs-config-dir "private/mail-aliases.mailrc")
@@ -111,7 +149,64 @@
   ;; Load my accounts
   (+load minemacs-config-dir "private/mu4e-accounts.el")
   (+load minemacs-config-dir "private/mu4e-extra-commands.el"))
+;; Mail client and indexer (=mu= and =mu4e=):1 ends here
 
+;; [[file:literate-config.org::*EMPV][EMPV:1]]
+(with-eval-after-load 'empv
+  (setq
+   ;; Set the radio channels, you can get streams from https://www.radio-browser.info
+   empv-radio-channels
+   '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
+     ("El-Chaabia" . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
+     ("Quran Radio" . "http://stream.radiojar.com/0tpy1h0kxtzuv")
+     ("Algeria International" . "https://webradio.tda.dz/Internationale_64K.mp3")
+     ("JOW Radio" . "https://str0.creacast.com/jowradio")
+     ("Europe1" . "http://ais-live.cloud-services.paris:8000/europe1.mp3")
+     ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
+     ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
+     ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
+     ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
+     ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
+     ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
+     ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))
+   ;; See https://docs.invidious.io/instances/
+   empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
+;; EMPV:1 ends here
+
+;; [[file:literate-config.org::*Tramp][Tramp:1]]
+(with-eval-after-load 'tramp
+  (setq
+   ;; Do not use a separate history file for tramp sessions (buggy!)
+   tramp-histfile-override nil
+   ;; Use Bash as a default remote shell
+   tramp-default-remote-shell "/bin/bash"
+   ;; Use bash for encoding and decoding commands on the local host
+   tramp-encoding-shell "/bin/bash"))
+;; Tramp:1 ends here
+
+;; [[file:literate-config.org::*Robot Operating System (ROS)][Robot Operating System (ROS):1]]
+(with-eval-after-load 'ros
+  (setq ros-workspaces
+        (list
+         (ros-dump-workspace
+          :tramp-prefix "/docker:ros@ros-machine:"
+          :workspace "~/ros_ws"
+          :extends '("/opt/ros/noetic/"))
+         (ros-dump-workspace
+          :tramp-prefix "/docker:ros@ros-machine:"
+          :workspace "~/ros2_ws"
+          :extends '("/opt/ros/foxy/"))
+         (ros-dump-workspace
+          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
+          :workspace "~/ros_ws"
+          :extends '("/opt/ros/noetic/"))
+         (ros-dump-workspace
+          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
+          :workspace "~/ros2_ws"
+          :extends '("/opt/ros/foxy/")))))
+;; Robot Operating System (ROS):1 ends here
+
+;; [[file:literate-config.org::*Org mode tweaks][Org mode tweaks:1]]
 (with-eval-after-load 'org
   (setq
    ;; Let's put our Org files here
@@ -124,10 +219,6 @@
    org-default-notes-file (concat org-directory "inbox.org")
    +org-inbox-file (concat org-directory "inbox.org")
    +org-projects-file (concat org-directory "projects.org")
-   ;; Custom todo keywords
-   org-todo-keywords
-   '((sequence "IDEA(i)" "TODO(t)" "NEXT(n)" "PROJ(p)" "STRT(s)" "WAIT(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)")
-     (sequence "|" "OKAY(o)" "YES(y)" "NO(n)"))
    ;; Custom todo keyword faces
    org-todo-keyword-faces
    '(("IDEA" . (:foreground "goldenrod" :weight bold))
@@ -227,19 +318,19 @@
       time-stamp-end "$")))
 
   (add-hook 'before-save-hook #'time-stamp))
+;; Org mode tweaks:1 ends here
 
-(with-eval-after-load 'ox-latex
-  (add-to-list 'org-latex-packages-alist '("" "minted"))
-  (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor"))
-  (setq
-   org-latex-src-block-backend 'minted
-   org-latex-pdf-process
-   '("latexmk -c -bibtex-cond1 %f" ; ensure cleaning ".bbl" files
-     "latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
-
+;; [[file:literate-config.org::*Org + Hugo][Org + Hugo:1]]
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
+;; Org + Hugo:1 ends here
 
+;; [[file:literate-config.org::*Org + LaTeX][Org + LaTeX:1]]
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor")))
+;; Org + LaTeX:1 ends here
+
+;; [[file:literate-config.org::*Org-roam][Org-roam:1]]
 (setq org-roam-directory "~/Dropbox/Org/slip-box/"
       org-roam-db-location (concat org-roam-directory "org-roam.db"))
 
@@ -256,83 +347,22 @@
           (concat (nerd-icons-codicon "nf-cod-note") " (\\1-\\2-\\3) ")
           (subst-char-in-string ?_ ?  buffer-file-name))
        (funcall orig-fun)))))
+;; Org-roam:1 ends here
 
+;; [[file:literate-config.org::*Org-cite][Org-cite:1]]
 (with-eval-after-load 'oc
   (setq org-cite-csl-styles-dir +biblio-styles-path
         org-cite-global-bibliography (ensure-list +biblio-libraries-path)))
+;; Org-cite:1 ends here
 
+;; [[file:literate-config.org::*Citar][Citar:1]]
 (with-eval-after-load 'citar
   (setq citar-library-paths (ensure-list +biblio-storage-path)
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
+;; Citar:1 ends here
 
-(with-eval-after-load 'me-writing-mode
-  (setq +writing-mixed-pitch-enable nil
-        +writing-text-scale 2.0))
-
-(with-eval-after-load 'empv
-  (setq
-   ;; Set the radio channels, you can get streams from https://www.radio-browser.info
-   empv-radio-channels
-   '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
-     ("El-Chaabia" . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
-     ("Quran Radio" . "http://stream.radiojar.com/0tpy1h0kxtzuv")
-     ("Algeria International" . "https://webradio.tda.dz/Internationale_64K.mp3")
-     ("JOW Radio" . "https://str0.creacast.com/jowradio")
-     ("Europe1" . "http://ais-live.cloud-services.paris:8000/europe1.mp3")
-     ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
-     ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
-     ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
-     ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
-     ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
-     ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-     ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))
-   ;; See https://docs.invidious.io/instances/
-   empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
-
-(with-eval-after-load 'tramp
-  (setq
-   ;; Do not use a separate history file for tramp sessions (buggy!)
-   tramp-histfile-override nil
-   ;; Use Bash as a default remote shell
-   tramp-default-remote-shell "/bin/bash"
-   ;; Use bash for encoding and decoding commands on the local host
-   tramp-encoding-shell "/bin/bash"))
-
-(with-eval-after-load 'ros
-  (setq ros-workspaces
-        (list
-         (ros-dump-workspace
-          :tramp-prefix "/docker:ros@ros-machine:"
-          :workspace "~/ros_ws"
-          :extends '("/opt/ros/noetic/"))
-         (ros-dump-workspace
-          :tramp-prefix "/docker:ros@ros-machine:"
-          :workspace "~/ros2_ws"
-          :extends '("/opt/ros/foxy/"))
-         (ros-dump-workspace
-          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
-          :workspace "~/ros_ws"
-          :extends '("/opt/ros/noetic/"))
-         (ros-dump-workspace
-          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
-          :workspace "~/ros2_ws"
-          :extends '("/opt/ros/foxy/")))))
-
-(with-eval-after-load 'lsp-mode
-  ;; Register LSP over Tramp for Python
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode python-ts-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
-
-;; (with-eval-after-load 'calfw-ical
-;;   (+load minemacs-config-dir "private/calfw-sources.el"))
-
-;; ====== Helpers ======
-
+;; [[file:literate-config.org::*Helper commands][Helper commands:1]]
 (defun +helper--in-buffer-replace (old new)
   "Replace OLD with NEW in the current buffer."
   (save-excursion
@@ -372,3 +402,4 @@
              (- (point) 2) (- (point) 1)
              (lambda (&optional a b) " ")))
           (kill-new (buffer-string)))))))
+;; Helper commands:1 ends here
