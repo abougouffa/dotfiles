@@ -1,1 +1,1 @@
-dot_doom.d/config.org
+dot_minemacs.d/literate-config.org
