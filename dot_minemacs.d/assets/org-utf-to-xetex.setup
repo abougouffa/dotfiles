@@ -1,0 +1,3 @@
+# -*- mode: org; -*-
+
+#+MACRO: utf2xtx (eval (if (and (org-export-derived-backend-p org-export-current-backend 'latex) (equal org-latex-compiler "xelatex")) (org-utf-to-xetex-string-to-xetex "$1") "$1"))
