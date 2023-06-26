@@ -1,5 +1,7 @@
 *.pdf
+!dot_minemacs.d/literate-config.pdf
 *.tex
+*.bbl
 .auctex-auto
 _minted*
 dot_minemacs.d/private/*
