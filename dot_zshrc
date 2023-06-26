@@ -1,0 +1,204 @@
+# -*- mode: sh; -*-
+
+# Aliases to run emacs+magit
+alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
+alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
+
+# Aliases to run emacs+mu4e
+alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
+alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
+
+export EDITOR="$HOME/.local/bin/et"
+export VISUAL="$HOME/.local/bin/ev"
+
+export ZSH="$HOME/.oh-my-zsh"
+
+# Typewritten customizations
+TYPEWRITTEN_RELATIVE_PATH="adaptive"
+TYPEWRITTEN_CURSOR="underscore"
+
+ZSH_THEME="typewritten/typewritten"
+
+# Set list of themes to pick from when loading at random
+# Setting this variable when ZSH_THEME=random will cause zsh to load
+# a theme from this variable instead of looking in $ZSH/themes/
+# If set to an empty array, this variable will have no effect.
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+# Uncomment the following line to use case-sensitive completion.
+# CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
+# HYPHEN_INSENSITIVE="true"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+# DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to automatically update without prompting.
+DISABLE_UPDATE_PROMPT="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+export UPDATE_ZSH_DAYS=3
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# You can set one of the optional three formats:
+# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# or set a custom format using the strftime function format specifications,
+# see 'man strftime' for details.
+# HIST_STAMPS="mm/dd/yyyy"
+
+# Would you like to use another custom folder than $ZSH/custom?
+ZSH_CUSTOM=$HOME/.config/my_ohmyzsh_customizations
+
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  zsh-autosuggestions
+  zsh-navigation-tools
+  zsh-interactive-cd
+  archlinux
+  ssh-agent
+  sudo
+  docker
+  systemd
+  tmux
+  python
+  pip
+  rust
+  repo
+  cp
+  rsync
+  ripgrep
+  fzf
+  fd
+  z
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# Aliases
+alias zshconfig="vim ~/.zshrc"
+alias ohmyzsh="ranger $ZSH"
+
+# Define aliases to 'pbcopy' and 'pbpaste'
+if command -v xclip &> /dev/null
+then
+  # Define aliases using xclip
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+elif command -v xsel &> /dev/null
+then
+  # Define aliases using xsel
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output'
+fi
+
+alias netpaste='curl -F file=@- 0x0.st' # OR 'curl -F f:1=<- ix.io '
+
+# To run GUI apps from terminal with root permissions
+if command -v xhost &> /dev/null
+then
+  alias gsuon='xhost si:localuser:root'
+  alias gsuoff='xhost -si:localuser:root'
+fi
+
+# NeoVim
+if command -v nvim &> /dev/null
+then
+  alias vim="nvim"
+  alias vi="nvim"
+fi
+
+if [ -d "$HOME/Softwares/src/esp-idf/" ]
+then
+  alias esp-prepare-env='source $HOME/Softwares/src/esp-idf/export.sh'
+  alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/src/esp-idf && git pull --all && echo "Updated successfully"'
+else
+  alias esp-prepare-env='echo "esp-idf repo not found. You can clone the esp-idf repo using git clone https://github.com/espressif/esp-idf.git"'
+  alias esp-update=esp-prepare-env
+fi
+
+alias wttrin='curl wttr.in/$WTTRIN_CITY'
+alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
+
+export MINICOM='-m -c on'
+
+export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
+export PATH=$PATH:$HOME/.cargo/bin
+
+[ -d /opt/clang-format-static ] && export PATH=$PATH:/opt/clang-format-static
+
+export CMAKE_PREFIX_PATH=$HOME/Softwares/src/install
+export PATH=$PATH:$HOME/Softwares/src/install/bin
+
+NPM_PACKAGES="${HOME}/.npm-packages"
+
+# Export NPM bin path
+export PATH="$PATH:$NPM_PACKAGES/bin"
+
+# Preserve MANPATH if you already defined it somewhere in your config.
+# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
+export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
+
+# Tell Node about these packages
+export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+
+# If not running inside Emacs (via vterm/eshell...)
+if [ -z $INSIDE_EMACS ]
+then
+  if command -v tmux &> /dev/null && [ -z "$TMUX" ]
+  then
+    tmux attach -t default || tmux new -s default
+  fi
+fi
+
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# OPAM configuration
+[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null
+
+# Add ~/.config/emacs/bin to path (for DOOM Emacs stuff)
+export PATH=$PATH:$HOME/.config/emacs/bin
+
+source ~/.zshrc_private
+
+[ -f ~/.bitwarden-session ] && source ~/.bitwarden-session
