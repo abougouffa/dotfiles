@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-06-22
+#+lastmod: 2023-06-26
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -28,8 +28,7 @@ configuration for [[https://github.com/abougouffa/minemacs][MinEmacs]], and I us
 configuration files (define aliases, environment variables, user tools, Git
 configuration...).
 
-For my old deprecated Doom Emacs configuration, see
-[[deprecated/dot_doom.d/config.org]].
+For my old deprecated Doom Emacs configuration, see [[https://github.com/abougouffa/dotfiles/tree/main/dot_doom.d][=dotfiles/dot_doom.d=]].
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
@@ -46,21 +45,118 @@ MinEmacs is +intended to be+ a minimal configuration framework. In the beginning
 I planned to use only necessary packages. However, it is starting to grow to
 respond to my daily needs.
 
-#+begin_src emacs-lisp :comments no
-;;; config-generated.el -*- coding: utf-8-unix; lexical-binding: t; -*-
-#+end_src
-
 #+begin_src shell
 #!/bin/env bash
 
+# NOTE: This file is generated from "config-literate.org".
 # This shell script has been generated from the litterate Org configuration.
 # It helps installing required tools (for Arch/Manjaro Linux) and tweak some
 # system settings
 #+end_src
 
+* MinEmacs config files
+** Early configuration (=early-config.el=)
+
+#+begin_src emacs-lisp :comments no :tangle early-config.el
+;;; early-config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
+
+;; NOTE: This file is generated from "config-literate.org".
+
+;; MinEmacs specific stuff
+(unless minemacs-verbose
+  (setq minemacs-msg-level 2)) ; print info messages
+
+;; Disable `dashboard'
+(setq +dashboard-disable t)
+
+;; Force loading lazy packages immediately, not in idle time
+;; (setq minemacs-not-lazy t)
+
+;; Enable full screen at startup
+;; (if-let ((fullscreen (assq 'fullscreen default-frame-alist)))
+;;     (setcdr fullscreen 'fullboth)
+;;   (push '(fullscreen . fullboth) default-frame-alist))
+
+;; Setup a `debug-on-message' to catch a wired message!
+;; (setq debug-on-message "\\(?:error in process filter: \\(?:\\(?:mu4e-warn: \\)?\\[mu4e] No message at point\\)\\)")
+;; (setq debug-on-message "Package cl is deprecated")
+
+;; (setenv "MINEMACS_IGNORE_VERSION_CHECK" "1")
+#+end_src
+
+** Modules (=modules.el=)
+
+#+begin_src emacs-lisp :comments no :tangle modules.el
+;;; modules.el -*- coding: utf-8-unix; lexical-binding: t; -*-
+
+;; NOTE: This file is generated from "config-literate.org".
+
+;; This file can be used to override `minemacs-modules'
+;; and `minemacs-core-modules'
+
+(setq
+ ;; MinEmacs core modules
+ minemacs-core-modules
+ '(me-splash        ; Simple splash screen (inspired by emacs-splash)
+   me-keybindings   ; general.el, which-key, hydra, ...
+   me-evil          ; evil, evil-collection, evil-mc, ...
+   me-core-ui       ; Theme and modeline
+   me-completion)   ; vertico, marginalia, corfu, cape, consult, ...
+ ;; MinEmacs modules
+ minemacs-modules
+ '(me-ui            ; focus, writeroom-mode, emojify, ...
+   me-editor        ; yasnippet, unicode-fonts, ligature, ...
+   me-extra         ; better-jumper, ...
+   me-undo          ; undo-fu-session, vundo, ...
+   me-multi-cursors ; iedit, evil-mc, ...
+   me-vc            ; magit, forge, core-review, diff-hl, ...
+   me-project       ; project, consult-project-extra, ...
+   me-prog          ; tree-sitter, eglot, editorconfig, ...
+   me-checkers      ; flymake, flymake-easy, gdb-mi, ...
+   me-lsp           ; lsp-mode, dap-mode, consult-lsp, ...
+   me-debug         ; realgud, disaster, ...
+   me-lisp          ; parinfer-rust, macrostep, geiser, elisp, ...
+   me-data          ; csv, yaml, toml, json, ...
+   me-org           ; org, org-modern, ...
+   me-notes         ; org-roam, ...
+   me-email         ; mu4e, mu4e-alert, org-msg, ...
+   me-lifestyle     ; awqat, ...
+   me-docs          ; pdf-tools, nov, ...
+   me-calendar      ; calfw, calfw-org, calfw-ical, ...
+   me-latex         ; tex, auctex, reftex, ...
+   me-natural-langs ; spell-fu, eglot-ltex, ...
+   me-files         ; dirvish, dired, vlf, ...
+   me-tools         ; vterm, tldr, docker, systemd, ...
+   me-biblio        ; org-cite, citar, ...
+   me-daemon        ; Emacs daemon tweaks
+   me-tty           ; Emacs from terminal
+   me-rss           ; elfeed, ...
+   me-robot         ; Robotics stuff (ros, robot-mode, ...)
+   me-embedded      ; Embedded systems (arduino, openocd, bitbake, ...)
+   me-eaf           ; EAF apps (browser, jupyter, file-sender, ...)
+   me-math          ; maxima, ess, ...
+   me-modeling      ; OpenSCAD, ...
+   me-workspaces    ; tabspaces, tab-bar, ...
+   me-window        ; frame & window tweaks, ...
+   me-media         ; empv, ...
+   me-fun           ; xkcd, speed-type, ...
+   me-binary)      ; hexl, decompile (using objdump)...
+ ;; MinEmacs disabled packages
+ minemacs-disabled-packages
+ (append
+  '(dashboard)))
+#+end_src
+
+** User configuration (=config.el=)
+
+#+begin_src emacs-lisp :comments no
+;;; config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
+
+;; NOTE: This file is generated from "config-literate.org".
+#+end_src
+
 * General Emacs settings :global:
-** Personal settings :user:info:
-*** User information
+** User information
 
 #+begin_src emacs-lisp
 ;; Personal info
@@ -68,7 +164,7 @@ respond to my daily needs.
       user-mail-address (concat "abougouffa" "@" "fedora" "project" "." "org"))
 #+end_src
 
-*** Crypto stuff
+** Crypto stuff
 
 #+begin_src emacs-lisp
 (setq-default
@@ -76,7 +172,7 @@ respond to my daily needs.
  epa-file-encrypt-to '("F808A020A3E1AC37"))
 #+end_src
 
-*** Bidirectional settings
+** Bidirectional settings
 This combo should speedup opening files:
 
 #+begin_src emacs-lisp
@@ -87,7 +183,7 @@ This combo should speedup opening files:
  bidi-inhibit-bpa t)
 #+end_src
 
-*** Directories
+** Directories
 
 #+begin_src emacs-lisp
 (defvar +biblio-notes-path (expand-file-name "~/PhD/bibliography/notes/"))
@@ -99,7 +195,7 @@ This combo should speedup opening files:
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/")
 #+end_src
 
-*** Misc
+** Misc
 
 #+begin_src emacs-lisp
 (setq +binary-hexl-enable t
@@ -110,7 +206,7 @@ This combo should speedup opening files:
       browse-url-chrome-program browse-url-chromium-program)
 #+end_src
 
-*** Awqat
+** Awqat
 
 #+begin_src emacs-lisp
 (+lazy-when! (featurep 'me-lifestyle)
@@ -124,7 +220,7 @@ This combo should speedup opening files:
   (awqat-set-preset-french-muslims))
 #+end_src
 
-*** Projects
+** Projects
 
 #+begin_src emacs-lisp
 (+lazy!
@@ -1059,8 +1155,9 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 #+end_src
 
 *** Configuring Chrome/Brave
-As specified in the [[https://www.orgroam.com/manual.html#Org_002droam-Protocol][official documentation]], we would like to invoke the
-=org-protocol://= without confirmation. To do this, we need to add this system-wide configuration.
+As specified in the [[https://www.orgroam.com/manual.html#org_002droam_002dprotocol][official documentation]], we would like to invoke the
+=org-protocol://= without confirmation. To do this, we need to add this
+system-wide configuration.
 
 #+begin_comment
 It seems that this setting is not persistent, each time I reboot my machine,
@@ -1486,6 +1583,8 @@ Now, to set an alias to use =e= with =magit=, and then for maximum laziness we c
 set aliases for the terminal-forced variants.
 
 #+begin_src shell :tangle ~/.zshrc
+# -*- mode: sh; -*-
+
 # Aliases to run emacs+magit
 alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
 alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
@@ -1511,7 +1610,7 @@ e -w "$@"
 
 #+begin_src shell :tangle ~/.zshrc
 export EDITOR="$HOME/.local/bin/et"
-# export VISUAL=$HOME/.local/bin/ev
+export VISUAL="$HOME/.local/bin/ev"
 #+end_src
 
 ** AppImage :appimage:
@@ -1741,8 +1840,6 @@ fi
 Define an alias to get weather information for my city:
 
 #+begin_src shell :tangle ~/.zshrc
-export WTTRIN_CITY=Orsay
-
 alias wttrin='curl wttr.in/$WTTRIN_CITY'
 alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
 #+end_src
@@ -1769,11 +1866,11 @@ version of Clang-format.
 *** Clang-format
 
 #+begin_src shell :tangle ~/.zshrc
-export PATH=$PATH:/opt/clang-format-static
+[ -d /opt/clang-format-static ] && export PATH=$PATH:/opt/clang-format-static
 #+end_src
 
 *** CMake
-Add my manually installed libraries to CMake and =PATH=.
+Add my manually built libraries to CMake and =PATH=.
 
 #+begin_src shell :tangle ~/.zshrc
 export CMAKE_PREFIX_PATH=$HOME/Softwares/src/install
@@ -1846,22 +1943,18 @@ fi
 
 # Add ~/.config/emacs/bin to path (for DOOM Emacs stuff)
 export PATH=$PATH:$HOME/.config/emacs/bin
-
-export TEXMFHOME=$HOME/.texmf
 #+end_src
 
 Define some environment variables.
 
 #+begin_src shell :tangle ~/.zshrc
-export DS_DIR=~/PhD/datasets-no/experiment_images/
-export DSO_BIN_DIR=~/PhD/workspace-no/vo/orig/dso/build/release/bin
-export DSO_RES_DIR=~/PhD/workspace-no/vo/orig/dso_results
+source ~/.zshrc_private
 #+end_src
 
 Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 
 #+begin_src shell :tangle ~/.zshrc
-[ -f source ~/.bitwarden-session ] && source ~/.bitwarden-session
+[ -f ~/.bitwarden-session ] && source ~/.bitwarden-session
 #+end_src
 
 ** Rust format :rust:format:
@@ -2079,6 +2172,11 @@ define nn
   next
   refresh
 end
+#+end_src
+
+#+name: gdb-init-guile
+#+begin_src scheme
+
 #+end_src
 
 ** GnuPG
