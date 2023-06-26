@@ -1,4 +1,6 @@
-;; -*- lexical-binding: t; -*-
+;;; modules.el -*- coding: utf-8-unix; lexical-binding: t; -*-
+
+;; NOTE: This file is generated from "config-literate.org".
 
 ;; This file can be used to override `minemacs-modules'
 ;; and `minemacs-core-modules'
