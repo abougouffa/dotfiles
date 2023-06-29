@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-06-26
+#+lastmod: 2023-06-30
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -260,18 +260,12 @@ This combo should speedup opening files:
 #+end_src
 
 ** Completion & IDE :ide:
-*** Erefactor
-
-#+begin_src emacs-lisp
-(use-package erefactor
-  :straight (:host github :repo "mhayashi1120/Emacs-erefactor"))
-#+end_src
-
 *** LSP
+Register LSP over Tramp for Python using =pyls=. The =pyls= LSP server should be
+installed on the distant machine for this to work.
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'lsp-mode
-  ;; Register LSP over Tramp for Python
   (lsp-register-client
    (make-lsp-client
     :new-connection (lsp-tramp-connection "pyls")

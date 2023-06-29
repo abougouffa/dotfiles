@@ -84,11 +84,6 @@
         +writing-text-scale 2.0))
 ;; Writing mode:1 ends here
 
-;; [[file:literate-config.org::*Erefactor][Erefactor:1]]
-(use-package erefactor
-  :straight (:host github :repo "mhayashi1120/Emacs-erefactor"))
-;; Erefactor:1 ends here
-
 ;; [[file:literate-config.org::*LSP][LSP:1]]
 (with-eval-after-load 'lsp-mode
   ;; Register LSP over Tramp for Python
