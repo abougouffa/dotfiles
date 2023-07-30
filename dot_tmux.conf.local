@@ -337,15 +337,15 @@ tmux_conf_copy_to_os_clipboard=false
 # this is the place to override or undo settings
 
 # increase history size
-#set -g history-limit 10000
+set -g history-limit 100000
 
 # start with mouse mode enabled
-#set -g mouse on
+set -g mouse on
 
 # force Vi mode
 #   really you should export VISUAL or EDITOR environment variable, see manual
 #set -g status-keys vi
-#set -g mode-keys vi
+set -g mode-keys vi
 
 # replace C-b by C-a instead of using both prefixes
 # set -gu prefix2
@@ -392,8 +392,8 @@ tmux_conf_uninstall_plugins_on_reload=true
 # Easy config reload
 bind-key R source-file ~/.tmux.conf \; display-message "tmux.conf reloaded."
 
-# vi is good
-setw -g mode-keys vi
+# vi is good (already active above)
+# setw -g mode-keys vi
 
 # Better binding for :
 bind-key : command-prompt
