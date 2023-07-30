@@ -86,7 +86,6 @@
 
 ;; [[file:literate-config.org::*LSP][LSP:1]]
 (with-eval-after-load 'lsp-mode
-  ;; Register LSP over Tramp for Python
   (lsp-register-client
    (make-lsp-client
     :new-connection (lsp-tramp-connection "pyls")
@@ -120,6 +119,9 @@
 ;; News feed (=elfeed=):1 ends here
 
 ;; [[file:literate-config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):1]]
+;; To disable auto starting mu4e in background
+(setq +mu4e-auto-start nil)
+
 (with-eval-after-load 'mu4e
   ;; Custom files
   (setq mail-personal-alias-file (concat minemacs-config-dir "private/mail-aliases.mailrc")
