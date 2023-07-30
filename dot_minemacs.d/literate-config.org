@@ -3,11 +3,11 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-06-30
+#+lastmod: 2023-07-27
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
-#+property: header-args:shell :tangle "setup.sh"
+#+property: header-args:shell :tangle "setup.sh" :tangle-mode (identity #o755)
 #+property: header-args :tangle no :results silent :eval no-export
 #+setupfile: assets/template.setup
 #+startup: fold noindent
@@ -546,6 +546,9 @@ I configure my email accounts in a private file in =private/mu4e-accounts.el=,
 which will be loaded after this common part:
 
 #+begin_src emacs-lisp
+;; To disable auto starting mu4e in background
+(setq +mu4e-auto-start nil)
+
 (with-eval-after-load 'mu4e
   ;; Custom files
   (setq mail-personal-alias-file (concat minemacs-config-dir "private/mail-aliases.mailrc")
@@ -2235,23 +2238,31 @@ check_and_install_pkg() {
 }
 
 PKGS_LIST=(
-    git ripgrep fd gnupg fzf the_silver_searcher
+    # System tools
+    git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost chezmoi
+    neovim ecryptfs-utils libvterm bitwarden-cli-bin binutils
+    # Fonts
     ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
-    ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono
-    ttc-iosevka ttf-iosevka-nerd ttc-iosevka-slab ttc-iosevka-curly
-    ttc-iosevka-curly-slab ttc-iosevka-etoile ttc-iosevka-ss09
-    ccls cppcheck clang gcc gdb lldb valgrind rr openocd
+    ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono ttc-iosevka
+    ttc-iosevka-slab ttc-iosevka-curly ttc-iosevka-curly-slab
+    # Programming tools
+    ccls cppcheck clang gcc gdb lldb valgrind rr openocd vls vlang rustup
+    semgrep-bin
+    # Lisp/Scheme
     sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken
-    vls vlang rustup semgrep-bin
-    mu isync msmtp xsel xorg-xhost
-    mpc mpv mpd vlc yt-dlp
+    # Math
     maxima fricas octave scilab-bin graphviz jupyterlab jupyter-notebook r
-    djvulibre catdoc unrtf perl-image-exiftool wkhtmltopdf
-    chezmoi neovim repo ecryptfs-utils
-    pandoc hugo inkscape imagemagick
+    # Media
+    mpc mpv mpd vlc yt-dlp poppler ffmpegthumbnailer mediainfo imagemagick
+    # Email
+    mu isync msmtp
+    # Documents
+    djvulibre catdoc unrtf perl-image-exiftool wkhtmltopdf pandoc hugo inkscape
+    imagemagick
+    # Natural languages
     aspell aspell-en aspell-fr aspell-ar grammalecte language-tool ltex-ls-bin
-    libvterm brave zotero bitwarden-cli binutils
-    poppler ffmpegthumbnailer mediainfo imagemagick tar unzip
+    # Apps
+    brave zotero
 )
 
 for PKG in "${PKGS_LIST[@]}"; do
