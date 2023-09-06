@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-07-31
+#+lastmod: 2023-09-06
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -1859,6 +1859,15 @@ export PATH=$PATH:$HOME/.cargo/bin
 I'm using the AUR package =clang-format-static-bin=, which provide multiple
 versions of Clang-format, I use it with some work projects requiring a specific
 version of Clang-format.
+
+*** Go
+I don't like Go creating stuff in my home directory, lets move the Go workspace
+by setting the =GOPATH= environment variable.
+
+#+begin_src shell :tangle ~/.zshrc
+# The default is $HOME/go
+export GOPATH=$HOME/Projects/go
+#+end_src
 
 *** Clang-format
 
