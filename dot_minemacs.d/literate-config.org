@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-10-07
+#+lastmod: 2023-10-08
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -868,17 +868,6 @@ added some minor stuff.
           :workspace "~/ros2_ws"
           :extends '("/opt/ros/foxy/")))))
 #+end_src
-
-** Cocogitto :git:
-
-#+begin_src emacs-lisp
-(defun +cocogitto-bump (level)
-  (interactive (list (completing-read "Bump: " '(major minor patch))))
-  (shell-command "git stash -u")
-  (shell-command (format "cog bump --%s" level))
-  (shell-command "git stash pop"))
-#+end_src
-
 * Office :office:organize:edit:
 ** Org mode
 *** Org mode tweaks
@@ -1065,50 +1054,6 @@ Phrases".
 (use-package academic-phrases
   :straight t
   :commands academic-phrases academic-phrases-by-section)
-#+end_src
-
-*** Helper commands
-
-#+begin_src emacs-lisp
-(defun +helper--in-buffer-replace (old new)
-  "Replace OLD with NEW in the current buffer."
-  (save-excursion
-    (goto-char (point-min))
-    (let ((case-fold-search nil)
-          (matches 0))
-      (while (re-search-forward old nil t)
-        (replace-match new)
-        (cl-incf matches))
-      matches)))
-
-(defun +helper-clear-frenchy-ponctuations ()
-  "Replace french ponctuations (like unsectable space) by regular ones."
-  (interactive)
-  (let ((chars
-         '(("[\u00a0\u200b]" . "") ;; Non-breaking and zero-width spaces
-           ;; Special spaces and quads
-           ("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
-           ("[‘’‚’]" . "'")
-           ("[“”„”«»]" . "\"")))
-        (matches 0))
-    (dolist (pair chars)
-      (cl-incf matches (+helper--in-buffer-replace (car pair) (cdr pair))))
-    (message "Replaced %d match%s." matches (if (> matches 1) "es" ""))))
-
-(defun +yank-region-as-paragraph ()
-  "Yank region as one paragraph. This removes new line characters between lines."
-  (interactive)
-  (when (use-region-p)
-    (let ((text (buffer-substring-no-properties (region-beginning) (region-end))))
-      (with-temp-buffer
-        (insert text)
-        (goto-char (point-min))
-        (let ((case-fold-search nil))
-          (while (re-search-forward "\n[^\n]" nil t)
-            (replace-region-contents
-             (- (point) 2) (- (point) 1)
-             (lambda (&optional a b) " ")))
-          (kill-new (buffer-string)))))))
 #+end_src
 
 * System configuration :linux:system:
