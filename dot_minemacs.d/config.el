@@ -329,24 +329,12 @@
   (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor")))
 ;; Org + LaTeX:1 ends here
 
-;; [[file:literate-config.org::*Org-roam][Org-roam:1]]
-(setq org-roam-directory "~/Dropbox/Org/slip-box/"
-      org-roam-db-location (concat org-roam-directory "org-roam.db"))
+;; [[file:literate-config.org::*Denote][Denote:1]]
+(setq denote-directory "~/Dropbox/Org/notes/")
 
-(with-eval-after-load 'org-roam
-  (add-to-list 'recentf-exclude org-roam-directory)
-
-  (advice-add
-   #'doom-modeline-buffer-file-name
-   :around
-   (defun +doom-modeline--org-roam-buffer-file-name-a (orig-fun)
-     (if (string-search (expand-file-name org-roam-directory) (or buffer-file-name ""))
-         (replace-regexp-in-string
-          "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-          (concat (nerd-icons-codicon "nf-cod-note") " (\\1-\\2-\\3) ")
-          (subst-char-in-string ?_ ?  buffer-file-name))
-       (funcall orig-fun)))))
-;; Org-roam:1 ends here
+(with-eval-after-load 'recentf
+  (add-to-list 'recentf-exclude denote-directory))
+;; Denote:1 ends here
 
 ;; [[file:literate-config.org::*Org-cite][Org-cite:1]]
 (with-eval-after-load 'oc
@@ -360,45 +348,3 @@
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
 ;; Citar:1 ends here
-
-;; [[file:literate-config.org::*Helper commands][Helper commands:1]]
-(defun +helper--in-buffer-replace (old new)
-  "Replace OLD with NEW in the current buffer."
-  (save-excursion
-    (goto-char (point-min))
-    (let ((case-fold-search nil)
-          (matches 0))
-      (while (re-search-forward old nil t)
-        (replace-match new)
-        (cl-incf matches))
-      matches)))
-
-(defun +helper-clear-frenchy-ponctuations ()
-  "Replace french ponctuations (like unsectable space) by regular ones."
-  (interactive)
-  (let ((chars
-         '(("[\u00a0\u200b]" . "") ;; Non-breaking and zero-width spaces
-           ;; Special spaces and quads
-           ("[\u2000-\u200A\u202F\u205F\u3000]" . " ")
-           ("[‘’‚’]" . "'")
-           ("[“”„”«»]" . "\"")))
-        (matches 0))
-    (dolist (pair chars)
-      (cl-incf matches (+helper--in-buffer-replace (car pair) (cdr pair))))
-    (message "Replaced %d match%s." matches (if (> matches 1) "es" ""))))
-
-(defun +yank-region-as-paragraph ()
-  "Yank region as one paragraph. This removes new line characters between lines."
-  (interactive)
-  (when (use-region-p)
-    (let ((text (buffer-substring-no-properties (region-beginning) (region-end))))
-      (with-temp-buffer
-        (insert text)
-        (goto-char (point-min))
-        (let ((case-fold-search nil))
-          (while (re-search-forward "\n[^\n]" nil t)
-            (replace-region-contents
-             (- (point) 2) (- (point) 1)
-             (lambda (&optional a b) " ")))
-          (kill-new (buffer-string)))))))
-;; Helper commands:1 ends here
