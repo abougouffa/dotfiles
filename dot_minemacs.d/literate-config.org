@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-10-08
+#+lastmod: 2023-10-14
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -1000,25 +1000,13 @@ added some minor stuff.
   (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor")))
 #+end_src
 
-*** Org-roam
+*** Denote
 
 #+begin_src emacs-lisp
-(setq org-roam-directory "~/Dropbox/Org/slip-box/"
-      org-roam-db-location (concat org-roam-directory "org-roam.db"))
+(setq denote-directory "~/Dropbox/Org/notes/")
 
-(with-eval-after-load 'org-roam
-  (add-to-list 'recentf-exclude org-roam-directory)
-
-  (advice-add
-   #'doom-modeline-buffer-file-name
-   :around
-   (defun +doom-modeline--org-roam-buffer-file-name-a (orig-fun)
-     (if (string-search (expand-file-name org-roam-directory) (or buffer-file-name ""))
-         (replace-regexp-in-string
-          "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-          (concat (nerd-icons-codicon "nf-cod-note") " (\\1-\\2-\\3) ")
-          (subst-char-in-string ?_ ?  buffer-file-name))
-       (funcall orig-fun)))))
+(with-eval-after-load 'recentf
+  (add-to-list 'recentf-exclude denote-directory))
 #+end_src
 
 *** Bibliography
