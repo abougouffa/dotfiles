@@ -160,7 +160,6 @@
      ("Quran Radio" . "http://stream.radiojar.com/0tpy1h0kxtzuv")
      ("Algeria International" . "https://webradio.tda.dz/Internationale_64K.mp3")
      ("JOW Radio" . "https://str0.creacast.com/jowradio")
-     ("Europe1" . "http://ais-live.cloud-services.paris:8000/europe1.mp3")
      ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
      ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
      ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
