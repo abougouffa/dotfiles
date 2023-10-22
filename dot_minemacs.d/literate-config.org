@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-10-14
+#+lastmod: 2023-10-22
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -2183,7 +2183,7 @@ check_and_install_pkg() {
     PKG_NAME="$1"
     if ! pacman -Qiq "${PKG_NAME}" &>/dev/null; then
         echo "Package ${PKG_NAME} is missing, installing it using yay"
-        yay -S "${PKG_NAME}"
+        yay -S --noconfirm "${PKG_NAME}"
     fi
 }
 
