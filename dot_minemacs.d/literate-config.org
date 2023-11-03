@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-10-22
+#+lastmod: 2023-11-03
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -240,14 +240,7 @@ This combo should speedup opening files:
 *** Theme & font :theme:font:
 
 #+begin_src emacs-lisp
-(setq
- minemacs-theme 'doom-one-light ; 'apropospriate-light
- minemacs-fonts
- '(:font-family "Iosevka Fixed Curly Slab"
-   :font-size 13
-   :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
-   :variable-pitch-font-size 13
-   :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
+(setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
 #+end_src
 
 *** Writing mode
