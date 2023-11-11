@@ -7,7 +7,7 @@
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
-#+property: header-args:shell :tangle "setup.sh" :tangle-mode (identity #o755)
+#+property: header-args:shell :tangle-mode (identity #o644)
 #+property: header-args :tangle no :results silent :eval no-export
 #+setupfile: assets/template.setup
 #+startup: fold noindent
@@ -46,7 +46,7 @@ MinEmacs is +intended to be+ a minimal configuration framework. In the beginning
 I planned to use only necessary packages. However, it is starting to grow to
 respond to my daily needs.
 
-#+begin_src shell
+#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
 #!/bin/env bash
 
 # NOTE: This file is generated from "config-literate.org".
@@ -1392,7 +1392,7 @@ fi
 
 Add =tika='s installation instructions to the =setup.sh= file.
 
-#+begin_src shell
+#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
 
@@ -1614,7 +1614,7 @@ export VISUAL="$HOME/.local/bin/ev"
 ** AppImage :appimage:
 Install/update the =appimageupdatetool.AppImage= tool:
 
-#+begin_src shell
+#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
 update_appimageupdatetool () {
   TOOL_NAME=appimageupdatetool
   MACHINE_ARCH=$(uname -m)
@@ -1777,7 +1777,7 @@ source "$HOME/.shell_extras"
 ** Path
 Path to your oh-my-bash installation.
 
-#+begin_src shell :tangle ~/.bashhrc
+#+begin_src shell :tangle ~/.bashrc
 # Enable the subsequent settings only in interactive sessions
 case $- in
   *i*) ;;
@@ -1931,7 +1931,7 @@ OMB_USE_SUDO=true
 
 ** Plugins
 
-#+begin_src shell :tangle ~/.bashhrc
+#+begin_src shell :tangle ~/.bashrc
 # Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
 # Custom completions may be added to ~/.oh-my-bash/custom/completions/
 # Example format: completions=(ssh git bundler gem pip pip3)
@@ -2472,7 +2472,7 @@ fi
 * Arch Linux packages :linux:arch:manjaro:package:
 Here, we install Arch packages
 
-#+begin_src shell
+#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
 check_and_install_pkg() {
     PKG_NAME="$1"
     if ! pacman -Qiq "${PKG_NAME}" &>/dev/null; then

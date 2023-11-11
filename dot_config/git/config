@@ -1,0 +1,117 @@
+[pull]
+  rebase = true
+
+[init]
+  defaultBranch = main # there is no master!
+
+[commit]
+  gpgsign = true
+
+[format]
+  signoff = true
+
+[color]
+  ui = auto
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+# Store passwords in-memory, ask every 24h (default 900s)
+[credential]
+  helper = cache --timeout 86400
+
+# ====== TEXT FORMATS ======
+[diff "org"]
+  xfuncname = "^(\\*+ +.*)$"
+
+[diff "lisp"]
+  xfuncname = "^(\\(.*)$"
+
+[diff "rstats"]
+  xfuncname = "^([a-zA-z.]+ <- function.*)$"
+
+[diff "texinfo"]
+# Taken from: git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
+  xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
+
+[diff "rust"]
+  xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
+
+# ====== BINARY FORMATS ======
+
+[diff "pdf"]
+  binary = true
+  textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
+  cachetextconv = true
+
+[diff "djvu"]
+  binary = true
+  textconv = djvutxt # yay -S djvulibre
+  cachetextconv = true
+
+[diff "odt"]
+  binary = true
+  textconv = odt2txt
+# textconv = pandoc --standalone --from=odt --to=plain
+  cachetextconv = true
+
+[diff "doc"]
+  binary = true
+# textconv = wvText
+  textconv = catdoc # yay -S catdoc
+  cachetextconv = true
+
+[diff "xls"]
+  binary = true
+# textconv = in2csv
+# textconv = xlscat -a UTF-8
+# textconv = soffice --headless --convert-to csv
+  textconv = xls2csv # yay -S catdoc
+  cachetextconv = true
+
+[diff "ppt"]
+  binary = true
+  textconv = catppt # yay -S catdoc
+  cachetextconv = true
+
+[diff "docx"]
+  binary = true
+# textconv = sh -c 'docx2txt.pl "$0" -'
+  textconv = pandoc --standalone --from=docx --to=plain
+  cachetextconv = true
+
+[diff "epub"]
+  textconv = pandoc --standalone --from=epub --to=plain
+  binary = true
+  cachetextconv = true
+
+[diff "pptx"]
+  binary = true
+# pip install --user pptx2md (currently not wotking with Python 3.10)
+# textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
+# Alternative hack, convert PPTX to PPT, then use the catppt tool
+  textconv = sh -c 'soffice --headless --convert-to ppt --outdir /tmp "$0" && TMP_FILENAME=$(basename -- "$0") && catppt "/tmp/${TMP_FILENAME%.*}.ppt"'
+  cachetextconv = true
+
+[diff "libreoffice"]
+  binary = true
+  textconv = soffice --cat
+  cachetextconv = true
+
+[diff "tika"]
+  binary = true
+  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
+  cachetextconv = true
+
+[diff "exif"]
+  binary = true
+  textconv = exiftool # sudo apt install perl-image-exiftool
+
+[alias]
+  prune-files = "git-prune-files"
+
+[alias]
+  ignore = "!gi() { curl -sL https://www.gitignore.io/api/$@ ;}; gi"

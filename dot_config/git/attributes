@@ -1,0 +1,37 @@
+*.tex                         diff=tex
+*.bib                         diff=bibtex
+*.{c,h,c++,h++,cc,hh,cpp,hpp} diff=cpp
+*.m                           diff=matlab
+*.py                          diff=python
+*.rb                          diff=ruby
+*.php                         diff=php
+*.pl                          diff=perl
+*.{html,xhtml}                diff=html
+*.f                           diff=fortran
+*.{el,lisp,scm}               diff=lisp
+*.r                           diff=rstats
+*.texi*                       diff=texinfo
+*.org                         diff=org
+*.rs                          diff=rust
+
+*.odt                         diff=odt
+*.odp                         diff=libreoffice
+*.ods                         diff=libreoffice
+*.doc                         diff=doc
+*.xls                         diff=xls
+*.ppt                         diff=ppt
+*.docx                        diff=docx
+*.xlsx                        diff=xlsx
+*.pptx                        diff=pptx
+*.rtf                         diff=rtf
+
+*.{png,jpg,jpeg,gif}          diff=exif
+
+*.pdf                         diff=pdf
+*.djvu                        diff=djvu
+*.epub                        diff=pandoc
+*.chm                         diff=tika
+*.mhtml?                      diff=tika
+
+*.{class,jar}                 diff=tika
+*.{rar,7z,zip,apk}            diff=tika
