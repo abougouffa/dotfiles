@@ -187,7 +187,7 @@ This combo should speedup opening files:
 *** Directories
 
 #+begin_src emacs-lisp
-(defvar +biblio-notes-path (expand-file-name "~/PhD/bibliography/notes/"))
+(defvar +biblio-notes-path (expand-file-name "~/Reasearch/bibliography/notes/"))
 (defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
@@ -226,10 +226,10 @@ This combo should speedup opening files:
 #+begin_src emacs-lisp
 (+lazy!
  (setq +project-scan-dir-paths
-       '("~/PhD/papers/"
-         "~/PhD/workspace/"
-         "~/PhD/workspace-no/"
-         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo/"
+       '("~/Reasearch/papers/"
+         "~/Reasearch/workspace/"
+         "~/Reasearch/workspace-no/"
+         "~/Reasearch/workspace-no/ez-wheel/swd-starter-kit-repo/"
          "~/Projects/foss/packages/"
          "~/Projects/foss/repos/"))
 
