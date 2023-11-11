@@ -1,6 +1,6 @@
 *.pdf
 !dot_minemacs.d/literate-config.pdf
-!dot_obsolete_configs/dot_doom.d/config.pdf
+!obsolete_configs/dot_doom.d/config.pdf
 *.tex
 *.bbl
 .auctex-auto
