@@ -1,6 +1,6 @@
 # -*- coding: utf-8-unix; -*-
 #+title: Workflow Configuration
-#+subtitle: Personal configuration for MinEmacs and Manjaro Linux
+#+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
 #+lastmod: 2023-11-11
@@ -790,18 +790,18 @@ added some minor stuff.
   (setq
    ;; Set the radio channels, you can get streams from https://www.radio-browser.info
    empv-radio-channels
-   '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
-     ("El-Chaabia" . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
-     ("Quran Radio" . "http://stream.radiojar.com/0tpy1h0kxtzuv")
+   '(("El-Bahdja FM"          . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
+     ("El-Chaabia"            . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
+     ("Quran Radio"           . "http://stream.radiojar.com/0tpy1h0kxtzuv")
      ("Algeria International" . "https://webradio.tda.dz/Internationale_64K.mp3")
-     ("JOW Radio" . "https://str0.creacast.com/jowradio")
-     ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
-     ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
-     ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
-     ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
-     ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
-     ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-     ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))
+     ("JOW Radio"             . "https://str0.creacast.com/jowradio")
+     ("France Iter"           . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
+     ("France Info"           . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
+     ("France Culture"        . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
+     ("France Musique"        . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
+     ("FIP"                   . "http://icecast.radiofrance.fr/fip-hifi.aac")
+     ("Beur FM"               . "http://broadcast.infomaniak.ch/beurfm-high.aac")
+     ("Skyrock"               . "http://icecast.skyrock.net/s/natio_mp3_128k"))
    ;; See https://docs.invidious.io/instances/
    empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
 #+end_src
@@ -1650,6 +1650,14 @@ Path to your oh-my-zsh installation.
 #+begin_src shell :tangle ~/.zshrc
 # -*- mode: sh -*-
 
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM == "dumb" ]]; then
+    unsetopt zle
+    PS1='$ '
+    return
+fi
+
 export ZSH="$HOME/.oh-my-zsh"
 #+end_src
 
@@ -1757,14 +1765,7 @@ plugins=(
 ** Bootstrap Oh-my-Zsh
 
 #+begin_src shell :tangle ~/.zshrc
-# When logging via Tramp it will look for patterns to detect if a shell is
-# present. Fancy shell prompts aren't taken into account.
-if [[ $TERM != "dumb" ]]; then
-    source "$ZSH/oh-my-zsh.sh"
-else
-    unsetopt zle
-    PS1='$ '
-fi
+source "$ZSH/oh-my-zsh.sh"
 #+end_src
 
 ** Aliases
@@ -1788,6 +1789,14 @@ Path to your oh-my-bash installation.
 
 #+begin_src shell :tangle ~/.bashrc
 # -*- mode: sh -*-
+
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM == "dumb" ]]; then
+    unsetopt zle
+    PS1='$ '
+    return
+fi
 
 # Enable the subsequent settings only in interactive sessions
 case $- in
@@ -1981,14 +1990,7 @@ plugins=(
 ** Bootstrap Oh-my-Bash
 
 #+begin_src shell :tangle ~/.bashrc
-# When logging via Tramp it will look for patterns to detect if a shell is
-# present. Fancy shell prompts aren't taken into account.
-if [[ $TERM != "dumb" ]]; then
-    source "$OSH/oh-my-bash.sh"
-else
-    unsetopt zle
-    PS1='$ '
-fi
+source "$OSH/oh-my-bash.sh"
 #+end_src
 
 ** Include extra configuration file
