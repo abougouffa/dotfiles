@@ -1,3 +1,5 @@
+# -*- mode: sh -*-
+
 export ZSH="$HOME/.oh-my-zsh"
 
 # Typewritten customizations
@@ -86,7 +88,11 @@ plugins=(
   z
 )
 
-source $ZSH/oh-my-zsh.sh
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM != "dumb" ]]; then
+    source "$ZSH/oh-my-zsh.sh"
+fi
 
 # Aliases
 alias zshconfig="vim ~/.zshrc"

@@ -23,7 +23,7 @@
 ;; Bidirectional settings:1 ends here
 
 ;; [[file:literate-config.org::*Directories][Directories:1]]
-(defvar +biblio-notes-path (expand-file-name "~/PhD/bibliography/notes/"))
+(defvar +biblio-notes-path (expand-file-name "~/Reasearch/bibliography/notes/"))
 (defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
@@ -56,10 +56,10 @@
 ;; [[file:literate-config.org::*Projects][Projects:1]]
 (+lazy!
  (setq +project-scan-dir-paths
-       '("~/PhD/papers/"
-         "~/PhD/workspace/"
-         "~/PhD/workspace-no/"
-         "~/PhD/workspace-no/ez-wheel/swd-starter-kit-repo/"
+       '("~/Reasearch/papers/"
+         "~/Reasearch/workspace/"
+         "~/Reasearch/workspace-no/"
+         "~/Reasearch/workspace-no/ez-wheel/swd-starter-kit-repo/"
          "~/Projects/foss/packages/"
          "~/Projects/foss/repos/"))
 

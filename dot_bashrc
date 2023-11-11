@@ -1,3 +1,5 @@
+# -*- mode: sh -*-
+
 # Enable the subsequent settings only in interactive sessions
 case $- in
   *i*) ;;
@@ -172,7 +174,11 @@ plugins=(
 #      plugins+=(tmux-autoattach)
 #  fi
 
-source "$OSH/oh-my-bash.sh"
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM != "dumb" ]]; then
+    source "$OSH/oh-my-bash.sh"
+fi
 
 # Source extra commands
 source "$HOME/.shell_extras"
