@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs and Manjaro Linux
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-03
+#+lastmod: 2023-11-11
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -28,7 +28,8 @@ configuration for [[https://github.com/abougouffa/minemacs][MinEmacs]], and I us
 configuration files (define aliases, environment variables, user tools, Git
 configuration...).
 
-For my old deprecated Doom Emacs configuration, see [[https://github.com/abougouffa/dotfiles/tree/main/dot_doom.d][=dotfiles/dot_doom.d=]].
+For my old deprecated Doom Emacs configuration, see
+[[https://github.com/abougouffa/dotfiles/tree/main/dot_obsolete_configs/dot_doom.d][=dotfiles/dot_obsolete_configs/dot_doom.d=]].
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
