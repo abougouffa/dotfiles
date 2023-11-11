@@ -55,8 +55,9 @@ respond to my daily needs.
 # system settings
 #+end_src
 
-* MinEmacs config files
-** Early configuration (=early-config.el=)
+* MinEmacs
+** MinEmacs user configuration files
+*** Early configuration (=early-config.el=)
 
 #+begin_src emacs-lisp :comments no :tangle early-config.el
 ;;; early-config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
@@ -85,7 +86,7 @@ respond to my daily needs.
 ;; (setenv "MINEMACS_IGNORE_VERSION_CHECK" "1")
 #+end_src
 
-** Modules (=modules.el=)
+*** Modules (=modules.el=)
 
 #+begin_src emacs-lisp :comments no :tangle modules.el
 ;;; modules.el -*- coding: utf-8-unix; lexical-binding: t; -*-
@@ -119,7 +120,7 @@ respond to my daily needs.
    me-emacs-lisp    ; parinfer-rust, macrostep, elisp, ...
    me-data          ; csv, yaml, toml, json, ...
    me-org           ; org, org-modern, ...
-   me-notes         ; org-roam, ...
+   me-notes         ; denote, consult-notes, ...
    me-email         ; mu4e, mu4e-alert, org-msg, ...
    me-lifestyle     ; awqat, ...
    me-docs          ; pdf-tools, nov, ...
@@ -140,14 +141,14 @@ respond to my daily needs.
    me-window        ; frame & window tweaks, ...
    me-media         ; empv, ...
    me-fun           ; xkcd, speed-type, ...
-   me-binary)      ; hexl, decompile (using objdump)...
+   me-binary)       ; hexl, decompile (using objdump)...
  ;; MinEmacs disabled packages
  minemacs-disabled-packages
  (append
-  '(dashboard)))
+  '(dashboard ein)))
 #+end_src
 
-** User configuration (=config.el=)
+*** User configuration (=config.el=)
 
 #+begin_src emacs-lisp :comments no
 ;;; config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
@@ -155,8 +156,8 @@ respond to my daily needs.
 ;; NOTE: This file is generated from "config-literate.org".
 #+end_src
 
-* General Emacs settings :global:
-** User information
+** General Emacs settings :global:
+*** User information
 
 #+begin_src emacs-lisp
 ;; Personal info
@@ -164,7 +165,7 @@ respond to my daily needs.
       user-mail-address (concat "abougouffa" "@" "fedora" "project" "." "org"))
 #+end_src
 
-** Crypto stuff
+*** Crypto stuff
 
 #+begin_src emacs-lisp
 (setq-default
@@ -172,7 +173,7 @@ respond to my daily needs.
  epa-file-encrypt-to '("F808A020A3E1AC37"))
 #+end_src
 
-** Bidirectional settings
+*** Bidirectional settings
 This combo should speedup opening files:
 
 #+begin_src emacs-lisp
@@ -183,7 +184,7 @@ This combo should speedup opening files:
  bidi-inhibit-bpa t)
 #+end_src
 
-** Directories
+*** Directories
 
 #+begin_src emacs-lisp
 (defvar +biblio-notes-path (expand-file-name "~/PhD/bibliography/notes/"))
@@ -195,7 +196,7 @@ This combo should speedup opening files:
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/")
 #+end_src
 
-** Misc
+*** Misc
 
 #+begin_src emacs-lisp
 (setq +binary-hexl-enable t
@@ -206,7 +207,7 @@ This combo should speedup opening files:
       browse-url-chrome-program browse-url-chromium-program)
 #+end_src
 
-** Awqat
+*** Awqat
 
 #+begin_src emacs-lisp
 (+lazy-when! (featurep 'me-lifestyle)
@@ -220,7 +221,7 @@ This combo should speedup opening files:
   (awqat-set-preset-french-muslims))
 #+end_src
 
-** Projects
+*** Projects
 
 #+begin_src emacs-lisp
 (+lazy!
@@ -236,15 +237,15 @@ This combo should speedup opening files:
   (+project-scan-for-projects)))
 #+end_src
 
-* Package configuration :package:
-** User interface :ui:
-*** Theme & font :theme:font:
+** Package configuration :package:
+*** User interface :ui:
+**** Theme & font :theme:font:
 
 #+begin_src emacs-lisp
 (setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
 #+end_src
 
-*** Writing mode
+**** Writing mode
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'me-writing-mode
@@ -252,8 +253,8 @@ This combo should speedup opening files:
         +writing-text-scale 2.0))
 #+end_src
 
-** Completion & IDE :ide:
-*** LSP
+*** Completion & IDE :ide:
+**** LSP
 Register LSP over Tramp for Python using =pyls=. The =pyls= LSP server should be
 installed on the distant machine for this to work.
 
@@ -267,20 +268,20 @@ installed on the distant machine for this to work.
     :server-id 'pyls-remote)))
 #+end_src
 
-** Natural languages :spell:grammar:dict:
-*** Offline dictionaries
+*** Natural languages :spell:grammar:dict:
+**** Offline dictionaries
 Needs ~sdcv~ to be installed, needs also /StarDict/ dictionaries, you can download
 some from [[https://sites.google.com/site/gtonguedict/home/stardict-dictionaries][here]] and [[https://polyglotte.tuxfamily.org/doku.php?id=donnees:dicos_bilingues][here]] for french.
 
-*** Spell-fu
+**** Spell-fu
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries! "en" "fr"))
 #+end_src
 
-* Applications :apps:
-** News feed (=elfeed=) :rss:news:
+** Applications :apps:
+*** News feed (=elfeed=) :rss:news:
 Set RSS news feeds
 
 #+begin_src emacs-lisp
@@ -302,13 +303,13 @@ Set RSS news feeds
           ("https://developers.redhat.com/blog/feed" linux foss))))
 #+end_src
 
-** Email (=mu4e=) :mail:mu4e:
+*** Email (=mu4e=) :mail:mu4e:
 Configuring =mu4e= as email client needs three parts:
 - Incoming mail configuration IMAP (using =mbsync=)
 - Outgoing mail configuration SMTP (using =smtpmail= or =msmtp=)
 - Email indexer and viewer (via =mu= and =mu4e=)
 
-*** IMAP (=mbsync=)
+**** IMAP (=mbsync=)
 You will need to:
 - Install =mu= and =isync= (=sudo pacman -S mu isync=)
 - Set up a proper configuration file for your accounts at =~/.mbsyncrc=
@@ -477,7 +478,7 @@ Channel gmail-spam
 # END OF SECTION
 #+end_src
 
-*** SMTP (=msmtp=)
+**** SMTP (=msmtp=)
 I was using the standard =smtpmail= to send mails; but recently, I'm getting
 problems when sending mails. I passed a whole day trying to fix mail sending for
 one of my accounts, at the end of the day, I got a working setup; BUT, sending
@@ -534,7 +535,7 @@ passwordeval            "gpg -q --for-your-eyes-only --no-tty --logger-file /dev
 tls_nocertcheck # ignore TLS certificate errors
 #+end_src
 
-*** Mail client and indexer (=mu= and =mu4e=)
+**** Mail client and indexer (=mu= and =mu4e=)
 I configure my email accounts in a private file in =private/mu4e-accounts.el=,
 which will be loaded after this common part:
 
@@ -570,18 +571,18 @@ which will be loaded after this common part:
   (+load minemacs-config-dir "private/mu4e-extra-commands.el"))
 #+end_src
 
-** Calendar
+*** Calendar
 
 #+begin_src emacs-lisp :tangle no
 (with-eval-after-load 'calfw-ical
   (+load minemacs-config-dir "private/calfw-sources.el"))
 #+end_src
 
-** Multimedia :media:music:ignore:
+*** Multimedia :media:music:ignore:
 I like to use an MPD powered EMMS, so when I restart Emacs I do not lose my
 music.
 
-*** MPD and MPC :noexport:mpd:mpc:
+**** MPD and MPC :noexport:mpd:mpc:
 
 #+begin_src emacs-lisp :tangle no
 ;; Not sure if it is required!
@@ -627,7 +628,7 @@ in Emacs to start/kill the server:
     (warn "An error occured when trying to update MPD database.")))
 #+end_src
 
-*** EMMS :noexport:
+**** EMMS :noexport:
 Now, we configure EMMS to use MPD if it is present; otherwise, it uses whatever
 default backend EMMS is using.
 
@@ -738,7 +739,7 @@ default backend EMMS is using.
                                 +emms-notification-icon))))
 #+end_src
 
-*** Cycle song information in mode line :noexport:
+**** Cycle song information in mode line :noexport:
 I found a useful package named ~emms-mode-line-cycle~ which permits to do this;
 however, it has not been updated since a while, it uses some obsolete functions
 to draw icon in mode line, so I forked it, got rid of the problematic parts, and
@@ -782,7 +783,7 @@ added some minor stuff.
   (emms-mode-line-cycle 1))
 #+end_src
 
-*** EMPV
+**** EMPV
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'empv
@@ -805,8 +806,8 @@ added some minor stuff.
    empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
 #+end_src
 
-* Programming :programming:
-** Devdocs :noexport:devdocs:
+** Programming :programming:
+*** Devdocs :noexport:devdocs:
 
 #+begin_src emacs-lisp :tangle no
 (use-package devdocs
@@ -816,7 +817,7 @@ added some minor stuff.
   (devdocs-data-dir (concat minemacs-local-dir "devdocs/")))
 #+end_src
 
-** Inspector :noexport:inspector:
+*** Inspector :noexport:inspector:
 
 #+begin_src emacs-lisp :tangle no
 (use-package inspector
@@ -824,7 +825,7 @@ added some minor stuff.
   :commands inspect-expression inspect-last-sexp)
 #+end_src
 
-** Tramp
+*** Tramp
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'tramp
@@ -837,7 +838,7 @@ added some minor stuff.
    tramp-encoding-shell "/bin/bash"))
 #+end_src
 
-** Robot Operating System (ROS) :ros:
+*** Robot Operating System (ROS) :ros:
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'ros
@@ -860,9 +861,10 @@ added some minor stuff.
           :workspace "~/ros2_ws"
           :extends '("/opt/ros/foxy/")))))
 #+end_src
-* Office :office:organize:edit:
-** Org mode
-*** Org mode tweaks
+
+** Office :office:organize:edit:
+*** Org mode
+**** Org mode tweaks
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'org
@@ -978,21 +980,21 @@ added some minor stuff.
   (add-hook 'before-save-hook #'time-stamp))
 #+end_src
 
-*** Org + Hugo
+**** Org + Hugo
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
 #+end_src
 
-*** Org + LaTeX
+**** Org + LaTeX
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'ox-latex
   (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor")))
 #+end_src
 
-*** Denote
+**** Denote
 
 #+begin_src emacs-lisp
 (setq denote-directory "~/Dropbox/Org/notes/")
@@ -1001,8 +1003,8 @@ added some minor stuff.
   (add-to-list 'recentf-exclude denote-directory))
 #+end_src
 
-*** Bibliography
-**** Org-cite
+**** Bibliography
+***** Org-cite
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'oc
@@ -1010,7 +1012,7 @@ added some minor stuff.
         org-cite-global-bibliography (ensure-list +biblio-libraries-path)))
 #+end_src
 
-**** Citar
+***** Citar
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'citar
@@ -1019,21 +1021,16 @@ added some minor stuff.
         citar-bibliography (ensure-list +biblio-libraries-path)))
 #+end_src
 
-** Text editing :text:
-*** Academic phrases :noexport:
-When writing your academic paper, you might get stuck trying to find the right
-phrase that captures your intention. This package tries to alleviate that
-problem by presenting you with a list of phrases organized by the topic or by
-the paper section that you are writing. This package has around 600 phrases so
-far.
+** Machine specific overwrites
+There is always some machine-specific configurations, packages, overwrites, and
+so on. To keep my configuration generic, I like to have a separate file with
+machine-specific tweaks (for example, change the Email address on a work
+machine, etc.).
 
-This is based on the book titled "English for Writing Research - Papers Useful
-Phrases".
-
-#+begin_src emacs-lisp :tangle no
-(use-package academic-phrases
-  :straight t
-  :commands academic-phrases academic-phrases-by-section)
+#+begin_src emacs-lisp
+(let ((machine-specific-conf (concat minemacs-config-dir "private/machine-specific.el")))
+  (when (file-exists-p machine-specific-conf)
+    (+load machine-specific-conf)))
 #+end_src
 
 * System configuration :linux:system:
@@ -1125,8 +1122,37 @@ javascript:location.href =
     + encodeURIComponent(window.getSelection())
 #+end_src
 
-** Git :git:
-*** Git diffs :diff:
+* Git :linux:system:
+** Defaults
+
+#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
+[pull]
+  rebase = true
+
+[init]
+  defaultBranch = main # there is no master!
+
+[commit]
+  gpgsign = true
+
+[format]
+  signoff = true
+
+[color]
+  ui = auto
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+# Store passwords in-memory, ask every 24h (default 900s)
+[credential]
+  helper = cache --timeout 86400
+#+end_src
+
+** Git diffs :diff:
 Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
 
 #+begin_src conf-space :tangle ~/.config/git/attributes :mkdirp yes
@@ -1169,10 +1195,9 @@ Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://p
 ,*.{rar,7z,zip,apk}            diff=tika
 #+end_src
 
-Then adding some regular expressions for it to =~/.config/git/config=, with some
-tools to view diffs on binary files.
+Then adding some regular expressions for it to =~/.config/git/config=:
 
-#+begin_src conf :tangle ~/.config/git/config :mkdirp yes
+#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
 # ====== TEXT FORMATS ======
 [diff "org"]
   xfuncname = "^(\\*+ +.*)$"
@@ -1184,98 +1209,122 @@ tools to view diffs on binary files.
   xfuncname = "^([a-zA-z.]+ <- function.*)$"
 
 [diff "texinfo"]
-# from http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
+# Taken from: git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=.gitattributes;h=c3b2926c78c939d94358cc63d051a70d38cfea5d;hb=HEAD
   xfuncname = "^@node[ \t][ \t]*\\([^,][^,]*\\)"
 
 [diff "rust"]
   xfuncname = "^[ \t]*(pub|)[ \t]*((fn|struct|enum|impl|trait|mod)[^;]*)$"
 
 # ====== BINARY FORMATS ======
+#+end_src
+
+And some tools to view diffs on binary files:
+
+#+begin_src gitconfig :tangle (if (executable-find "pdftotext") "~/.config/git/config" "no") :mkdirp yes
 [diff "pdf"]
   binary = true
-# textconv = pdfinfo
-# textconv = sh -c 'pdftotext "$@" -' # sudo apt install pdftotext
   textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "djvutxt") "~/.config/git/config" "no") :mkdirp yes
 [diff "djvu"]
   binary = true
-# textconv = pdfinfo
   textconv = djvutxt # yay -S djvulibre
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "odt2txt") "~/.config/git/config" "no") :mkdirp yes
 [diff "odt"]
+  binary = true
   textconv = odt2txt
 # textconv = pandoc --standalone --from=odt --to=plain
-  binary = true
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "catdoc") "~/.config/git/config" "no") :mkdirp yes
 [diff "doc"]
+  binary = true
 # textconv = wvText
   textconv = catdoc # yay -S catdoc
-  binary = true
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "xls2csv") "~/.config/git/config" "no") :mkdirp yes
 [diff "xls"]
+  binary = true
 # textconv = in2csv
 # textconv = xlscat -a UTF-8
 # textconv = soffice --headless --convert-to csv
   textconv = xls2csv # yay -S catdoc
-  binary = true
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "catppt") "~/.config/git/config" "no") :mkdirp yes
 [diff "ppt"]
+  binary = true
   textconv = catppt # yay -S catdoc
-  binary = true
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "pandoc") "~/.config/git/config" "no") :mkdirp yes
 [diff "docx"]
-  textconv = pandoc --standalone --from=docx --to=plain
+  binary = true
 # textconv = sh -c 'docx2txt.pl "$0" -'
-  binary = true
-  cachetextconv = true
-
-[diff "xlsx"]
-  textconv = xlsx2csv # pip install xlsx2csv
-# textconv = in2csv
-# textconv = soffice --headless --convert-to csv
-  binary = true
-  cachetextconv = true
-
-[diff "pptx"]
-# pip install --user pptx2md (currently not wotking with Python 3.10)
-# textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
-# Alternative hack, convert PPTX to PPT, then use the catppt tool
-  textconv = sh -c 'soffice --headless --convert-to ppt --outdir /tmp "$0" && TMP_FILENAME=$(basename -- "$0") && catppt "/tmp/${TMP_FILENAME%.*}.ppt"'
-  binary = true
-  cachetextconv = true
-
-[diff "rtf"]
-  textconv = unrtf --text # yay -S unrtf
-  binary = true
+  textconv = pandoc --standalone --from=docx --to=plain
   cachetextconv = true
 
 [diff "epub"]
   textconv = pandoc --standalone --from=epub --to=plain
   binary = true
   cachetextconv = true
+#+end_src
 
-[diff "tika"]
-  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
+#+begin_src gitconfig :tangle (if (executable-find "xlsx2csv") "~/.config/git/config" "no") :mkdirp yes
+[diff "xlsx"]
   binary = true
+  textconv = xlsx2csv # pip install xlsx2csv
+# textconv = in2csv
+# textconv = soffice --headless --convert-to csv
+  cachetextconv = true
+#+end_src
+
+#+begin_src gitconfig :tangle (if (executable-find "soffice") "~/.config/git/config" "no") :mkdirp yes
+[diff "pptx"]
+  binary = true
+# pip install --user pptx2md (currently not wotking with Python 3.10)
+# textconv = sh -c 'pptx2md --disable_image --disable_wmf -i "$0" -o ~/.cache/git/presentation.md >/dev/null && cat ~/.cache/git/presentation.md'
+# Alternative hack, convert PPTX to PPT, then use the catppt tool
+  textconv = sh -c 'soffice --headless --convert-to ppt --outdir /tmp "$0" && TMP_FILENAME=$(basename -- "$0") && catppt "/tmp/${TMP_FILENAME%.*}.ppt"'
   cachetextconv = true
 
 [diff "libreoffice"]
-  textconv = soffice --cat
   binary = true
+  textconv = soffice --cat
   cachetextconv = true
+#+end_src
 
+#+begin_src gitconfig :tangle (if (executable-find "unrtf") "~/.config/git/config" "no") :mkdirp yes
+[diff "rtf"]
+  binary = true
+  textconv = unrtf --text # yay -S unrtf
+  cachetextconv = true
+#+end_src
+
+#+begin_src gitconfig :tangle (if (executable-find "tika") "~/.config/git/config" "no") :mkdirp yes
+[diff "tika"]
+  binary = true
+  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
+  cachetextconv = true
+#+end_src
+
+#+begin_src gitconfig :tangle (if (executable-find "exiftool") "~/.config/git/config" "no") :mkdirp yes
 [diff "exif"]
   binary = true
   textconv = exiftool # sudo apt install perl-image-exiftool
 #+end_src
 
-*** Extensions
+** Extensions
 This tool is taken from https://gist.github.com/nottrobin/5758221. It is
 attributed to David Underhill. It is a script to permanently delete
 files/folders from a Git repository. To use it, cd to your repository's root,
@@ -1303,6 +1352,22 @@ git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch $files" H
 
 # remove the temporary history git-filter-branch otherwise leaves behind for a long time
 rm -rf .git/refs/original/ && git reflog expire --all && git gc --aggressive --prune
+#+end_src
+
+Or, add an alias to the command to your Git configuration:
+
+#+begin_src conf :tangle ~/.config/git/config :mkdirp yes
+[alias]
+  prune-files = "git-prune-files"
+#+end_src
+
+** Aliases
+Let's have some useful aliases, like the =git ignore <lang>= to automatically
+generate =.gitignore= patterns for a specific language.
+
+#+begin_src conf :tangle ~/.config/git/config :mkdirp yes
+[alias]
+  ignore = "!gi() { curl -sL https://www.gitignore.io/api/$@ ;}; gi"
 #+end_src
 
 ** Apache Tika App wrapper :tika:
@@ -1403,7 +1468,8 @@ by exporting an XML config file which will be used when launching the Tika App
 </properties>
 #+end_src
 
-** Command-line wrapper :wrapper:cli:
+* Command line tools :linux:system:
+** Emacs command-line wrapper :wrapper:cli:
 A wrapper around =emacsclient=:
 + Accepting =stdin= by putting it in a temporary file and immediately opening it.
 + Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
@@ -1514,7 +1580,7 @@ fi
 Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
 set aliases for the terminal-forced variants.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # -*- mode: sh; -*-
 
 # Aliases to run emacs+magit
@@ -1540,7 +1606,7 @@ And =ev= for use with =$VISUAL=:
 e -w "$@"
 #+end_src
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 export EDITOR="$HOME/.local/bin/et"
 export VISUAL="$HOME/.local/bin/ev"
 #+end_src
@@ -1577,15 +1643,15 @@ update_appimageupdatetool () {
 update_appimageupdatetool;
 #+end_src
 
-** Oh-my-Zsh
-*** Path
+* Oh-my-Zsh :zsh:
+** Path
 Path to your oh-my-zsh installation.
 
 #+begin_src shell :tangle ~/.zshrc
 export ZSH="$HOME/.oh-my-zsh"
 #+end_src
 
-*** Themes and customization
+** Themes and customization
 Set name of the theme to load, if set to ="random"=, it will load a random theme
 each time oh-my-zsh is loaded, in which case, to know which specific one was
 loaded, run: =echo $RANDOM_THEME= See [[https://github.com/ohmyzsh/ohmyzsh/wiki/Themes][github.com/ohmyzsh/ohmyzsh/wiki/Themes]].
@@ -1604,7 +1670,7 @@ ZSH_THEME="typewritten/typewritten"
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 #+end_src
 
-*** Behavior
+** Behavior
 
 #+begin_src shell :tangle ~/.zshrc
 # Uncomment the following line to use case-sensitive completion.
@@ -1652,7 +1718,7 @@ export UPDATE_ZSH_DAYS=3
 # HIST_STAMPS="mm/dd/yyyy"
 #+end_src
 
-*** Plugins
+** Plugins
 
 #+begin_src shell :tangle ~/.zshrc
 # Would you like to use another custom folder than $ZSH/custom?
@@ -1686,13 +1752,13 @@ plugins=(
 )
 #+end_src
 
-*** Bootstrap Oh-my-Zsh
+** Bootstrap Oh-my-Zsh
 
 #+begin_src shell :tangle ~/.zshrc
 source $ZSH/oh-my-zsh.sh
 #+end_src
 
-*** Aliases
+** Aliases
 
 #+begin_src shell :tangle ~/.zshrc
 # Aliases
@@ -1700,66 +1766,307 @@ alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 #+end_src
 
-** Zsh user configuration
-*** =pbcopy= and =pbpaste=
+** Include extra configuration file
+
+#+begin_src shell :tangle ~/.zshrc
+# Source extra commands
+source "$HOME/.shell_extras"
+#+end_src
+
+* Oh-my-Bash :bash:
+** Path
+Path to your oh-my-bash installation.
+
+#+begin_src shell :tangle ~/.bashhrc
+# Enable the subsequent settings only in interactive sessions
+case $- in
+  *i*) ;;
+    *) return;;
+esac
+
+# Path to your oh-my-bash installation.
+export OSH="$HOME/.oh-my-bash"
+
+# Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
+# Custom completions may be added to ~/.oh-my-bash/custom/completions/
+# Example format: completions=(ssh git bundler gem pip pip3)
+# Add wisely, as too many completions slow down shell startup.
+completions=(
+  git
+  composer
+  ssh
+)
+
+# Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
+# Custom aliases may be added to ~/.oh-my-bash/custom/aliases/
+# Example format: aliases=(vagrant composer git-avh)
+# Add wisely, as too many aliases slow down shell startup.
+aliases=(
+  general
+)
+
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-bash/plugins/*)
+# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  git
+  bashmarks
+)
+
+# Which plugins would you like to conditionally load? (plugins can be found in ~/.oh-my-bash/plugins/*)
+# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
+# Example format:
+#  if [ "$DISPLAY" ] || [ "$SSH" ]; then
+#      plugins+=(tmux-autoattach)
+#  fi
+
+source "$OSH"/oh-my-bash.sh
+
+# User configuration
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# ssh
+# export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+# Set personal aliases, overriding those provided by oh-my-bash libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-bash
+# users are encouraged to define aliases within the OSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias bashconfig="mate ~/.bashrc"
+# alias ohmybash="mate ~/.oh-my-bash"
+#+end_src
+
+** Themes and customization
+Set name of the theme to load. Optionally, if you set this to ="random"= it'll
+load a random theme each time that oh-my-bash is loaded.
+
+#+begin_src shell :tangle ~/.bashrc
+OSH_THEME="font"
+#+end_src
+
+** Behavior
+
+#+begin_src shell :tangle ~/.bashrc
+# Uncomment the following line to use case-sensitive completion.
+# OMB_CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion. Case
+# sensitive completion must be off. _ and - will be interchangeable.
+# OMB_HYPHEN_SENSITIVE="false"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+# DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+# export UPDATE_OSH_DAYS=13
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you don't want the repository to be considered dirty
+# if there are untracked files.
+# SCM_GIT_DISABLE_UNTRACKED_DIRTY="true"
+
+# Uncomment the following line if you want to completely ignore the presence
+# of untracked files in the repository.
+# SCM_GIT_IGNORE_UNTRACKED="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.  One of the following values can
+# be used to specify the timestamp format.
+# * 'mm/dd/yyyy'     # mm/dd/yyyy + time
+# * 'dd.mm.yyyy'     # dd.mm.yyyy + time
+# * 'yyyy-mm-dd'     # yyyy-mm-dd + time
+# * '[mm/dd/yyyy]'   # [mm/dd/yyyy] + [time] with colors
+# * '[dd.mm.yyyy]'   # [dd.mm.yyyy] + [time] with colors
+# * '[yyyy-mm-dd]'   # [yyyy-mm-dd] + [time] with colors
+# If not set, the default value is 'yyyy-mm-dd'.
+# HIST_STAMPS='yyyy-mm-dd'
+
+# Uncomment the following line if you do not want OMB to overwrite the existing
+# aliases by the default OMB aliases defined in lib/*.sh
+# OMB_DEFAULT_ALIASES="check"
+
+# Would you like to use another custom folder than $OSH/custom?
+# OSH_CUSTOM=/path/to/new-custom-folder
+
+# To disable the uses of "sudo" by oh-my-bash, please set "false" to
+# this variable.  The default behavior for the empty value is "true".
+OMB_USE_SUDO=true
+
+# To enable/disable display of Python virtualenv and condaenv
+# OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
+# OMB_PROMPT_SHOW_PYTHON_VENV=false # disable
+#+end_src
+
+** Plugins
+
+#+begin_src shell :tangle ~/.bashhrc
+# Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
+# Custom completions may be added to ~/.oh-my-bash/custom/completions/
+# Example format: completions=(ssh git bundler gem pip pip3)
+# Add wisely, as too many completions slow down shell startup.
+completions=(
+  git
+  composer
+  ssh
+)
+
+# Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
+# Custom aliases may be added to ~/.oh-my-bash/custom/aliases/
+# Example format: aliases=(vagrant composer git-avh)
+# Add wisely, as too many aliases slow down shell startup.
+aliases=(
+  general
+)
+
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-bash/plugins/*)
+# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  git
+  bashmarks
+)
+
+# Which plugins would you like to conditionally load? (plugins can be found in ~/.oh-my-bash/plugins/*)
+# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
+# Example format:
+#  if [ "$DISPLAY" ] || [ "$SSH" ]; then
+#      plugins+=(tmux-autoattach)
+#  fi
+#+end_src
+
+** Bootstrap Oh-my-Bash
+
+#+begin_src shell :tangle ~/.bashrc
+source "$OSH/oh-my-bash.sh"
+#+end_src
+
+** Include extra configuration file
+
+#+begin_src shell :tangle ~/.bashrc
+# Source extra commands
+source "$HOME/.shell_extras"
+#+end_src
+
+* Shell configuration :bash:zsh:shell:
+** Misc
+
+#+begin_src shell :tangle ~/.shell_extras
+# User configuration
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# ssh
+# export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+# Set personal aliases, overriding those provided by oh-my-bash libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-bash
+# users are encouraged to define aliases within the OSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias bashconfig="mate ~/.bashrc"
+# alias ohmybash="mate ~/.oh-my-bash"
+#+end_src
+
+** =pbcopy= and =pbpaste=
 I like to define MacOS-like commands (=pbcopy= and =pbpaste=) to copy and paste in
 terminal (from =stdin=, to =stdout=). The =pbcopy= and =pbpaste= are defined using
 either =xclip= or =xsel=, you would need to install these tools, otherwise we wouldn't
 define the aliases.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # Define aliases to 'pbcopy' and 'pbpaste'
-if command -v xclip &> /dev/null
-then
+if command -v xclip &> /dev/null; then
   # Define aliases using xclip
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
-elif command -v xsel &> /dev/null
-then
+elif command -v xsel &> /dev/null; then
   # Define aliases using xsel
   alias pbcopy='xsel --clipboard --input'
   alias pbpaste='xsel --clipboard --output'
 fi
 #+end_src
 
-*** =netpaste=
+** =netpaste=
 Define a =netpaste= command to paste to a Pastebin server.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 alias netpaste='curl -F file=@- 0x0.st' # OR 'curl -F f:1=<- ix.io '
 #+end_src
 
-*** Sudo GUI!
+** Sudo GUI!
 And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
 with root permissions, this requires =xhost=.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # To run GUI apps from terminal with root permissions
-if command -v xhost &> /dev/null
-then
+if command -v xhost &> /dev/null; then
   alias gsuon='xhost si:localuser:root'
   alias gsuoff='xhost -si:localuser:root'
 fi
 #+end_src
 
-*** Neovim
+** Neovim
 Use Neovim instead of VIM to provide =vi= and =vim= commands.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # NeoVim
-if command -v nvim &> /dev/null
-then
+if command -v nvim &> /dev/null; then
   alias vim="nvim"
   alias vi="nvim"
 fi
 #+end_src
 
-*** ESP-IDF
+** ESP-IDF
 Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
 
-#+begin_src shell :tangle ~/.zshrc
-if [ -d "$HOME/Softwares/src/esp-idf/" ]
-then
+#+begin_src shell :tangle ~/.shell_extras
+if [[ -d "$HOME/Softwares/src/esp-idf/" ]]; then
   alias esp-prepare-env='source $HOME/Softwares/src/esp-idf/export.sh'
   alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/src/esp-idf && git pull --all && echo "Updated successfully"'
 else
@@ -1768,60 +2075,60 @@ else
 fi
 #+end_src
 
-*** CLI wttrin client
+** CLI wttrin client
 Define an alias to get weather information for my city:
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 alias wttrin='curl wttr.in/$WTTRIN_CITY'
 alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
 #+end_src
 
-*** Minicom
+** Minicom
 Enable Meta key and colors in =minicom=:
 
-#+begin_src shell :tangle ~/.zshrc
-export MINICOM='-m -c on'
+#+begin_src shell :tangle ~/.shell_extras
+export MINICOM='--metakey --color=on'
 #+end_src
 
-*** Rust
+** Rust
 Define Rust sources path, and add packages installed from =cargo= to the =PATH=.
 
-#+begin_src shell :tangle ~/.zshrc
-export RUST_SRC_PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
-export PATH=$PATH:$HOME/.cargo/bin
+#+begin_src shell :tangle ~/.shell_extras
+export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/"
+export PATH="$PATH:$HOME/.cargo/bin"
 #+end_src
 
 I'm using the AUR package =clang-format-static-bin=, which provide multiple
 versions of Clang-format, I use it with some work projects requiring a specific
 version of Clang-format.
 
-*** Go
+** Go
 I don't like Go creating stuff in my home directory, lets move the Go workspace
 by setting the =GOPATH= environment variable.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # The default is $HOME/go
-export GOPATH=$HOME/Projects/go
+export GOPATH="$HOME/Projects/go"
 #+end_src
 
-*** Clang-format
+** Clang-format
 
-#+begin_src shell :tangle ~/.zshrc
-[ -d /opt/clang-format-static ] && export PATH=$PATH:/opt/clang-format-static
+#+begin_src shell :tangle ~/.shell_extras
+[[ -d "/opt/clang-format-static" ]] && export PATH="$PATH:/opt/clang-format-static"
 #+end_src
 
-*** CMake
+** CMake
 Add my manually built libraries to CMake and =PATH=.
 
-#+begin_src shell :tangle ~/.zshrc
-export CMAKE_PREFIX_PATH=$HOME/Softwares/src/install
-export PATH=$PATH:$HOME/Softwares/src/install/bin
+#+begin_src shell :tangle ~/.shell_extras
+export CMAKE_PREFIX_PATH="$HOME/Softwares/src/install"
+export PATH="$PATH:$HOME/Softwares/src/install/bin"
 #+end_src
 
-*** Node
+** Node
 Set NPM installation path to local:
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 NPM_PACKAGES="${HOME}/.npm-packages"
 
 # Export NPM bin path
@@ -1844,25 +2151,23 @@ prefix = ~/.npm-packages
 
 Some useful stuff (=fzf=, =opam=, Doom Emacs...)
 
-*** tmux
+** tmux
 I like to use =tmux= by default, even on my local sessions, I like to start a =tmux=
 in a =default= session on the first time I launch a terminal, and then, attach any
 other terminal to this default session:
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # If not running inside Emacs (via vterm/eshell...)
-if [ -z $INSIDE_EMACS ]
-then
-  if command -v tmux &> /dev/null && [ -z "$TMUX" ]
-  then
+if [[ -z "${INSIDE_EMACS}" ]]; then
+  if command -v tmux &> /dev/null && [[ -z "${TMUX}" ]]; then
     tmux attach -t default || tmux new -s default
   fi
 fi
 #+end_src
 
-*** Other stuff
+** Other stuff
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle ~/.shell_extras
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
@@ -1877,28 +2182,31 @@ fi
 # export ARCHFLAGS="-arch x86_64"
 
 # FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[[ -f "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
 
 # OPAM configuration
-[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null
-
-# Add ~/.config/emacs/bin to path (for DOOM Emacs stuff)
-export PATH=$PATH:$HOME/.config/emacs/bin
+[[ ! -r "$HOME/.opam/opam-init/init.zsh" ]] || source "$HOME/.opam/opam-init/init.zsh" > /dev/null 2> /dev/null
 #+end_src
 
 Define some environment variables.
 
-#+begin_src shell :tangle ~/.zshrc
-source ~/.zshrc_private
+#+begin_src shell :tangle ~/.shell_extras
+source "$HOME/.shell_private"
 #+end_src
 
 Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 
-#+begin_src shell :tangle ~/.zshrc
-[ -f ~/.bitwarden-session ] && source ~/.bitwarden-session
+#+begin_src shell :tangle ~/.shell_extras
+[[ -f "$HOME/.bitwarden-session" ]] && source "$HOME/.bitwarden-session"
 #+end_src
 
-** Rust format :rust:format:
+Load private configuration when found:
+
+#+begin_src shell :tangle ~/.shell_extras
+[[ -f "$HOME/.shell_private" ]] && source "$HOME/.shell_private"
+#+end_src
+
+* Rust format :rust:format:
 For Rust code base, the file =$HOME/.rustfmt.toml= contains the global format
 settings, I like to set it to:
 
@@ -1939,8 +2247,8 @@ report_fixme = "Always"
 todo = "Always"
 #+end_src
 
-** eCryptfs
-*** Unlock and mount script
+* eCryptfs :crypto:
+** Unlock and mount script
 
 #+begin_src shell :tangle "~/.ecryptfs/ecryptfs-mount-private-gui" :mkdirp yes :tangle-mode (identity #o755)
 #!/bin/sh -e
@@ -1962,8 +2270,7 @@ PRIVATE_DIR="Private"
 PW_ATTEMPTS=3
 MESSAGE=`gettext "Enter your login passphrase:"`
 
-if [ -f $HOME/.ecryptfs/wrapping-independent ]
-then
+if [ -f $HOME/.ecryptfs/wrapping-independent ]; then
   # use a wrapping passphrase different from the login passphrase
   MESSAGE=`gettext "Enter your wrapping passphrase:"`
 fi
@@ -1973,24 +2280,19 @@ MOUNT_PASSPHRASE_SIG_FILE="$HOME/.ecryptfs/$PRIVATE_DIR.sig"
 
 # First, silently try to perform the mount, which would succeed if the appropriate
 # key is available in the keyring
-if /sbin/mount.ecryptfs_private >/dev/null 2>&1
-then
+if /sbin/mount.ecryptfs_private >/dev/null 2>&1; then
   exit 0
 fi
 
 # Otherwise, interactively prompt for the user's password
-if [ -f "$WRAPPED_PASSPHRASE_FILE" -a -f "$MOUNT_PASSPHRASE_SIG_FILE" ]
-then
+if [ -f "$WRAPPED_PASSPHRASE_FILE" -a -f "$MOUNT_PASSPHRASE_SIG_FILE" ]; then
   tries=0
 
-  while [ $tries -lt $PW_ATTEMPTS ]
-  do
+  while [ $tries -lt $PW_ATTEMPTS ]; do
     LOGINPASS=`zenity --password --title "eCryptFS: $MESSAGE"`
-    if [ $(wc -l < "$MOUNT_PASSPHRASE_SIG_FILE") = "1" ]
-    then
+    if [ $(wc -l < "$MOUNT_PASSPHRASE_SIG_FILE") = "1" ]; then
       # No filename encryption; only insert fek
-      if printf "%s\0" "$LOGINPASS" | ecryptfs-unwrap-passphrase "$WRAPPED_PASSPHRASE_FILE" - | ecryptfs-add-passphrase -
-      then
+      if printf "%s\0" "$LOGINPASS" | ecryptfs-unwrap-passphrase "$WRAPPED_PASSPHRASE_FILE" - | ecryptfs-add-passphrase -; then
         break
       else
         zenity --error --title "eCryptfs" --text "Error: Your passphrase is incorrect"
@@ -1998,8 +2300,7 @@ then
         continue
       fi
     else
-      if printf "%s\0" "$LOGINPASS" | ecryptfs-insert-wrapped-passphrase-into-keyring "$WRAPPED_PASSPHRASE_FILE" -
-      then
+      if printf "%s\0" "$LOGINPASS" | ecryptfs-insert-wrapped-passphrase-into-keyring "$WRAPPED_PASSPHRASE_FILE" -; then
         break
       else
         zenity --error --title "eCryptfs" --text "Error: Your passphrase is incorrect"
@@ -2009,8 +2310,7 @@ then
     fi
   done
 
-  if [ $tries -ge $PW_ATTEMPTS ]
-  then
+  if [ $tries -ge $PW_ATTEMPTS ]; then
     zenity --error --title "eCryptfs" --text "Too many incorrect password attempts, exiting"
     exit 1
   fi
@@ -2029,7 +2329,7 @@ dolphin "$HOME/Private"
 exit 0
 #+end_src
 
-*** Desktop integration
+** Desktop integration
 
 #+begin_src conf-unix :tangle "~/.local/share/applications/ecryptfs-mount-private-gui.desktop" :mkdirp yes :tangle-mode (identity #o755)
 [Desktop Entry]
@@ -2041,8 +2341,8 @@ Exec=/home/hacko/.ecryptfs/ecryptfs-mount-private-gui
 Terminal=False
 #+end_src
 
-** GDB
-*** Early init
+* GDB :gdb:debug:
+** Early init
 I like to disable the initial message (containing copyright info and other
 stuff), the right way to do this is either by starting =gdb= with =-q= option, or
 (since GDB v11 I think), by setting src_gdb-script{set startup-quietly} in
@@ -2056,7 +2356,7 @@ stuff), the right way to do this is either by starting =gdb= with =-q= option, o
 set startup-quietly
 #+end_src
 
-*** Init
+** Init
 GDB loads =$HOME/.gdbinit= at startup, I like to define some default options in
 this file, this is a WIP, but it won't evolve too much, as [[https://youtu.be/-n9Fkq1e6sg?t=3377][it is recommended to
 keep the =.gdbinit= clean and simple]]. For the moment, it does just enable pretty
@@ -2120,7 +2420,7 @@ end
 
 #+end_src
 
-** GnuPG
+* GnuPG :gpg:crypto:
 I add this to my =~/.gnupg/gpg-agent.conf=, to set the time-to-live to one day.
 
 #+begin_src conf-space :tangle no
@@ -2136,7 +2436,7 @@ allow-loopback-pinentry
 allow-emacs-pinentry
 #+end_src
 
-** OCR This
+* OCR This :ocr:image:text:
 This creates a script named =ocrthis= that can be bound to OS shortcut. When
 triggered:
 - it shows a selection tool to take a partial screenshot,
@@ -2152,7 +2452,7 @@ mogrify -modulate 100,0 -resize 400% "$IMG"
 tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib
 #+end_src
 
-** Slack
+* Slack :slack:team:
 This script is called at system startup.
 
 #+begin_src shell :tangle ~/.local/bin/slack-startup :mkdirp yes :tangle-mode (identity #o755) :comments no
@@ -2162,14 +2462,14 @@ WEEK_DAY=$(date +%u)
 HOUR=$(date +%H)
 SLACK=$(which slack)
 
-if [ ! "$WEEK_DAY" == "6" ] && [ ! "$WEEK_DAY" == "7" ] && [ "$HOUR" -gt 7 ] && [ "$HOUR" -lt 18 ] ; then
+if [[ "$WEEK_DAY" != "6" ]] && [[ "$WEEK_DAY" != "7" ]] && [[ "$HOUR" -gt 7 ]] && [[ "$HOUR" -lt 18 ]]; then
   $SLACK -u %U
 else
   echo "It is not work time!"
 fi
 #+end_src
 
-** Arch Linux packages
+* Arch Linux packages :linux:arch:manjaro:package:
 Here, we install Arch packages
 
 #+begin_src shell
@@ -2214,7 +2514,7 @@ for PKG in "${PKGS_LIST[@]}"; do
 done
 #+end_src
 
-** KDE Plasma :kde:
+* KDE Plasma :kde:
 On KDE, there is a good support for HiDPI displays, however, I faced annoying
 small icons in some contexts (for example, a right click on desktop). [[https://www.reddit.com/r/kde/comments/o8bb4s/comment/h33z7bp/?utm_source=share&utm_medium=web2x&context=3][This can
 be fixed]] by setting ~PLASMA_USE_QT_SCALING=1~ before starting KDE Plasma. KDE

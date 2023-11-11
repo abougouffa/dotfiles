@@ -68,14 +68,7 @@
 ;; Projects:1 ends here
 
 ;; [[file:literate-config.org::*Theme & font][Theme & font:1]]
-(setq
- minemacs-theme 'doom-one-light ; 'apropospriate-light
- minemacs-fonts
- '(:font-family "Iosevka Fixed Curly Slab"
-   :font-size 13
-   :variable-pitch-font-family "IBM Plex Serif" ; "Lato"
-   :variable-pitch-font-size 13
-   :unicode-font-family "JuliaMono")) ; Default font for Unicode chars
+(setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
 ;; Theme & font:1 ends here
 
 ;; [[file:literate-config.org::*Writing mode][Writing mode:1]]
@@ -347,3 +340,9 @@
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
 ;; Citar:1 ends here
+
+;; [[file:literate-config.org::*Machine specific overwrites][Machine specific overwrites:1]]
+(let ((machine-specific-conf (concat minemacs-config-dir "private/machine-specific.el")))
+  (when (file-exists-p machine-specific-conf)
+    (+load machine-specific-conf)))
+;; Machine specific overwrites:1 ends here
