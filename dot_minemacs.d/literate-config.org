@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-11
+#+lastmod: 2023-11-12
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :tangle config.el :comments link
 #+property: header-args:elisp :exports code
@@ -187,7 +187,7 @@ This combo should speedup opening files:
 *** Directories
 
 #+begin_src emacs-lisp
-(defvar +biblio-notes-path (expand-file-name "~/Reasearch/bibliography/notes/"))
+(defvar +biblio-notes-path (expand-file-name "~/Research/bibliography/notes/"))
 (defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
@@ -226,10 +226,10 @@ This combo should speedup opening files:
 #+begin_src emacs-lisp
 (+lazy!
  (setq +project-scan-dir-paths
-       '("~/Reasearch/papers/"
-         "~/Reasearch/workspace/"
-         "~/Reasearch/workspace-no/"
-         "~/Reasearch/workspace-no/ez-wheel/swd-starter-kit-repo/"
+       '("~/Research/papers/"
+         "~/Research/workspace/"
+         "~/Research/workspace-no/"
+         "~/Research/workspace-no/ez-wheel/swd-starter-kit-repo/"
          "~/Projects/foss/packages/"
          "~/Projects/foss/repos/"))
 
@@ -2345,7 +2345,7 @@ if grep -qs "$HOME/.Private $PWD ecryptfs " /proc/mounts 2>/dev/null; then
   zenity --info --title "eCryptfs" --text "Your private directory has been mounted."
 fi
 
-dolphin "$HOME/Private"
+xdg-open "$HOME/Private"
 exit 0
 #+end_src
 

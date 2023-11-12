@@ -1,9 +1,17 @@
 # -*- mode: sh -*-
 
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM == "dumb" ]]; then
+    unsetopt zle
+    PS1='$ '
+    return
+fi
+
 # Enable the subsequent settings only in interactive sessions
 case $- in
-  *i*) ;;
-    *) return;;
+   *i*) ;;
+     *) return;;
 esac
 
 # Path to your oh-my-bash installation.
@@ -174,11 +182,7 @@ plugins=(
 #      plugins+=(tmux-autoattach)
 #  fi
 
-# When logging via Tramp it will look for patterns to detect if a shell is
-# present. Fancy shell prompts aren't taken into account.
-if [[ $TERM != "dumb" ]]; then
-    source "$OSH/oh-my-bash.sh"
-fi
+source "$OSH/oh-my-bash.sh"
 
 # Source extra commands
 source "$HOME/.shell_extras"

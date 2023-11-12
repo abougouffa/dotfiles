@@ -23,7 +23,7 @@
 ;; Bidirectional settings:1 ends here
 
 ;; [[file:literate-config.org::*Directories][Directories:1]]
-(defvar +biblio-notes-path (expand-file-name "~/Reasearch/bibliography/notes/"))
+(defvar +biblio-notes-path (expand-file-name "~/Research/bibliography/notes/"))
 (defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
@@ -56,10 +56,10 @@
 ;; [[file:literate-config.org::*Projects][Projects:1]]
 (+lazy!
  (setq +project-scan-dir-paths
-       '("~/Reasearch/papers/"
-         "~/Reasearch/workspace/"
-         "~/Reasearch/workspace-no/"
-         "~/Reasearch/workspace-no/ez-wheel/swd-starter-kit-repo/"
+       '("~/Research/papers/"
+         "~/Research/workspace/"
+         "~/Research/workspace-no/"
+         "~/Research/workspace-no/ez-wheel/swd-starter-kit-repo/"
          "~/Projects/foss/packages/"
          "~/Projects/foss/repos/"))
 
@@ -148,18 +148,18 @@
   (setq
    ;; Set the radio channels, you can get streams from https://www.radio-browser.info
    empv-radio-channels
-   '(("El-Bahdja FM" . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
-     ("El-Chaabia" . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
-     ("Quran Radio" . "http://stream.radiojar.com/0tpy1h0kxtzuv")
+   '(("El-Bahdja FM"          . "http://webradio.tda.dz:8001/ElBahdja_64K.mp3")
+     ("El-Chaabia"            . "https://radio-dzair.net/proxy/chaabia?mp=/stream")
+     ("Quran Radio"           . "http://stream.radiojar.com/0tpy1h0kxtzuv")
      ("Algeria International" . "https://webradio.tda.dz/Internationale_64K.mp3")
-     ("JOW Radio" . "https://str0.creacast.com/jowradio")
-     ("France Iter" . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
-     ("France Info" . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
-     ("France Culture" . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
-     ("France Musique" . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
-     ("FIP" . "http://icecast.radiofrance.fr/fip-hifi.aac")
-     ("Beur FM" . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-     ("Skyrock" . "http://icecast.skyrock.net/s/natio_mp3_128k"))
+     ("JOW Radio"             . "https://str0.creacast.com/jowradio")
+     ("France Iter"           . "http://direct.franceinter.fr/live/franceinter-hifi.aac")
+     ("France Info"           . "http://direct.franceinfo.fr/live/franceinfo-hifi.aac")
+     ("France Culture"        . "http://icecast.radiofrance.fr/franceculture-hifi.aac")
+     ("France Musique"        . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
+     ("FIP"                   . "http://icecast.radiofrance.fr/fip-hifi.aac")
+     ("Beur FM"               . "http://broadcast.infomaniak.ch/beurfm-high.aac")
+     ("Skyrock"               . "http://icecast.skyrock.net/s/natio_mp3_128k"))
    ;; See https://docs.invidious.io/instances/
    empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
 ;; EMPV:1 ends here
