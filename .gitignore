@@ -1,11 +1,21 @@
+# Private is private by default
+*private*
+# Unless explicitly excluded
+!obsolete_configs/.doom.d/modules/private
+
+# No generated files
+*/.minemacs.d/custom.el
+*/.minemacs.d/custom-vars.el
+*/.doom.d/custom.el
+
+# No PDFs
 *.pdf
-!dot_minemacs.d/literate-config.pdf
-!obsolete_configs/dot_doom.d/config.pdf
+# Unless explicitly excluded
+!emacs/.minemacs.d/literate-config.pdf
+!obsolete_configs/.doom.d/config.pdf
+
+# No intermediate files
 *.tex
 *.bbl
 .auctex-auto
 _minted*
-dot_minemacs.d/private/*
-dot_minemacs.d/custom.el
-dot_minemacs.d/custom-vars.el
-dot_doom.d/custom.el
