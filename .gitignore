@@ -11,7 +11,7 @@
 # No PDFs
 *.pdf
 # Unless explicitly excluded
-!emacs/.minemacs.d/literate-config.pdf
+!literate-config.pdf
 !obsolete_configs/.doom.d/config.pdf
 
 # No intermediate files
