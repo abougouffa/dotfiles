@@ -1,0 +1,11 @@
+#!/bin/bash
+
+WEEK_DAY=$(date +%u)
+HOUR=$(date +%H)
+SLACK=$(which slack)
+
+if [[ "$WEEK_DAY" != "6" ]] && [[ "$WEEK_DAY" != "7" ]] && [[ "$HOUR" -gt 7 ]] && [[ "$HOUR" -lt 18 ]]; then
+  $SLACK -u %U
+else
+  echo "It is not work time!"
+fi

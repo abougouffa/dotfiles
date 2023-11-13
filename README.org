@@ -1,1 +1,1 @@
-emacs/.minemacs.d/literate-config.org
+literate-config.org

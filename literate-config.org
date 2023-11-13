@@ -5,11 +5,11 @@
 #+email: a bougouffa at fedora project dot org
 #+lastmod: 2023-11-12
 #+options: title:t author:t email:t toc:t date:t tags:nil
-#+property: header-args:emacs-lisp :tangle config.el :comments link
+#+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
 #+property: header-args:shell :tangle-mode (identity #o644)
 #+property: header-args :tangle no :results silent :eval no-export
-#+setupfile: assets/template.setup
+#+setupfile: emacs/.minemacs.d/assets/template.setup
 #+startup: fold noindent
 #+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo
 
@@ -29,7 +29,7 @@ configuration files (define aliases, environment variables, user tools, Git
 configuration...).
 
 For my old deprecated Doom Emacs configuration, see
-[[https://github.com/abougouffa/dotfiles/tree/main/dot_obsolete_configs/dot_doom.d][=dotfiles/dot_obsolete_configs/dot_doom.d=]].
+[[https://github.com/abougouffa/dotfiles/tree/main/obsolete_configs/.doom.d][=dotfiles/obsolete_configs/.doom.d=]].
 
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
@@ -46,7 +46,7 @@ MinEmacs is +intended to be+ a minimal configuration framework. In the beginning
 I planned to use only necessary packages. However, it is starting to grow to
 respond to my daily needs.
 
-#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 #!/bin/env bash
 
 # NOTE: This file is generated from "config-literate.org".
@@ -59,7 +59,7 @@ respond to my daily needs.
 ** MinEmacs user configuration files
 *** Early configuration (=early-config.el=)
 
-#+begin_src emacs-lisp :comments no :tangle early-config.el
+#+begin_src emacs-lisp :comments no :tangle emacs/.minemacs.d/early-config.el
 ;;; early-config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 ;; NOTE: This file is generated from "config-literate.org".
@@ -88,7 +88,7 @@ respond to my daily needs.
 
 *** Modules (=modules.el=)
 
-#+begin_src emacs-lisp :comments no :tangle modules.el
+#+begin_src emacs-lisp :comments no :tangle emacs/.minemacs.d/modules.el
 ;;; modules.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 ;; NOTE: This file is generated from "config-literate.org".
@@ -1040,7 +1040,7 @@ Org mode isn't recognized as its own mime type by default, but that can easily
 be changed with the following file. For system-wide changes try
 ~/usr/share/mime/packages/org.xml~.
 
-#+begin_src xml :tangle ~/.local/share/mime/packages/org.xml :mkdirp yes :comments no
+#+begin_src xml :tangle desktop/.local/share/mime/packages/org.xml :mkdirp yes :comments no
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
   <mime-type type="text/org">
     <comment>Emacs Org-mode File</comment>
@@ -1053,13 +1053,13 @@ be changed with the following file. For system-wide changes try
 What's nice is that Papirus [[https://github.com/PapirusDevelopmentTeam/papirus-icon-theme/commit/a10fb7f2423d5e30b9c4477416ccdc93c4f3849d][now]] has an icon for =text/org=. One simply needs to
 refresh their mime database:
 
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "bootstrap.sh" "no")
 update-mime-database ~/.local/share/mime
 #+end_src
 
 Then set Emacs as the default editor:
 
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "setup.sh")
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "emacs-client.desktop\n") "no" "bootstrap.sh")
 xdg-mime default emacs-client.desktop text/org
 #+end_src
 
@@ -1067,7 +1067,7 @@ xdg-mime default emacs-client.desktop text/org
 The recommended method of registering a protocol is by registering a desktop
 application, which seems reasonable.
 
-#+begin_src conf :tangle ~/.local/share/applications/org-protocol.desktop :mkdirp yes
+#+begin_src conf :tangle desktop/.local/share/applications/org-protocol.desktop :mkdirp yes
 [Desktop Entry]
 Name=Emacs Org-Protocol
 Exec=emacsclient %u
@@ -1079,7 +1079,7 @@ MimeType=x-scheme-handler/org-protocol
 
 To associate =org-protocol://= links with the desktop file:
 
-#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "setup.sh")
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default x-scheme-handler/org-protocol") "org-protocol.desktop\n") "no" "bootstrap.sh")
 xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 #+end_src
 
@@ -1093,7 +1093,7 @@ It seems that this setting is not persistent, each time I reboot my machine,
 this file gets deleted.
 #+end_comment
 
-#+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "setup.sh")
+#+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "bootstrap.sh")
 read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
 
 if [[ "$INSTALL_CONFIRM" == "Y" ]]
@@ -1125,7 +1125,7 @@ javascript:location.href =
 * Git :linux:system:
 ** Defaults
 
-#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
+#+begin_src gitconfig :tangle git/.config/git/config :mkdirp yes
 [pull]
   rebase = true
 
@@ -1155,7 +1155,7 @@ javascript:location.href =
 ** Git diffs :diff:
 Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][this article]].
 
-#+begin_src conf-space :tangle ~/.config/git/attributes :mkdirp yes
+#+begin_src conf-space :tangle git/.config/git/attributes :mkdirp yes
 ,*.tex                         diff=tex
 ,*.bib                         diff=bibtex
 ,*.{c,h,c++,h++,cc,hh,cpp,hpp} diff=cpp
@@ -1331,7 +1331,7 @@ files/folders from a Git repository. To use it, cd to your repository's root,
 then run the script with a list of paths you want to delete, e.g.,
 =git-prune-files path1 path2=
 
-#+begin_src shell :tangle ~/.local/bin/git-prune-files :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle git/.local/bin/git-prune-files :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/usr/bin/env bash
 set -o errexit
 
@@ -1365,7 +1365,7 @@ Or, add an alias to the command to your Git configuration:
 Let's have some useful aliases, like the =git ignore <lang>= to automatically
 generate =.gitignore= patterns for a specific language.
 
-#+begin_src conf :tangle ~/.config/git/config :mkdirp yes
+#+begin_src conf :tangle git/.config/git/config :mkdirp yes
 [alias]
   ignore = "!gi() { curl -sL https://www.gitignore.io/api/$@ ;}; gi"
 #+end_src
@@ -1378,7 +1378,7 @@ for some binary files.
 
 First, let's add a custom script to run =tika-app=:
 
-#+begin_src shell :tangle ~/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
+#+begin_src shell :tangle git/.local/bin/tika :mkdirp yes :tangle-mode (identity #o755)
 #!/bin/sh
 APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
 
@@ -1390,9 +1390,9 @@ else
 fi
 #+end_src
 
-Add =tika='s installation instructions to the =setup.sh= file.
+Add =tika='s installation instructions to the =bootstrap.sh= file.
 
-#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
 
@@ -1457,7 +1457,7 @@ compressed files like ~*.bz2~, ~*.apk~... etc. I would like to disable this feat
 by exporting an XML config file which will be used when launching the Tika App
 (using ~--config=<tika-config.xml>~).
 
-#+begin_src xml :tangle ~/.local/share/tika/tika-conf.xml :mkdirp yes
+#+begin_src xml :tangle git/.local/share/tika/tika-conf.xml :mkdirp yes
 <?xml version="1.0" encoding="UTF-8"?>
 <properties>
   <parsers>
@@ -1484,7 +1484,7 @@ convenient, so I'll raise the requirement to =bash=. Since arrays are the only
 'extra' compared to =sh=, other shells like =ksh= etc. should work too.
 
 #+name: e
-#+begin_src shell :tangle ~/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle emacs/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/usr/bin/env bash
 force_tty=false
 force_wait=false
@@ -1580,7 +1580,7 @@ fi
 Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
 set aliases for the terminal-forced variants.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # -*- mode: sh; -*-
 
 # Aliases to run emacs+magit
@@ -1594,19 +1594,19 @@ alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
 
 And this to launch Emacs in terminal mode =et=, I use this as a default =$EDITOR=
 
-#+begin_src shell :tangle ~/.local/bin/et :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle emacs/.local/bin/et :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/usr/bin/env bash
 e -t "$@"
 #+end_src
 
 And =ev= for use with =$VISUAL=:
 
-#+begin_src shell :tangle ~/.local/bin/ev :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle emacs/.local/bin/ev :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/usr/bin/env bash
 e -w "$@"
 #+end_src
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 export EDITOR="$HOME/.local/bin/et"
 export VISUAL="$HOME/.local/bin/ev"
 #+end_src
@@ -1614,7 +1614,7 @@ export VISUAL="$HOME/.local/bin/ev"
 ** AppImage :appimage:
 Install/update the =appimageupdatetool.AppImage= tool:
 
-#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 update_appimageupdatetool () {
   TOOL_NAME=appimageupdatetool
   MACHINE_ARCH=$(uname -m)
@@ -1647,7 +1647,7 @@ update_appimageupdatetool;
 ** Path
 Path to your oh-my-zsh installation.
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 # -*- mode: sh -*-
 
 # When logging via Tramp it will look for patterns to detect if a shell is
@@ -1666,7 +1666,7 @@ Set name of the theme to load, if set to ="random"=, it will load a random theme
 each time oh-my-zsh is loaded, in which case, to know which specific one was
 loaded, run: =echo $RANDOM_THEME= See [[https://github.com/ohmyzsh/ohmyzsh/wiki/Themes][github.com/ohmyzsh/ohmyzsh/wiki/Themes]].
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 # Typewritten customizations
 TYPEWRITTEN_RELATIVE_PATH="adaptive"
 TYPEWRITTEN_CURSOR="underscore"
@@ -1682,7 +1682,7 @@ ZSH_THEME="typewritten/typewritten"
 
 ** Behavior
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -1730,7 +1730,7 @@ export UPDATE_ZSH_DAYS=3
 
 ** Plugins
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 # Would you like to use another custom folder than $ZSH/custom?
 ZSH_CUSTOM=$HOME/.config/my_ohmyzsh_customizations
 
@@ -1764,13 +1764,13 @@ plugins=(
 
 ** Bootstrap Oh-my-Zsh
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 source "$ZSH/oh-my-zsh.sh"
 #+end_src
 
 ** Aliases
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 # Aliases
 alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="ranger $ZSH"
@@ -1778,7 +1778,7 @@ alias ohmyzsh="ranger $ZSH"
 
 ** Include extra configuration file
 
-#+begin_src shell :tangle ~/.zshrc
+#+begin_src shell :tangle shell/.zshrc
 # Source extra commands
 source "$HOME/.shell_extras"
 #+end_src
@@ -1787,7 +1787,7 @@ source "$HOME/.shell_extras"
 ** Path
 Path to your oh-my-bash installation.
 
-#+begin_src shell :tangle ~/.bashrc
+#+begin_src shell :tangle shell/.bashrc
 # -*- mode: sh -*-
 
 # When logging via Tramp it will look for patterns to detect if a shell is
@@ -1876,13 +1876,13 @@ source "$OSH"/oh-my-bash.sh
 Set name of the theme to load. Optionally, if you set this to ="random"= it'll
 load a random theme each time that oh-my-bash is loaded.
 
-#+begin_src shell :tangle ~/.bashrc
+#+begin_src shell :tangle shell/.bashrc
 OSH_THEME="font"
 #+end_src
 
 ** Behavior
 
-#+begin_src shell :tangle ~/.bashrc
+#+begin_src shell :tangle shell/.bashrc
 # Uncomment the following line to use case-sensitive completion.
 # OMB_CASE_SENSITIVE="true"
 
@@ -1951,7 +1951,7 @@ OMB_USE_SUDO=true
 
 ** Plugins
 
-#+begin_src shell :tangle ~/.bashrc
+#+begin_src shell :tangle shell/.bashrc
 # Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
 # Custom completions may be added to ~/.oh-my-bash/custom/completions/
 # Example format: completions=(ssh git bundler gem pip pip3)
@@ -1989,13 +1989,13 @@ plugins=(
 
 ** Bootstrap Oh-my-Bash
 
-#+begin_src shell :tangle ~/.bashrc
+#+begin_src shell :tangle shell/.bashrc
 source "$OSH/oh-my-bash.sh"
 #+end_src
 
 ** Include extra configuration file
 
-#+begin_src shell :tangle ~/.bashrc
+#+begin_src shell :tangle shell/.bashrc
 # Source extra commands
 source "$HOME/.shell_extras"
 #+end_src
@@ -2003,7 +2003,7 @@ source "$HOME/.shell_extras"
 * Shell configuration :bash:zsh:shell:
 ** Misc
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # User configuration
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -2039,7 +2039,7 @@ terminal (from =stdin=, to =stdout=). The =pbcopy= and =pbpaste= are defined usi
 either =xclip= or =xsel=, you would need to install these tools, otherwise we wouldn't
 define the aliases.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # Define aliases to 'pbcopy' and 'pbpaste'
 if command -v xclip &> /dev/null; then
   # Define aliases using xclip
@@ -2055,7 +2055,7 @@ fi
 ** =netpaste=
 Define a =netpaste= command to paste to a Pastebin server.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 alias netpaste='curl -F file=@- 0x0.st' # OR 'curl -F f:1=<- ix.io '
 #+end_src
 
@@ -2063,7 +2063,7 @@ alias netpaste='curl -F file=@- 0x0.st' # OR 'curl -F f:1=<- ix.io '
 And then define =gsuon= and =gsuoff= aliases to run graphical apps from terminal
 with root permissions, this requires =xhost=.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # To run GUI apps from terminal with root permissions
 if command -v xhost &> /dev/null; then
   alias gsuon='xhost si:localuser:root'
@@ -2074,7 +2074,7 @@ fi
 ** Neovim
 Use Neovim instead of VIM to provide =vi= and =vim= commands.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # NeoVim
 if command -v nvim &> /dev/null; then
   alias vim="nvim"
@@ -2085,7 +2085,7 @@ fi
 ** ESP-IDF
 Add some aliases to work with the [[https://github.com/espressif/esp-idf.git][ESP-IDF]] framework.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 if [[ -d "$HOME/Softwares/src/esp-idf/" ]]; then
   alias esp-prepare-env='source $HOME/Softwares/src/esp-idf/export.sh'
   alias esp-update='echo "Updating ESP-IDF framework..." && cd $HOME/src/esp-idf && git pull --all && echo "Updated successfully"'
@@ -2098,7 +2098,7 @@ fi
 ** CLI wttrin client
 Define an alias to get weather information for my city:
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 alias wttrin='curl wttr.in/$WTTRIN_CITY'
 alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
 #+end_src
@@ -2106,14 +2106,14 @@ alias wttrin2='curl v2.wttr.in/$WTTRIN_CITY'
 ** Minicom
 Enable Meta key and colors in =minicom=:
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 export MINICOM='--metakey --color=on'
 #+end_src
 
 ** Rust
 Define Rust sources path, and add packages installed from =cargo= to the =PATH=.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/"
 export PATH="$PATH:$HOME/.cargo/bin"
 #+end_src
@@ -2126,21 +2126,21 @@ version of Clang-format.
 I don't like Go creating stuff in my home directory, lets move the Go workspace
 by setting the =GOPATH= environment variable.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # The default is $HOME/go
 export GOPATH="$HOME/Projects/go"
 #+end_src
 
 ** Clang-format
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 [[ -d "/opt/clang-format-static" ]] && export PATH="$PATH:/opt/clang-format-static"
 #+end_src
 
 ** CMake
 Add my manually built libraries to CMake and =PATH=.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 export CMAKE_PREFIX_PATH="$HOME/Softwares/src/install"
 export PATH="$PATH:$HOME/Softwares/src/install/bin"
 #+end_src
@@ -2148,7 +2148,7 @@ export PATH="$PATH:$HOME/Softwares/src/install/bin"
 ** Node
 Set NPM installation path to local:
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 NPM_PACKAGES="${HOME}/.npm-packages"
 
 # Export NPM bin path
@@ -2165,7 +2165,7 @@ export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 Tell NPM to use this directory for its global package installs by adding this
 in =~/.npmrc=:
 
-#+begin_src conf :tangle ~/.npmrc
+#+begin_src conf :tangle node/.npmrc
 prefix = ~/.npm-packages
 #+end_src
 
@@ -2176,7 +2176,7 @@ I like to use =tmux= by default, even on my local sessions, I like to start a =t
 in a =default= session on the first time I launch a terminal, and then, attach any
 other terminal to this default session:
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # If not running inside Emacs (via vterm/eshell...)
 if [[ -z "${INSIDE_EMACS}" ]]; then
   if command -v tmux &> /dev/null && [[ -z "${TMUX}" ]]; then
@@ -2187,7 +2187,7 @@ fi
 
 ** Other stuff
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
@@ -2210,19 +2210,19 @@ fi
 
 Define some environment variables.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 source "$HOME/.shell_private"
 #+end_src
 
 Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 [[ -f "$HOME/.bitwarden-session" ]] && source "$HOME/.bitwarden-session"
 #+end_src
 
 Load private configuration when found:
 
-#+begin_src shell :tangle ~/.shell_extras
+#+begin_src shell :tangle shell/.shell_extras
 [[ -f "$HOME/.shell_private" ]] && source "$HOME/.shell_private"
 #+end_src
 
@@ -2230,7 +2230,7 @@ Load private configuration when found:
 For Rust code base, the file =$HOME/.rustfmt.toml= contains the global format
 settings, I like to set it to:
 
-#+begin_src conf-toml :tangle ~/.rustfmt.toml
+#+begin_src conf-toml :tangle rust/.rustfmt.toml
 # Rust edition 2018
 edition = "2018"
 
@@ -2270,7 +2270,7 @@ todo = "Always"
 * eCryptfs :crypto:
 ** Unlock and mount script
 
-#+begin_src shell :tangle "~/.ecryptfs/ecryptfs-mount-private-gui" :mkdirp yes :tangle-mode (identity #o755)
+#+begin_src shell :tangle ecryptfs/.ecryptfs/ecryptfs-mount-private-gui :mkdirp yes :tangle-mode (identity #o755)
 #!/bin/sh -e
 # This script mounts a user's confidential private folder
 #
@@ -2351,7 +2351,7 @@ exit 0
 
 ** Desktop integration
 
-#+begin_src conf-unix :tangle "~/.local/share/applications/ecryptfs-mount-private-gui.desktop" :mkdirp yes :tangle-mode (identity #o755)
+#+begin_src conf-unix :tangle ecryptfs/.local/share/applications/ecryptfs-mount-private-gui.desktop :mkdirp yes :tangle-mode (identity #o755)
 [Desktop Entry]
 Type=Application
 Version=1.0
@@ -2368,7 +2368,7 @@ stuff), the right way to do this is either by starting =gdb= with =-q= option, o
 (since GDB v11 I think), by setting src_gdb-script{set startup-quietly} in
 =~/.gdbearlyinit=.
 
-#+begin_src gdb-script :tangle ~/.gdbearlyinit :exports code
+#+begin_src gdb-script :tangle gdb/.gdbearlyinit :exports code
 # GDB early init file
 # Abdelhak Bougouffa (c) 2022
 
@@ -2384,7 +2384,7 @@ printing, and defines the =c= and =n= commands to wrap =continue= and =next= wit
 =refresh=, which is helpful with the annoying TUI when the program outputs to the
 stdout.
 
-#+begin_src gdb-script :tangle ~/.gdbinit :noweb no-export
+#+begin_src gdb-script :tangle gdb/.gdbinit :noweb no-export
 # GDB init file
 # Abdelhak Bougouffa (c) 2022
 
@@ -2463,7 +2463,7 @@ triggered:
 - it runs =tesseract= to extract the text,
 - and then, it copies it to clipboard.
 
-#+begin_src shell :tangle ~/.local/bin/ocrthis :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle misc/.local/bin/ocrthis :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/bin/bash
 
 IMG=$(mktemp -u --suffix=".png")
@@ -2475,7 +2475,7 @@ tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib
 * Slack :slack:team:
 This script is called at system startup.
 
-#+begin_src shell :tangle ~/.local/bin/slack-startup :mkdirp yes :tangle-mode (identity #o755) :comments no
+#+begin_src shell :tangle desktop/.local/bin/slack-startup :mkdirp yes :tangle-mode (identity #o755) :comments no
 #!/bin/bash
 
 WEEK_DAY=$(date +%u)
@@ -2492,7 +2492,7 @@ fi
 * Arch Linux packages :linux:arch:manjaro:package:
 Here, we install Arch packages
 
-#+begin_src shell :tangle "setup.sh" :tangle-mode (identity #o755)
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 check_and_install_pkg() {
     PKG_NAME="$1"
     if ! pacman -Qiq "${PKG_NAME}" &>/dev/null; then
@@ -2541,6 +2541,6 @@ be fixed]] by setting ~PLASMA_USE_QT_SCALING=1~ before starting KDE Plasma. KDE
 sources the files with =.sh= extension found on =~/.config/plasma-workspace/env=, so
 let's create ours.
 
-#+begin_src shell :tangle (if nil "~/.config/plasma-workspace/env/fix_scaling.sh" "no") :mkdirp yes
+#+begin_src shell :tangle (if nil "desktop/.config/plasma-workspace/env/fix_scaling.sh" "no") :mkdirp yes
 export PLASMA_USE_QT_SCALING=1
 #+end_src

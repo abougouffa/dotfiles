@@ -2,19 +2,19 @@
 
 ;; NOTE: This file is generated from "config-literate.org".
 
-;; [[file:literate-config.org::*User information][User information:1]]
+;; [[file:../../literate-config.org::*User information][User information:1]]
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
       user-mail-address (concat "abougouffa" "@" "fedora" "project" "." "org"))
 ;; User information:1 ends here
 
-;; [[file:literate-config.org::*Crypto stuff][Crypto stuff:1]]
+;; [[file:../../literate-config.org::*Crypto stuff][Crypto stuff:1]]
 (setq-default
  ;; Encrypt files to my self by default
  epa-file-encrypt-to '("F808A020A3E1AC37"))
 ;; Crypto stuff:1 ends here
 
-;; [[file:literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
+;; [[file:../../literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
 (setq-default
  ;; Better support for files with long lines
  bidi-paragraph-direction 'left-to-right
@@ -22,7 +22,7 @@
  bidi-inhibit-bpa t)
 ;; Bidirectional settings:1 ends here
 
-;; [[file:literate-config.org::*Directories][Directories:1]]
+;; [[file:../../literate-config.org::*Directories][Directories:1]]
 (defvar +biblio-notes-path (expand-file-name "~/Research/bibliography/notes/"))
 (defvar +biblio-styles-path (expand-file-name "~/Zotero/styles/"))
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
@@ -32,7 +32,7 @@
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/")
 ;; Directories:1 ends here
 
-;; [[file:literate-config.org::*Misc][Misc:1]]
+;; [[file:../../literate-config.org::*Misc][Misc:1]]
 (setq +binary-hexl-enable t
       +binary-objdump-enable t
       browse-url-chromium-program (or (executable-find "brave")
@@ -41,7 +41,7 @@
       browse-url-chrome-program browse-url-chromium-program)
 ;; Misc:1 ends here
 
-;; [[file:literate-config.org::*Awqat][Awqat:1]]
+;; [[file:../../literate-config.org::*Awqat][Awqat:1]]
 (+lazy-when! (featurep 'me-lifestyle)
   ;; Calendar settings (from `solar')
   (setq calendar-latitude 48.86
@@ -53,7 +53,7 @@
   (awqat-set-preset-french-muslims))
 ;; Awqat:1 ends here
 
-;; [[file:literate-config.org::*Projects][Projects:1]]
+;; [[file:../../literate-config.org::*Projects][Projects:1]]
 (+lazy!
  (setq +project-scan-dir-paths
        '("~/Research/papers/"
@@ -67,17 +67,17 @@
   (+project-scan-for-projects)))
 ;; Projects:1 ends here
 
-;; [[file:literate-config.org::*Theme & font][Theme & font:1]]
+;; [[file:../../literate-config.org::*Theme & font][Theme & font:1]]
 (setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
 ;; Theme & font:1 ends here
 
-;; [[file:literate-config.org::*Writing mode][Writing mode:1]]
+;; [[file:../../literate-config.org::*Writing mode][Writing mode:1]]
 (with-eval-after-load 'me-writing-mode
   (setq +writing-mixed-pitch-enable nil
         +writing-text-scale 2.0))
 ;; Writing mode:1 ends here
 
-;; [[file:literate-config.org::*LSP][LSP:1]]
+;; [[file:../../literate-config.org::*LSP][LSP:1]]
 (with-eval-after-load 'lsp-mode
   (lsp-register-client
    (make-lsp-client
@@ -87,12 +87,12 @@
     :server-id 'pyls-remote)))
 ;; LSP:1 ends here
 
-;; [[file:literate-config.org::*Spell-fu][Spell-fu:1]]
+;; [[file:../../literate-config.org::*Spell-fu][Spell-fu:1]]
 (with-eval-after-load 'spell-fu
   (+spell-fu-register-dictionaries! "en" "fr"))
 ;; Spell-fu:1 ends here
 
-;; [[file:literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
+;; [[file:../../literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds
         '(("https://arxiv.org/rss/cs.RO" robotics academic)
@@ -111,7 +111,7 @@
           ("https://developers.redhat.com/blog/feed" linux foss))))
 ;; News feed (=elfeed=):1 ends here
 
-;; [[file:literate-config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):1]]
+;; [[file:../../literate-config.org::*Mail client and indexer (=mu= and =mu4e=)][Mail client and indexer (=mu= and =mu4e=):1]]
 ;; To disable auto starting mu4e in background
 (setq +mu4e-auto-start nil)
 
@@ -143,7 +143,7 @@
   (+load minemacs-config-dir "private/mu4e-extra-commands.el"))
 ;; Mail client and indexer (=mu= and =mu4e=):1 ends here
 
-;; [[file:literate-config.org::*EMPV][EMPV:1]]
+;; [[file:../../literate-config.org::*EMPV][EMPV:1]]
 (with-eval-after-load 'empv
   (setq
    ;; Set the radio channels, you can get streams from https://www.radio-browser.info
@@ -164,7 +164,7 @@
    empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
 ;; EMPV:1 ends here
 
-;; [[file:literate-config.org::*Tramp][Tramp:1]]
+;; [[file:../../literate-config.org::*Tramp][Tramp:1]]
 (with-eval-after-load 'tramp
   (setq
    ;; Do not use a separate history file for tramp sessions (buggy!)
@@ -175,7 +175,7 @@
    tramp-encoding-shell "/bin/bash"))
 ;; Tramp:1 ends here
 
-;; [[file:literate-config.org::*Robot Operating System (ROS)][Robot Operating System (ROS):1]]
+;; [[file:../../literate-config.org::*Robot Operating System (ROS)][Robot Operating System (ROS):1]]
 (with-eval-after-load 'ros
   (setq ros-workspaces
         (list
@@ -197,7 +197,7 @@
           :extends '("/opt/ros/foxy/")))))
 ;; Robot Operating System (ROS):1 ends here
 
-;; [[file:literate-config.org::*Org mode tweaks][Org mode tweaks:1]]
+;; [[file:../../literate-config.org::*Org mode tweaks][Org mode tweaks:1]]
 (with-eval-after-load 'org
   (setq
    ;; Let's put our Org files here
@@ -311,37 +311,37 @@
   (add-hook 'before-save-hook #'time-stamp))
 ;; Org mode tweaks:1 ends here
 
-;; [[file:literate-config.org::*Org + Hugo][Org + Hugo:1]]
+;; [[file:../../literate-config.org::*Org + Hugo][Org + Hugo:1]]
 (with-eval-after-load 'ox-hugo
   (setq org-hugo-auto-set-lastmod t))
 ;; Org + Hugo:1 ends here
 
-;; [[file:literate-config.org::*Org + LaTeX][Org + LaTeX:1]]
+;; [[file:../../literate-config.org::*Org + LaTeX][Org + LaTeX:1]]
 (with-eval-after-load 'ox-latex
   (add-to-list 'org-latex-packages-alist '("svgnames" "xcolor")))
 ;; Org + LaTeX:1 ends here
 
-;; [[file:literate-config.org::*Denote][Denote:1]]
+;; [[file:../../literate-config.org::*Denote][Denote:1]]
 (setq denote-directory "~/Dropbox/Org/notes/")
 
 (with-eval-after-load 'recentf
   (add-to-list 'recentf-exclude denote-directory))
 ;; Denote:1 ends here
 
-;; [[file:literate-config.org::*Org-cite][Org-cite:1]]
+;; [[file:../../literate-config.org::*Org-cite][Org-cite:1]]
 (with-eval-after-load 'oc
   (setq org-cite-csl-styles-dir +biblio-styles-path
         org-cite-global-bibliography (ensure-list +biblio-libraries-path)))
 ;; Org-cite:1 ends here
 
-;; [[file:literate-config.org::*Citar][Citar:1]]
+;; [[file:../../literate-config.org::*Citar][Citar:1]]
 (with-eval-after-load 'citar
   (setq citar-library-paths (ensure-list +biblio-storage-path)
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
 ;; Citar:1 ends here
 
-;; [[file:literate-config.org::*Machine specific overwrites][Machine specific overwrites:1]]
+;; [[file:../../literate-config.org::*Machine specific overwrites][Machine specific overwrites:1]]
 (let ((machine-specific-conf (concat minemacs-config-dir "private/machine-specific.el")))
   (when (file-exists-p machine-specific-conf)
     (+load machine-specific-conf)))

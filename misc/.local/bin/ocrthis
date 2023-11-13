@@ -1,0 +1,6 @@
+#!/bin/bash
+
+IMG=$(mktemp -u --suffix=".png")
+scrot -s "$IMG" -q 100
+mogrify -modulate 100,0 -resize 400% "$IMG"
+tesseract "$IMG" - -l eng 2> /dev/null | xsel -ib

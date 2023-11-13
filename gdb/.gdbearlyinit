@@ -1,0 +1,5 @@
+# GDB early init file
+# Abdelhak Bougouffa (c) 2022
+
+# Disable showing the initial message
+set startup-quietly

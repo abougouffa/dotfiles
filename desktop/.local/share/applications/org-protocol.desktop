@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Emacs Org-Protocol
+Exec=emacsclient %u
+Icon=/home/hacko/.doom.d/assets/org-mode.svg
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/org-protocol
