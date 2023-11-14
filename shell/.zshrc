@@ -99,7 +99,7 @@ plugins=(
 source "$ZSH/oh-my-zsh.sh"
 
 # Aliases
-alias zshconfig="vim ~/.zshrc"
+alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 
 # Source extra commands

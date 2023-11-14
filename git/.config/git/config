@@ -47,6 +47,17 @@
   textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
   cachetextconv = true
 
+[diff "djvu"]
+  binary = true
+  textconv = djvutxt # yay -S djvulibre
+  cachetextconv = true
+
+[diff "odt"]
+  binary = true
+  textconv = odt2txt
+# textconv = pandoc --standalone --from=odt --to=plain
+  cachetextconv = true
+
 [diff "doc"]
   binary = true
 # textconv = wvText
@@ -66,6 +77,17 @@
   textconv = catppt # yay -S catdoc
   cachetextconv = true
 
+[diff "docx"]
+  binary = true
+# textconv = sh -c 'docx2txt.pl "$0" -'
+  textconv = pandoc --standalone --from=docx --to=plain
+  cachetextconv = true
+
+[diff "epub"]
+  textconv = pandoc --standalone --from=epub --to=plain
+  binary = true
+  cachetextconv = true
+
 [diff "pptx"]
   binary = true
 # pip install --user pptx2md (currently not wotking with Python 3.10)
@@ -78,6 +100,15 @@
   binary = true
   textconv = soffice --cat
   cachetextconv = true
+
+[diff "tika"]
+  binary = true
+  textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
+  cachetextconv = true
+
+[diff "exif"]
+  binary = true
+  textconv = exiftool # sudo apt install perl-image-exiftool
 
 [alias]
   prune-files = "git-prune-files"
