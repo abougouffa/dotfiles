@@ -5,7 +5,7 @@
 ;; [[file:../../literate-config.org::*User information][User information:1]]
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
-      user-mail-address (concat "abougouffa" "@" "fedora" "project" "." "org"))
+      user-mail-address (rot13 "nobhtbhssn@srqbencebwrpg.bet"))
 ;; User information:1 ends here
 
 ;; [[file:../../literate-config.org::*Crypto stuff][Crypto stuff:1]]

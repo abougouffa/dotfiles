@@ -162,7 +162,7 @@ respond to my daily needs.
 #+begin_src emacs-lisp
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
-      user-mail-address (concat "abougouffa" "@" "fedora" "project" "." "org"))
+      user-mail-address (rot13 "nobhtbhssn@srqbencebwrpg.bet"))
 #+end_src
 
 *** Crypto stuff
