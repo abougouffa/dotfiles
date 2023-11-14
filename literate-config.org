@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-12
+#+lastmod: 2023-11-14
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -2544,3 +2544,8 @@ let's create ours.
 #+begin_src shell :tangle (if nil "desktop/.config/plasma-workspace/env/fix_scaling.sh" "no") :mkdirp yes
 export PLASMA_USE_QT_SCALING=1
 #+end_src
+
+# Automatically tangle this file on save
+# Local Variables:
+# eval: (add-hook 'after-save-hook #'org-babel-tangle)
+# End:
