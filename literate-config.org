@@ -2118,10 +2118,6 @@ export RUST_SRC_PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/l
 export PATH="$PATH:$HOME/.cargo/bin"
 #+end_src
 
-I'm using the AUR package =clang-format-static-bin=, which provide multiple
-versions of Clang-format, I use it with some work projects requiring a specific
-version of Clang-format.
-
 ** Go
 I don't like Go creating stuff in my home directory, lets move the Go workspace
 by setting the =GOPATH= environment variable.
@@ -2132,6 +2128,9 @@ export GOPATH="$HOME/Projects/go"
 #+end_src
 
 ** Clang-format
+I'm using the AUR package =clang-format-static-bin=, which provide multiple
+versions of Clang-format, I use it with some work projects requiring a specific
+version of Clang-format.
 
 #+begin_src shell :tangle shell/.shell_extras
 [[ -d "/opt/clang-format-static" ]] && export PATH="$PATH:/opt/clang-format-static"
@@ -2382,7 +2381,7 @@ this file, this is a WIP, but it won't evolve too much, as [[https://youtu.be/-n
 keep the =.gdbinit= clean and simple]]. For the moment, it does just enable pretty
 printing, and defines the =c= and =n= commands to wrap =continue= and =next= with a post
 =refresh=, which is helpful with the annoying TUI when the program outputs to the
-stdout.
+standard output.
 
 #+begin_src gdb-script :tangle gdb/.gdbinit :noweb no-export
 # GDB init file
