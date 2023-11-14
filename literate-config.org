@@ -1197,7 +1197,7 @@ Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://p
 
 Then adding some regular expressions for it to =~/.config/git/config=:
 
-#+begin_src gitconfig :tangle ~/.config/git/config :mkdirp yes
+#+begin_src gitconfig :tangle git/.config/git/config :mkdirp yes
 # ====== TEXT FORMATS ======
 [diff "org"]
   xfuncname = "^(\\*+ +.*)$"
@@ -1220,21 +1220,21 @@ Then adding some regular expressions for it to =~/.config/git/config=:
 
 And some tools to view diffs on binary files:
 
-#+begin_src gitconfig :tangle (if (executable-find "pdftotext") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "pdftotext") "git/.config/git/config" "no") :mkdirp yes
 [diff "pdf"]
   binary = true
   textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "djvutxt") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "djvutxt") "git/.config/git/config" "no") :mkdirp yes
 [diff "djvu"]
   binary = true
   textconv = djvutxt # yay -S djvulibre
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "odt2txt") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "odt2txt") "git/.config/git/config" "no") :mkdirp yes
 [diff "odt"]
   binary = true
   textconv = odt2txt
@@ -1242,7 +1242,7 @@ And some tools to view diffs on binary files:
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "catdoc") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "catdoc") "git/.config/git/config" "no") :mkdirp yes
 [diff "doc"]
   binary = true
 # textconv = wvText
@@ -1250,7 +1250,7 @@ And some tools to view diffs on binary files:
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "xls2csv") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "xls2csv") "git/.config/git/config" "no") :mkdirp yes
 [diff "xls"]
   binary = true
 # textconv = in2csv
@@ -1260,14 +1260,14 @@ And some tools to view diffs on binary files:
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "catppt") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "catppt") "git/.config/git/config" "no") :mkdirp yes
 [diff "ppt"]
   binary = true
   textconv = catppt # yay -S catdoc
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "pandoc") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "pandoc") "git/.config/git/config" "no") :mkdirp yes
 [diff "docx"]
   binary = true
 # textconv = sh -c 'docx2txt.pl "$0" -'
@@ -1280,7 +1280,7 @@ And some tools to view diffs on binary files:
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "xlsx2csv") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "xlsx2csv") "git/.config/git/config" "no") :mkdirp yes
 [diff "xlsx"]
   binary = true
   textconv = xlsx2csv # pip install xlsx2csv
@@ -1289,7 +1289,7 @@ And some tools to view diffs on binary files:
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "soffice") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "soffice") "git/.config/git/config" "no") :mkdirp yes
 [diff "pptx"]
   binary = true
 # pip install --user pptx2md (currently not wotking with Python 3.10)
@@ -1304,21 +1304,21 @@ And some tools to view diffs on binary files:
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "unrtf") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "unrtf") "git/.config/git/config" "no") :mkdirp yes
 [diff "rtf"]
   binary = true
   textconv = unrtf --text # yay -S unrtf
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "tika") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "tika") "git/.config/git/config" "no") :mkdirp yes
 [diff "tika"]
   binary = true
   textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
   cachetextconv = true
 #+end_src
 
-#+begin_src gitconfig :tangle (if (executable-find "exiftool") "~/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :tangle (if (executable-find "exiftool") "git/.config/git/config" "no") :mkdirp yes
 [diff "exif"]
   binary = true
   textconv = exiftool # sudo apt install perl-image-exiftool
@@ -1356,7 +1356,7 @@ rm -rf .git/refs/original/ && git reflog expire --all && git gc --aggressive --p
 
 Or, add an alias to the command to your Git configuration:
 
-#+begin_src conf :tangle ~/.config/git/config :mkdirp yes
+#+begin_src conf :tangle git/.config/git/config :mkdirp yes
 [alias]
   prune-files = "git-prune-files"
 #+end_src
@@ -1772,7 +1772,7 @@ source "$ZSH/oh-my-zsh.sh"
 
 #+begin_src shell :tangle shell/.zshrc
 # Aliases
-alias zshconfig="vim ~/.zshrc"
+alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 #+end_src
 
