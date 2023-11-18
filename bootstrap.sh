@@ -91,6 +91,8 @@ update_appimageupdatetool () {
 
 update_appimageupdatetool;
 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+
 check_and_install_pkg() {
     PKG_NAME="$1"
     if ! pacman -Qiq "${PKG_NAME}" &>/dev/null; then

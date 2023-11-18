@@ -88,17 +88,8 @@ export GOPATH="$HOME/Projects/go"
 export CMAKE_PREFIX_PATH="$HOME/Softwares/src/install"
 export PATH="$PATH:$HOME/Softwares/src/install/bin"
 
-NPM_PACKAGES="${HOME}/.npm-packages"
-
-# Export NPM bin path
-export PATH="$PATH:$NPM_PACKAGES/bin"
-
-# Preserve MANPATH if you already defined it somewhere in your config.
-# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
-export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
-
-# Tell Node about these packages
-export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
 # If not running inside Emacs (via vterm/eshell...)
 if [[ -z "${INSIDE_EMACS}" ]]; then

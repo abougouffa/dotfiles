@@ -5,4 +5,7 @@ EMACS_BATCH=emacs --batch
 tangle:
 	$(EMACS_BATCH) --eval '(with-current-buffer (find-file-noselect "literate-config.org") (org-babel-tangle))'
 
+stow:
+	stow -D $(HOME) emacs
+
 all: tangle
