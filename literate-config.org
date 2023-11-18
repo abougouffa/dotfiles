@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-14
+#+lastmod: 2023-11-18
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -128,6 +128,7 @@ respond to my daily needs.
    me-latex         ; tex, auctex, reftex, ...
    me-natural-langs ; spell-fu, eglot-ltex, ...
    me-files         ; dirvish, dired, vlf, ...
+   ;; me-formal     ; proof-general, alloy-mode, ...
    me-tools         ; vterm, tldr, docker, systemd, ...
    me-biblio        ; org-cite, citar, ...
    me-daemon        ; Emacs daemon tweaks
@@ -2147,28 +2148,14 @@ export PATH="$PATH:$HOME/Softwares/src/install/bin"
 ** Node
 Set NPM installation path to local:
 
+#+begin_src shell :tangle bootstrap.sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+#+end_src
+
 #+begin_src shell :tangle shell/.shell_extras
-NPM_PACKAGES="${HOME}/.npm-packages"
-
-# Export NPM bin path
-export PATH="$PATH:$NPM_PACKAGES/bin"
-
-# Preserve MANPATH if you already defined it somewhere in your config.
-# Otherwise, fall back to `manpath` so we can inherit from `/etc/manpath`.
-export MANPATH="${MANPATH-$(manpath)}:$NPM_PACKAGES/share/man"
-
-# Tell Node about these packages
-export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 #+end_src
-
-Tell NPM to use this directory for its global package installs by adding this
-in =~/.npmrc=:
-
-#+begin_src conf :tangle node/.npmrc
-prefix = ~/.npm-packages
-#+end_src
-
-Some useful stuff (=fzf=, =opam=, Doom Emacs...)
 
 ** tmux
 I like to use =tmux= by default, even on my local sessions, I like to start a =tmux=
@@ -2185,6 +2172,7 @@ fi
 #+end_src
 
 ** Other stuff
+Some useful stuff (=fzf=, =opam=, Doom Emacs...)
 
 #+begin_src shell :tangle shell/.shell_extras
 # You may need to manually set your language environment
