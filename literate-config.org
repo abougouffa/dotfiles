@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-21
+#+lastmod: 2023-11-22
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1407,6 +1407,8 @@ update_apache_tika () {
 
   echo -n "Checking for new Apache Tika App version... "
 
+  command -v pandoc >/dev/null || echo "Cannot check, pandoc is missing!"; return
+
   # Get the lastest version
   TIKA_VERSION=$(
     curl -s "${TIKA_BASE_URL}" | # Get the page
@@ -2149,12 +2151,26 @@ export PATH="$PATH:$HOME/Softwares/src/install/bin"
 Set NPM installation path to local:
 
 #+begin_src shell :tangle bootstrap.sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+command -v nvm >/dev/null || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 #+end_src
 
 #+begin_src shell :tangle shell/.shell_extras
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+#+end_src
+
+** Python
+Install and setup =pyenv=:
+
+#+begin_src shell :tangle bootstrap.sh
+command -v pyenv >/dev/null || curl https://pyenv.run | bash
+#+end_src
+
+#+begin_src shell :tangle shell/.shell_extras
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 #+end_src
 
 ** tmux
@@ -2516,9 +2532,13 @@ PKGS_LIST=(
     brave zotero
 )
 
-for PKG in "${PKGS_LIST[@]}"; do
-    check_and_install_pkg "$PKG"
-done
+if command -v pacman >/dev/null; then
+    for PKG in "${PKGS_LIST[@]}"; do
+        check_and_install_pkg "$PKG"
+    done
+else
+    echo "Not on Arch Linux or Manjaro"
+fi
 #+end_src
 
 * KDE Plasma :kde:

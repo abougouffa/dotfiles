@@ -5,7 +5,26 @@
 # It helps installing required tools (for Arch/Manjaro Linux) and tweak some
 # system settings
 
+update-mime-database ~/.local/share/mime
+
 xdg-mime default emacs-client.desktop text/org
+
+xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+
+read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
+
+if [[ "$INSTALL_CONFIRM" == "Y" ]]
+then
+  sudo mkdir -p /etc/opt/chrome/policies/managed/
+
+  sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json > /dev/null <<'EOF'
+  {
+  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
+  }
+EOF
+
+  sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+fi
 
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
@@ -19,6 +38,8 @@ update_apache_tika () {
   TIKA_JAR_LINK="${TIKA_JAR_PATH}/tika-app.jar"
 
   echo -n "Checking for new Apache Tika App version... "
+
+  command -v pandoc >/dev/null || echo "Cannot check, pandoc is missing!"; return
 
   # Get the lastest version
   TIKA_VERSION=$(
@@ -91,7 +112,9 @@ update_appimageupdatetool () {
 
 update_appimageupdatetool;
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+command -v nvm >/dev/null || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+
+command -v pyenv >/dev/null || curl https://pyenv.run | bash
 
 check_and_install_pkg() {
     PKG_NAME="$1"
@@ -129,6 +152,10 @@ PKGS_LIST=(
     brave zotero
 )
 
-for PKG in "${PKGS_LIST[@]}"; do
-    check_and_install_pkg "$PKG"
-done
+if command -v pacman >/dev/null; then
+    for PKG in "${PKGS_LIST[@]}"; do
+        check_and_install_pkg "$PKG"
+    done
+else
+    echo "Not on Arch Linux or Manjaro"
+fi
