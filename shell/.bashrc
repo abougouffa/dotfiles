@@ -186,3 +186,5 @@ source "$OSH/oh-my-bash.sh"
 
 # Source extra commands
 source "$HOME/.shell_extras"
+
+command -v direnv >/dev/null && eval "$(direnv hook bash)"

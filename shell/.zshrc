@@ -104,3 +104,5 @@ alias ohmyzsh="ranger $ZSH"
 
 # Source extra commands
 source "$HOME/.shell_extras"
+
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"

@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-22
+#+lastmod: 2023-11-26
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1095,6 +1095,7 @@ this file gets deleted.
 #+end_comment
 
 #+begin_src shell :tangle (if (file-exists-p "/etc/opt/chrome/policies/managed/external_protocol_dialog.json") "no" "bootstrap.sh")
+unset INSTALL_CONFIRM
 read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
 
 if [[ "$INSTALL_CONFIRM" == "Y" ]]
@@ -1432,6 +1433,7 @@ update_apache_tika () {
   if [ ! -f "${TIKA_JAR}" ]
   then
     echo "New version available!"
+    unset INSTALL_CONFIRM
     read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
     if [[ "$INSTALL_CONFIRM" == "Y" ]]
     then
@@ -2187,6 +2189,39 @@ if [[ -z "${INSIDE_EMACS}" ]]; then
 fi
 #+end_src
 
+** Direnv
+
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
+command -v direnv >/dev/null || curl -sfL https://direnv.net/install.sh | bash
+#+end_src
+
+#+begin_src shell :tangle shell/.bashrc
+command -v direnv >/dev/null && eval "$(direnv hook bash)"
+#+end_src
+
+#+begin_src shell :tangle shell/.zshrc
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+#+end_src
+
+** Nix
+
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
+if ! command -v tmux &> /dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
+
+  if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+    sh <(curl -L https://nixos.org/nix/install) --daemon
+  else
+    read -p "Do you want install Nix for the current user only? [Y | N]: " INSTALL_CONFIRM
+
+    if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+      sh <(curl -L https://nixos.org/nix/install) --no-daemon
+    fi
+  fi
+fi
+#+end_src
+
 ** Other stuff
 Some useful stuff (=fzf=, =opam=, Doom Emacs...)
 
@@ -2533,9 +2568,13 @@ PKGS_LIST=(
 )
 
 if command -v pacman >/dev/null; then
-    for PKG in "${PKGS_LIST[@]}"; do
-        check_and_install_pkg "$PKG"
-    done
+    unset INSTALL_CONFIRM
+    read -p "Do you want to Arch Linux packages? [Y | N]: " INSTALL_CONFIRM
+    if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+        for PKG in "${PKGS_LIST[@]}"; do
+            check_and_install_pkg "$PKG"
+        done
+    fi
 else
     echo "Not on Arch Linux or Manjaro"
 fi

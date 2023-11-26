@@ -5,26 +5,7 @@
 # It helps installing required tools (for Arch/Manjaro Linux) and tweak some
 # system settings
 
-update-mime-database ~/.local/share/mime
-
 xdg-mime default emacs-client.desktop text/org
-
-xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
-
-read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
-
-if [[ "$INSTALL_CONFIRM" == "Y" ]]
-then
-  sudo mkdir -p /etc/opt/chrome/policies/managed/
-
-  sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json > /dev/null <<'EOF'
-  {
-  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
-  }
-EOF
-
-  sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
-fi
 
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
@@ -64,6 +45,7 @@ update_apache_tika () {
   if [ ! -f "${TIKA_JAR}" ]
   then
     echo "New version available!"
+    unset INSTALL_CONFIRM
     read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
     if [[ "$INSTALL_CONFIRM" == "Y" ]]
     then
@@ -116,6 +98,23 @@ command -v nvm >/dev/null || curl -o- https://raw.githubusercontent.com/nvm-sh/n
 
 command -v pyenv >/dev/null || curl https://pyenv.run | bash
 
+command -v direnv >/dev/null || curl -sfL https://direnv.net/install.sh | bash
+
+if ! command -v tmux &> /dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
+
+  if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+    sh <(curl -L https://nixos.org/nix/install) --daemon
+  else
+    read -p "Do you want install Nix for the current user only? [Y | N]: " INSTALL_CONFIRM
+
+    if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+      sh <(curl -L https://nixos.org/nix/install) --no-daemon
+    fi
+  fi
+fi
+
 check_and_install_pkg() {
     PKG_NAME="$1"
     if ! pacman -Qiq "${PKG_NAME}" &>/dev/null; then
@@ -153,9 +152,13 @@ PKGS_LIST=(
 )
 
 if command -v pacman >/dev/null; then
-    for PKG in "${PKGS_LIST[@]}"; do
-        check_and_install_pkg "$PKG"
-    done
+    unset INSTALL_CONFIRM
+    read -p "Do you want to Arch Linux packages? [Y | N]: " INSTALL_CONFIRM
+    if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+        for PKG in "${PKGS_LIST[@]}"; do
+            check_and_install_pkg "$PKG"
+        done
+    fi
 else
     echo "Not on Arch Linux or Manjaro"
 fi
