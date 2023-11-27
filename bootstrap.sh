@@ -5,7 +5,27 @@
 # It helps installing required tools (for Arch/Manjaro Linux) and tweak some
 # system settings
 
+update-mime-database ~/.local/share/mime
+
 xdg-mime default emacs-client.desktop text/org
+
+xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+
+unset INSTALL_CONFIRM
+read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
+
+if [[ "$INSTALL_CONFIRM" == "Y" ]]
+then
+  sudo mkdir -p /etc/opt/chrome/policies/managed/
+
+  sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json > /dev/null <<'EOF'
+  {
+  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
+  }
+EOF
+
+  sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+fi
 
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
@@ -94,13 +114,31 @@ update_appimageupdatetool () {
 
 update_appimageupdatetool;
 
-command -v nvm >/dev/null || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+if ! command -v nvm >/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install nvm [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  fi
+fi
 
-command -v pyenv >/dev/null || curl https://pyenv.run | bash
+if ! command -v pyenv &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install pyenv [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl https://pyenv.run | bash
+  fi
+fi
 
-command -v direnv >/dev/null || curl -sfL https://direnv.net/install.sh | bash
+if ! command -v direnv &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install direnv [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -sfL https://direnv.net/install.sh | bash
+  fi
+fi
 
-if ! command -v tmux &> /dev/null; then
+if ! command -v nix &> /dev/null; then
   unset INSTALL_CONFIRM
   read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
 
