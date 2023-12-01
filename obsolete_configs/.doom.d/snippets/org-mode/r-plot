@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: Python matplotlib session
-# uuid: r-plot
-# key: r-plot
-# --
-#+begin_src R :results output graphics :file (org-babel-temp-file "figure" ".png") :exports both :width 600 :height 400 :session *R*
-`%`$0
-#+end_src
