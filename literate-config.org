@@ -1,9 +1,9 @@
-# -*- coding: utf-8-unix; -*-
+# -*- coding: utf-8; -*-
 #+title: Workflow Configuration
-#+subtitle: Personal configuration for MinEmacs, Bash, Zsha, and other Linux stuff
+#+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-11-27
+#+lastmod: 2023-12-01
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -65,7 +65,7 @@ respond to my daily needs.
 ;; NOTE: This file is generated from "config-literate.org".
 
 ;; MinEmacs specific stuff
-(unless minemacs-verbose
+(unless minemacs-verbose-p
   (setq minemacs-msg-level 2)) ; print info messages
 
 ;; Disable `dashboard'
@@ -75,9 +75,9 @@ respond to my daily needs.
 ;; (setq minemacs-not-lazy t)
 
 ;; Enable full screen at startup
-;; (if-let ((fullscreen (assq 'fullscreen default-frame-alist)))
-;;     (setcdr fullscreen 'fullboth)
-;;   (push '(fullscreen . fullboth) default-frame-alist))
+(if-let ((fullscreen (assq 'fullscreen default-frame-alist)))
+    (setcdr fullscreen 'fullboth)
+  (push '(fullscreen . fullboth) default-frame-alist))
 
 ;; Setup a `debug-on-message' to catch a wired message!
 ;; (setq debug-on-message "\\(?:error in process filter: \\(?:\\(?:mu4e-warn: \\)?\\[mu4e] No message at point\\)\\)")
@@ -155,6 +155,9 @@ respond to my daily needs.
 ;;; config.el -*- coding: utf-8-unix; lexical-binding: t; -*-
 
 ;; NOTE: This file is generated from "config-literate.org".
+
+(with-eval-after-load 'tab-bar
+  (setq tab-bar-show t))
 #+end_src
 
 ** General Emacs settings :global:

@@ -47,6 +47,17 @@
   textconv = sh -c 'pdftotext -layout "$0" -enc UTF-8 -nopgbrk -q -'
   cachetextconv = true
 
+[diff "djvu"]
+  binary = true
+  textconv = djvutxt # yay -S djvulibre
+  cachetextconv = true
+
+[diff "odt"]
+  binary = true
+  textconv = odt2txt
+# textconv = pandoc --standalone --from=odt --to=plain
+  cachetextconv = true
+
 [diff "doc"]
   binary = true
 # textconv = wvText
@@ -94,6 +105,10 @@
   binary = true
   textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
   cachetextconv = true
+
+[diff "exif"]
+  binary = true
+  textconv = exiftool # sudo apt install perl-image-exiftool
 
 [alias]
   prune-files = "git-prune-files"

@@ -2,6 +2,9 @@
 
 ;; NOTE: This file is generated from "config-literate.org".
 
+(with-eval-after-load 'tab-bar
+  (setq tab-bar-show t))
+
 ;; [[file:../../literate-config.org::*User information][User information:1]]
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
