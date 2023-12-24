@@ -106,3 +106,10 @@ alias ohmyzsh="ranger $ZSH"
 source "$HOME/.shell_extras"
 
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+
+# # Automatically added by the Guix install script.
+# if [ -n "$GUIX_ENVIRONMENT" ]; then
+#     if [[ $PS1 =~ (.*)"\\$" ]]; then
+#         PS1="${BASH_REMATCH[1]} [env]\\\$ "
+#     fi
+# fi

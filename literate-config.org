@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-12-01
+#+lastmod: 2023-12-24
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -118,6 +118,7 @@ respond to my daily needs.
    ;; me-lsp        ; lsp-mode, dap-mode, consult-lsp, ...
    me-debug         ; dape, realgud, disaster, ...
    me-emacs-lisp    ; parinfer-rust, macrostep, elisp, ...
+   me-scheme
    me-data          ; csv, yaml, toml, json, ...
    me-org           ; org, org-modern, ...
    me-notes         ; denote, consult-notes, ...
@@ -2224,23 +2225,62 @@ command -v direnv &>/dev/null && eval "$(direnv hook bash)"
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 #+end_src
 
-** Nix
+** Nix & Guix
+I'm currently experimenting both Nix and Guix as package managers to see which
+one fits my needs. I'm planning to move from Manjaro/Arch Linux to NixOS or
+Guix. Guix seems more robust, less hacky than NixOS and uses Guile Scheme for
+almost every aspect (the Nix language is definitely less powerful and non
+general purpose as Guile). However, the strict "libre" policy of Guix bothers me
+a bit, as well as the number of available packages for Guix compared to those
+available for Nix.
+
+*** Nix
 
 #+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
-if ! command -v nix &> /dev/null; then
-  unset INSTALL_CONFIRM
-  read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
+# if ! command -v nix &> /dev/null; then
+#   unset INSTALL_CONFIRM
+#   read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
 
-  if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
-    sh <(curl -L https://nixos.org/nix/install) --daemon
-  else
-    read -p "Do you want install Nix for the current user only? [Y | N]: " INSTALL_CONFIRM
+#   if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+#     sh <(curl -L https://nixos.org/nix/install) --daemon
+#   else
+#     read -p "Do you want install Nix for the current user only? [Y | N]: " INSTALL_CONFIRM
 
-    if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
-      sh <(curl -L https://nixos.org/nix/install) --no-daemon
-    fi
-  fi
-fi
+#     if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+#       sh <(curl -L https://nixos.org/nix/install) --no-daemon
+#     fi
+#   fi
+# fi
+#+end_src
+
+*** Guix
+
+#+begin_src shell :tangle bootstrap.sh
+# if ! command -v guix &>/dev/null; then
+#   unset INSTALL_CONFIRM
+#   read -p "Do you want install guix [Y | N]: " INSTALL_CONFIRM
+#   if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+#     curl -sfL https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh | sudo bash
+#   fi
+# fi
+#+end_src
+
+#+begin_src shell :tangle shell/.bashrc
+# # Automatically added by the Guix install script.
+# if [ -n "$GUIX_ENVIRONMENT" ]; then
+#     if [[ $PS1 =~ (.*)"\\$" ]]; then
+#         PS1="${BASH_REMATCH[1]} [env]\\\$ "
+#     fi
+# fi
+#+end_src
+
+#+begin_src shell :tangle shell/.zshrc
+# # Automatically added by the Guix install script.
+# if [ -n "$GUIX_ENVIRONMENT" ]; then
+#     if [[ $PS1 =~ (.*)"\\$" ]]; then
+#         PS1="${BASH_REMATCH[1]} [env]\\\$ "
+#     fi
+# fi
 #+end_src
 
 ** Other stuff

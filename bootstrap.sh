@@ -118,20 +118,28 @@ if ! command -v direnv &>/dev/null; then
   fi
 fi
 
-if ! command -v nix &> /dev/null; then
-  unset INSTALL_CONFIRM
-  read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
+# if ! command -v nix &> /dev/null; then
+#   unset INSTALL_CONFIRM
+#   read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM
 
-  if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
-    sh <(curl -L https://nixos.org/nix/install) --daemon
-  else
-    read -p "Do you want install Nix for the current user only? [Y | N]: " INSTALL_CONFIRM
+#   if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+#     sh <(curl -L https://nixos.org/nix/install) --daemon
+#   else
+#     read -p "Do you want install Nix for the current user only? [Y | N]: " INSTALL_CONFIRM
 
-    if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
-      sh <(curl -L https://nixos.org/nix/install) --no-daemon
-    fi
-  fi
-fi
+#     if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
+#       sh <(curl -L https://nixos.org/nix/install) --no-daemon
+#     fi
+#   fi
+# fi
+
+# if ! command -v guix &>/dev/null; then
+#   unset INSTALL_CONFIRM
+#   read -p "Do you want install guix [Y | N]: " INSTALL_CONFIRM
+#   if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+#     curl -sfL https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh | sudo bash
+#   fi
+# fi
 
 check_and_install_pkg() {
     PKG_NAME="$1"

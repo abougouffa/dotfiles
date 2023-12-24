@@ -188,3 +188,10 @@ source "$OSH/oh-my-bash.sh"
 source "$HOME/.shell_extras"
 
 command -v direnv &>/dev/null && eval "$(direnv hook bash)"
+
+# # Automatically added by the Guix install script.
+# if [ -n "$GUIX_ENVIRONMENT" ]; then
+#     if [[ $PS1 =~ (.*)"\\$" ]]; then
+#         PS1="${BASH_REMATCH[1]} [env]\\\$ "
+#     fi
+# fi
