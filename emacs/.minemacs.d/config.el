@@ -90,11 +90,6 @@
     :server-id 'pyls-remote)))
 ;; LSP:1 ends here
 
-;; [[file:../../literate-config.org::*Spell-fu][Spell-fu:1]]
-(with-eval-after-load 'spell-fu
-  (+spell-fu-register-dictionaries! "en" "fr"))
-;; Spell-fu:1 ends here
-
 ;; [[file:../../literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (with-eval-after-load 'elfeed
   (setq elfeed-feeds

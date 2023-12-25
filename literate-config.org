@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-12-24
+#+lastmod: 2023-12-25
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -277,13 +277,6 @@ installed on the distant machine for this to work.
 **** Offline dictionaries
 Needs ~sdcv~ to be installed, needs also /StarDict/ dictionaries, you can download
 some from [[https://sites.google.com/site/gtonguedict/home/stardict-dictionaries][here]] and [[https://polyglotte.tuxfamily.org/doku.php?id=donnees:dicos_bilingues][here]] for french.
-
-**** Spell-fu
-
-#+begin_src emacs-lisp
-(with-eval-after-load 'spell-fu
-  (+spell-fu-register-dictionaries! "en" "fr"))
-#+end_src
 
 ** Applications :apps:
 *** News feed (=elfeed=) :rss:news:
@@ -2655,4 +2648,5 @@ export PLASMA_USE_QT_SCALING=1
 # Automatically tangle this file on save
 # Local Variables:
 # eval: (add-hook 'after-save-hook #'org-babel-tangle)
+# jinx-languages: "en"
 # End:
