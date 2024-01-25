@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: a bougouffa at fedora project dot org
-#+lastmod: 2023-12-25
+#+lastmod: 2024-01-25
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -65,11 +65,14 @@ respond to my daily needs.
 ;; NOTE: This file is generated from "config-literate.org".
 
 ;; MinEmacs specific stuff
-(unless minemacs-verbose-p
-  (setq minemacs-msg-level 2)) ; print info messages
+;; (unless minemacs-verbose-p
+;;   (setq minemacs-msg-level 1)) ; print info messages
 
-;; Disable `dashboard'
-(setq +dashboard-disable t)
+(setq minemacs-verbose-p nil
+      minemacs-msg-level 3)
+
+(setq +dashboard-disable t ; Disable `dashboard'
+      +python-enable-pyenv t) ; Enable integration with "pyenv"
 
 ;; Force loading lazy packages immediately, not in idle time
 ;; (setq minemacs-not-lazy t)
@@ -106,7 +109,9 @@ respond to my daily needs.
    me-completion)   ; vertico, marginalia, corfu, cape, consult, ...
  ;; MinEmacs modules
  minemacs-modules
- '(me-ui            ; focus, writeroom-mode, emojify, ...
+ '(me-ui            ; focus, emojify, ...
+   ;;me-nano          ; N Λ N O Emacs, ...
+   me-ai            ; ellama, llm, ...
    me-editor        ; yasnippet, unicode-fonts, ligature, ...
    me-extra         ; better-jumper, ...
    me-undo          ; undo-fu-session, vundo, ...
