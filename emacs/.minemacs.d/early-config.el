@@ -3,11 +3,8 @@
 ;; NOTE: This file is generated from "config-literate.org".
 
 ;; MinEmacs specific stuff
-;; (unless minemacs-verbose-p
-;;   (setq minemacs-msg-level 1)) ; print info messages
-
-(setq minemacs-verbose-p nil
-      minemacs-msg-level 3)
+(unless minemacs-verbose-p
+  (setq minemacs-msg-level 3))
 
 (setq +dashboard-disable t ; Disable `dashboard'
       +python-enable-pyenv t) ; Enable integration with "pyenv"
