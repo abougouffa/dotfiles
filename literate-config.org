@@ -2,8 +2,8 @@
 #+title: Workflow Configuration
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
-#+email: a bougouffa at fedora project dot org
-#+lastmod: 2024-01-25
+#+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
+#+lastmod: 2024-01-31
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -65,11 +65,8 @@ respond to my daily needs.
 ;; NOTE: This file is generated from "config-literate.org".
 
 ;; MinEmacs specific stuff
-;; (unless minemacs-verbose-p
-;;   (setq minemacs-msg-level 1)) ; print info messages
-
-(setq minemacs-verbose-p nil
-      minemacs-msg-level 3)
+(unless minemacs-verbose-p
+  (setq minemacs-msg-level 3))
 
 (setq +dashboard-disable t ; Disable `dashboard'
       +python-enable-pyenv t) ; Enable integration with "pyenv"
@@ -100,17 +97,18 @@ respond to my daily needs.
 ;; and `minemacs-core-modules'
 
 (setq
- ;; MinEmacs core modules
+;;; MinEmacs core modules
  minemacs-core-modules
  '(me-splash        ; Simple splash screen (inspired by emacs-splash)
    me-keybindings   ; general.el, which-key, hydra, ...
    me-evil          ; evil, evil-collection, evil-mc, ...
    me-core-ui       ; Theme and modeline
    me-completion)   ; vertico, marginalia, corfu, cape, consult, ...
- ;; MinEmacs modules
+ 
+;;; MinEmacs modules
  minemacs-modules
  '(me-ui            ; focus, emojify, ...
-   ;;me-nano          ; N Λ N O Emacs, ...
+   ;; me-nano       ; N Λ N O Emacs, ...
    me-ai            ; ellama, llm, ...
    me-editor        ; yasnippet, unicode-fonts, ligature, ...
    me-extra         ; better-jumper, ...
@@ -124,6 +122,7 @@ respond to my daily needs.
    me-debug         ; dape, realgud, disaster, ...
    me-emacs-lisp    ; parinfer-rust, macrostep, elisp, ...
    me-scheme
+   ;; me-common-lisp 
    me-data          ; csv, yaml, toml, json, ...
    me-org           ; org, org-modern, ...
    me-notes         ; denote, consult-notes, ...
@@ -149,10 +148,10 @@ respond to my daily needs.
    me-media         ; empv, ...
    me-fun           ; xkcd, speed-type, ...
    me-binary)       ; hexl, decompile (using objdump)...
- ;; MinEmacs disabled packages
+ 
+;;; MinEmacs disabled packages
  minemacs-disabled-packages
- (append
-  '(dashboard ein)))
+  '(dashboard ein))
 #+end_src
 
 *** User configuration (=config.el=)
@@ -162,8 +161,6 @@ respond to my daily needs.
 
 ;; NOTE: This file is generated from "config-literate.org".
 
-;; (with-eval-after-load 'tab-bar
-;;   (setq tab-bar-show t))
 #+end_src
 
 ** General Emacs settings :global:
