@@ -872,6 +872,14 @@ added some minor stuff.
           :extends '("/opt/ros/foxy/")))))
 #+end_src
 
+*** Citre :tags:
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'citre
+  (when (boundp 'sagemcom) ;; Set this only on my work PC
+    (setq citre-gtags-args (remove "--objdir" citre-gtags-args))))
+#+end_src
+
 ** Office :office:organize:edit:
 *** Org mode
 **** Org mode tweaks
