@@ -1,0 +1,80 @@
+live_config_reload = true
+
+[bell]
+animation = "EaseOutExpo"
+color = "#777777"
+duration = 20
+
+[colors.cursor]
+cursor = "CellForeground"
+text = "CellBackground"
+
+[colors.normal]
+black = "#1d1f21"
+blue = "#4078f2"
+cyan = "#0184bc"
+green = "#b5bd68"
+magenta = "#a626a4"
+red = "#50a14f"
+white = "#c5c8c6"
+yellow = "#986801"
+
+[colors.primary]
+background = "#fafafa"
+bright_foreground = "#c6c7c7"
+dim_foreground = "#f0f0f0"
+foreground = "#383a42"
+
+[colors.selection]
+background = "CellForeground"
+text = "CellBackground"
+
+[colors.vi_mode_cursor]
+cursor = "CellForeground"
+text = "CellBackground"
+
+[cursor.style]
+blinking = "On"
+shape = "Underline"
+
+[font]
+builtin_box_drawing = true
+size = 11.0
+
+[font.bold]
+style = "Bold"
+
+[font.bold_italic]
+style = "Bold Italic"
+
+[font.italic]
+style = "Italic"
+
+[font.normal]
+family = "Iosevka Fixed Curly Slab"
+style = "Regular"
+
+[scrolling]
+history = 10000
+multiplier = 10
+
+[selection]
+save_to_clipboard = true
+
+[window]
+decorations = "full"
+dynamic_padding = false
+dynamic_title = true
+opacity = 0.92
+startup_mode = "Maximized"
+
+[window.class]
+general = "Alacritty"
+
+[window.dimensions]
+columns = 110
+lines = 30
+
+[window.padding]
+x = 1
+y = 1
