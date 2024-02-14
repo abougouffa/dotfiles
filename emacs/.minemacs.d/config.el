@@ -14,6 +14,10 @@
  epa-file-encrypt-to '("F808A020A3E1AC37"))
 ;; Crypto stuff:1 ends here
 
+;; [[file:../../literate-config.org::*Backup][Backup:1]]
+(backup-each-save-mode 1)
+;; Backup:1 ends here
+
 ;; [[file:../../literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
 (setq-default
  ;; Better support for files with long lines
@@ -97,6 +101,7 @@
           ("https://spectrum.ieee.org/rss/computing/fulltext" academic computing)
           ("https://spectrum.ieee.org/rss/blog/automaton/fulltext" academic automation robotics)
           ("https://www.technologyreview.com/feed" tech science)
+          ("https://interrupt.memfault.com/feed.xml" embedded prog rust c cpp)
           ("https://itsfoss.com/feed" linux foss)
           ("https://lwn.net/headlines/rss" linux foss)
           ("https://linuxhandbook.com/feed" linux foss)

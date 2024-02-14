@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-01-31
+#+lastmod: 2024-02-14
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -104,7 +104,7 @@ respond to my daily needs.
    me-evil          ; evil, evil-collection, evil-mc, ...
    me-core-ui       ; Theme and modeline
    me-completion)   ; vertico, marginalia, corfu, cape, consult, ...
- 
+
 ;;; MinEmacs modules
  minemacs-modules
  '(me-ui            ; focus, emojify, ...
@@ -122,7 +122,7 @@ respond to my daily needs.
    me-debug         ; dape, realgud, disaster, ...
    me-emacs-lisp    ; parinfer-rust, macrostep, elisp, ...
    me-scheme
-   ;; me-common-lisp 
+   ;; me-common-lisp
    me-data          ; csv, yaml, toml, json, ...
    me-org           ; org, org-modern, ...
    me-notes         ; denote, consult-notes, ...
@@ -148,7 +148,7 @@ respond to my daily needs.
    me-media         ; empv, ...
    me-fun           ; xkcd, speed-type, ...
    me-binary)       ; hexl, decompile (using objdump)...
- 
+
 ;;; MinEmacs disabled packages
  minemacs-disabled-packages
   '(dashboard ein))
@@ -178,6 +178,15 @@ respond to my daily needs.
 (setq-default
  ;; Encrypt files to my self by default
  epa-file-encrypt-to '("F808A020A3E1AC37"))
+#+end_src
+
+*** Backup
+MinEmacs includes a tweaked version of =backup-each-save= (which adds
+=backup-each-save-mode= among other things). This mode will ensure creating backup
+files after saving.
+
+#+begin_src emacs-lisp
+(backup-each-save-mode 1)
 #+end_src
 
 *** Bidirectional settings
@@ -294,6 +303,7 @@ Set RSS news feeds
           ("https://spectrum.ieee.org/rss/computing/fulltext" academic computing)
           ("https://spectrum.ieee.org/rss/blog/automaton/fulltext" academic automation robotics)
           ("https://www.technologyreview.com/feed" tech science)
+          ("https://interrupt.memfault.com/feed.xml" embedded prog rust c cpp)
           ("https://itsfoss.com/feed" linux foss)
           ("https://lwn.net/headlines/rss" linux foss)
           ("https://linuxhandbook.com/feed" linux foss)
