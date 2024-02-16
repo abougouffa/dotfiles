@@ -17,10 +17,6 @@
  epa-file-encrypt-to '("F808A020A3E1AC37"))
 ;; Crypto stuff:1 ends here
 
-;; [[file:../../literate-config.org::*Backup][Backup:1]]
-(real-backup-mode 1)
-;; Backup:1 ends here
-
 ;; [[file:../../literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
 (setq-default
  ;; Better support for files with long lines

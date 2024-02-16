@@ -182,15 +182,6 @@ respond to my daily needs.
  epa-file-encrypt-to '("F808A020A3E1AC37"))
 #+end_src
 
-*** Backup
-MinEmacs includes a tweaked version of =backup-each-save= (which adds
-=real-backup-mode= among other things). This mode will ensure creating backup
-files after saving.
-
-#+begin_src emacs-lisp
-(real-backup-mode 1)
-#+end_src
-
 *** Bidirectional settings
 This combo should speedup opening files:
 
