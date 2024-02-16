@@ -2,6 +2,9 @@
 
 ;; NOTE: This file is generated from "config-literate.org".
 
+;; (with-eval-after-load 'tab-bar
+;;   (setq tab-bar-show t))
+
 ;; [[file:../../literate-config.org::*User information][User information:1]]
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
@@ -15,7 +18,7 @@
 ;; Crypto stuff:1 ends here
 
 ;; [[file:../../literate-config.org::*Backup][Backup:1]]
-(backup-each-save-mode 1)
+(real-backup-mode 1)
 ;; Backup:1 ends here
 
 ;; [[file:../../literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
@@ -90,6 +93,11 @@
     :remote? t
     :server-id 'pyls-remote)))
 ;; LSP:1 ends here
+
+;; [[file:../../literate-config.org::*Spell-fu][Spell-fu:1]]
+;; (with-eval-after-load 'spell-fu
+;;   (+spell-fu-register-dictionaries! "en" "fr"))
+;; Spell-fu:1 ends here
 
 ;; [[file:../../literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (with-eval-after-load 'elfeed

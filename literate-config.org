@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-02-14
+#+lastmod: 2024-02-16
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -161,6 +161,8 @@ respond to my daily needs.
 
 ;; NOTE: This file is generated from "config-literate.org".
 
+;; (with-eval-after-load 'tab-bar
+;;   (setq tab-bar-show t))
 #+end_src
 
 ** General Emacs settings :global:
@@ -182,11 +184,11 @@ respond to my daily needs.
 
 *** Backup
 MinEmacs includes a tweaked version of =backup-each-save= (which adds
-=backup-each-save-mode= among other things). This mode will ensure creating backup
+=real-backup-mode= among other things). This mode will ensure creating backup
 files after saving.
 
 #+begin_src emacs-lisp
-(backup-each-save-mode 1)
+(real-backup-mode 1)
 #+end_src
 
 *** Bidirectional settings
@@ -288,6 +290,13 @@ installed on the distant machine for this to work.
 **** Offline dictionaries
 Needs ~sdcv~ to be installed, needs also /StarDict/ dictionaries, you can download
 some from [[https://sites.google.com/site/gtonguedict/home/stardict-dictionaries][here]] and [[https://polyglotte.tuxfamily.org/doku.php?id=donnees:dicos_bilingues][here]] for french.
+
+**** Spell-fu
+
+#+begin_src emacs-lisp
+;; (with-eval-after-load 'spell-fu
+;;   (+spell-fu-register-dictionaries! "en" "fr"))
+#+end_src
 
 ** Applications :apps:
 *** News feed (=elfeed=) :rss:news:
