@@ -6,9 +6,6 @@
 (unless minemacs-verbose-p
   (setq minemacs-msg-level 3))
 
-(setq +dashboard-disable t ; Disable `dashboard'
-      +python-enable-pyenv t) ; Enable integration with "pyenv"
-
 ;; Force loading lazy packages immediately, not in idle time
 ;; (setq minemacs-not-lazy t)
 

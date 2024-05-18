@@ -60,4 +60,4 @@
 
 ;;; MinEmacs disabled packages
  minemacs-disabled-packages
-  '(dashboard ein))
+  '(ein))
