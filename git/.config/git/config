@@ -23,6 +23,9 @@
 [credential]
   helper = cache --timeout 86400
 
+[url "ssh://git@github.com/"]
+  insteadOf = https://github.com/
+
 # ====== TEXT FORMATS ======
 [diff "org"]
   xfuncname = "^(\\*+ +.*)$"

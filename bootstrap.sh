@@ -9,24 +9,6 @@ update-mime-database ~/.local/share/mime
 
 xdg-mime default emacs-client.desktop text/org
 
-xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
-
-unset INSTALL_CONFIRM
-read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
-
-if [[ "$INSTALL_CONFIRM" == "Y" ]]
-then
-  sudo mkdir -p /etc/opt/chrome/policies/managed/
-
-  sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json > /dev/null <<'EOF'
-  {
-  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
-  }
-EOF
-
-  sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
-fi
-
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
 
