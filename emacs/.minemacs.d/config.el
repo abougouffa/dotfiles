@@ -45,15 +45,16 @@
 ;; Misc:1 ends here
 
 ;; [[file:../../literate-config.org::*Awqat][Awqat:1]]
-(+lazy-when! (featurep 'me-lifestyle)
-  ;; Calendar settings (from `solar')
-  (setq calendar-latitude 48.86
-        calendar-longitude 2.35
-        calendar-location-name "Paris, FR"
-        calendar-time-display-form '(24-hours ":" minutes))
+(when (featurep 'me-lifestyle)
+  (+lazy!
+   ;; Calendar settings (from `solar')
+   (setq calendar-latitude 48.86
+         calendar-longitude 2.35
+         calendar-location-name "Paris, FR"
+         calendar-time-display-form '(24-hours ":" minutes))
 
-  (awqat-display-prayer-time-mode 1)
-  (awqat-set-preset-french-muslims))
+   (awqat-display-prayer-time-mode 1)
+   (awqat-set-preset-french-muslims)))
 ;; Awqat:1 ends here
 
 ;; [[file:../../literate-config.org::*Projects][Projects:1]]

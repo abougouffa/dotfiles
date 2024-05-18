@@ -216,15 +216,16 @@ This combo should speedup opening files:
 *** Awqat
 
 #+begin_src emacs-lisp
-(+lazy-when! (featurep 'me-lifestyle)
-  ;; Calendar settings (from `solar')
-  (setq calendar-latitude 48.86
-        calendar-longitude 2.35
-        calendar-location-name "Paris, FR"
-        calendar-time-display-form '(24-hours ":" minutes))
+(when (featurep 'me-lifestyle)
+  (+lazy!
+   ;; Calendar settings (from `solar')
+   (setq calendar-latitude 48.86
+         calendar-longitude 2.35
+         calendar-location-name "Paris, FR"
+         calendar-time-display-form '(24-hours ":" minutes))
 
-  (awqat-display-prayer-time-mode 1)
-  (awqat-set-preset-french-muslims))
+   (awqat-display-prayer-time-mode 1)
+   (awqat-set-preset-french-muslims)))
 #+end_src
 
 *** Projects
