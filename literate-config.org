@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-02-16
+#+lastmod: 2024-05-18
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1169,6 +1169,9 @@ javascript:location.href =
 # Store passwords in-memory, ask every 24h (default 900s)
 [credential]
   helper = cache --timeout 86400
+
+[url "ssh://git@github.com/"]
+  insteadOf = https://github.com/
 #+end_src
 
 ** Git diffs :diff:
