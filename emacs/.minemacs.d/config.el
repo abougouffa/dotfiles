@@ -46,7 +46,7 @@
 
 ;; [[file:../../literate-config.org::*Awqat][Awqat:1]]
 (when (featurep 'me-lifestyle)
-  (+lazy!
+  (+with-delayed-1!
    ;; Calendar settings (from `solar')
    (setq calendar-latitude 48.86
          calendar-longitude 2.35
@@ -58,7 +58,7 @@
 ;; Awqat:1 ends here
 
 ;; [[file:../../literate-config.org::*Projects][Projects:1]]
-(+lazy!
+(+with-delayed-1!
  (setq +project-scan-dir-paths
        '("~/Research/papers/"
          "~/Research/workspace/"
@@ -73,6 +73,7 @@
 
 ;; [[file:../../literate-config.org::*Theme & font][Theme & font:1]]
 (setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
+;; (setq minemacs-theme 'doom-vibrant)
 ;; Theme & font:1 ends here
 
 ;; [[file:../../literate-config.org::*Writing mode][Writing mode:1]]
