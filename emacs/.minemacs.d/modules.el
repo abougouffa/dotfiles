@@ -8,8 +8,6 @@
 ;;; MinEmacs modules
  minemacs-modules
  '(me-keybindings
-   ;; me-evil
-   ;; me-meow
    me-god
    me-completion
    me-ai
@@ -28,7 +26,6 @@
    me-embedded
    me-extra
    me-files
-   ;; me-formal
    me-fun
    me-gtd
    me-latex
@@ -45,6 +42,8 @@
    me-project
    me-robot
    me-rss
+   me-search
+   me-services
    me-scheme
    me-tags
    me-tools
@@ -57,4 +56,4 @@
 
 ;;; MinEmacs disabled packages
  minemacs-disabled-packages
-  '(super-save gcmh enlight))
+  '(super-save gcmh))

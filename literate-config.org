@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-06-10
+#+lastmod: 2024-06-14
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -96,8 +96,6 @@ respond to my daily needs.
 ;;; MinEmacs modules
  minemacs-modules
  '(me-keybindings
-   ;; me-evil
-   ;; me-meow
    me-god
    me-completion
    me-ai
@@ -116,7 +114,6 @@ respond to my daily needs.
    me-embedded
    me-extra
    me-files
-   ;; me-formal
    me-fun
    me-gtd
    me-latex
@@ -133,6 +130,8 @@ respond to my daily needs.
    me-project
    me-robot
    me-rss
+   me-search
+   me-services
    me-scheme
    me-tags
    me-tools
@@ -145,7 +144,7 @@ respond to my daily needs.
 
 ;;; MinEmacs disabled packages
  minemacs-disabled-packages
-  '(super-save gcmh enlight))
+  '(super-save gcmh))
 #+end_src
 
 *** User configuration (=config.el=)
