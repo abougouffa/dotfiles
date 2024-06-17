@@ -245,7 +245,12 @@ This combo should speedup opening files:
 **** Theme & font :theme:font:
 
 #+begin_src emacs-lisp
-(setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
+;; (setq minemacs-theme 'doom-dracula)
+(setq minemacs-theme 'doom-vibrant)
+;; (setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
+;; (setq minemacs-theme 'doom-monokai-machine)
+;; (setq minemacs-theme 'doom-monokai-pro)
+;; (setq minemacs-theme 'doom-oceanic-next)
 #+end_src
 
 **** Writing mode
@@ -2612,7 +2617,7 @@ check_and_install_pkg() {
 
 PKGS_LIST=(
     # System tools
-    git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost chezmoi
+    git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost
     neovim ecryptfs-utils libvterm bitwarden-cli-bin binutils
     # Fonts
     ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
