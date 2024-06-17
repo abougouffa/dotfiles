@@ -1,5 +1,6 @@
 # Private is private by default
 *private*
+emacs/.minemacs.d/local
 # Unless explicitly excluded
 !obsolete_configs/.doom.d/modules/private
 
@@ -19,3 +20,5 @@
 *.bbl
 .auctex-auto
 _minted*
+*.rej
+*.bak
