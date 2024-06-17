@@ -72,8 +72,7 @@
 ;; Projects:1 ends here
 
 ;; [[file:../../literate-config.org::*Theme & font][Theme & font:1]]
-(setq minemacs-theme 'doom-one-light) ; 'apropospriate-light
-;; (setq minemacs-theme 'doom-vibrant)
+(setq minemacs-theme 'doom-one-light)
 ;; Theme & font:1 ends here
 
 ;; [[file:../../literate-config.org::*Writing mode][Writing mode:1]]

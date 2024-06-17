@@ -153,7 +153,7 @@ check_and_install_pkg() {
 
 PKGS_LIST=(
     # System tools
-    git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost chezmoi
+    git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost
     neovim ecryptfs-utils libvterm bitwarden-cli-bin binutils
     # Fonts
     ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
