@@ -178,22 +178,8 @@
          (ros-dump-workspace
           :tramp-prefix "/docker:ros@ros-machine:"
           :workspace "~/ros2_ws"
-          :extends '("/opt/ros/foxy/"))
-         (ros-dump-workspace
-          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
-          :workspace "~/ros_ws"
-          :extends '("/opt/ros/noetic/"))
-         (ros-dump-workspace
-          :tramp-prefix "/ssh:swd_sk@172.16.96.42:"
-          :workspace "~/ros2_ws"
           :extends '("/opt/ros/foxy/")))))
 ;; Robot Operating System (ROS):1 ends here
-
-;; [[file:../../literate-config.org::*Citre][Citre:1]]
-(with-eval-after-load 'citre
-  (when (boundp 'sagemcom) ;; Set this only on my work PC
-    (setq citre-gtags-args (remove "--objdir" citre-gtags-args))))
-;; Citre:1 ends here
 
 ;; [[file:../../literate-config.org::*Org mode tweaks][Org mode tweaks:1]]
 (with-eval-after-load 'org
