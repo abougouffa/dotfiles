@@ -17,5 +17,5 @@
 # #+latex_header: \definecolor{MyBGGray}{gray}{0.975}
 #+latex_header: \pagestyle{fancyplain}
 #+latex_header: \emergencystretch 5em%
-#+latex_header: \rfoot{\small{Abdelhak Bougouffa~\textcopyright~2023}}
+#+latex_header: \rfoot{\small{Abdelhak Bougouffa~\textcopyright~2022-2024}}
 #+latex: \newpage
