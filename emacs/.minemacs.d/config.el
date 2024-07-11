@@ -37,7 +37,6 @@
 
 ;; [[file:../../literate-config.org::*Misc][Misc:1]]
 (setq +binary-hexl-enable t
-      +binary-objdump-enable t
       browse-url-chromium-program (or (executable-find "brave")
                                       (executable-find "chromium")
                                       (executable-find "chromium-browser"))
@@ -81,19 +80,9 @@
         +writing-text-scale 2.0))
 ;; Writing mode:1 ends here
 
-;; [[file:../../literate-config.org::*LSP][LSP:1]]
-(with-eval-after-load 'lsp-mode
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode python-ts-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
-;; LSP:1 ends here
-
 ;; [[file:../../literate-config.org::*Spell-fu][Spell-fu:1]]
-;; (with-eval-after-load 'spell-fu
-;;   (+spell-fu-register-dictionaries! "en" "fr"))
+(with-eval-after-load 'spell-fu
+  (+spell-fu-register-dictionaries! "en" "fr"))
 ;; Spell-fu:1 ends here
 
 ;; [[file:../../literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
@@ -164,9 +153,7 @@
      ("France Musique"        . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
      ("FIP"                   . "http://icecast.radiofrance.fr/fip-hifi.aac")
      ("Beur FM"               . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-     ("Skyrock"               . "http://icecast.skyrock.net/s/natio_mp3_128k"))
-   ;; See https://docs.invidious.io/instances/
-   empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
+     ("Skyrock"               . "http://icecast.skyrock.net/s/natio_mp3_128k"))))
 ;; EMPV:1 ends here
 
 ;; [[file:../../literate-config.org::*Tramp][Tramp:1]]
@@ -310,14 +297,11 @@
        ((eq format 'latex)
         (format "{\\%s{%s}}" path desc))))))
 
-  (add-hook
-   'org-mode-hook
-   (defun +org--time-stamp-setup-h ()
-     (setq-local
-      time-stamp-active t
-      time-stamp-format "%04Y-%02m-%02d"
-      time-stamp-start "#\\+lastmod:[ \t]*"
-      time-stamp-end "$")))
+  (+setq-hook! org-mode
+    time-stamp-active t
+    time-stamp-format "%04Y-%02m-%02d"
+    time-stamp-start "#\\+lastmod:[ \t]*"
+    time-stamp-end "$")
 
   (add-hook 'before-save-hook #'time-stamp))
 ;; Org mode tweaks:1 ends here
@@ -351,9 +335,3 @@
         citar-notes-paths (ensure-list +biblio-notes-path)
         citar-bibliography (ensure-list +biblio-libraries-path)))
 ;; Citar:1 ends here
-
-;; [[file:../../literate-config.org::*Machine specific overwrites][Machine specific overwrites:1]]
-(let ((machine-specific-conf (concat minemacs-config-dir "private/machine-specific.el")))
-  (when (file-exists-p machine-specific-conf)
-    (+load machine-specific-conf)))
-;; Machine specific overwrites:1 ends here

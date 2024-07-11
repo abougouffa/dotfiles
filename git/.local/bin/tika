@@ -1,8 +1,7 @@
 #!/bin/sh
 APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
 
-if [ -f "${APACHE_TIKA_JAR}" ]
-then
+if [ -f "${APACHE_TIKA_JAR}" ]; then
   exec java -Dfile.encoding=UTF-8 -jar "${APACHE_TIKA_JAR}" "$@" 2>/dev/null
 else
   echo "JAR file not found at ${APACHE_TIKA_JAR}"

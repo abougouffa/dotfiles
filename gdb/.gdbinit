@@ -30,12 +30,6 @@ for lib_path in LIB_PATHS:
 end
 skip enable
 
-skip pending on
-guile
-
-end
-skip enable
-
 # This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
 define cc
   continue

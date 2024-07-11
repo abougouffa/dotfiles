@@ -8,8 +8,8 @@
 *.pl                          diff=perl
 *.{html,xhtml}                diff=html
 *.f                           diff=fortran
-*.{el,lisp,scm}               diff=lisp
-*.r                           diff=rstats
+*.{el,lisp,scm,clj,cljc}      diff=lisp
+*.r                           diff=rlang
 *.texi*                       diff=texinfo
 *.org                         diff=org
 *.rs                          diff=rust

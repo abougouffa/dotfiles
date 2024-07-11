@@ -12,8 +12,7 @@ xdg-mime default emacs-client.desktop text/org
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
 
-  if [ ! -d "${TIKA_JAR_PATH}" ]
-  then
+  if [ ! -d "${TIKA_JAR_PATH}" ]; then
     mkdir -p "${TIKA_JAR_PATH}"
   fi
 
@@ -33,8 +32,7 @@ update_apache_tika () {
     head -n 1 # Get the first (newest) version
   )
 
-  if [ -z "${TIKA_VERSION}" ]
-  then
+  if [ -z "${TIKA_VERSION}" ]; then
     echo "Failed, check your internet connection."
     exit 1
   fi
@@ -44,13 +42,11 @@ update_apache_tika () {
   TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
   TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
 
-  if [ ! -f "${TIKA_JAR}" ]
-  then
+  if [ ! -f "${TIKA_JAR}" ]; then
     echo "New version available!"
     unset INSTALL_CONFIRM
     read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
-    if [[ "$INSTALL_CONFIRM" == "Y" ]]
-    then
+    if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
       curl -o "${TIKA_JAR}" "${TIKA_JAR_URL}" && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
     fi
   else
@@ -58,8 +54,7 @@ update_apache_tika () {
   fi
 
   # Check the existance of the symbolic link
-  if [ -L "${TIKA_JAR_LINK}" ]
-  then
+  if [ -L "${TIKA_JAR_LINK}" ]; then
     unlink "${TIKA_JAR_LINK}"
   fi
 
@@ -67,7 +62,7 @@ update_apache_tika () {
   ln -s "${TIKA_JAR}" "${TIKA_JAR_LINK}"
 }
 
-update_apache_tika;
+update_apache_tika
 
 update_appimageupdatetool () {
   TOOL_NAME=appimageupdatetool
@@ -75,12 +70,10 @@ update_appimageupdatetool () {
   APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
   APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
 
-  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null
-  then
+  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null; then
     echo "${TOOL_NAME} already up to date"
   else
-    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]
-    then
+    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]; then
       echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
       mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
     else
@@ -94,7 +87,7 @@ update_appimageupdatetool () {
   fi
 }
 
-update_appimageupdatetool;
+update_appimageupdatetool
 
 if ! command -v nvm >/dev/null; then
   unset INSTALL_CONFIRM
@@ -154,18 +147,19 @@ check_and_install_pkg() {
 PKGS_LIST=(
     # System tools
     git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost
-    neovim ecryptfs-utils libvterm bitwarden-cli-bin binutils
+    neovim ecryptfs-utils libvterm binutils
     # Fonts
-    ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
-    ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono ttc-iosevka
-    ttc-iosevka-slab ttc-iosevka-curly ttc-iosevka-curly-slab
+    ttf-martian-mono ttf-ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass
+    ttf-lato ttf-input ttf-cascadia-code ttf-jetbrains-mono
+    ttf-fantasque-sans-mono ttc-iosevka ttc-iosevka-slab ttc-iosevka-curly
+    ttc-iosevka-curly-slab
     # Programming tools
-    ccls cppcheck clang gcc gdb lldb valgrind rr openocd vls vlang rustup
-    semgrep-bin
+    ccls cppcheck clang gcc gcc-m2 gcc-rust gdb lldb valgrind rr openocd vls vlang
+    rustup semgrep-bin pylyzer-git zig
     # Lisp/Scheme
-    sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken
+    sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken gcl
     # Math
-    maxima fricas octave scilab-bin graphviz jupyterlab jupyter-notebook r
+    maxima octave scilab-bin graphviz jupyterlab jupyter-notebook r
     # Media
     mpc mpv mpd vlc yt-dlp poppler ffmpegthumbnailer mediainfo imagemagick
     # Email
@@ -174,7 +168,7 @@ PKGS_LIST=(
     djvulibre catdoc unrtf perl-image-exiftool wkhtmltopdf pandoc hugo inkscape
     imagemagick
     # Natural languages
-    aspell aspell-en aspell-fr aspell-ar grammalecte language-tool ltex-ls-bin
+    aspell aspell-en aspell-fr aspell-ar grammalecte language-tool ltex-ls-bin sdcv
     # Apps
     brave zotero
 )

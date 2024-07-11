@@ -28,12 +28,13 @@
 
 # ====== TEXT FORMATS ======
 [diff "org"]
-  xfuncname = "^(\\*+ +.*)$"
+  xfuncname = "^(\\*+ +.*|#\\+title:.*)$"
 
 [diff "lisp"]
-  xfuncname = "^(\\(.*)$"
+# https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org
+  xfuncname = "^(((;;;+ )|\\(|([ \t]+\\(((cl-|el-patch-)?def(un|var|macro|method|custom)|gb/))).*)$"
 
-[diff "rstats"]
+[diff "rlang"]
   xfuncname = "^([a-zA-z.]+ <- function.*)$"
 
 [diff "texinfo"]

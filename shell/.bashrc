@@ -189,6 +189,8 @@ source "$HOME/.shell_extras"
 
 command -v direnv &>/dev/null && eval "$(direnv hook bash)"
 
+command -v fzf &> /dev/null && eval "$(eval fzf --bash)"
+
 # # Automatically added by the Guix install script.
 # if [ -n "$GUIX_ENVIRONMENT" ]; then
 #     if [[ $PS1 =~ (.*)"\\$" ]]; then
