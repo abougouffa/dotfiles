@@ -980,14 +980,11 @@ added some minor stuff.
        ((eq format 'latex)
         (format "{\\%s{%s}}" path desc))))))
 
-  (add-hook
-   'org-mode-hook
-   (defun +org--time-stamp-setup-h ()
-     (setq-local
-      time-stamp-active t
-      time-stamp-format "%04Y-%02m-%02d"
-      time-stamp-start "#\\+lastmod:[ \t]*"
-      time-stamp-end "$")))
+  (+setq-hook! org-mode
+    time-stamp-active t
+    time-stamp-format "%04Y-%02m-%02d"
+    time-stamp-start "#\\+lastmod:[ \t]*"
+    time-stamp-end "$")
 
   (add-hook 'before-save-hook #'time-stamp))
 #+end_src
