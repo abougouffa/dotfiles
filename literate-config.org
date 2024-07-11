@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-06-17
+#+lastmod: 2024-07-12
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -16,11 +16,11 @@
 
 
 * This repository :preamble:
-This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Zsh*,
-*MinEmacs*, *Vim*, *Alacritty* and other Linux related stuff.
+This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Bash*,
+*Zsh*, *MinEmacs*, *Neovim*, *Alacritty* and other Linux related stuff.
 
 If you want to reuse some of these configurations, you will need to modify some
-directories and add some user specific information (usernames, passwords...)
+directories and add some user specific information (usernames, passwords...).
 
 ** Notice
 This is the main configuration file, it contains the literal personal
@@ -28,23 +28,25 @@ configuration for [[https://github.com/abougouffa/minemacs][MinEmacs]], and I us
 configuration files (define aliases, environment variables, user tools, Git
 configuration...).
 
-For my old deprecated Doom Emacs configuration, see
-[[https://github.com/abougouffa/dotfiles/tree/main/obsolete_configs/.doom.d][=dotfiles/obsolete_configs/.doom.d=]].
-
 * Intro :intro:
 I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
 my machine, but I didn't discover the *real* Emacs until 2020. In the beginning, I
-started my Vanilla Emacs configuration from scratch, but after a while, it
-becomes a mess. As a new Emacs user, I didn't understand the in the beginning
-how to optimize my configuration and how to do things correctly. I discovered
-then [[https://github.com/syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little slow, and
-just after, I found the awesome [[https://github.com/doomemacs/doomemacs][Doom Emacs]], which helped me progress and learn
-more about Emacs and Lisp, but at some point, I faced multiple problems with
-Doom, so I started my own configuration framework, [[https://github.com/abougouffa/minemacs][MinEmacs]].
+started my vanilla Emacs configuration from scratch, but after a while, it had
+become a real mess. As a new Emacs user, I didn't understand in the beginning
+how to optimize my configuration and how to do things correctly, which resulted
+in a configuration that takes 30s to load.
+
+I discovered then [[https://github.com/syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little
+slow, and just after, I found the awesome [[https://github.com/doomemacs/doomemacs][Doom Emacs]], which helped me progress
+and learn more about Emacs and Lisp, but at some point, I faced multiple
+problems with Doom, so I started my own configuration framework, [[https://github.com/abougouffa/minemacs][MinEmacs]].
 
 MinEmacs is +intended to be+ a minimal configuration framework. In the beginning,
 I planned to use only necessary packages. However, it is starting to grow to
 respond to my daily needs.
+
+This block will be tangled in the file =bootstrap.sh=, which will be used as a
+script to conditionally install and configure some system features.
 
 #+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 #!/bin/env bash
@@ -202,7 +204,6 @@ This combo should speedup opening files:
 
 #+begin_src emacs-lisp
 (setq +binary-hexl-enable t
-      +binary-objdump-enable t
       browse-url-chromium-program (or (executable-find "brave")
                                       (executable-find "chromium")
                                       (executable-find "chromium-browser"))
@@ -225,6 +226,7 @@ This combo should speedup opening files:
 #+end_src
 
 *** Projects
+Automatically scan for projects under =+project-scan-dir-paths= at startup:
 
 #+begin_src emacs-lisp
 (+with-delayed-1!
@@ -256,31 +258,21 @@ This combo should speedup opening files:
         +writing-text-scale 2.0))
 #+end_src
 
-*** Completion & IDE :ide:
-**** LSP
-Register LSP over Tramp for Python using =pyls=. The =pyls= LSP server should be
-installed on the distant machine for this to work.
-
-#+begin_src emacs-lisp
-(with-eval-after-load 'lsp-mode
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "pyls")
-    :major-modes '(python-mode python-ts-mode)
-    :remote? t
-    :server-id 'pyls-remote)))
-#+end_src
-
 *** Natural languages :spell:grammar:dict:
 **** Offline dictionaries
-Needs ~sdcv~ to be installed, needs also /StarDict/ dictionaries, you can download
-some from [[https://sites.google.com/site/gtonguedict/home/stardict-dictionaries][here]] and [[https://polyglotte.tuxfamily.org/doku.php?id=donnees:dicos_bilingues][here]] for french.
+The =lexic= package needs ~sdcv~ to be installed, it needs also some /StarDict/
+dictionaries to be installed, see =M-x lexic-dictionary-help=. You can download
+some dictionaries from:
+
+- [[https://web.archive.org/web/20230325055703/http://download.huzheng.org/dict.org][Dict.org archive]]
+- [[https://web.archive.org/web/20230325180504/http://download.huzheng.org/bigdict][Big English dictionaries]]
+- [[https://polyglotte.tuxfamily.org/doku.php?id=donnees:dicos_bilingues][French dictionaries]]
 
 **** Spell-fu
 
 #+begin_src emacs-lisp
-;; (with-eval-after-load 'spell-fu
-;;   (+spell-fu-register-dictionaries! "en" "fr"))
+(with-eval-after-load 'spell-fu
+  (+spell-fu-register-dictionaries! "en" "fr"))
 #+end_src
 
 ** Applications :apps:
@@ -347,7 +339,7 @@ gpg -q --for-your-eyes-only --no-tty --logger-file /dev/null --batch -d ~/.authi
 Remember the line format in the =~/.authinfo.gpg= file:
 
 #+begin_src authinfo
-machine smtp.googlemail.com login username@gmail.com port 587 password PASSWD
+machine smtp.googlemail.com login username@gmail.com port 587 password YOUR_P455w0rd
 #+end_src
 
 This =PassCmd= command above, decrypts the =~/.authinfo.gpg=, passes it to =awk= to
@@ -355,7 +347,7 @@ search the line containing ="machine smtp.googlemail.com login
 username@gmail.com"= and prints the last field (the last field =$NF= in the =awk=
 command corresponds to the password, as you can see in the line format).
 
-The whole =~/.mbsync= file should look like this:
+The whole =~/.mbsyncrc= file should look like this:
 
 #+begin_src conf-space :tangle no
 # mbsync config file
@@ -573,6 +565,66 @@ which will be loaded after this common part:
   ;; Load my accounts
   (+load minemacs-config-dir "private/mu4e-accounts.el")
   (+load minemacs-config-dir "private/mu4e-extra-commands.el"))
+#+end_src
+
+The content of =private/mu4e-accounts.el= is something like:
+
+#+begin_src emacs-lisp :tangle no
+;; An address to add automatically as BCC for all sent messages
+(setq +mu4e-auto-bcc-address "Auto-BCC <some.address@host.tld>")
+
+;; Register multiple accounts using the `+mu4e-register-account' helper
+(+mu4e-register-account
+ "Work account"
+ "my-work"
+ `(;; The main Email address for the account
+   (user-mail-address     . "some.name@my-work.tld")
+   ;; The folders, as configured in your "~/.mbsyncrc" file
+   (mu4e-sent-folder      . "/my-work/Sent")
+   (mu4e-drafts-folder    . "/my-work/Drafts")
+   (mu4e-trash-folder     . "/my-work/Trash")
+   (mu4e-refile-folder    . "/my-work/Archive")
+   ;; SMTP server settings (when using the "msmtp" based configuration, these
+   ;; settings aren't required)
+   (smtpmail-smtp-server  . "smtps.my-work.tld")
+   (smtpmail-smtp-service . 587)
+   ;; If your Email have alises, put them to this list
+   (+mu4e-account-aliases . ("other.address@mywork.tld"))
+   ;; When `org-msg' is used, you can define templates for greeting and signature
+   (org-msg-greeting-fmt  . "Hello%s,")
+   ;; You can use the `+org-msg-make-signature' helper to generate a signature
+   (org-msg-signature     . ,(+org-msg-make-signature
+                              "Best regards," ; Closing phrase
+                              "Firstname"
+                              "Lastname"
+                              ;; The signatures, multiple lines
+                              "/Cool R&D Engineer/"
+                              "=+33 01 23 45 67 89="))
+   (message-signature     . ,(+org-msg-make-signature
+                              "Regards,"
+                              "Firstname"
+                              "Lastname"
+                              "/Cool R&D Engineer/"
+                              "=+33 01 23 45 67 89="))
+
+;; Another account
+(+mu4e-register-account
+ "Personal account"
+ "personal"
+ `((user-mail-address     . "me@personal-mail.tld")
+   (mu4e-sent-folder      . "/personal/Sent")
+   (mu4e-drafts-folder    . "/personal/Drafts")
+   (mu4e-trash-folder     . "/personal/Trash")
+   (mu4e-refile-folder    . "/personal/Archives")
+   (smtpmail-smtp-server  . "smtp.personal-mail.tld")
+   (smtpmail-smtp-service . 587)
+   (+mu4e-account-aliases . ("me.me@personal-mail.tld"
+                             "myname@perso.tld"))
+   (org-msg-greeting-fmt  . "Hi%s,")
+   (org-msg-signature     . ,(+org-msg-make-signature
+                              "Regards,"
+                              "My first name"
+                              "My last name"))))
 #+end_src
 
 *** Calendar
@@ -805,22 +857,10 @@ added some minor stuff.
      ("France Musique"        . "http://icecast.radiofrance.fr/francemusique-hifi.aac")
      ("FIP"                   . "http://icecast.radiofrance.fr/fip-hifi.aac")
      ("Beur FM"               . "http://broadcast.infomaniak.ch/beurfm-high.aac")
-     ("Skyrock"               . "http://icecast.skyrock.net/s/natio_mp3_128k"))
-   ;; See https://docs.invidious.io/instances/
-   empv-invidious-instance "https://invidious.projectsegfau.lt/api/v1"))
+     ("Skyrock"               . "http://icecast.skyrock.net/s/natio_mp3_128k"))))
 #+end_src
 
 ** Programming :programming:
-*** Devdocs :noexport:devdocs:
-
-#+begin_src emacs-lisp :tangle no
-(use-package devdocs
-  :straight (:host github :repo "astoff/devdocs.el" :files ("*.el"))
-  :commands devdocs-lookup devdocs-install
-  :custom
-  (devdocs-data-dir (concat minemacs-local-dir "devdocs/")))
-#+end_src
-
 *** Inspector :noexport:inspector:
 
 #+begin_src emacs-lisp :tangle no
@@ -1030,18 +1070,6 @@ added some minor stuff.
         citar-bibliography (ensure-list +biblio-libraries-path)))
 #+end_src
 
-** Machine specific overwrites
-There is always some machine-specific configurations, packages, overwrites, and
-so on. To keep my configuration generic, I like to have a separate file with
-machine-specific tweaks (for example, change the Email address on a work
-machine, etc.).
-
-#+begin_src emacs-lisp
-(let ((machine-specific-conf (concat minemacs-config-dir "private/machine-specific.el")))
-  (when (file-exists-p machine-specific-conf)
-    (+load machine-specific-conf)))
-#+end_src
-
 * System configuration :linux:system:
 ** Mime types :mime:
 *** Org mode files :org:
@@ -1179,8 +1207,8 @@ Based on this [[https://gist.github.com/ruediger/5647207][gist]] and [[https://p
 ,*.pl                          diff=perl
 ,*.{html,xhtml}                diff=html
 ,*.f                           diff=fortran
-,*.{el,lisp,scm}               diff=lisp
-,*.r                           diff=rstats
+,*.{el,lisp,scm,clj,cljc}      diff=lisp
+,*.r                           diff=rlang
 ,*.texi*                       diff=texinfo
 ,*.org                         diff=org
 ,*.rs                          diff=rust
@@ -1213,12 +1241,13 @@ Then adding some regular expressions for it to =~/.config/git/config=:
 #+begin_src gitconfig :tangle git/.config/git/config :mkdirp yes
 # ====== TEXT FORMATS ======
 [diff "org"]
-  xfuncname = "^(\\*+ +.*)$"
+  xfuncname = "^(\\*+ +.*|#\\+title:.*)$"
 
 [diff "lisp"]
-  xfuncname = "^(\\(.*)$"
+# https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org
+  xfuncname = "^(((;;;+ )|\\(|([ \t]+\\(((cl-|el-patch-)?def(un|var|macro|method|custom)|gb/))).*)$"
 
-[diff "rstats"]
+[diff "rlang"]
   xfuncname = "^([a-zA-z.]+ <- function.*)$"
 
 [diff "texinfo"]
@@ -1337,7 +1366,8 @@ And some tools to view diffs on binary files:
   textconv = exiftool # sudo apt install perl-image-exiftool
 #+end_src
 
-** Extensions
+** Extensions & aliases
+*** =git prune-files=
 This tool is taken from https://gist.github.com/nottrobin/5758221. It is
 attributed to David Underhill. It is a script to permanently delete
 files/folders from a Git repository. To use it, cd to your repository's root,
@@ -1374,9 +1404,9 @@ Or, add an alias to the command to your Git configuration:
   prune-files = "git-prune-files"
 #+end_src
 
-** Aliases
-Let's have some useful aliases, like the =git ignore <lang>= to automatically
-generate =.gitignore= patterns for a specific language.
+*** =git ignore=
+Let's have =git ignore <lang>= to automatically generate =.gitignore= patterns for a
+specific language.
 
 #+begin_src conf :tangle git/.config/git/config :mkdirp yes
 [alias]
@@ -1395,8 +1425,7 @@ First, let's add a custom script to run =tika-app=:
 #!/bin/sh
 APACHE_TIKA_JAR="$HOME/.local/share/tika/tika-app.jar"
 
-if [ -f "${APACHE_TIKA_JAR}" ]
-then
+if [ -f "${APACHE_TIKA_JAR}" ]; then
   exec java -Dfile.encoding=UTF-8 -jar "${APACHE_TIKA_JAR}" "$@" 2>/dev/null
 else
   echo "JAR file not found at ${APACHE_TIKA_JAR}"
@@ -1409,8 +1438,7 @@ Add =tika='s installation instructions to the =bootstrap.sh= file.
 update_apache_tika () {
   TIKA_JAR_PATH="$HOME/.local/share/tika"
 
-  if [ ! -d "${TIKA_JAR_PATH}" ]
-  then
+  if [ ! -d "${TIKA_JAR_PATH}" ]; then
     mkdir -p "${TIKA_JAR_PATH}"
   fi
 
@@ -1430,8 +1458,7 @@ update_apache_tika () {
     head -n 1 # Get the first (newest) version
   )
 
-  if [ -z "${TIKA_VERSION}" ]
-  then
+  if [ -z "${TIKA_VERSION}" ]; then
     echo "Failed, check your internet connection."
     exit 1
   fi
@@ -1441,13 +1468,11 @@ update_apache_tika () {
   TIKA_JAR="${TIKA_JAR_PATH}/tika-app-${TIKA_VERSION}.jar"
   TIKA_JAR_URL="${TIKA_BASE_URL}${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar"
 
-  if [ ! -f "${TIKA_JAR}" ]
-  then
+  if [ ! -f "${TIKA_JAR}" ]; then
     echo "New version available!"
     unset INSTALL_CONFIRM
     read -p "Do you want to download Apache Tika App v${TIKA_VERSION}? [Y | N]: " INSTALL_CONFIRM
-    if [[ "$INSTALL_CONFIRM" == "Y" ]]
-    then
+    if [[ "$INSTALL_CONFIRM" == "Y" ]]; then
       curl -o "${TIKA_JAR}" "${TIKA_JAR_URL}" && echo "Apache Tika App v${TIKA_VERSION} downloaded successfully"
     fi
   else
@@ -1455,8 +1480,7 @@ update_apache_tika () {
   fi
 
   # Check the existance of the symbolic link
-  if [ -L "${TIKA_JAR_LINK}" ]
-  then
+  if [ -L "${TIKA_JAR_LINK}" ]; then
     unlink "${TIKA_JAR_LINK}"
   fi
 
@@ -1464,14 +1488,14 @@ update_apache_tika () {
   ln -s "${TIKA_JAR}" "${TIKA_JAR_LINK}"
 }
 
-update_apache_tika;
+update_apache_tika
 #+end_src
 
 When it detects that Tesseract is installed, Tika App will try to extract text
 from some file types. For some reason, it tries to use Tesseract with some
-compressed files like ~*.bz2~, ~*.apk~... etc. I would like to disable this feature
-by exporting an XML config file which will be used when launching the Tika App
-(using ~--config=<tika-config.xml>~).
+compressed files like ~*.bz2~, ~*.apk~... etc. As a workaround, we disable this
+feature by exporting an XML config file which will be used when launching the
+Tika App (using ~--config=<tika-config.xml>~).
 
 #+begin_src xml :tangle git/.local/share/tika/tika-conf.xml :mkdirp yes
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1486,7 +1510,8 @@ by exporting an XML config file which will be used when launching the Tika App
 
 * Command line tools :linux:system:
 ** Emacs command-line wrapper :wrapper:cli:
-A wrapper around =emacsclient=:
+A wrapper around =emacsclient=, stolen from [[https://tecosaur.github.io/emacs-config/config.html#emacs-client-wrapper][tecosaur's Emacs configuration]].
+
 + Accepting =stdin= by putting it in a temporary file and immediately opening it.
 + Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
   sessions, among other things).
@@ -1494,10 +1519,6 @@ A wrapper around =emacsclient=:
   (probably) announces 24-bit color support.
 + Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
   and instead take a flag to suppress this behavior (~-w~).
-
-I would use =sh=, but using arrays for argument manipulation is just too
-convenient, so I'll raise the requirement to =bash=. Since arrays are the only
-'extra' compared to =sh=, other shells like =ksh= etc. should work too.
 
 #+name: e
 #+begin_src shell :tangle emacs/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
@@ -1508,87 +1529,77 @@ stdin_mode=""
 
 args=()
 
-usage () {
-  echo -e "Usage: e [-t] [-m MODE] [OPTIONS] FILE [-]
+while :; do
+    case "$1" in
+    -t | -nw | --tty)
+        force_tty=true
+        shift
+        ;;
+    -w | --wait)
+        force_wait=true
+        shift
+        ;;
+    -m | --mode)
+        stdin_mode=" ($2-mode)"
+        shift 2
+        ;;
+    -h | --help)
+        echo -e "\033[1mUsage: e [-t] [-m MODE] [OPTIONS] FILE [-]\033[0m
 
 Emacs client convenience wrapper.
 
-Options:
--h, --help            Show this message
--t, -nw, --tty        Force terminal mode
--w, --wait            Don't supply --no-wait to graphical emacsclient
--                     Take stdin (when last argument)
--m MODE, --mode MODE  Mode to open stdin with
--mm, --maximized      Start Emacs client in maximized window
+\033[1mOptions:\033[0m
+\033[0;34m-h, --help\033[0m            Show this message
+\033[0;34m-t, -nw, --tty\033[0m        Force terminal mode
+\033[0;34m-w, --wait\033[0m            Don't supply \033[0;34m--no-wait\033[0m to graphical emacsclient
+\033[0;34m-\033[0m                     Take \033[0;33mstdin\033[0m (when last argument)
+\033[0;34m-m MODE, --mode MODE\033[0m  Mode to open \033[0;33mstdin\033[0m with
 
-Run emacsclient --help to see help for the emacsclient."
-}
-
-while :
-do
-  case "$1" in
-    -t | -nw | --tty)
-      force_tty=true
-      shift ;;
-    -w | --wait)
-      force_wait=true
-      shift ;;
-    -m | --mode)
-      stdin_mode=" ($2-mode)"
-      shift 2 ;;
-    -mm | --maximized)
-        args+=("--frame-parameters='(fullscreen . maximized)")
-        shift ;;
-    -h | --help)
-      usage
-      exit 0 ;;
+Run \033[0;32memacsclient --help\033[0m to see help for the emacsclient."
+        exit 0
+        ;;
     --*=*)
-      set -- "$@" "${1%%=*}" "${1#*=}"
-      shift ;;
+        set -- "$@" "${1%%=*}" "${1#*=}"
+        shift
+        ;;
     ,*)
-      [ "$#" = 0 ] && break
-      args+=("$1")
-      shift ;;
-  esac
+        if [ "$#" = 0 ]; then
+            break
+        fi
+        args+=("$1")
+        shift
+        ;;
+    esac
 done
 
-if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]
-then
-  unset 'args[-1]'
-  TMP="$(mktemp /tmp/emacsstdin-XXX)"
-  cat > "$TMP"
-  args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
+if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
+    unset 'args[-1]'
+    TMP="$(mktemp /tmp/emacsstdin-XXX)"
+    cat >"$TMP"
+    args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
 fi
 
-if [ -z "$DISPLAY" ] || $force_tty
-then
-  # detect terminals with sneaky 24-bit support
-  if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
-    && [ "$(tput colors 2>/dev/null)" -lt 257 ]
-  then
-    if echo "$TERM" | grep -q "^\w\+-[0-9]"
-    then
-      termstub="${TERM%%-*}"
-    else
-      termstub="${TERM#*-}"
+if [ -z "$DISPLAY" ] || $force_tty; then
+    # detect terminals with sneaky 24-bit support
+    if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } &&
+        [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
+        if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
+            termstub="${TERM%%-*}"
+        else
+            termstub="${TERM#*-}"
+        fi
+        if infocmp "$termstub-direct" >/dev/null 2>&1; then
+            TERM="$termstub-direct"
+        else
+            TERM="xterm-direct"
+        fi # should be fairly safe
     fi
-
-    if infocmp "$termstub-direct" >/dev/null 2>&1
-    then
-      TERM="$termstub-direct"
-    else
-      TERM="xterm-direct"
-    fi # should be fairly safe
-  fi
-
-  emacsclient --tty -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
+    emacsclient --tty -create-frame --alternate-editor="$ALTERNATE_EDITOR" "${args[@]}"
 else
-  if ! $force_wait
-  then
-    args+=(--no-wait)
-  fi
-
-  emacsclient -create-frame --alternate-editor="/usr/bin/emacs" "${args[@]}"
+    if ! $force_wait; then
+        args+=(--no-wait)
+    fi
+    emacsclient -create-frame --alternate-editor="$ALTERNATE_EDITOR" "${args[@]}"
 fi
 #+end_src
 
@@ -1637,12 +1648,10 @@ update_appimageupdatetool () {
   APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
   APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
 
-  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null
-  then
+  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null; then
     echo "${TOOL_NAME} already up to date"
   else
-    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]
-    then
+    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]; then
       echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
       mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
     else
@@ -1656,7 +1665,7 @@ update_appimageupdatetool () {
   fi
 }
 
-update_appimageupdatetool;
+update_appimageupdatetool
 #+end_src
 
 * Oh-my-Zsh :zsh:
@@ -2232,6 +2241,16 @@ command -v direnv &>/dev/null && eval "$(direnv hook bash)"
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 #+end_src
 
+** FZF
+
+#+begin_src shell :tangle shell/.bashrc
+command -v fzf &> /dev/null && eval "$(eval fzf --bash)"
+#+end_src
+
+#+begin_src shell :tangle shell/.zshrc
+command -v fzf &> /dev/null && eval "$(eval fzf --zsh)"
+#+end_src
+
 ** Nix & Guix
 I'm currently experimenting both Nix and Guix as package managers to see which
 one fits my needs. I'm planning to move from Manjaro/Arch Linux to NixOS or
@@ -2241,7 +2260,7 @@ general purpose as Guile). However, the strict "libre" policy of Guix bothers me
 a bit, as well as the number of available packages for Guix compared to those
 available for Nix.
 
-*** Nix
+*** Nix :noexport:
 
 #+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 # if ! command -v nix &> /dev/null; then
@@ -2291,34 +2310,7 @@ available for Nix.
 #+end_src
 
 ** Other stuff
-Some useful stuff (=fzf=, =opam=, Doom Emacs...)
-
-#+begin_src shell :tangle shell/.shell_extras
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# FZF
-[[ -f "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
-
-# OPAM configuration
-[[ ! -r "$HOME/.opam/opam-init/init.zsh" ]] || source "$HOME/.opam/opam-init/init.zsh" > /dev/null 2> /dev/null
-#+end_src
-
 Define some environment variables.
-
-#+begin_src shell :tangle shell/.shell_extras
-source "$HOME/.shell_private"
-#+end_src
 
 Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 
@@ -2523,12 +2515,6 @@ for lib_path in LIB_PATHS:
 end
 skip enable
 
-skip pending on
-guile
-<<gdb-init-guile>>
-end
-skip enable
-
 # This fixes the annoying ncurses TUI gliches and saves typing C-l each time to refresh the screen
 define cc
   continue
@@ -2539,11 +2525,6 @@ define nn
   next
   refresh
 end
-#+end_src
-
-#+name: gdb-init-guile
-#+begin_src scheme
-
 #+end_src
 
 * GnuPG :gpg:crypto:
@@ -2565,6 +2546,7 @@ allow-emacs-pinentry
 * OCR This :ocr:image:text:
 This creates a script named =ocrthis= that can be bound to OS shortcut. When
 triggered:
+
 - it shows a selection tool to take a partial screenshot,
 - it runs =tesseract= to extract the text,
 - and then, it copies it to clipboard.
@@ -2610,18 +2592,19 @@ check_and_install_pkg() {
 PKGS_LIST=(
     # System tools
     git repo ripgrep fd gnupg fzf the_silver_searcher xsel xorg-xhost
-    neovim ecryptfs-utils libvterm bitwarden-cli-bin binutils
+    neovim ecryptfs-utils libvterm binutils
     # Fonts
-    ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass ttf-lato ttf-input
-    ttf-cascadia-code ttf-jetbrains-mono ttf-fantasque-sans-mono ttc-iosevka
-    ttc-iosevka-slab ttc-iosevka-curly ttc-iosevka-curly-slab
+    ttf-martian-mono ttf-ttf-ibm-plex ttf-fira-code ttf-roboto-mono ttf-overpass
+    ttf-lato ttf-input ttf-cascadia-code ttf-jetbrains-mono
+    ttf-fantasque-sans-mono ttc-iosevka ttc-iosevka-slab ttc-iosevka-curly
+    ttc-iosevka-curly-slab
     # Programming tools
-    ccls cppcheck clang gcc gdb lldb valgrind rr openocd vls vlang rustup
-    semgrep-bin
+    ccls cppcheck clang gcc gcc-m2 gcc-rust gdb lldb valgrind rr openocd vls vlang
+    rustup semgrep-bin pylyzer-git zig
     # Lisp/Scheme
-    sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken
+    sbcl cmucl clisp chez-scheme mit-scheme chibi-scheme chicken gcl
     # Math
-    maxima fricas octave scilab-bin graphviz jupyterlab jupyter-notebook r
+    maxima octave scilab-bin graphviz jupyterlab jupyter-notebook r
     # Media
     mpc mpv mpd vlc yt-dlp poppler ffmpegthumbnailer mediainfo imagemagick
     # Email
@@ -2630,7 +2613,7 @@ PKGS_LIST=(
     djvulibre catdoc unrtf perl-image-exiftool wkhtmltopdf pandoc hugo inkscape
     imagemagick
     # Natural languages
-    aspell aspell-en aspell-fr aspell-ar grammalecte language-tool ltex-ls-bin
+    aspell aspell-en aspell-fr aspell-ar grammalecte language-tool ltex-ls-bin sdcv
     # Apps
     brave zotero
 )
