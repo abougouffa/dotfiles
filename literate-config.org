@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-07-12
+#+lastmod: 2024-07-16
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1670,6 +1670,13 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 #+end_src
 
+** Include extra configuration file
+
+#+begin_src shell :tangle shell/.zshrc
+# Source extra commands
+source "$HOME/.shell_extras"
+#+end_src
+
 ** Themes and customization
 Set name of the theme to load, if set to ="random"=, it will load a random theme
 each time oh-my-zsh is loaded, in which case, to know which specific one was
@@ -1785,13 +1792,6 @@ alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 #+end_src
 
-** Include extra configuration file
-
-#+begin_src shell :tangle shell/.zshrc
-# Source extra commands
-source "$HOME/.shell_extras"
-#+end_src
-
 * Oh-my-Bash :bash:
 ** Path
 Path to your oh-my-bash installation.
@@ -1879,6 +1879,13 @@ source "$OSH"/oh-my-bash.sh
 # Example aliases
 # alias bashconfig="mate ~/.bashrc"
 # alias ohmybash="mate ~/.oh-my-bash"
+#+end_src
+
+** Include extra configuration file
+
+#+begin_src shell :tangle shell/.bashrc
+# Source extra commands
+source "$HOME/.shell_extras"
 #+end_src
 
 ** Themes and customization
@@ -2002,14 +2009,14 @@ plugins=(
 source "$OSH/oh-my-bash.sh"
 #+end_src
 
-** Include extra configuration file
+* Shell configuration :bash:zsh:shell:
+** Private/Machine-specific configuration
+Load private configuration when found:
 
-#+begin_src shell :tangle shell/.bashrc
-# Source extra commands
-source "$HOME/.shell_extras"
+#+begin_src shell :tangle shell/.shell_extras
+[[ -f "$HOME/.shell_private" ]] && source "$HOME/.shell_private"
 #+end_src
 
-* Shell configuration :bash:zsh:shell:
 ** Misc
 
 #+begin_src shell :tangle shell/.shell_extras
@@ -2296,16 +2303,14 @@ available for Nix.
 ** Other stuff
 Define some environment variables.
 
+#+begin_src shell :tangle shell/.shell_extras
+export PATH="${PATH}:${HOME}/.local/bin"
+#+end_src
+
 Load my =bitwarden-cli= session, exported to ~BW_SESSION~.
 
 #+begin_src shell :tangle shell/.shell_extras
 [[ -f "$HOME/.bitwarden-session" ]] && source "$HOME/.bitwarden-session"
-#+end_src
-
-Load private configuration when found:
-
-#+begin_src shell :tangle shell/.shell_extras
-[[ -f "$HOME/.shell_private" ]] && source "$HOME/.shell_private"
 #+end_src
 
 * Rust format :rust:format:
