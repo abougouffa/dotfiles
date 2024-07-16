@@ -10,6 +10,9 @@ fi
 
 export ZSH="$HOME/.oh-my-zsh"
 
+# Source extra commands
+source "$HOME/.shell_extras"
+
 # Typewritten customizations
 TYPEWRITTEN_RELATIVE_PATH="adaptive"
 TYPEWRITTEN_CURSOR="underscore"
@@ -101,9 +104,6 @@ source "$ZSH/oh-my-zsh.sh"
 # Aliases
 alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
-
-# Source extra commands
-source "$HOME/.shell_extras"
 
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 

@@ -81,6 +81,9 @@ source "$OSH"/oh-my-bash.sh
 # alias bashconfig="mate ~/.bashrc"
 # alias ohmybash="mate ~/.oh-my-bash"
 
+# Source extra commands
+source "$HOME/.shell_extras"
+
 OSH_THEME="font"
 
 # Uncomment the following line to use case-sensitive completion.
@@ -183,9 +186,6 @@ plugins=(
 #  fi
 
 source "$OSH/oh-my-bash.sh"
-
-# Source extra commands
-source "$HOME/.shell_extras"
 
 command -v direnv &>/dev/null && eval "$(direnv hook bash)"
 

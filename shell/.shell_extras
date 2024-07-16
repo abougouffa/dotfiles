@@ -11,6 +11,8 @@ alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
 export EDITOR="$HOME/.local/bin/et"
 export VISUAL="$HOME/.local/bin/ev"
 
+[[ -f "$HOME/.shell_private" ]] && source "$HOME/.shell_private"
+
 # User configuration
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -103,6 +105,6 @@ if [[ -z "${INSIDE_EMACS}" ]]; then
   fi
 fi
 
-[[ -f "$HOME/.bitwarden-session" ]] && source "$HOME/.bitwarden-session"
+export PATH="${PATH}:${HOME}/.local/bin"
 
-[[ -f "$HOME/.shell_private" ]] && source "$HOME/.shell_private"
+[[ -f "$HOME/.bitwarden-session" ]] && source "$HOME/.bitwarden-session"
