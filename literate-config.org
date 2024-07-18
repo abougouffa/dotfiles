@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-07-16
+#+lastmod: 2024-07-18
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1386,6 +1386,38 @@ Or, add an alias to the command to your Git configuration:
 #+begin_src conf :tangle git/.config/git/config :mkdirp yes
 [alias]
   prune-files = "git-prune-files"
+#+end_src
+
+*** =git update-commiter=
+
+WIP
+
+#+begin_src shell :tangle git/.local/bin/git-replace-email :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+
+if [[ ! $# -eq 2 ]]; then
+    echo "Usage: git replace-email old@email.local new@email.com <new-name>"
+fi
+
+OLD_EMAIL="$1"
+NEW_EMAIL="$2"
+
+git filter-branch --env-filter '
+OLD_EMAIL="oldEmail@xxx-MacBook-Pro.local"
+CORRECT_NAME="yourName"
+CORRECT_EMAIL="yourEmail"
+
+if [ "$GIT_COMMITTER_EMAIL" = "$OLD_EMAIL" ]
+then
+    export GIT_COMMITTER_NAME="$CORRECT_NAME"
+    export GIT_COMMITTER_EMAIL="$CORRECT_EMAIL"
+fi
+if [ "$GIT_AUTHOR_EMAIL" = "$OLD_EMAIL" ]
+then
+    export GIT_AUTHOR_NAME="$CORRECT_NAME"
+    export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL"
+fi
+' --tag-name-filter cat -- --branches --tags
 #+end_src
 
 *** =git ignore=
