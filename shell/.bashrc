@@ -1,3 +1,7 @@
+if command -v jj &> /dev/null; then
+    source <(jj util completion bash)
+fi
+
 # -*- mode: sh -*-
 
 # When logging via Tramp it will look for patterns to detect if a shell is

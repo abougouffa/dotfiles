@@ -1,3 +1,10 @@
+autoload -Uz compinit
+compinit
+
+if command -v jj &> /dev/null; then
+    source <(jj util completion zsh)
+fi
+
 # -*- mode: sh -*-
 
 # When logging via Tramp it will look for patterns to detect if a shell is
@@ -93,9 +100,6 @@ plugins=(
   repo
   cp
   rsync
-  ripgrep
-  fzf
-  fd
   z
 )
 

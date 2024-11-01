@@ -7,17 +7,12 @@
 (setq
 ;;; MinEmacs modules
  minemacs-modules
- '(me-keybindings
-   me-god
+ '(me-god
    me-completion
    me-ai
-   me-biblio
    me-calendar
    me-checkers
-   me-clojure
-   me-common-lisp
    me-daemon
-   me-data
    me-debug
    me-docs
    me-editor
@@ -28,13 +23,10 @@
    me-files
    me-fun
    me-gtd
-   me-latex
    me-lifestyle
    me-math
    me-media
-   me-modeling
    me-multi-cursors
-   ;; me-nano
    me-natural-langs
    me-notes
    me-org
@@ -44,15 +36,12 @@
    me-rss
    me-search
    me-services
-   me-scheme
    me-tags
    me-tools
    me-tty
    me-ui
-   me-undo
    me-vc
-   me-window
-   me-workspaces)
+   me-window)
 
 ;;; MinEmacs disabled packages
  minemacs-disabled-packages
