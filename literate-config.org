@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-07-18
+#+lastmod: 2024-11-01
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -97,17 +97,12 @@ script to conditionally install and configure some system features.
 (setq
 ;;; MinEmacs modules
  minemacs-modules
- '(me-keybindings
-   me-god
+ '(me-god
    me-completion
    me-ai
-   me-biblio
    me-calendar
    me-checkers
-   me-clojure
-   me-common-lisp
    me-daemon
-   me-data
    me-debug
    me-docs
    me-editor
@@ -118,13 +113,10 @@ script to conditionally install and configure some system features.
    me-files
    me-fun
    me-gtd
-   me-latex
    me-lifestyle
    me-math
    me-media
-   me-modeling
    me-multi-cursors
-   ;; me-nano
    me-natural-langs
    me-notes
    me-org
@@ -134,15 +126,12 @@ script to conditionally install and configure some system features.
    me-rss
    me-search
    me-services
-   me-scheme
    me-tags
    me-tools
    me-tty
    me-ui
-   me-undo
    me-vc
-   me-window
-   me-workspaces)
+   me-window)
 
 ;;; MinEmacs disabled packages
  minemacs-disabled-packages
@@ -793,50 +782,6 @@ default backend EMMS is using.
                                 "EMMS is now playing:"
                                 (emms-track-description (emms-playlist-current-selected-track))
                                 +emms-notification-icon))))
-#+end_src
-
-**** Cycle song information in mode line :noexport:
-I found a useful package named ~emms-mode-line-cycle~ which permits to do this;
-however, it has not been updated since a while, it uses some obsolete functions
-to draw icon in mode line, so I forked it, got rid of the problematic parts, and
-added some minor stuff.
-
-#+begin_src emacs-lisp :tangle no
-(use-package emms-mode-line-cycle
-  :straight (:host github :repo "abougouffa/emms-mode-line-cycle")
-  :after emms
-  :config
-  (setq emms-mode-line-cycle-max-width 15
-        emms-mode-line-cycle-additional-space-num 4
-        emms-mode-line-cycle-any-width-p nil
-        emms-mode-line-cycle-velocity 4)
-
-  ;; Some music files do not have metadata, by default, the track title
-  ;; will be the full file path, so, if I detect what seems to be an absolute
-  ;; path, I trim the directory part and get only the file name.
-  (setq emms-mode-line-cycle-current-title-function
-        (lambda ()
-          (let ((name (emms-track-description (emms-playlist-current-selected-track))))
-            (if (file-name-absolute-p name) (file-name-base name) name))))
-
-  ;; Mode line formatting settings
-  ;; This format complements the 'emms-mode-line-format' one.
-  (setq emms-mode-line-format " ⟨⏵ %s⟩"  ;; 𝅘𝅥𝅮 ⏵ ⏸
-        ;; To hide the playing time without stopping the cycling.
-        emms-playing-time-display-format "")
-
-  (defun +emms-mode-line-toggle-format-hook ()
-    "Toggle the 'emms-mode-line-fotmat' string, when playing or paused."
-    (setq emms-mode-line-format (concat " ⟨" (if emms-player-paused-p "⏸" "⏵") " %s⟩"))
-    ;; Force a sync to get the right song name over MPD in mode line
-    (when MPD-P (emms-player-mpd-sync-from-mpd))
-    ;; Trigger a forced update of mode line (useful when pausing)
-    (emms-mode-line-alter-mode-line))
-
-      ;; Hook the function to the 'emms-player-paused-hook'
-  (add-hook 'emms-player-paused-hook '+emms-mode-line-toggle-format-hook)
-
-  (emms-mode-line-cycle 1))
 #+end_src
 
 **** EMPV
@@ -1803,9 +1748,6 @@ plugins=(
   repo
   cp
   rsync
-  ripgrep
-  fzf
-  fd
   z
 )
 #+end_src
