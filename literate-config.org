@@ -1469,6 +1469,24 @@ Tika App (using ~--config=<tika-config.xml>~).
 </properties>
 #+end_src
 
+* Jujutsu
+Add auto-completion for =jj=.
+
+#+begin_src shell :tangle shell/.bashrc
+if command -v jj &> /dev/null; then
+    source <(jj util completion bash)
+fi
+#+end_src
+
+#+begin_src shell :tangle shell/.zshrc
+autoload -Uz compinit
+compinit
+
+if command -v jj &> /dev/null; then
+    source <(jj util completion zsh)
+fi
+#+end_src
+
 * Command line tools :linux:system:
 ** Emacs command-line wrapper :wrapper:cli:
 A wrapper around =emacsclient=, stolen from [[https://tecosaur.github.io/emacs-config/config.html#emacs-client-wrapper][tecosaur's Emacs configuration]].
