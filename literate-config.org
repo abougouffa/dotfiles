@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-11-17
+#+lastmod: 2024-12-31
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -25,25 +25,27 @@ directories and add some user specific information (usernames, passwords...).
 ** Notice
 This is the main configuration file, it contains the literal personal
 configuration for [[https://github.com/abougouffa/minemacs][MinEmacs]], and I use it to generate some other Linux
-configuration files (define aliases, environment variables, user tools, Git
-configuration...).
+configuration files (Bash configuration, define aliases, environment variables,
+user tools, Git configuration...).
 
-* Intro :intro:
-I've been using Linux exclusively since 2010, *GNU Emacs* was always installed on
+* Introduction :intro:
+I've been using Linux exclusively since 2009, *GNU Emacs* was always installed on
 my machine, but I didn't discover the *real* Emacs until 2020. In the beginning, I
 started my vanilla Emacs configuration from scratch, but after a while, it had
 become a real mess. As a new Emacs user, I didn't understand in the beginning
 how to optimize my configuration and how to do things correctly, which resulted
-in a configuration that takes 30s to load.
+in a configuration that takes more than 30s to load.
 
 I discovered then [[https://github.com/syl20bnr/spacemacs][Spacemacs]], which made things much easier, but it was a little
-slow, and just after, I found the awesome [[https://github.com/doomemacs/doomemacs][Doom Emacs]], which helped me progress
-and learn more about Emacs and Lisp, but at some point, I faced multiple
-problems with Doom, so I started my own configuration framework, [[https://github.com/abougouffa/minemacs][MinEmacs]].
+slow and it was hiding a lot of Emacs features behind some /simplistic/
+configuration options, which isn't perfect for someone who loves writing code.
+Just after, I found the awesome [[https://github.com/doomemacs/doomemacs][Doom Emacs]], which helped me progress and learn
+more about Emacs and Elisp, but at some point, I faced [[https://abougouffa.github.io/minemacs/docs/STORY.html][multiple problems with
+Doom]], so I started my own configuration framework, [[https://github.com/abougouffa/minemacs][MinEmacs]].
 
 MinEmacs is +intended to be+ a minimal configuration framework. In the beginning,
-I planned to use only necessary packages. However, it is starting to grow to
-respond to my daily needs.
+I planned to use only a small set of necessary packages (hence, the /Min/ in
+/MinEmacs/). However, it is starting to grow to respond to my daily needs.
 
 This block will be tangled in the file =bootstrap.sh=, which will be used as a
 script to conditionally install and configure some system features.
@@ -69,20 +71,6 @@ script to conditionally install and configure some system features.
 ;; MinEmacs specific stuff
 (unless minemacs-verbose-p
   (setq minemacs-msg-level 3))
-
-;; Force loading lazy packages immediately, not in idle time
-;; (setq minemacs-not-lazy t)
-
-;; Enable full screen at startup
-;; (if-let ((fullscreen (assq 'fullscreen default-frame-alist)))
-;;     (setcdr fullscreen 'fullboth)
-;;   (push '(fullscreen . fullboth) default-frame-alist))
-
-;; Setup a `debug-on-message' to catch a wired message!
-;; (setq debug-on-message "\\(?:error in process filter: \\(?:\\(?:mu4e-warn: \\)?\\[mu4e] No message at point\\)\\)")
-;; (setq debug-on-message "Package cl is deprecated")
-
-;; (setenv "MINEMACS_IGNORE_VERSION_CHECK" "1")
 #+end_src
 
 *** Modules (=modules.el=)
@@ -109,8 +97,6 @@ script to conditionally install and configure some system features.
 
 ;; NOTE: This file is generated from "config-literate.org".
 
-;; (with-eval-after-load 'tab-bar
-;;   (setq tab-bar-show t))
 #+end_src
 
 ** General Emacs settings :global:
@@ -123,15 +109,16 @@ script to conditionally install and configure some system features.
 #+end_src
 
 *** Crypto stuff
+/Crypto/ as in /Cryptography/ not /Cryptocurrency/!
 
 #+begin_src emacs-lisp
 (setq-default
- ;; Encrypt files to my self by default
- epa-file-encrypt-to '("F808A020A3E1AC37"))
+ epa-file-encrypt-to '("F808A020A3E1AC37")) ; Encrypt files to my self by default
 #+end_src
 
 *** Bidirectional settings
-This combo should speedup opening files:
+This combo should speedup opening files, for right-to-left languages like
+Arabic, you might need to disable this or set it in a per-buffer basis.
 
 #+begin_src emacs-lisp
 (setq-default
@@ -149,7 +136,7 @@ This combo should speedup opening files:
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
 
-(setq org-directory "~/Dropbox/Org/"
+(setq org-directory (if (file-directory-p "~/Dropbox/Org/") "~/Dropbox/Org/" "~/Documents/Org/")
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/")
 #+end_src
 
@@ -164,6 +151,8 @@ This combo should speedup opening files:
 #+end_src
 
 *** Awqat
+Awqat (Arabic: أوقات meaning /Times/), is a package to calculate Islamic prayer
+times based on the current location.
 
 #+begin_src emacs-lisp
 (when (featurep 'me-lifestyle)
@@ -203,16 +192,8 @@ Automatically scan for projects under =+project-scan-dir-paths= at startup:
 (setq minemacs-theme 'doom-one-light)
 #+end_src
 
-**** Writing mode
-
-#+begin_src emacs-lisp
-(with-eval-after-load 'me-writing-mode
-  (setq +writing-mixed-pitch-enable nil
-        +writing-text-scale 2.0))
-#+end_src
-
 *** Natural languages :spell:grammar:dict:
-**** Offline dictionaries
+**** Offline dictionaries for =lexic= and =sdcv=
 The =lexic= package needs ~sdcv~ to be installed, it needs also some /StarDict/
 dictionaries to be installed, see =M-x lexic-dictionary-help=. You can download
 some dictionaries from:
@@ -221,11 +202,11 @@ some dictionaries from:
 - [[https://web.archive.org/web/20230325180504/http://download.huzheng.org/bigdict][Big English dictionaries]]
 - [[https://polyglotte.tuxfamily.org/doku.php?id=donnees:dicos_bilingues][French dictionaries]]
 
-**** Spell-fu
+**** Jinx - Enchanted Spell Checker
 
 #+begin_src emacs-lisp
-(with-eval-after-load 'spell-fu
-  (+spell-fu-register-dictionaries! "en" "fr"))
+(with-eval-after-load 'jinx
+  (setq-default jinx-languages "en_US fr"))
 #+end_src
 
 ** Applications :apps:
@@ -267,7 +248,7 @@ You will need to:
 - For sending mails from =mu4e=, add a =~/.authinfo= file, file contains a line in
   this format =machine MAIL.DOMAIN.TLD login USER port 587 password PASSWD=
 - Encrypt the =~/.authinfo= file using GPG =gpg -c ~/.authinfo= and delete the
-  original unencrypted file.
+  original plain text file.
 
 I use a =mbsyncrc= file for multi-accounts, with some hacks for Gmail accounts (to
 rename the =[Gmail]/...= folders). Here is an explained configuration example.
@@ -591,163 +572,6 @@ The content of =private/mu4e-accounts.el= is something like:
 I like to use an MPD powered EMMS, so when I restart Emacs I do not lose my
 music.
 
-**** MPD and MPC :noexport:mpd:mpc:
-
-#+begin_src emacs-lisp :tangle no
-;; Not sure if it is required!
-(with-eval-after-load 'mpc
-  (setq mpc-host "localhost:6600"))
-#+end_src
-
-I like to launch the music daemon =mpd= using Systemd, let's define some commands
-in Emacs to start/kill the server:
-
-#+begin_src emacs-lisp :tangle no
-(defun +mpd-daemon-start ()
-  "Start MPD, connects to it and syncs the metadata cache."
-  (interactive)
-  (let ((mpd-daemon-running-p (+mpd-daemon-running-p)))
-    (unless mpd-daemon-running-p
-      ;; Start the daemon if it is not already running.
-      (setq mpd-daemon-running-p (+systemd-start "mpd")))
-    (cond ((+mpd-daemon-running-p)
-           (+mpd-mpc-update)
-           (emms-player-mpd-connect)
-           (emms-cache-set-from-mpd-all)
-           (message "Connected to MPD!"))
-          (t
-           (warn "An error occured when trying to start Systemd mpd.service.")))))
-
-(defun +mpd-daemon-stop ()
-  "Stops playback and kill the MPD daemon."
-  (interactive)
-  (emms-stop)
-  (+systemd-stop "mpd")
-  (message "MPD stopped!"))
-
-(defun +mpd-daemon-running-p ()
-  "Check if the MPD service is running."
-  (+systemd-running-p "mpd"))
-
-(defun +mpd-mpc-update ()
-  "Updates the MPD database synchronously."
-  (interactive)
-  (if (zerop (call-process "mpc" nil nil nil "update"))
-      (message "MPD database updated!")
-    (warn "An error occured when trying to update MPD database.")))
-#+end_src
-
-**** EMMS :noexport:
-Now, we configure EMMS to use MPD if it is present; otherwise, it uses whatever
-default backend EMMS is using.
-
-#+begin_src emacs-lisp :tangle no
-(with-eval-after-load 'emms
-  ;; EMMS basic configuration
-  (require 'emms-setup)
-
-  (when (executable-find "mpd")
-    (require 'emms-player-mpd))
-
-  (emms-all)
-  (emms-default-players)
-
-  (setq emms-source-file-default-directory "~/Music/"
-        ;; Load cover images
-        emms-browser-covers 'emms-browser-cache-thumbnail-async
-        emms-seek-seconds 5)
-
-  (if MPD-P
-      ;; If using MPD as backend
-      (setq emms-player-list '(emms-player-mpd)
-            emms-info-functions '(emms-info-mpd)
-            emms-player-mpd-server-name "localhost"
-            emms-player-mpd-server-port "6600"
-            emms-player-mpd-music-directory (expand-file-name "~/Music"))
-    ;; Use whatever backend EMMS is using by default (VLC in my machine)
-    (setq emms-info-functions '(emms-info-tinytag))) ;; use Tinytag, or '(emms-info-exiftool) for Exiftool
-
-  ;; Keyboard shortcuts
-  (global-set-key (kbd "<XF86AudioPrev>")  'emms-previous)
-  (global-set-key (kbd "<XF86AudioNext>")  'emms-next)
-  (global-set-key (kbd "<XF86AudioPlay>")  'emms-pause)
-  (global-set-key (kbd "<XF86AudioPause>") 'emms-pause)
-  (global-set-key (kbd "<XF86AudioStop>")  'emms-stop)
-
-  ;; Try to start MPD or connect to it if it is already started.
-  (when MPD-P
-    (emms-player-set emms-player-mpd 'regex
-                     (emms-player-simple-regexp
-                      "m3u" "ogg" "flac" "mp3" "wav" "mod" "au" "aiff"))
-    (add-hook 'emms-playlist-cleared-hook 'emms-player-mpd-clear)
-    (+mpd-daemon-start))
-
-  ;; Activate EMMS in mode line
-  (emms-mode-line 1)
-
-  ;; More descriptive track lines in playlists
-  ;; From: https://www.emacswiki.org/emacs/EMMS#h5o-15
-  (defun +better-emms-track-description (track)
-    "Return a somewhat nice track description."
-    (let ((artist (emms-track-get track 'info-artist))
-          (album (emms-track-get track 'info-album))
-          (tracknumber (emms-track-get track 'info-tracknumber))
-          (title (emms-track-get track 'info-title)))
-      (cond
-       ((or artist title)
-        (concat
-         (if (> (length artist) 0) artist "Unknown artist") ": "
-         (if (> (length album) 0) album "Unknown album") " - "
-         (if (> (length tracknumber) 0) (format "%02d. " (string-to-number tracknumber)) "")
-         (if (> (length title) 0) title "Unknown title")))
-       (t
-        (emms-track-simple-description track)))))
-
-  (setq emms-track-description-function '+better-emms-track-description)
-
-  ;; Manage notifications, inspired by:
-  ;; https://www.emacswiki.org/emacs/EMMS#h5o-9
-  ;; https://www.emacswiki.org/emacs/EMMS#h5o-11
-  (cond
-   ;; Choose D-Bus to disseminate messages, if available.
-   ((and (require 'dbus nil t) (dbus-ping :session "org.freedesktop.Notifications"))
-    (setq +emms-notifier-function '+notify-via-freedesktop-notifications)
-    (require 'notifications))
-   ;; Try to make use of KNotify if D-Bus isn't present.
-   ((and window-system (executable-find "kdialog"))
-    (setq +emms-notifier-function '+notify-via-kdialog))
-   ;; Use the message system otherwise
-   (t (setq +emms-notifier-function '+notify-via-messages)))
-
-  (setq +emms-notification-icon "/usr/share/icons/Papirus/64x64/apps/enjoy-music-player.svg")
-
-  (defun +notify-via-kdialog (title msg icon)
-    "Send notification with TITLE, MSG, and ICON via `KDialog'."
-    (call-process "kdialog"
-                  nil nil nil
-                  "--title" title
-                  "--passivepopup" msg "5"
-                  "--icon" icon))
-
-  (defun +notify-via-freedesktop-notifications (title msg icon)
-    "Send notification with TITLE, MSG, and ICON via `D-Bus'."
-    (notifications-notify
-     :title title
-     :body msg
-     :app-icon icon
-     :urgency 'low))
-
-  (defun +notify-via-messages (title msg icon)
-    "Send notification with TITLE, MSG to message. ICON is ignored."
-    (message "%s %s" title msg))
-
-  (add-hook 'emms-player-started-hook
-            (lambda () (funcall +emms-notifier-function
-                                "EMMS is now playing:"
-                                (emms-track-description (emms-playlist-current-selected-track))
-                                +emms-notification-icon))))
-#+end_src
-
 **** EMPV
 
 #+begin_src emacs-lisp
@@ -1014,7 +838,7 @@ xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
 #+end_src
 
 *** Configuring Chrome/Brave
-As specified in the [[https://www.orgroam.com/manual.html#org_002droam_002dprotocol][official documentation]], we would like to invoke the
+As specified in Org-roam [[https://www.orgroam.com/manual.html#org_002droam_002dprotocol][official documentation]], we would like to invoke the
 =org-protocol://= without confirmation. To do this, we need to add this
 system-wide configuration.
 
@@ -2589,6 +2413,6 @@ export PLASMA_USE_QT_SCALING=1
 
 # Automatically tangle this file on save
 # Local Variables:
-# eval: (add-hook 'after-save-hook #'org-babel-tangle)
-# jinx-languages: "en"
+# eval: (add-hook 'after-save-hook #'org-babel-tangle nil t)
+# jinx-languages: "en_US"
 # End:
