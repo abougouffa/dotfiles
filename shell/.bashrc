@@ -92,9 +92,18 @@ OMB_USE_SUDO=true
 # Example format: completions=(ssh git bundler gem pip pip3)
 # Add wisely, as too many completions slow down shell startup.
 completions=(
+  system
   git
   composer
   ssh
+  nvm
+  npm
+  virtualbox
+  conda
+  makefile
+  pip
+  pip3
+  tmux
 )
 
 # Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
