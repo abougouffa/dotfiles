@@ -2,9 +2,6 @@
 
 ;; NOTE: This file is generated from "config-literate.org".
 
-;; (with-eval-after-load 'tab-bar
-;;   (setq tab-bar-show t))
-
 ;; [[file:../../literate-config.org::*User information][User information:1]]
 ;; Personal info
 (setq user-full-name "Abdelhak Bougouffa"
@@ -13,8 +10,7 @@
 
 ;; [[file:../../literate-config.org::*Crypto stuff][Crypto stuff:1]]
 (setq-default
- ;; Encrypt files to my self by default
- epa-file-encrypt-to '("F808A020A3E1AC37"))
+ epa-file-encrypt-to '("F808A020A3E1AC37")) ; Encrypt files to my self by default
 ;; Crypto stuff:1 ends here
 
 ;; [[file:../../literate-config.org::*Bidirectional settings][Bidirectional settings:1]]
@@ -31,7 +27,7 @@
 (defvar +biblio-storage-path (expand-file-name "~/Zotero/storage/"))
 (defvar +biblio-libraries-path (expand-file-name "~/Zotero/library.bib"))
 
-(setq org-directory "~/Dropbox/Org/"
+(setq org-directory (if (file-directory-p "~/Dropbox/Org/") "~/Dropbox/Org/" "~/Documents/Org/")
       source-directory "~/Softwares/aur/emacs-git/src/emacs-git/")
 ;; Directories:1 ends here
 
@@ -74,16 +70,10 @@
 (setq minemacs-theme 'doom-one-light)
 ;; Theme & font:1 ends here
 
-;; [[file:../../literate-config.org::*Writing mode][Writing mode:1]]
-(with-eval-after-load 'me-writing-mode
-  (setq +writing-mixed-pitch-enable nil
-        +writing-text-scale 2.0))
-;; Writing mode:1 ends here
-
-;; [[file:../../literate-config.org::*Spell-fu][Spell-fu:1]]
-(with-eval-after-load 'spell-fu
-  (+spell-fu-register-dictionaries! "en" "fr"))
-;; Spell-fu:1 ends here
+;; [[file:../../literate-config.org::*Jinx - Enchanted Spell Checker][Jinx - Enchanted Spell Checker:1]]
+(with-eval-after-load 'jinx
+  (setq-default jinx-languages "en_US fr"))
+;; Jinx - Enchanted Spell Checker:1 ends here
 
 ;; [[file:../../literate-config.org::*News feed (=elfeed=)][News feed (=elfeed=):1]]
 (with-eval-after-load 'elfeed

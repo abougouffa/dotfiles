@@ -1,10 +1,3 @@
-autoload -Uz compinit
-compinit
-
-if command -v jj &> /dev/null; then
-    source <(jj util completion zsh)
-fi
-
 # -*- mode: sh -*-
 
 # When logging via Tramp it will look for patterns to detect if a shell is
@@ -109,8 +102,6 @@ source "$ZSH/oh-my-zsh.sh"
 alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
-
 command -v fzf &> /dev/null && eval "$(eval fzf --zsh)"
 
 # # Automatically added by the Guix install script.
@@ -119,3 +110,12 @@ command -v fzf &> /dev/null && eval "$(eval fzf --zsh)"
 #         PS1="${BASH_REMATCH[1]} [env]\\\$ "
 #     fi
 # fi
+
+autoload -Uz compinit
+compinit
+
+if command -v jj &> /dev/null; then
+    source <(jj util completion zsh)
+fi
+
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"

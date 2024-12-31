@@ -9,22 +9,45 @@ update-mime-database ~/.local/share/mime
 
 xdg-mime default emacs-client.desktop text/org
 
-xdg-mime default org-protocol.desktop x-scheme-handler/org-protocol
+update_appimageupdatetool () {
+  TOOL_NAME=appimageupdatetool
+  MACHINE_ARCH=$(uname -m)
+  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
+  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
 
-unset INSTALL_CONFIRM
-read -p "Do you want to set Chrome/Brave to show the 'Always open ...' checkbox, to be used with the 'org-protocol://' registration? [Y | N]: " INSTALL_CONFIRM
+  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null; then
+    echo "${TOOL_NAME} already up to date"
+  else
+    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]; then
+      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+      mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    else
+      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+    fi
+    wget -O "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_URL}" && # 2&>/dev/null
+        echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
+        [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
+        rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    chmod a+x "${APPIMAGE_UPDATE_TOOL_PATH}"
+  fi
+}
 
-if [[ "$INSTALL_CONFIRM" == "Y" ]]
-then
-  sudo mkdir -p /etc/opt/chrome/policies/managed/
+update_appimageupdatetool
 
-  sudo tee /etc/opt/chrome/policies/managed/external_protocol_dialog.json > /dev/null <<'EOF'
-  {
-  "ExternalProtocolDialogShowAlwaysOpenCheckbox": true
-  }
-EOF
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install Oh-my-Zsh [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  fi
+fi
 
-  sudo chmod 644 /etc/opt/chrome/policies/managed/external_protocol_dialog.json
+if [ ! -d "$HOME/.oh-my-bash" ]; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install Oh-my-Bash [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+  fi
 fi
 
 update_apache_tika () {
@@ -82,31 +105,6 @@ update_apache_tika () {
 
 update_apache_tika
 
-update_appimageupdatetool () {
-  TOOL_NAME=appimageupdatetool
-  MACHINE_ARCH=$(uname -m)
-  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
-  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
-
-  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null; then
-    echo "${TOOL_NAME} already up to date"
-  else
-    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]; then
-      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-      mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    else
-      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-    fi
-    wget -O "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_URL}" && # 2&>/dev/null
-        echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
-        [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
-        rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    chmod a+x "${APPIMAGE_UPDATE_TOOL_PATH}"
-  fi
-}
-
-update_appimageupdatetool
-
 if ! command -v nvm >/dev/null; then
   unset INSTALL_CONFIRM
   read -p "Do you want install nvm [Y | N]: " INSTALL_CONFIRM
@@ -120,14 +118,6 @@ if ! command -v pyenv &>/dev/null; then
   read -p "Do you want install pyenv [Y | N]: " INSTALL_CONFIRM
   if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
     curl https://pyenv.run | bash
-  fi
-fi
-
-if ! command -v direnv &>/dev/null; then
-  unset INSTALL_CONFIRM
-  read -p "Do you want install direnv [Y | N]: " INSTALL_CONFIRM
-  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
-    curl -sfL https://direnv.net/install.sh | bash
   fi
 fi
 
@@ -153,6 +143,14 @@ fi
 #     curl -sfL https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh | sudo bash
 #   fi
 # fi
+
+if ! command -v direnv &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install direnv [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -sfL https://direnv.net/install.sh | bash
+  fi
+fi
 
 check_and_install_pkg() {
     PKG_NAME="$1"

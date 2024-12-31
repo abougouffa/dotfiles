@@ -99,7 +99,7 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 command -v pyenv &>/dev/null && eval "$(pyenv init -)"
 
 # If not running inside Emacs (via vterm/eshell...)
-if [[ -z "${INSIDE_EMACS}" ]]; then
+if [[ -z "${INSIDE_EMACS}" && ( "${DISPLAY}" || "${SSH_TTY}" ) ]]; then
   if command -v tmux &> /dev/null && [[ -z "${TMUX}" ]]; then
     tmux attach -t default || tmux new -s default
   fi
