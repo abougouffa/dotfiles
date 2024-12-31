@@ -877,6 +877,478 @@ javascript:location.href =
     + encodeURIComponent(window.getSelection())
 #+end_src
 
+* Command line tools :linux:system:
+** Emacs command-line wrapper :wrapper:cli:
+A wrapper around =emacsclient=, adapted from [[https://tecosaur.github.io/emacs-config/config.html#emacs-client-wrapper][tecosaur's Emacs configuration]].
+
++ Accepting =stdin= by putting it in a temporary file and immediately opening it.
++ Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
+  sessions, among other things).
++ With a whiff of 24-bit color support, sets ~TERM~ variable to a =terminfo= that
+  (probably) announces 24-bit color support.
++ Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
+  and instead take a flag to suppress this behavior (~-w~).
+
+#+name: e
+#+begin_src shell :tangle emacs/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+force_tty=false
+force_wait=false
+stdin_mode=""
+
+args=()
+
+while :; do
+    case "$1" in
+    -t | -nw | --tty)
+        force_tty=true
+        shift
+        ;;
+    -w | --wait)
+        force_wait=true
+        shift
+        ;;
+    -m | --mode)
+        stdin_mode=" ($2-mode)"
+        shift 2
+        ;;
+    -h | --help)
+        echo -e "\033[1mUsage: e [-t] [-m MODE] [OPTIONS] FILE [-]\033[0m
+
+Emacs client convenience wrapper.
+
+\033[1mOptions:\033[0m
+\033[0;34m-h, --help\033[0m            Show this message
+\033[0;34m-t, -nw, --tty\033[0m        Force terminal mode
+\033[0;34m-w, --wait\033[0m            Don't supply \033[0;34m--no-wait\033[0m to graphical emacsclient
+\033[0;34m-\033[0m                     Take \033[0;33mstdin\033[0m (when last argument)
+\033[0;34m-m MODE, --mode MODE\033[0m  Mode to open \033[0;33mstdin\033[0m with
+
+Run \033[0;32memacsclient --help\033[0m to see help for the emacsclient."
+        exit 0
+        ;;
+    --*=*)
+        set -- "$@" "${1%%=*}" "${1#*=}"
+        shift
+        ;;
+    ,*)
+        if [ "$#" = 0 ]; then
+            break
+        fi
+        args+=("$1")
+        shift
+        ;;
+    esac
+done
+
+if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
+    unset 'args[-1]'
+    TMP="$(mktemp /tmp/emacsstdin-XXX)"
+    cat >"$TMP"
+    args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
+fi
+
+if [ -z "$DISPLAY" ] || $force_tty; then
+    # detect terminals with sneaky 24-bit support
+    if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } &&
+        [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
+        if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
+            termstub="${TERM%%-*}"
+        else
+            termstub="${TERM#*-}"
+        fi
+        if infocmp "$termstub-direct" >/dev/null 2>&1; then
+            TERM="$termstub-direct"
+        else
+            TERM="xterm-direct"
+        fi # should be fairly safe
+    fi
+    emacsclient --tty -create-frame --alternate-editor="$ALTERNATE_EDITOR" "${args[@]}"
+else
+    if ! $force_wait; then
+        args+=(--no-wait)
+    fi
+    emacsclient -create-frame --alternate-editor="$ALTERNATE_EDITOR" "${args[@]}"
+fi
+#+end_src
+
+**** Useful aliases
+Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
+set aliases for the terminal-forced variants.
+
+#+begin_src shell :tangle shell/.shell_extras
+# -*- mode: sh; -*-
+
+# Aliases to run emacs+magit
+alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
+alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
+
+# Aliases to run emacs+mu4e
+alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
+alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
+#+end_src
+
+And this to launch Emacs in terminal mode =et=, I use this as a default =$EDITOR=
+
+#+begin_src shell :tangle emacs/.local/bin/et :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+e -t "$@"
+#+end_src
+
+And =ev= for use with =$VISUAL=:
+
+#+begin_src shell :tangle emacs/.local/bin/ev :mkdirp yes :tangle-mode (identity #o755) :comments no
+#!/usr/bin/env bash
+e -w "$@"
+#+end_src
+
+#+begin_src shell :tangle shell/.shell_extras
+export EDITOR="$HOME/.local/bin/et"
+export VISUAL="$HOME/.local/bin/ev"
+#+end_src
+
+** AppImage :appimage:
+Install/update the =appimageupdatetool.AppImage= tool:
+
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
+update_appimageupdatetool () {
+  TOOL_NAME=appimageupdatetool
+  MACHINE_ARCH=$(uname -m)
+  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
+  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
+
+  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null; then
+    echo "${TOOL_NAME} already up to date"
+  else
+    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]; then
+      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+      mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    else
+      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
+    fi
+    wget -O "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_URL}" && # 2&>/dev/null
+        echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
+        [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
+        rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
+    chmod a+x "${APPIMAGE_UPDATE_TOOL_PATH}"
+  fi
+}
+
+update_appimageupdatetool
+#+end_src
+
+* Oh-my-Zsh :zsh:
+** Installation
+Follow the installation procedure from https://github.com/ohmyzsh/ohmyzsh.
+
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install Oh-my-Zsh [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  fi
+fi
+#+end_src
+
+** Path
+Path to your oh-my-zsh installation.
+
+#+begin_src shell :tangle shell/.zshrc
+# -*- mode: sh -*-
+
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM == "dumb" ]]; then
+    unsetopt zle
+    PS1='$ '
+    return
+fi
+
+export ZSH="$HOME/.oh-my-zsh"
+#+end_src
+
+** Include extra configuration file
+
+#+begin_src shell :tangle shell/.zshrc
+# Source extra commands
+source "$HOME/.shell_extras"
+#+end_src
+
+** Themes and customization
+Set name of the theme to load, if set to ="random"=, it will load a random theme
+each time oh-my-zsh is loaded, in which case, to know which specific one was
+loaded, run: =echo $RANDOM_THEME= See [[https://github.com/ohmyzsh/ohmyzsh/wiki/Themes][github.com/ohmyzsh/ohmyzsh/wiki/Themes]].
+
+#+begin_src shell :tangle shell/.zshrc
+# Typewritten customizations
+TYPEWRITTEN_RELATIVE_PATH="adaptive"
+TYPEWRITTEN_CURSOR="underscore"
+
+ZSH_THEME="typewritten/typewritten"
+
+# Set list of themes to pick from when loading at random
+# Setting this variable when ZSH_THEME=random will cause zsh to load
+# a theme from this variable instead of looking in $ZSH/themes/
+# If set to an empty array, this variable will have no effect.
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+#+end_src
+
+** Behavior
+
+#+begin_src shell :tangle shell/.zshrc
+# Uncomment the following line to use case-sensitive completion.
+# CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
+# HYPHEN_INSENSITIVE="true"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+# DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to automatically update without prompting.
+DISABLE_UPDATE_PROMPT="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+export UPDATE_ZSH_DAYS=3
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# You can set one of the optional three formats:
+# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# or set a custom format using the strftime function format specifications,
+# see 'man strftime' for details.
+# HIST_STAMPS="mm/dd/yyyy"
+#+end_src
+
+** Plugins
+
+#+begin_src shell :tangle shell/.zshrc
+# Would you like to use another custom folder than $ZSH/custom?
+ZSH_CUSTOM=$HOME/.config/my_ohmyzsh_customizations
+
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  zsh-autosuggestions
+  zsh-navigation-tools
+  zsh-interactive-cd
+  archlinux
+  ssh-agent
+  sudo
+  docker
+  systemd
+  tmux
+  python
+  pip
+  rust
+  repo
+  cp
+  rsync
+  z
+)
+#+end_src
+
+** Bootstrap Oh-my-Zsh
+
+#+begin_src shell :tangle shell/.zshrc
+source "$ZSH/oh-my-zsh.sh"
+#+end_src
+
+** Aliases
+
+#+begin_src shell :tangle shell/.zshrc
+# Aliases
+alias zshconfig="vim $HOME/.zshrc"
+alias ohmyzsh="ranger $ZSH"
+#+end_src
+
+* Oh-my-Bash :bash:
+** Installation
+Follow the installation procedure from https://github.com/ohmybash/oh-my-bash.
+
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
+if [ ! -d "$HOME/.oh-my-bash" ]; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install Oh-my-Bash [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+  fi
+fi
+#+end_src
+
+** Path
+Path to your oh-my-bash installation.
+
+#+begin_src shell :tangle shell/.bashrc
+# -*- mode: sh -*-
+
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+if [[ $TERM == "dumb" ]]; then
+    unsetopt zle
+    PS1='$ '
+    return
+fi
+
+# Enable the subsequent settings only in interactive sessions
+case $- in
+   *i*) ;;
+     *) return;;
+esac
+
+# Path to your oh-my-bash installation.
+export OSH="$HOME/.oh-my-bash"
+#+end_src
+
+** Include extra configuration file
+
+#+begin_src shell :tangle shell/.bashrc
+# Source extra commands
+source "$HOME/.shell_extras"
+#+end_src
+
+** Themes and customization
+Set name of the theme to load. Optionally, if you set this to ="random"= it'll
+load a random theme each time that oh-my-bash is loaded.
+
+#+begin_src shell :tangle shell/.bashrc
+OSH_THEME="font"
+#+end_src
+
+** Behavior
+
+#+begin_src shell :tangle shell/.bashrc
+# Uncomment the following line to use case-sensitive completion.
+# OMB_CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion. Case
+# sensitive completion must be off. _ and - will be interchangeable.
+# OMB_HYPHEN_SENSITIVE="false"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+# DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+# export UPDATE_OSH_DAYS=13
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you don't want the repository to be considered dirty
+# if there are untracked files.
+# SCM_GIT_DISABLE_UNTRACKED_DIRTY="true"
+
+# Uncomment the following line if you want to completely ignore the presence
+# of untracked files in the repository.
+# SCM_GIT_IGNORE_UNTRACKED="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.  One of the following values can
+# be used to specify the timestamp format.
+# * 'mm/dd/yyyy'     # mm/dd/yyyy + time
+# * 'dd.mm.yyyy'     # dd.mm.yyyy + time
+# * 'yyyy-mm-dd'     # yyyy-mm-dd + time
+# * '[mm/dd/yyyy]'   # [mm/dd/yyyy] + [time] with colors
+# * '[dd.mm.yyyy]'   # [dd.mm.yyyy] + [time] with colors
+# * '[yyyy-mm-dd]'   # [yyyy-mm-dd] + [time] with colors
+# If not set, the default value is 'yyyy-mm-dd'.
+# HIST_STAMPS='yyyy-mm-dd'
+
+# Uncomment the following line if you do not want OMB to overwrite the existing
+# aliases by the default OMB aliases defined in lib/*.sh
+# OMB_DEFAULT_ALIASES="check"
+
+# Would you like to use another custom folder than $OSH/custom?
+# OSH_CUSTOM=/path/to/new-custom-folder
+
+# To disable the uses of "sudo" by oh-my-bash, please set "false" to
+# this variable.  The default behavior for the empty value is "true".
+OMB_USE_SUDO=true
+
+# To enable/disable display of Python virtualenv and condaenv
+# OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
+# OMB_PROMPT_SHOW_PYTHON_VENV=false # disable
+#+end_src
+
+** Plugins
+
+#+begin_src shell :tangle shell/.bashrc
+# Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
+# Custom completions may be added to ~/.oh-my-bash/custom/completions/
+# Example format: completions=(ssh git bundler gem pip pip3)
+# Add wisely, as too many completions slow down shell startup.
+completions=(
+  git
+  composer
+  ssh
+)
+
+# Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
+# Custom aliases may be added to ~/.oh-my-bash/custom/aliases/
+# Example format: aliases=(vagrant composer git-avh)
+# Add wisely, as too many aliases slow down shell startup.
+aliases=(
+  general
+)
+
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-bash/plugins/*)
+# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  git
+  sudo
+  bu
+  pyenv
+  colored-man-pages
+)
+#+end_src
+
+** Bootstrap Oh-my-Bash
+
+#+begin_src shell :tangle shell/.bashrc
+source "$OSH/oh-my-bash.sh"
+#+end_src
+
 * Git :linux:system:
 ** Defaults
 
@@ -1257,538 +1729,6 @@ Tika App (using ~--config=<tika-config.xml>~).
 </properties>
 #+end_src
 
-* Jujutsu
-Add auto-completion for =jj=.
-
-#+begin_src shell :tangle shell/.bashrc
-if command -v jj &> /dev/null; then
-    source <(jj util completion bash)
-fi
-#+end_src
-
-#+begin_src shell :tangle shell/.zshrc
-autoload -Uz compinit
-compinit
-
-if command -v jj &> /dev/null; then
-    source <(jj util completion zsh)
-fi
-#+end_src
-
-* Command line tools :linux:system:
-** Emacs command-line wrapper :wrapper:cli:
-A wrapper around =emacsclient=, stolen from [[https://tecosaur.github.io/emacs-config/config.html#emacs-client-wrapper][tecosaur's Emacs configuration]].
-
-+ Accepting =stdin= by putting it in a temporary file and immediately opening it.
-+ Guessing that the =tty= is a good idea when ~$DISPLAY~ is unset (relevant with SSH
-  sessions, among other things).
-+ With a whiff of 24-bit color support, sets ~TERM~ variable to a =terminfo= that
-  (probably) announces 24-bit color support.
-+ Changes GUI =emacsclient= instances to be non-blocking by default (~--no-wait~),
-  and instead take a flag to suppress this behavior (~-w~).
-
-#+name: e
-#+begin_src shell :tangle emacs/.local/bin/e :mkdirp yes :tangle-mode (identity #o755) :comments no
-#!/usr/bin/env bash
-force_tty=false
-force_wait=false
-stdin_mode=""
-
-args=()
-
-while :; do
-    case "$1" in
-    -t | -nw | --tty)
-        force_tty=true
-        shift
-        ;;
-    -w | --wait)
-        force_wait=true
-        shift
-        ;;
-    -m | --mode)
-        stdin_mode=" ($2-mode)"
-        shift 2
-        ;;
-    -h | --help)
-        echo -e "\033[1mUsage: e [-t] [-m MODE] [OPTIONS] FILE [-]\033[0m
-
-Emacs client convenience wrapper.
-
-\033[1mOptions:\033[0m
-\033[0;34m-h, --help\033[0m            Show this message
-\033[0;34m-t, -nw, --tty\033[0m        Force terminal mode
-\033[0;34m-w, --wait\033[0m            Don't supply \033[0;34m--no-wait\033[0m to graphical emacsclient
-\033[0;34m-\033[0m                     Take \033[0;33mstdin\033[0m (when last argument)
-\033[0;34m-m MODE, --mode MODE\033[0m  Mode to open \033[0;33mstdin\033[0m with
-
-Run \033[0;32memacsclient --help\033[0m to see help for the emacsclient."
-        exit 0
-        ;;
-    --*=*)
-        set -- "$@" "${1%%=*}" "${1#*=}"
-        shift
-        ;;
-    ,*)
-        if [ "$#" = 0 ]; then
-            break
-        fi
-        args+=("$1")
-        shift
-        ;;
-    esac
-done
-
-if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
-    unset 'args[-1]'
-    TMP="$(mktemp /tmp/emacsstdin-XXX)"
-    cat >"$TMP"
-    args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
-fi
-
-if [ -z "$DISPLAY" ] || $force_tty; then
-    # detect terminals with sneaky 24-bit support
-    if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } &&
-        [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
-        if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
-            termstub="${TERM%%-*}"
-        else
-            termstub="${TERM#*-}"
-        fi
-        if infocmp "$termstub-direct" >/dev/null 2>&1; then
-            TERM="$termstub-direct"
-        else
-            TERM="xterm-direct"
-        fi # should be fairly safe
-    fi
-    emacsclient --tty -create-frame --alternate-editor="$ALTERNATE_EDITOR" "${args[@]}"
-else
-    if ! $force_wait; then
-        args+=(--no-wait)
-    fi
-    emacsclient -create-frame --alternate-editor="$ALTERNATE_EDITOR" "${args[@]}"
-fi
-#+end_src
-
-**** Useful aliases
-Now, to set an alias to use =e= with =magit=, and then for maximum laziness we can
-set aliases for the terminal-forced variants.
-
-#+begin_src shell :tangle shell/.shell_extras
-# -*- mode: sh; -*-
-
-# Aliases to run emacs+magit
-alias magit='e --eval "(progn (magit-status) (delete-other-windows))"'
-alias magitt='e -t --eval "(progn (magit-status) (delete-other-windows))"'
-
-# Aliases to run emacs+mu4e
-alias emu='e --eval "(progn (=mu4e) (delete-other-windows))"'
-alias emut='e -t --eval "(progn (=mu4e) (delete-other-windows))"'
-#+end_src
-
-And this to launch Emacs in terminal mode =et=, I use this as a default =$EDITOR=
-
-#+begin_src shell :tangle emacs/.local/bin/et :mkdirp yes :tangle-mode (identity #o755) :comments no
-#!/usr/bin/env bash
-e -t "$@"
-#+end_src
-
-And =ev= for use with =$VISUAL=:
-
-#+begin_src shell :tangle emacs/.local/bin/ev :mkdirp yes :tangle-mode (identity #o755) :comments no
-#!/usr/bin/env bash
-e -w "$@"
-#+end_src
-
-#+begin_src shell :tangle shell/.shell_extras
-export EDITOR="$HOME/.local/bin/et"
-export VISUAL="$HOME/.local/bin/ev"
-#+end_src
-
-** AppImage :appimage:
-Install/update the =appimageupdatetool.AppImage= tool:
-
-#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
-update_appimageupdatetool () {
-  TOOL_NAME=appimageupdatetool
-  MACHINE_ARCH=$(uname -m)
-  APPIMAGE_UPDATE_TOOL_PATH="$HOME/.local/bin/${TOOL_NAME}"
-  APPIMAGE_UPDATE_TOOL_URL="https://github.com/AppImage/AppImageUpdate/releases/download/continuous/${TOOL_NAME}-${MACHINE_ARCH}.AppImage"
-
-  if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ] && "$APPIMAGE_UPDATE_TOOL_PATH" -j "${APPIMAGE_UPDATE_TOOL_PATH}" 2&>/dev/null; then
-    echo "${TOOL_NAME} already up to date"
-  else
-    if [ -f "${APPIMAGE_UPDATE_TOOL_PATH}" ]; then
-      echo "Update available, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-      mv "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    else
-      echo "${TOOL_NAME} not found, downloading latest ${MACHINE_ARCH} version to ${APPIMAGE_UPDATE_TOOL_PATH}"
-    fi
-    wget -O "${APPIMAGE_UPDATE_TOOL_PATH}" "${APPIMAGE_UPDATE_TOOL_URL}" && # 2&>/dev/null
-        echo "Downloaded ${TOOL_NAME}-${MACHINE_ARCH}.AppImage" &&
-        [ -f "${APPIMAGE_UPDATE_TOOL_PATH}.backup" ] &&
-        rm "${APPIMAGE_UPDATE_TOOL_PATH}.backup"
-    chmod a+x "${APPIMAGE_UPDATE_TOOL_PATH}"
-  fi
-}
-
-update_appimageupdatetool
-#+end_src
-
-* Oh-my-Zsh :zsh:
-** Path
-Path to your oh-my-zsh installation.
-
-#+begin_src shell :tangle shell/.zshrc
-# -*- mode: sh -*-
-
-# When logging via Tramp it will look for patterns to detect if a shell is
-# present. Fancy shell prompts aren't taken into account.
-if [[ $TERM == "dumb" ]]; then
-    unsetopt zle
-    PS1='$ '
-    return
-fi
-
-export ZSH="$HOME/.oh-my-zsh"
-#+end_src
-
-** Include extra configuration file
-
-#+begin_src shell :tangle shell/.zshrc
-# Source extra commands
-source "$HOME/.shell_extras"
-#+end_src
-
-** Themes and customization
-Set name of the theme to load, if set to ="random"=, it will load a random theme
-each time oh-my-zsh is loaded, in which case, to know which specific one was
-loaded, run: =echo $RANDOM_THEME= See [[https://github.com/ohmyzsh/ohmyzsh/wiki/Themes][github.com/ohmyzsh/ohmyzsh/wiki/Themes]].
-
-#+begin_src shell :tangle shell/.zshrc
-# Typewritten customizations
-TYPEWRITTEN_RELATIVE_PATH="adaptive"
-TYPEWRITTEN_CURSOR="underscore"
-
-ZSH_THEME="typewritten/typewritten"
-
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-#+end_src
-
-** Behavior
-
-#+begin_src shell :tangle shell/.zshrc
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to automatically update without prompting.
-DISABLE_UPDATE_PROMPT="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-export UPDATE_ZSH_DAYS=3
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-#+end_src
-
-** Plugins
-
-#+begin_src shell :tangle shell/.zshrc
-# Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=$HOME/.config/my_ohmyzsh_customizations
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  zsh-autosuggestions
-  zsh-navigation-tools
-  zsh-interactive-cd
-  archlinux
-  ssh-agent
-  sudo
-  docker
-  systemd
-  tmux
-  python
-  pip
-  rust
-  repo
-  cp
-  rsync
-  z
-)
-#+end_src
-
-** Bootstrap Oh-my-Zsh
-
-#+begin_src shell :tangle shell/.zshrc
-source "$ZSH/oh-my-zsh.sh"
-#+end_src
-
-** Aliases
-
-#+begin_src shell :tangle shell/.zshrc
-# Aliases
-alias zshconfig="vim $HOME/.zshrc"
-alias ohmyzsh="ranger $ZSH"
-#+end_src
-
-* Oh-my-Bash :bash:
-** Path
-Path to your oh-my-bash installation.
-
-#+begin_src shell :tangle shell/.bashrc
-# -*- mode: sh -*-
-
-# When logging via Tramp it will look for patterns to detect if a shell is
-# present. Fancy shell prompts aren't taken into account.
-if [[ $TERM == "dumb" ]]; then
-    unsetopt zle
-    PS1='$ '
-    return
-fi
-
-# Enable the subsequent settings only in interactive sessions
-case $- in
-   *i*) ;;
-     *) return;;
-esac
-
-# Path to your oh-my-bash installation.
-export OSH="$HOME/.oh-my-bash"
-
-# Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
-# Custom completions may be added to ~/.oh-my-bash/custom/completions/
-# Example format: completions=(ssh git bundler gem pip pip3)
-# Add wisely, as too many completions slow down shell startup.
-completions=(
-  git
-  composer
-  ssh
-)
-
-# Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
-# Custom aliases may be added to ~/.oh-my-bash/custom/aliases/
-# Example format: aliases=(vagrant composer git-avh)
-# Add wisely, as too many aliases slow down shell startup.
-aliases=(
-  general
-)
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-bash/plugins/*)
-# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-  bashmarks
-)
-
-# Which plugins would you like to conditionally load? (plugins can be found in ~/.oh-my-bash/plugins/*)
-# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
-# Example format:
-#  if [ "$DISPLAY" ] || [ "$SSH" ]; then
-#      plugins+=(tmux-autoattach)
-#  fi
-
-source "$OSH"/oh-my-bash.sh
-
-# User configuration
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-bash libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-bash
-# users are encouraged to define aliases within the OSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias bashconfig="mate ~/.bashrc"
-# alias ohmybash="mate ~/.oh-my-bash"
-#+end_src
-
-** Include extra configuration file
-
-#+begin_src shell :tangle shell/.bashrc
-# Source extra commands
-source "$HOME/.shell_extras"
-#+end_src
-
-** Themes and customization
-Set name of the theme to load. Optionally, if you set this to ="random"= it'll
-load a random theme each time that oh-my-bash is loaded.
-
-#+begin_src shell :tangle shell/.bashrc
-OSH_THEME="font"
-#+end_src
-
-** Behavior
-
-#+begin_src shell :tangle shell/.bashrc
-# Uncomment the following line to use case-sensitive completion.
-# OMB_CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-# OMB_HYPHEN_SENSITIVE="false"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_OSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you don't want the repository to be considered dirty
-# if there are untracked files.
-# SCM_GIT_DISABLE_UNTRACKED_DIRTY="true"
-
-# Uncomment the following line if you want to completely ignore the presence
-# of untracked files in the repository.
-# SCM_GIT_IGNORE_UNTRACKED="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.  One of the following values can
-# be used to specify the timestamp format.
-# * 'mm/dd/yyyy'     # mm/dd/yyyy + time
-# * 'dd.mm.yyyy'     # dd.mm.yyyy + time
-# * 'yyyy-mm-dd'     # yyyy-mm-dd + time
-# * '[mm/dd/yyyy]'   # [mm/dd/yyyy] + [time] with colors
-# * '[dd.mm.yyyy]'   # [dd.mm.yyyy] + [time] with colors
-# * '[yyyy-mm-dd]'   # [yyyy-mm-dd] + [time] with colors
-# If not set, the default value is 'yyyy-mm-dd'.
-# HIST_STAMPS='yyyy-mm-dd'
-
-# Uncomment the following line if you do not want OMB to overwrite the existing
-# aliases by the default OMB aliases defined in lib/*.sh
-# OMB_DEFAULT_ALIASES="check"
-
-# Would you like to use another custom folder than $OSH/custom?
-# OSH_CUSTOM=/path/to/new-custom-folder
-
-# To disable the uses of "sudo" by oh-my-bash, please set "false" to
-# this variable.  The default behavior for the empty value is "true".
-OMB_USE_SUDO=true
-
-# To enable/disable display of Python virtualenv and condaenv
-# OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
-# OMB_PROMPT_SHOW_PYTHON_VENV=false # disable
-#+end_src
-
-** Plugins
-
-#+begin_src shell :tangle shell/.bashrc
-# Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
-# Custom completions may be added to ~/.oh-my-bash/custom/completions/
-# Example format: completions=(ssh git bundler gem pip pip3)
-# Add wisely, as too many completions slow down shell startup.
-completions=(
-  git
-  composer
-  ssh
-)
-
-# Which aliases would you like to load? (aliases can be found in ~/.oh-my-bash/aliases/*)
-# Custom aliases may be added to ~/.oh-my-bash/custom/aliases/
-# Example format: aliases=(vagrant composer git-avh)
-# Add wisely, as too many aliases slow down shell startup.
-aliases=(
-  general
-)
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-bash/plugins/*)
-# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-  bashmarks
-)
-
-# Which plugins would you like to conditionally load? (plugins can be found in ~/.oh-my-bash/plugins/*)
-# Custom plugins may be added to ~/.oh-my-bash/custom/plugins/
-# Example format:
-#  if [ "$DISPLAY" ] || [ "$SSH" ]; then
-#      plugins+=(tmux-autoattach)
-#  fi
-#+end_src
-
-** Bootstrap Oh-my-Bash
-
-#+begin_src shell :tangle shell/.bashrc
-source "$OSH/oh-my-bash.sh"
-#+end_src
-
 * Shell configuration :bash:zsh:shell:
 ** Private/Machine-specific configuration
 Load private configuration when found:
@@ -1985,31 +1925,11 @@ other terminal to this default session:
 
 #+begin_src shell :tangle shell/.shell_extras
 # If not running inside Emacs (via vterm/eshell...)
-if [[ -z "${INSIDE_EMACS}" ]]; then
+if [[ -z "${INSIDE_EMACS}" && ( "${DISPLAY}" || "${SSH_TTY}" ) ]]; then
   if command -v tmux &> /dev/null && [[ -z "${TMUX}" ]]; then
     tmux attach -t default || tmux new -s default
   fi
 fi
-#+end_src
-
-** Direnv
-
-#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
-if ! command -v direnv &>/dev/null; then
-  unset INSTALL_CONFIRM
-  read -p "Do you want install direnv [Y | N]: " INSTALL_CONFIRM
-  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
-    curl -sfL https://direnv.net/install.sh | bash
-  fi
-fi
-#+end_src
-
-#+begin_src shell :tangle shell/.bashrc
-command -v direnv &>/dev/null && eval "$(direnv hook bash)"
-#+end_src
-
-#+begin_src shell :tangle shell/.zshrc
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 #+end_src
 
 ** FZF
@@ -2031,7 +1951,7 @@ general purpose as Guile). However, the strict "libre" policy of Guix bothers me
 a bit, as well as the number of available packages for Guix compared to those
 available for Nix.
 
-*** Nix :noexport:
+*** Nix
 
 #+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 # if ! command -v nix &> /dev/null; then
@@ -2078,6 +1998,44 @@ available for Nix.
 #         PS1="${BASH_REMATCH[1]} [env]\\\$ "
 #     fi
 # fi
+#+end_src
+
+** Jujutsu
+Add auto-completion for =jj=.
+
+#+begin_src shell :tangle shell/.bashrc
+if command -v jj &> /dev/null; then
+    source <(jj util completion bash)
+fi
+#+end_src
+
+#+begin_src shell :tangle shell/.zshrc
+autoload -Uz compinit
+compinit
+
+if command -v jj &> /dev/null; then
+    source <(jj util completion zsh)
+fi
+#+end_src
+
+** Direnv
+
+#+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
+if ! command -v direnv &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install direnv [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -sfL https://direnv.net/install.sh | bash
+  fi
+fi
+#+end_src
+
+#+begin_src shell :tangle shell/.bashrc
+command -v direnv &>/dev/null && eval "$(direnv hook bash)"
+#+end_src
+
+#+begin_src shell :tangle shell/.zshrc
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 #+end_src
 
 ** Other stuff
