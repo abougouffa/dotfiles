@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2024-12-31
+#+lastmod: 2025-01-01
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1942,10 +1942,13 @@ fi
 #+end_src
 
 ** FZF
+For Bash, tangled in =~/.bashrc=:
 
 #+begin_src shell :tangle shell/.bashrc
 command -v fzf &> /dev/null && eval "$(eval fzf --bash)"
 #+end_src
+
+For Zsh, tangled in =~/.zshrc=:
 
 #+begin_src shell :tangle shell/.zshrc
 command -v fzf &> /dev/null && eval "$(eval fzf --zsh)"
@@ -1980,6 +1983,7 @@ available for Nix.
 #+end_src
 
 *** Guix
+Create an installer in the =bootstrap.sh= script:
 
 #+begin_src shell :tangle bootstrap.sh
 # if ! command -v guix &>/dev/null; then
@@ -1991,6 +1995,8 @@ available for Nix.
 # fi
 #+end_src
 
+For Bash, tangled in =~/.bashrc=:
+
 #+begin_src shell :tangle shell/.bashrc
 # # Automatically added by the Guix install script.
 # if [ -n "$GUIX_ENVIRONMENT" ]; then
@@ -1999,6 +2005,8 @@ available for Nix.
 #     fi
 # fi
 #+end_src
+
+For Zsh, tangled in =~/.zshrc=:
 
 #+begin_src shell :tangle shell/.zshrc
 # # Automatically added by the Guix install script.
@@ -2010,13 +2018,15 @@ available for Nix.
 #+end_src
 
 ** Jujutsu
-Add auto-completion for =jj=.
+Add auto-completion for =jj=. For Bash, tangled in =~/.bashrc=:
 
 #+begin_src shell :tangle shell/.bashrc
 if command -v jj &> /dev/null; then
     source <(jj util completion bash)
 fi
 #+end_src
+
+For Zsh, tangled in =~/.zshrc=:
 
 #+begin_src shell :tangle shell/.zshrc
 autoload -Uz compinit
@@ -2028,6 +2038,7 @@ fi
 #+end_src
 
 ** Direnv
+Create an installer in the =bootstrap.sh= script:
 
 #+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 if ! command -v direnv &>/dev/null; then
@@ -2039,9 +2050,13 @@ if ! command -v direnv &>/dev/null; then
 fi
 #+end_src
 
+For Bash, tangled in =~/.bashrc=:
+
 #+begin_src shell :tangle shell/.bashrc
 command -v direnv &>/dev/null && eval "$(direnv hook bash)"
 #+end_src
+
+For Zsh, tangled in =~/.zshrc=:
 
 #+begin_src shell :tangle shell/.zshrc
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
@@ -2314,7 +2329,7 @@ fi
 #+end_src
 
 * Arch Linux packages :linux:arch:manjaro:package:
-Here, we install Arch packages
+Here, we install Arch packages:
 
 #+begin_src shell :tangle bootstrap.sh :tangle-mode (identity #o755)
 check_and_install_pkg() {
