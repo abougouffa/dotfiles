@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-01-01
+#+lastmod: 2025-01-07
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1273,6 +1273,9 @@ load a random theme each time that oh-my-bash is loaded.
 
 #+begin_src shell :tangle shell/.bashrc
 OSH_THEME="font"
+
+# If you set OSH_THEME to "random", you can ignore themes you don't like.
+# OMB_THEME_RANDOM_IGNORED=("powerbash10k" "wanelo")
 #+end_src
 
 ** Behavior
@@ -1340,7 +1343,7 @@ OSH_THEME="font"
 OMB_USE_SUDO=true
 
 # To enable/disable display of Python virtualenv and condaenv
-# OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
+OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
 # OMB_PROMPT_SHOW_PYTHON_VENV=false # disable
 #+end_src
 
@@ -1383,6 +1386,7 @@ plugins=(
   sudo
   bu
   pyenv
+  bashmarks
   colored-man-pages
 )
 #+end_src

@@ -22,6 +22,9 @@ source "$HOME/.shell_extras"
 
 OSH_THEME="font"
 
+# If you set OSH_THEME to "random", you can ignore themes you don't like.
+# OMB_THEME_RANDOM_IGNORED=("powerbash10k" "wanelo")
+
 # Uncomment the following line to use case-sensitive completion.
 # OMB_CASE_SENSITIVE="true"
 
@@ -84,7 +87,7 @@ OSH_THEME="font"
 OMB_USE_SUDO=true
 
 # To enable/disable display of Python virtualenv and condaenv
-# OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
+OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
 # OMB_PROMPT_SHOW_PYTHON_VENV=false # disable
 
 # Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
@@ -123,6 +126,7 @@ plugins=(
   sudo
   bu
   pyenv
+  bashmarks
   colored-man-pages
 )
 
