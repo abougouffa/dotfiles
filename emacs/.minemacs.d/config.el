@@ -174,8 +174,6 @@
 ;; [[file:../../literate-config.org::*Org mode tweaks][Org mode tweaks:1]]
 (with-eval-after-load 'org
   (setq
-   ;; Let's put our Org files here
-   org-directory "~/Dropbox/Org/"
    ;; Do not ask before tangling
    org-confirm-babel-evaluate nil
    ;; The last level which is still exported as a headline

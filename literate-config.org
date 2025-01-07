@@ -673,8 +673,6 @@ music.
 #+begin_src emacs-lisp
 (with-eval-after-load 'org
   (setq
-   ;; Let's put our Org files here
-   org-directory "~/Dropbox/Org/"
    ;; Do not ask before tangling
    org-confirm-babel-evaluate nil
    ;; The last level which is still exported as a headline
