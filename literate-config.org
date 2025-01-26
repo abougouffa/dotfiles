@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-01-07
+#+lastmod: 2025-01-27
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -2097,6 +2097,29 @@ For Zsh, tangled in =~/.zshrc=:
 
 #+begin_src shell :tangle shell/.zshrc
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+#+end_src
+
+** Ollama
+Add shell completion for Ollama, stoken from [[https://github.com/ollama/ollama/issues/1653#issuecomment-2184527185][Adam Niederer's comment]].
+
+#+begin_src bash :tangle shell/.bashrc
+_complete_ollama() {
+    local cur prev words cword
+    _init_completion -n : || return
+
+    if [[ ${cword} -eq 1 ]]; then
+        COMPREPLY=($(compgen -W "serve create show run push pull list ps cp rm help" -- "${cur}"))
+    elif [[ ${cword} -eq 2 ]]; then
+        case "${prev}" in
+            (run|show|cp|rm|push|list)
+                WORDLIST=$((ollama list 2>/dev/null || echo "") | tail -n +2 | cut -d "	" -f 1)
+                COMPREPLY=($(compgen -W "${WORDLIST}" -- "${cur}"))
+                __ltrim_colon_completions "$cur"
+                ;;
+        esac
+    fi
+}
+complete -F _complete_ollama ollama
 #+end_src
 
 ** Other stuff
