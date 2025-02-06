@@ -2466,3 +2466,25 @@ export PLASMA_USE_QT_SCALING=1
 # eval: (add-hook 'after-save-hook #'org-babel-tangle nil t)
 # jinx-languages: "en_US"
 # End:
+
+* System level settings
+** Disable WiFi when wired network is available
+
+This needs to be dropped in =/etc/NetworkManager/dispatcher.d/99-wlan=:
+
+#+begin_src shell :tangle "sudo::/etc/NetworkManager/dispatcher.d/99-wlan" :mkdirp yes :tangle-mode (identity #o755)
+#!/bin/bash
+
+wired_interfaces="en.*|eth.*"
+
+if [[ "$1" =~ $wired_interfaces ]]; then
+    case "$2" in
+        up)
+            nmcli radio wifi off
+            ;;
+        down)
+            nmcli radio wifi on
+            ;;
+    esac
+fi
+#+end_src
