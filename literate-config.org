@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-01-28
+#+lastmod: 2025-02-06
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1954,14 +1954,22 @@ if ! command -v pyenv &>/dev/null; then
   read -p "Do you want install pyenv [Y | N]: " INSTALL_CONFIRM
   if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
     curl https://pyenv.run | bash
+    # Install pyenv plugins
+    for plugin in virtualenv users ccache update pip-migrate doctor version-ext; do
+        git clone https://github.com/pyenv/pyenv-virtualenv.git "${HOME}/.pyenv/plugins/pyenv-${plugin}"
+    done
   fi
 fi
 #+end_src
 
 #+begin_src shell :tangle shell/.shell_extras
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-command -v pyenv &>/dev/null && eval "$(pyenv init -)"
+export PYENV_ROOT="${HOME}/.pyenv"
+export PATH="${PYENV_ROOT}/bin:$PATH"
+
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
 #+end_src
 
 ** tmux

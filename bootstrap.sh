@@ -118,6 +118,10 @@ if ! command -v pyenv &>/dev/null; then
   read -p "Do you want install pyenv [Y | N]: " INSTALL_CONFIRM
   if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
     curl https://pyenv.run | bash
+    # Install pyenv plugins
+    for plugin in virtualenv users ccache update pip-migrate doctor version-ext; do
+        git clone https://github.com/pyenv/pyenv-virtualenv.git "${HOME}/.pyenv/plugins/pyenv-${plugin}"
+    done
   fi
 fi
 
