@@ -220,7 +220,7 @@ Automatically scan for projects under =+project-scan-dir-paths= at startup:
 #+end_src
 
 ** Package configuration :package:
-*** User interface :ui:
+*** User iface :ui:
 **** Theme & font :theme:font:
 
 #+begin_src emacs-lisp
@@ -2470,29 +2470,33 @@ export PLASMA_USE_QT_SCALING=1
 * System level settings
 ** Disable WiFi when wired network is available
 
-This needs to be dropped in =/etc/NetworkManager/dispatcher.d/99-wlan=:
+This needs to be dropped in =/etc/NetworkManager/dispatcher.d/99-prefer-wired-connection=:
 
-#+begin_src shell :tangle "/sudo::/etc/NetworkManager/dispatcher.d/99-wlan" :mkdirp yes :tangle-mode (identity #o755)
-#!/bin/bash
+Inspired by https://www.matoski.com/article/wifi-ethernet-autoswitch, For more
+information about NetworkManager's dispatcher scripting, check:
+https://networkmanager.dev/docs/api/latest/NetworkManager-dispatcher.html.
 
-# For more information about NetworkManager's dispatcher scripting, see: https://networkmanager.dev/docs/api/latest/NetworkManager-dispatcher.html
 
-wired_interfaces="en.*|eth.*"
-interface="$1"
+#+begin_src shell :tangle "/sudo::/etc/NetworkManager/dispatcher.d/99-prefer-wired-connection" :mkdirp yes :tangle-mode (identity #o755)
+#!/usr/bin/env bash
+
+syslog_tag="prefer-wired-connection"
+
+iface="$1"
 action="$2"
 
-echo "Network change datected -- interface: ${interface} -- action: ${action}"
+if [[ -n "${iface}" ]] && [[ -n "${action}" ]]; then
+    iface_type="$(nmcli -t -f GENERAL.TYPE dev show "${iface}" | cut -d':' -f2)"
+    iface_state="$(nmcli -t -f GENERAL.STATE dev show "${iface}" | sed -n 's/GENERAL\.STATE:[[:digit:]]*[[:space:]]*(\(.*\))/\1/p')"
 
-if [[ "${interface}" =~ ${wired_interfaces} ]]; then
-    case "${action}" in
-        up)
-            echo "Ethernet interface ${interface} is up, disabling WiFi"
-            nmcli radio wifi off
-            ;;
-        down)
-            echo "Ethernet interface ${interface} is down, enabling WiFi"
-            nmcli radio wifi on
-            ;;
-    esac
+    logger -i -t "${syslog_tag}" "Interface: ${iface} -- type: ${iface_type} -- state: ${iface_state} -- action: ${action}"
+
+    if [ "${iface_type}" = "ethernet" ] && [ "${action}" = "down" ]; then
+        logger -i -t "${syslog_tag}" "Ethernet interface ${iface} is down, enabling WiFi..."
+        nmcli radio wifi on
+    elif [ "${iface_type}" = "ethernet" ] && [ "${action}" = "up"  ] && [ "${iface_state}" = "connected" ]; then
+        logger -i -t "${syslog_tag}" "Ethernet connection detected on interface ${iface}, disabling WiFi..."
+        nmcli radio wifi off
+    fi
 fi
 #+end_src
