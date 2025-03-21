@@ -132,6 +132,14 @@ plugins=(
 
 source "$OSH/oh-my-bash.sh"
 
+export PYENV_ROOT="${HOME}/.pyenv"
+export PATH="${PYENV_ROOT}/bin:$PATH"
+
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init - bash)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+
 command -v fzf &> /dev/null && eval "$(eval fzf --bash)"
 
 # # Automatically added by the Guix install script.

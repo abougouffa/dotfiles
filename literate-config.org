@@ -1962,12 +1962,14 @@ if ! command -v pyenv &>/dev/null; then
 fi
 #+end_src
 
-#+begin_src shell :tangle shell/.shell_extras
+*** Bash integration
+
+#+begin_src shell :tangle shell/.bashrc
 export PYENV_ROOT="${HOME}/.pyenv"
 export PATH="${PYENV_ROOT}/bin:$PATH"
 
 if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init -)"
+    eval "$(pyenv init - bash)"
     eval "$(pyenv virtualenv-init -)"
 fi
 #+end_src
@@ -2470,7 +2472,6 @@ Inspired by https://www.matoski.com/article/wifi-ethernet-autoswitch, For more
 information about NetworkManager's dispatcher scripting, check:
 https://networkmanager.dev/docs/api/latest/NetworkManager-dispatcher.html.
 
-
 #+begin_src shell :tangle "/sudo::/etc/NetworkManager/dispatcher.d/99-prefer-wired-connection" :mkdirp yes :tangle-mode (identity #o755)
 #!/usr/bin/env bash
 
@@ -2494,7 +2495,6 @@ if [[ -n "${iface}" ]] && [[ -n "${action}" ]]; then
     fi
 fi
 #+end_src
-
 
 * Local variables :ignore:noexport:
 # Automatically tangle this file on save
