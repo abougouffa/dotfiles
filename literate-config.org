@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-02-08
+#+lastmod: 2025-03-21
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -2461,12 +2461,6 @@ let's create ours.
 export PLASMA_USE_QT_SCALING=1
 #+end_src
 
-# Automatically tangle this file on save
-# Local Variables:
-# eval: (add-hook 'after-save-hook #'org-babel-tangle nil t)
-# jinx-languages: "en_US"
-# End:
-
 * System level settings
 ** Disable WiFi when wired network is available
 
@@ -2500,3 +2494,11 @@ if [[ -n "${iface}" ]] && [[ -n "${action}" ]]; then
     fi
 fi
 #+end_src
+
+
+* Local variables :ignore:noexport:
+# Automatically tangle this file on save
+# Local Variables:
+# eval: (add-hook 'after-save-hook #'org-babel-tangle nil t)
+# jinx-languages: "en_US"
+# End:
