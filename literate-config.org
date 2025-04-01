@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-03-21
+#+lastmod: 2025-04-01
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -119,7 +119,7 @@ script to conditionally install and configure some system features.
 
 (setq
 ;;; MinEmacs modules
- minemacs-modules (minemacs-modules) ; Enable all available modules
+ minemacs-modules (remove 'me-snippets (minemacs-modules)) ; Enable all available modules, except `me-snippets'
 
 ;;; MinEmacs disabled packages (included in one of the modules)
  minemacs-disabled-packages nil)
