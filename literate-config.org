@@ -3,14 +3,14 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-04-01
+#+lastmod: 2025-04-20
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
 #+property: header-args:shell :tangle-mode (identity #o644)
 #+property: header-args :tangle no :results silent :eval no-export
 #+setupfile: emacs/.minemacs.d/assets/template.setup
-#+startup: fold noindent
+#+startup: fold indent
 #+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo
 
 
@@ -119,7 +119,7 @@ script to conditionally install and configure some system features.
 
 (setq
 ;;; MinEmacs modules
- minemacs-modules (remove 'me-snippets (minemacs-modules)) ; Enable all available modules, except `me-snippets'
+ minemacs-modules (minemacs-modules) ; Enable all available modules
 
 ;;; MinEmacs disabled packages (included in one of the modules)
  minemacs-disabled-packages nil)

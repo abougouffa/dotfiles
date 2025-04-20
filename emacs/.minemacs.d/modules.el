@@ -6,7 +6,7 @@
 
 (setq
 ;;; MinEmacs modules
- minemacs-modules (remove 'me-snippets (minemacs-modules)) ; Enable all available modules, except `me-snippets'
+ minemacs-modules (minemacs-modules) ; Enable all available modules
 
 ;;; MinEmacs disabled packages (included in one of the modules)
  minemacs-disabled-packages nil)
