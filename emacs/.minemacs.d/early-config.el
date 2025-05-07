@@ -3,5 +3,5 @@
 ;; NOTE: This file is generated from "config-literate.org".
 
 ;; MinEmacs specific stuff
-(unless minemacs-verbose-p
-  (setq minemacs-msg-level 3))
+;; (unless minemacs-verbose-p
+;;   (setq minemacs-msg-level 3))

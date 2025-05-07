@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-04-20
+#+lastmod: 2025-05-08
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -104,8 +104,8 @@ script to conditionally install and configure some system features.
 ;; NOTE: This file is generated from "config-literate.org".
 
 ;; MinEmacs specific stuff
-(unless minemacs-verbose-p
-  (setq minemacs-msg-level 3))
+;; (unless minemacs-verbose-p
+;;   (setq minemacs-msg-level 3))
 #+end_src
 
 *** Modules (=modules.el=)
@@ -218,7 +218,7 @@ Automatically scan for projects under =+project-scan-dir-paths= at startup:
 #+end_src
 
 ** Package configuration :package:
-*** User iface :ui:
+*** User interface :ui:
 **** Theme & font :theme:font:
 
 #+begin_src emacs-lisp
