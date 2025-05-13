@@ -207,16 +207,14 @@ Automatically scan for projects under =+project-scan-dir-paths= at startup:
 
 #+begin_src emacs-lisp
 (+with-delayed-1!
- (setq +project-scan-dir-paths
-       '("~/Research/papers/"
-         "~/Research/workspace/"
-         "~/Research/workspace-no/"
-         "~/Research/workspace-no/ez-wheel/swd-starter-kit-repo/"
-         "~/Projects/foss/packages/"
-         "~/Projects/foss/repos/"))
-
- (+shutup!
-  (+project-scan-for-projects)))
+  (+shutup!
+   (mapc (lambda (dir) (when (file-directory-p dir) (project-remember-projects-under dir)))
+           '("~/Research/papers/"
+             "~/Research/workspace/"
+             "~/Research/workspace-no/"
+             "~/Research/workspace-no/ez-wheel/swd-starter-kit-repo/"
+             "~/Projects/foss/packages/"
+             "~/Projects/foss/repos/"))))
 #+end_src
 
 ** Package configuration :package:
