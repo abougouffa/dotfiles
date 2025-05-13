@@ -2470,7 +2470,7 @@ Inspired by https://www.matoski.com/article/wifi-ethernet-autoswitch, For more
 information about NetworkManager's dispatcher scripting, check:
 https://networkmanager.dev/docs/api/latest/NetworkManager-dispatcher.html.
 
-#+begin_src shell :tangle "/sudo::/etc/NetworkManager/dispatcher.d/99-prefer-wired-connection" :mkdirp yes :tangle-mode (identity #o755)
+#+begin_src shell :tangle (if (equal (system-name) "laptop") "/sudo::/etc/NetworkManager/dispatcher.d/99-prefer-wired-connection" "no") :mkdirp yes :tangle-mode (identity #o755)
 #!/usr/bin/env bash
 
 syslog_tag="prefer-wired-connection"
