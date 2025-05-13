@@ -54,16 +54,14 @@
 
 ;; [[file:../../literate-config.org::*Projects][Projects:1]]
 (+with-delayed-1!
- (setq +project-scan-dir-paths
-       '("~/Research/papers/"
-         "~/Research/workspace/"
-         "~/Research/workspace-no/"
-         "~/Research/workspace-no/ez-wheel/swd-starter-kit-repo/"
-         "~/Projects/foss/packages/"
-         "~/Projects/foss/repos/"))
-
- (+shutup!
-  (+project-scan-for-projects)))
+  (+shutup!
+   (mapc (lambda (dir) (when (file-directory-p dir) (project-remember-projects-under dir)))
+           '("~/Research/papers/"
+             "~/Research/workspace/"
+             "~/Research/workspace-no/"
+             "~/Research/workspace-no/ez-wheel/swd-starter-kit-repo/"
+             "~/Projects/foss/packages/"
+             "~/Projects/foss/repos/"))))
 ;; Projects:1 ends here
 
 ;; [[file:../../literate-config.org::*Theme & font][Theme & font:1]]
