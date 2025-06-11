@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-05-22
+#+lastmod: 2025-06-11
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -17,7 +17,7 @@
 
 * This repository :preamble:
 This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Bash*,
-*Zsh*, *MinEmacs*, *Neovim*, *Alacritty* and other Linux related stuff.
+*Zsh*, *MinEmacs*, *Neovim*, *Alacritty*, *Ghostty* and other Linux related stuff.
 
 If you want to reuse some of these configurations, you will need to modify some
 directories and add some user specific information (usernames, passwords...).
@@ -2405,6 +2405,20 @@ if [[ "$WEEK_DAY" != "6" ]] && [[ "$WEEK_DAY" != "7" ]] && [[ "$HOUR" -gt 7 ]] &
 else
   echo "It is not work time!"
 fi
+#+end_src
+
+* Ghostty
+
+#+begin_src conf :tangle ghostty/.config/ghostty/config
+# This is the configuration file for Ghostty.
+#
+# Run `ghostty +show-config --default --docs` to view a list of
+# all available config options and their default values.
+#
+# Additionally, each config option is also explained in detail
+# on Ghostty's website, at https://ghostty.org/docs/config.
+
+theme = GruvboxLight
 #+end_src
 
 * Arch Linux packages :linux:arch:manjaro:package:
