@@ -20,18 +20,18 @@ while :; do
         shift 2
         ;;
     -h | --help)
-        echo -e "\033[1mUsage: e [-t] [-m MODE] [OPTIONS] FILE [-]\033[0m
+        echo -e "Usage: e [-t] [-m MODE] [OPTIONS] FILE [-]
 
 Emacs client convenience wrapper.
 
-\033[1mOptions:\033[0m
-\033[0;34m-h, --help\033[0m            Show this message
-\033[0;34m-t, -nw, --tty\033[0m        Force terminal mode
-\033[0;34m-w, --wait\033[0m            Don't supply \033[0;34m--no-wait\033[0m to graphical emacsclient
-\033[0;34m-\033[0m                     Take \033[0;33mstdin\033[0m (when last argument)
-\033[0;34m-m MODE, --mode MODE\033[0m  Mode to open \033[0;33mstdin\033[0m with
+Options:
+-h, --help            Show this message
+-t, -nw, --tty        Force terminal mode
+-w, --wait            Don't supply --no-wait to graphical emacsclient
+-                     Take stdin (when last argument)
+-m MODE, --mode MODE  Mode to open stdin with
 
-Run \033[0;32memacsclient --help\033[0m to see help for the emacsclient."
+Run emacsclient --help to see help for the emacsclient."
         exit 0
         ;;
     --*=*)
