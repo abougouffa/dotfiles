@@ -10,7 +10,7 @@
 #+property: header-args:shell :tangle-mode (identity #o644)
 #+property: header-args :tangle no :results silent :eval no-export
 #+setupfile: emacs/.minemacs.d/assets/template.setup
-#+startup: fold indent
+#+startup: fold noindent
 #+hugo_base_dir: ~/Projects/Personal/my-personal-site-org-hugo
 
 
@@ -92,6 +92,11 @@ script to conditionally install and configure some system features.
 # This shell script has been generated from the litterate Org configuration.
 # It helps installing required tools (for Arch/Manjaro Linux) and tweak some
 # system settings
+#+end_src
+
+#+name: personal-laptop-p
+#+begin_src elisp :exports none
+(if (equal (system-name) "laptop") "true" "false")
 #+end_src
 
 * MinEmacs
@@ -1424,9 +1429,9 @@ source "$OSH/oh-my-bash.sh"
 
 ** GPG signing
 
-#+begin_src gitconfig :tangle (if (equal "labtop" (system-name)) "git/.config/git/config" "no") :mkdirp yes
+#+begin_src gitconfig :noweb yes :tangle "git/.config/git/config" :mkdirp yes
 [commit]
-  gpgsign = true
+  gpgsign = <<personal-laptop-p()>>
 #+end_src
 
 ** Git diffs :diff:
