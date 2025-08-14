@@ -20,7 +20,7 @@ export OSH="$HOME/.oh-my-bash"
 # Source extra commands
 source "$HOME/.shell_extras"
 
-OSH_THEME="font"
+OSH_THEME="absimple" # "robbyrussell" # "font"
 
 # If you set OSH_THEME to "random", you can ignore themes you don't like.
 # OMB_THEME_RANDOM_IGNORED=("powerbash10k" "wanelo")
@@ -84,11 +84,10 @@ DISABLE_AUTO_UPDATE="true"
 
 # To disable the uses of "sudo" by oh-my-bash, please set "false" to
 # this variable.  The default behavior for the empty value is "true".
-OMB_USE_SUDO=true
+# OMB_USE_SUDO=true
 
 # To enable/disable display of Python virtualenv and condaenv
 OMB_PROMPT_SHOW_PYTHON_VENV=true  # enable
-# OMB_PROMPT_SHOW_PYTHON_VENV=false # disable
 
 # Which completions would you like to load? (completions can be found in ~/.oh-my-bash/completions/*)
 # Custom completions may be added to ~/.oh-my-bash/custom/completions/
