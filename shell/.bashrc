@@ -11,19 +11,19 @@ if [[ "${TERM}" == "dumb" ]]; then
     # even outside Emacs.
     alias lsF='ls -F'
 
-    echo "DUMB"
+    # echo "DUMB"
     # Now, just configs for shells inside Emacs
     case ${INSIDE_EMACS/*,/} in
     comint)
-        echo "COMINT"
+        # echo "COMINT"
         ;;
     tramp)
-        echo "TRAMP"
+        # echo "TRAMP"
         unsetopt zle
         PS1='$ '
         ;;
     term*)
-        echo "ANSI-TERM (maybe!)"
+        # echo "ANSI-TERM (maybe!)"
         # For M-x ansi-term, etc., you get a value like
         #   25.2.2,term:0.96, but those shouldn't coincide with
         #   TERM being `dumb`, so warn....
