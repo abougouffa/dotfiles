@@ -1,5 +1,6 @@
 # -*- mode: sh -*-
 
+# From: https://stackoverflow.com/a/54951844
 # When logging via Tramp it will look for patterns to detect if a shell is
 # present. Fancy shell prompts aren't taken into account.
 # When logging via Tramp it will look for patterns to detect if a shell is
