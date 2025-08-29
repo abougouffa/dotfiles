@@ -2,16 +2,57 @@
 
 # When logging via Tramp it will look for patterns to detect if a shell is
 # present. Fancy shell prompts aren't taken into account.
-if [[ $TERM == "dumb" ]]; then
-    unsetopt zle
-    PS1='$ '
+# When logging via Tramp it will look for patterns to detect if a shell is
+# present. Fancy shell prompts aren't taken into account.
+# Now dumb terminals
+if [[ "${TERM}" == "dumb" ]]; then
+    # Here put anything you want to run in any dumb terminal,
+    # even outside Emacs.
+    alias lsF='ls -F'
+
+    echo "DUMB"
+    # Now, just configs for shells inside Emacs
+    case ${INSIDE_EMACS/*,/} in
+    comint)
+        echo "COMINT"
+        ;;
+    tramp)
+        echo "TRAMP"
+        unsetopt zle
+        PS1='$ '
+        ;;
+    term*)
+        echo "ANSI-TERM (maybe!)"
+        # For M-x ansi-term, etc., you get a value like
+        #   25.2.2,term:0.96, but those shouldn't coincide with
+        #   TERM being `dumb`, so warn....
+        echo "We somehow have a dumb Emacs terminal ${INSIDE_EMACS/*,/}" >&2
+        ;;
+    "")
+        # Empty means we're $TERM==dumb but not in Emacs, do nothing
+        ;;
+    *)
+        # We shouldn't get here, so write a warning so we can
+        # figure out how else Emacs might be running a shell,
+        # but send it to stderr so that it won't break anything
+        echo "Something is wrong: INSIDE_EMACS is ${INSIDE_EMACS}" >&2
+        ;;
+    esac
+
+    # finish shell setup for dumb now--the rest of the file will
+    # be skipped
     return
 fi
 
 # Enable the subsequent settings only in interactive sessions
 case $- in
-   *i*) ;;
-     *) return;;
+*i*)
+    # Interactive mode, do nothing
+    ;;
+*)
+    # Non interactive mode, return immediately
+    return
+    ;;
 esac
 
 # Path to your oh-my-bash installation.
