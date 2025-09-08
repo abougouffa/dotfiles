@@ -1654,6 +1654,30 @@ And some tools to view diffs on binary files:
   textconv = exiftool # sudo apt install perl-image-exiftool
 #+end_src
 
+** Mergiraf
+
+Mergiraf is a Tree-sitter based tool to help solve merge conflicts while taking
+into account the language's syntax (using Tree-sitter to parse the files and
+compare the ASTs). We add =mergiraf= as a merge tool in Git, then we make =mergiraf=
+the default tool for supported extensions.
+
+#+begin_src gitconfig :tangle (if (executable-find "mergiraf") "git/.config/git/config" "no") :mkdirp yes
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
+#+end_src
+
+#+name: mergiraf-gitattributes
+#+begin_src sh :results output
+mergiraf languages --gitattributes
+#+end_src
+
+#+begin_src gitconfig :noweb yes :tangle (if (executable-find "mergiraf") "git/.config/git/attributes" "no") :mkdirp yes
+# Use Mergiraf for supported languages
+<<mergiraf-gitattributes()>>
+#+end_src
+
+
 ** Extensions & aliases
 *** =git prune-files=
 This tool is taken from https://gist.github.com/nottrobin/5758221. It is
