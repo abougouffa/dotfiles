@@ -4,9 +4,6 @@
 [init]
   defaultBranch = main # there is no master!
 
-[commit]
-  gpgsign = true
-
 [format]
   signoff = true
 
@@ -25,6 +22,9 @@
 
 [url "ssh://git@github.com/"]
   pushInsteadOf = https://github.com/
+
+[commit]
+  gpgsign = true
 
 # ====== TEXT FORMATS ======
 [diff "org"]
@@ -114,8 +114,15 @@
   binary = true
   textconv = exiftool # sudo apt install perl-image-exiftool
 
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
+
 [alias]
   prune-files = "git-prune-files"
 
 [alias]
   ignore = "!gi() { curl -sL https://www.gitignore.io/api/$@ ;}; gi"
+
+[alias]
+  lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
