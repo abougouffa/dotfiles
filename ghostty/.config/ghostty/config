@@ -6,4 +6,6 @@
 # Additionally, each config option is also explained in detail
 # on Ghostty's website, at https://ghostty.org/docs/config.
 
-theme = GruvboxLight
+# theme = GruvboxLight
+# theme = Catppuccin Latte
+theme = Atom One Light
