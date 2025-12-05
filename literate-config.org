@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-09-08
+#+lastmod: 2025-12-06
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -1320,7 +1320,7 @@ Set name of the theme to load. Optionally, if you set this to ="random"= it'll
 load a random theme each time that oh-my-bash is loaded.
 
 #+begin_src shell :tangle shell/.bashrc
-OSH_THEME="absimple" # "robbyrussell" # "font"
+OSH_THEME="robbyrussell" # "robbyrussell" # "font"
 
 # If you set OSH_THEME to "random", you can ignore themes you don't like.
 # OMB_THEME_RANDOM_IGNORED=("powerbash10k" "wanelo")
@@ -2493,7 +2493,9 @@ fi
 # Additionally, each config option is also explained in detail
 # on Ghostty's website, at https://ghostty.org/docs/config.
 
-theme = GruvboxLight
+# theme = GruvboxLight
+# theme = Catppuccin Latte
+theme = Atom One Light
 #+end_src
 
 * Arch Linux packages :linux:arch:manjaro:package:
