@@ -3,10 +3,16 @@
 	url = https://github.com/tmux-plugins/tpm.git
 [submodule "tmux/.tmux/plugins/tmux"]
 	path = tmux/.tmux/plugins/tmux
-	url = https://github.com/dracula/tmux.git
+	url = https://github.com/catppuccin/tmux.git
 [submodule "tmux/.tmux/plugins/tmux-yank"]
 	path = tmux/.tmux/plugins/tmux-yank
 	url = https://github.com/tmux-plugins/tmux-yank.git
 [submodule "tmux/.tmux/plugins/tmux-sensible"]
 	path = tmux/.tmux/plugins/tmux-sensible
 	url = https://github.com/tmux-plugins/tmux-sensible.git
+[submodule "tmux/.tmux/plugins/tmux-battery"]
+	path = tmux/.tmux/plugins/tmux-battery
+	url = https://github.com/tmux-plugins/tmux-battery.git
+[submodule "tmux/.tmux/plugins/tmux-cpu"]
+	path = tmux/.tmux/plugins/tmux-cpu
+	url = https://github.com/tmux-plugins/tmux-cpu.git
