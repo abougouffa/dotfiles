@@ -2029,7 +2029,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 #+end_src
 
-** Python
+** pyenv
 Install and setup =pyenv=:
 
 #+begin_src shell :tangle bootstrap.sh
@@ -2055,6 +2055,43 @@ export PATH="${PYENV_ROOT}/bin:$PATH"
 if command -v pyenv &>/dev/null; then
     eval "$(pyenv init - bash)"
     eval "$(pyenv virtualenv-init -)"
+fi
+#+end_src
+
+** uv
+Install =uv=:
+
+#+begin_src shell :tangle bootstrap.sh
+if ! command -v uv &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install uv [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  fi
+fi
+#+end_src
+
+*** Bash integration
+
+#+begin_src shell :tangle shell/.bashrc
+if command -v uv &>/dev/null; then
+    eval "$(uv generate-shell-completion bash)"
+fi
+
+if command -v uvx &>/dev/null; then
+    eval "$(uvx --generate-shell-completion bash)"
+fi
+#+end_src
+
+*** Zsh integration
+
+#+begin_src shell :tangle shell/.zshrc
+if command -v uv &>/dev/null; then
+    eval "$(uv generate-shell-completion zsh)"
+fi
+
+if command -v uvx &>/dev/null; then
+    eval "$(uvx --generate-shell-completion zsh)"
 fi
 #+end_src
 
