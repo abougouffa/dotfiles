@@ -152,6 +152,14 @@ source "$ZSH/oh-my-zsh.sh"
 alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 
+if command -v uv &>/dev/null; then
+    eval "$(uv generate-shell-completion zsh)"
+fi
+
+if command -v uvx &>/dev/null; then
+    eval "$(uvx --generate-shell-completion zsh)"
+fi
+
 command -v fzf &> /dev/null && eval "$(eval fzf --zsh)"
 
 # # Automatically added by the Guix install script.

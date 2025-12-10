@@ -125,6 +125,14 @@ if ! command -v pyenv &>/dev/null; then
   fi
 fi
 
+if ! command -v uv &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install uv [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  fi
+fi
+
 # if ! command -v nix &> /dev/null; then
 #   unset INSTALL_CONFIRM
 #   read -p "Do you want install Nix for all users? [Y | N]: " INSTALL_CONFIRM

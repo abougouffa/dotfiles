@@ -183,6 +183,14 @@ if command -v pyenv &>/dev/null; then
     eval "$(pyenv virtualenv-init -)"
 fi
 
+if command -v uv &>/dev/null; then
+    eval "$(uv generate-shell-completion bash)"
+fi
+
+if command -v uvx &>/dev/null; then
+    eval "$(uvx --generate-shell-completion bash)"
+fi
+
 command -v fzf &> /dev/null && eval "$(eval fzf --bash)"
 
 # # Automatically added by the Guix install script.
