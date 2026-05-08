@@ -41,7 +41,7 @@
 
 ;; [[file:../../literate-config.org::*Awqat][Awqat:1]]
 (when (featurep 'me-lifestyle)
-  (+with-delayed-1!
+  (+with-delayed!
    ;; Calendar settings (from `solar')
    (setq calendar-latitude 48.86
          calendar-longitude 2.35
@@ -53,7 +53,7 @@
 ;; Awqat:1 ends here
 
 ;; [[file:../../literate-config.org::*Projects][Projects:1]]
-(+with-delayed-1!
+(+with-delayed!
   (+shutup!
    (mapc (lambda (dir) (when (file-directory-p dir) (project-remember-projects-under dir)))
            '("~/Research/papers/"

@@ -3,7 +3,7 @@
 #+subtitle: Personal configuration for MinEmacs, Bash, Zsh, and other Linux stuff
 #+author: Abdelhak Bougouffa
 #+email: (rot13 "nobhtbhssn@srqbencebwrpg.bet")
-#+lastmod: 2025-12-06
+#+lastmod: 2026-05-07
 #+options: title:t author:t email:t toc:t date:t tags:nil
 #+property: header-args:emacs-lisp :comments link :tangle emacs/.minemacs.d/config.el
 #+property: header-args:elisp :exports code
@@ -17,7 +17,7 @@
 
 * This repository :preamble:
 This repository ([[https://github.com/abougouffa/dotfiles][abougouffa/dotfiles]]) contains my configuration files for *Bash*,
-*Zsh*, *MinEmacs*, *Neovim*, *Alacritty*, *Ghostty* and other Linux related stuff.
+*Zsh*, *MinEmacs*, *Neovim*, *Ghostty*, *Alacritty* and other Linux related stuff.
 
 If you want to reuse some of these configurations, you will need to modify some
 directories and add some user specific information (usernames, passwords...).
@@ -31,8 +31,8 @@ user tools, Git configuration...).
 * Deploying the dotfiles :deploy:stow:
 To deploy these dotfiles, I'm using the simple GNU Stow. The configuration files
 (including the ones tangled from the =literate-config.org= file) are stored in
-seperate directories. For example: Bash and Zsh configuration files are stored
-in =shell/=, GDB configuration files in =gdb/=, Emacs/MinEmacs configuraiton files
+separate directories. For example: Bash and Zsh configuration files are stored
+in =shell/=, GDB configuration files in =gdb/=, Emacs/MinEmacs configuration files
 in =emacs/=, and so on.
 
 To tangle the =literate-config.org= file from the command line, you can run:
@@ -196,7 +196,7 @@ times based on the current location.
 
 #+begin_src emacs-lisp
 (when (featurep 'me-lifestyle)
-  (+with-delayed-1!
+  (+with-delayed!
    ;; Calendar settings (from `solar')
    (setq calendar-latitude 48.86
          calendar-longitude 2.35
@@ -211,7 +211,7 @@ times based on the current location.
 Automatically scan for projects under =+project-scan-dir-paths= at startup:
 
 #+begin_src emacs-lisp
-(+with-delayed-1!
+(+with-delayed!
   (+shutup!
    (mapc (lambda (dir) (when (file-directory-p dir) (project-remember-projects-under dir)))
            '("~/Research/papers/"

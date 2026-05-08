@@ -105,6 +105,11 @@
   textconv = soffice --cat
   cachetextconv = true
 
+[diff "rtf"]
+  binary = true
+  textconv = unrtf --text # yay -S unrtf
+  cachetextconv = true
+
 [diff "tika"]
   binary = true
   textconv = tika --config=~/.local/share/tika/tika-conf.xml --text
