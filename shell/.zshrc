@@ -44,7 +44,7 @@ if [[ "${TERM}" == "dumb" ]]; then
 
     # finish shell setup for dumb now--the rest of the file will
     # be skipped
-    return
+    # return
 fi
 
 # Enable the subsequent settings only in interactive sessions
@@ -146,7 +146,9 @@ plugins=(
   z
 )
 
-source "$ZSH/oh-my-zsh.sh"
+if [[ ! "${TERM}" == "dumb" ]]; then
+    source "$ZSH/oh-my-zsh.sh"
+fi
 
 # Aliases
 alias zshconfig="vim $HOME/.zshrc"

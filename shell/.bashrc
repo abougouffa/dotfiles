@@ -44,7 +44,7 @@ if [[ "${TERM}" == "dumb" ]]; then
 
     # finish shell setup for dumb now--the rest of the file will
     # be skipped
-    return
+    # return
 fi
 
 # Enable the subsequent settings only in interactive sessions
@@ -168,19 +168,23 @@ plugins=(
   git
   sudo
   bu
-  pyenv
   bashmarks
   colored-man-pages
 )
 
-source "$OSH/oh-my-bash.sh"
+if [[ ! "${TERM}" == "dumb" ]]; then
+    source "$OSH/oh-my-bash.sh"
+fi
 
-export PYENV_ROOT="${HOME}/.pyenv"
-export PATH="${PYENV_ROOT}/bin:$PATH"
+# Prefer uv if available
+if ! command -v uv &>/dev/null; then
+    export PYENV_ROOT="${HOME}/.pyenv"
+    export PATH="${PYENV_ROOT}/bin:$PATH"
 
-if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init - bash)"
-    eval "$(pyenv virtualenv-init -)"
+    if command -v pyenv &>/dev/null; then
+        eval "$(pyenv init - bash)"
+        eval "$(pyenv virtualenv-init -)"
+    fi
 fi
 
 if command -v uv &>/dev/null; then
