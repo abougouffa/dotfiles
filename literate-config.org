@@ -1119,7 +1119,7 @@ if [[ "${TERM}" == "dumb" ]]; then
 
     # finish shell setup for dumb now--the rest of the file will
     # be skipped
-    return
+    # return
 fi
 
 # Enable the subsequent settings only in interactive sessions
@@ -1269,7 +1269,9 @@ plugins=(
 ** Bootstrap Oh-my-Zsh
 
 #+begin_src shell :tangle shell/.zshrc
-source "$ZSH/oh-my-zsh.sh"
+if [[ ! "${TERM}" == "dumb" ]]; then
+    source "$ZSH/oh-my-zsh.sh"
+fi
 #+end_src
 
 ** Aliases
@@ -1432,7 +1434,6 @@ plugins=(
   git
   sudo
   bu
-  pyenv
   bashmarks
   colored-man-pages
 )
@@ -1441,7 +1442,9 @@ plugins=(
 ** Bootstrap Oh-my-Bash
 
 #+begin_src shell :tangle shell/.bashrc
-source "$OSH/oh-my-bash.sh"
+if [[ ! "${TERM}" == "dumb" ]]; then
+    source "$OSH/oh-my-bash.sh"
+fi
 #+end_src
 
 * Git :linux:system:
@@ -2049,12 +2052,15 @@ fi
 *** Bash integration
 
 #+begin_src shell :tangle shell/.bashrc
-export PYENV_ROOT="${HOME}/.pyenv"
-export PATH="${PYENV_ROOT}/bin:$PATH"
+# Prefer uv if available
+if ! command -v uv &>/dev/null; then
+    export PYENV_ROOT="${HOME}/.pyenv"
+    export PATH="${PYENV_ROOT}/bin:$PATH"
 
-if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init - bash)"
-    eval "$(pyenv virtualenv-init -)"
+    if command -v pyenv &>/dev/null; then
+        eval "$(pyenv init - bash)"
+        eval "$(pyenv virtualenv-init -)"
+    fi
 fi
 #+end_src
 
@@ -2530,9 +2536,7 @@ fi
 # Additionally, each config option is also explained in detail
 # on Ghostty's website, at https://ghostty.org/docs/config.
 
-# theme = GruvboxLight
-# theme = Catppuccin Latte
-theme = Atom One Light
+theme = AtomOneLight
 #+end_src
 
 * Arch Linux packages :linux:arch:manjaro:package:
