@@ -2536,7 +2536,7 @@ fi
 # Additionally, each config option is also explained in detail
 # on Ghostty's website, at https://ghostty.org/docs/config.
 
-theme = AtomOneLight
+theme = catppuccin-macchiato
 #+end_src
 
 * Arch Linux packages :linux:arch:manjaro:package:
