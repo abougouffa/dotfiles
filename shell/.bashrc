@@ -142,7 +142,7 @@ completions=(
   git
   composer
   ssh
-  nvm
+  # nvm
   npm
   virtualbox
   conda
