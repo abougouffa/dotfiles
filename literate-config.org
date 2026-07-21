@@ -2013,6 +2013,22 @@ export CMAKE_PREFIX_PATH="$HOME/Softwares/src/install"
 export PATH="$PATH:$HOME/Softwares/src/install/bin"
 #+end_src
 
+** Devcontainer
+
+#+begin_src shell :tangle bootstrap.sh
+if ! command -v devcontainer >/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install devcontainer [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -fsSL https://raw.githubusercontent.com/devcontainers/cli/main/scripts/install.sh | sh
+  fi
+fi
+#+end_src
+
+#+begin_src shell :tangle shell/.shell_extras
+export PATH="$HOME/.devcontainers/bin:$PATH"
+#+end_src
+
 ** Node
 Set NPM installation path to local:
 
