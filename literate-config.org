@@ -1665,6 +1665,9 @@ compare the ASTs). We add =mergiraf= as a merge tool in Git, then we make =mergi
 the default tool for supported extensions.
 
 #+begin_src gitconfig :tangle (if (executable-find "mergiraf") "git/.config/git/config" "no") :mkdirp yes
+[merge]
+    conflictStyle = "diff3"
+
 [merge "mergiraf"]
     name = mergiraf
     driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
@@ -1679,7 +1682,6 @@ mergiraf languages --gitattributes
 # Use Mergiraf for supported languages
 <<mergiraf-gitattributes()>>
 #+end_src
-
 
 ** Extensions & aliases
 *** =git prune-files=
