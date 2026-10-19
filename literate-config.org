@@ -2082,6 +2082,39 @@ if ! command -v uv &>/dev/null; then
 fi
 #+end_src
 
+** Pixi :build:cpp:python:rust:ros:
+Install =pixi=:
+
+#+begin_src shell :tangle bootstrap.sh
+if ! command -v pixi &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install pixi [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -fsSL https://pixi.sh/install.sh | sh
+  fi
+fi
+#+end_src
+
+*** Bash integration
+
+#+begin_src shell :tangle shell/.bashrc
+export PATH="$PATH:$HOME/.pixi/bin/"
+
+if command -v pixi &>/dev/null; then
+    eval "$(pixi completion --shell bash)"
+fi
+#+end_src
+
+*** Zsh integration
+
+#+begin_src shell :tangle shell/.zshrc
+export PATH="$PATH:$HOME/.pixi/bin/"
+
+if command -v pixi &>/dev/null; then
+    eval "$(pixi completion --shell zsh)"
+fi
+#+end_src
+
 ** uv
 Install =uv=:
 
