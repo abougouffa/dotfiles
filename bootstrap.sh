@@ -151,6 +151,14 @@ if ! command -v pyenv &>/dev/null; then
   fi
 fi
 
+if ! command -v pixi &>/dev/null; then
+  unset INSTALL_CONFIRM
+  read -p "Do you want install pixi [Y | N]: " INSTALL_CONFIRM
+  if [[ "$INSTALL_CONFIRM" =~ "^[Yy]$" ]]; then
+    curl -fsSL https://pixi.sh/install.sh | sh
+  fi
+fi
+
 if ! command -v uv &>/dev/null; then
   unset INSTALL_CONFIRM
   read -p "Do you want install uv [Y | N]: " INSTALL_CONFIRM

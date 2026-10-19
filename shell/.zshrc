@@ -154,6 +154,12 @@ fi
 alias zshconfig="vim $HOME/.zshrc"
 alias ohmyzsh="ranger $ZSH"
 
+export PATH="$PATH:$HOME/.pixi/bin/"
+
+if command -v pixi &>/dev/null; then
+    eval "$(pixi completion --shell zsh)"
+fi
+
 if command -v uv &>/dev/null; then
     eval "$(uv generate-shell-completion zsh)"
 fi

@@ -40,3 +40,12 @@ define nn
   next
   refresh
 end
+
+define drone
+  target remote localhost:4321
+end
+
+define cdrone
+  drone
+  continue
+end

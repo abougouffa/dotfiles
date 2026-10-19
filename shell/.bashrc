@@ -187,6 +187,12 @@ if ! command -v uv &>/dev/null; then
     fi
 fi
 
+export PATH="$PATH:$HOME/.pixi/bin/"
+
+if command -v pixi &>/dev/null; then
+    eval "$(pixi completion --shell bash)"
+fi
+
 if command -v uv &>/dev/null; then
     eval "$(uv generate-shell-completion bash)"
 fi
